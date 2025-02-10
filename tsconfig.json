@@ -1,0 +1,16 @@
+{
+  "$schema": "https://json.schemastore.org/tsconfig",
+
+  "_version": "18.2.0",
+
+  "compilerOptions": {
+    "lib": ["es2023"],
+    "module": "CommonJS",
+    "target": "ES6",
+
+    "strict": true,
+    "esModuleInterop": true,
+    "skipLibCheck": true,
+    "outDir": "./dist"
+  }
+}
