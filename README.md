@@ -2,10 +2,15 @@
 remake of the qp engine, with moddability in mind
 
 # Current tasks:
-- finish the "card" object
+- fix hard coded error line numbers (minor, dont remove them just yet, Ctrl F the number helps)
+- change import structure to follows whats done for error
+
 - port the old data over to the new format
+- finish the "card" object
+
 - add reprogram functionality
 - add easier support for graphical events (may need to modify main loop to be async) (dangerous update)
+- handle async user input
 - program every single card in the game
 
 # Files being worked on right now:
