@@ -1,9 +1,9 @@
 //hand, grave, field, deck, etc extends from this, reserve index 0 for system
 import position from "./position";
 import utils from "./util";
-import zone from "./zone";
+import Zone from "./zone";
 
-class zone_grid extends zone {
+class Zone_grid extends Zone {
     constructor(n : string){
         super(n)
         //cant have infinite capacity
@@ -32,5 +32,5 @@ class zone_grid extends zone {
     }
 }
 
-export default zone_grid
+export default Zone_grid
 

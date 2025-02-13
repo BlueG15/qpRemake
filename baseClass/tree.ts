@@ -5,7 +5,7 @@ class _tree<T> {
     root : _node<T>
     constructor(a : T){
         this.root = new _node(a, 0, this.length)
-        this.length ++;
+        this.length++;
     }
     toString() : string{
         return "\n" + this.root.toString()
@@ -102,17 +102,39 @@ class _tree<T> {
         }, this.root)
     }
 
-    recurAll(func : (a : _node<T>) => void, stopID? : number){
+    recurAll(func : (a : _node<T>) => boolean, stopID? : number){
         let flag : boolean = false
         this.handleNode((n : _node<T>) => {
             if(n.id === stopID) {
                 flag = true
                 return
             }
-            func(n)
+            flag = func(n)
             //n.markComplete()
         }, this.root)
         if(this.root.isNormal && !flag) this.recurAll(func, stopID)
+    }
+
+    //added, kinda danerous since now outsider have access to node pointers 
+    getNode(id : number){
+        let n : _node<T> = this.root
+        this.handleNodeWithID(id, (k : _node<T>) => {
+            n = k;
+        })
+        return n;
+    }
+
+    getNext(){
+        let n : _node<T> | undefined = undefined
+        this.handleNode((k : _node<T>) => {
+            n = k;
+        })
+        return n;
+    }
+
+    clear(){
+        //keeps the root
+        this.root.childArr = []
     }
 }
 

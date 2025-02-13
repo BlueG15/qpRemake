@@ -5,15 +5,14 @@ import type dry_position from "../dryData/dry_position";
 import type dry_card from "../dryData/dry_card";
 import actionRegistry from "../data/actionRegistry";
 
-class action {
+class Action {
   type: string;
   causeCardID?: string; //the cause of the action
   targetCardID?: string; //the target of the action
   targetActionID?: number; // the target of the action, type action
   isChain: boolean;
   canBeChainedTo: boolean;
-  requireInput: boolean = false;
-  inputTypeArr: ("none" | "position" | "card" | "number" | "boolean")[];
+  inputTypeArr: ("position" | "card" | "number" | "boolean")[];
 
   protected attr: Map<string, any> = new Map();
 
@@ -57,6 +56,9 @@ class action {
   get typeID() {
     return actionRegistry[this.type];
   }
+  get requireInput() {
+    return this.inputTypeArr.length === 0
+  }
 
   modifyAttr(key: string, newVal: any) {
     if (newVal === this.attr.get(key)) return;
@@ -84,4 +86,4 @@ class action {
   applyUserInput(input: dry_position | string | dry_card | number): void {}
 }
 
-export default action;
+export default Action;

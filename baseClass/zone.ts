@@ -2,16 +2,21 @@
 import type card from "./card";
 import type action from "./action";
 import type res from "./universalResponse";
-import type turnReset from "../specificAction/turnReset";
-import type dry_system from "../dryData/dry_system";
+
 import position from "./position";
 import utils from "./util";
+
 import zoneRegistry from "../data/zoneRegistry";
-import posChange from "../specificAction/posChange";
-import shuffle from "../specificAction/shuffle";
+
+import {
+  turnReset,
+  posChange, 
+  shuffle,
+} from "../handlers/actionHandler"
 
 import dry_zone from "../dryData/dry_zone";
 import dry_card from "../dryData/dry_card";
+import type dry_system from "../dryData/dry_system";
 
 import {
   cardNotInApplicableZone,
@@ -21,9 +26,9 @@ import {
   zoneAttrConflict,
   invalidPosition,
   zoneFull,
-} from "../errors";
+} from "../handlers/errorHandler";
 
-class zone {
+class Zone {
   //list of boolean attributes:
   attr: Map<string, any>;
   cardArr: (card | undefined)[];
@@ -588,4 +593,4 @@ class zone {
   }
 }
 
-export default zone;
+export default Zone;

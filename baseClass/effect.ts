@@ -6,7 +6,7 @@ import type card from "./card";
 //some effects can modify event data 
 //so in general, activate takes in an event and spits out an event
 
-class effect {
+class Effect {
     type: string = "";
     subTypes: string[] = []
     desc: string = "";
@@ -62,4 +62,4 @@ class effect {
     // adds the effect to the current node as a child node to the current node
 }
 
-export default effect
+export default Effect
