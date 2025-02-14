@@ -3,9 +3,9 @@ import type card from "./card";
 import type res from "./universalResponse";
 //import position from "./position";
 //import utils from "./util";
-import zone from "./zone";
+import Zone from "./zone";
 
-class zone_stack extends zone {
+class Zone_stack extends Zone {
     constructor(n : string){
         super(n)
         this.cardArr = []
@@ -36,5 +36,5 @@ class zone_stack extends zone {
     }
 }
 
-export default zone_stack
+export default Zone_stack
 

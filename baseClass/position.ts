@@ -2,7 +2,7 @@ import zoneRegistry from "../data/zoneRegistry";
 import dry_position from "../dryData/dry_position";
 import utils from "./util"
 
-class position {
+class Position {
     arr : number[] = []
     zoneID : number
     get length(){return this.arr.length}
@@ -44,9 +44,9 @@ class position {
         }]`;
         return `[Invalid pos]`;
     }
-    randomizeSelf(pArr : position[]) : void;
+    randomizeSelf(pArr : Position[]) : void;
     randomizeSelf(max : number, min : number) : void;
-    randomizeSelf(param1 : number | position[], param2 : number = 0) : void{
+    randomizeSelf(param1 : number | Position[], param2 : number = 0) : void{
         if(typeof param1 == 'number'){
             //overload 2
             let max = param1;
@@ -73,4 +73,4 @@ class position {
     }
 }
 
-export default position
+export default Position

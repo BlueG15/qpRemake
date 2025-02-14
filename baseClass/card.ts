@@ -15,7 +15,7 @@ import activateEffect from "../specificAction/activateEffect";
 import dry_card from "../dryData/dry_card";
 import type dry_system from "../dryData/dry_system";
 
-class card {
+class Card {
     baseID : string;
     creationIndex : number;
 
@@ -65,4 +65,4 @@ class card {
     }
 }
 
-export default card
+export default Card

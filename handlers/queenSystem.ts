@@ -1,7 +1,7 @@
 import turnStart from "../specificAction/turnStart";
 import _node from "../baseClass/node";
 import _tree from "../baseClass/tree";
-import action from "../baseClass/action";
+import Action from "../baseClass/action";
 import turnEnd from "../specificAction/turnEnd";
 import zoneHandler from "./zoneHandler";
 import dry_system from "../dryData/dry_system";
@@ -13,24 +13,28 @@ import type posChange from "../specificAction/posChange";
 import drawAction from "../specificAction/draw";
 import type shuffle from "../specificAction/shuffle";
 import type card from "../baseClass/card";
-import position from "../baseClass/position";
+// import position from "../baseClass/position";
 
 class queenSystem {
     threatLevel : number
     zoneHandler : zoneHandler
-    
+
+    private processStack : number[] = [] //stores id of node before step "recur until meet this again"
+    private suspendID : number = -1; 
+    //^ node id of the node before suspended, 
+    //when unsuspended, continue processing this node from phaseIdx 3
+
     phaseIdx : number = 0
-    actionTree : _tree<action>
+    actionTree : _tree<Action>
 
     constructor(zoneHandler : zoneHandler){
         this.threatLevel = 0
         this.zoneHandler = zoneHandler
-        this.actionTree = new _tree<action>(new turnEnd())
-        this.actionTree.attach(new turnStart())
+        this.actionTree = new _tree<Action>(new turnEnd())
     }
 
-    initializesTurn(){
-        this.actionTree = new _tree<action>(new turnEnd())
+    restartTurn(){
+        this.actionTree.clear()
         this.actionTree.attach(new turnStart())
     }
 
@@ -38,7 +42,7 @@ class queenSystem {
         console.log(a.toString())
     }
 
-    private actionSwitch_resolve(a : action) : undefined | void | action[]{
+    private actionSwitch_resolve(a : Action) : undefined | void | Action[]{
         //ok this is just a bunch of ifs
         //lord forgive me for this
         if(typeof a.typeID !== "number") return
@@ -93,49 +97,98 @@ class queenSystem {
         }
     }
 
-    processTurn(turnActionFromPlayer?: action){
-        if(turnActionFromPlayer) this.actionTree.attachArbitrary(this.actionTree.root.id, turnActionFromPlayer)
-        this.actionTree.recurAll((n : _node<action>) => {
-            this.process(n)
-        })   
+    processTurn(turnActionFromPlayer?: Action){
+        if(turnActionFromPlayer) this.actionTree.attach(turnActionFromPlayer)
+        this.phaseIdx = 1;
+        this.process(this.actionTree.getNext())
     }
 
-    process(n : _node<action>){
-        //step 1 : declare
-        //not do anything i guess
-        console.log("declare action: " + n.data.type)
-        
-        //step 2 : chain
-        let actionArr = this.zoneHandler.respond(n.data, this.toDry(), true)
-        actionArr.forEach(i => {
-            if(i.isChain) this.actionTree.attachArbitrary(n.id, i);
-            else this.actionTree.attachArbitrary(this.actionTree.root.id, i);
-        })
-
-        //step 3 : recur until hit this node again
-        this.actionTree.recurAll((m : _node<action>) => {
-            this.process(m)
-        }, n.id)
-        
-        //step 4 : resolve
-        let x = this.actionSwitch_resolve(n.data)
-        if(x) {
-            x.forEach(i => {
-                if(i.isChain) this.actionTree.attachArbitrary(n.id, i);
-                else this.actionTree.attachArbitrary(this.actionTree.root.id, i);
-            })
+    process(n : _node<Action> | undefined) : void {
+        //linear structure
+        //1 calls 2, 2 calls 3 and so until 4, which calls 1 with the next node
+        //condition check is move to 1 instead, which jumps to 5
+        if(!n) {
+            console.log("finish processing turn, clearing tree");
+            this.restartTurn();
+            return;
         }
-        console.log("finish resolving acion: " + n.data.type)
+        switch(this.phaseIdx){
+            case 1: {
+                //declare step
+                if(n.id === this.processStack.at(-1)) {
+                    this.phaseIdx = 5;
+                    return this.process(n);
+                }
+                console.log("declare action: " + n.data.type)
+                this.phaseIdx = 2;
+                return this.process(n);
+            }
+            case 2: {
+                //handle input
+                this.phaseIdx = 3;
+                if(n.data.requireInput) this.suspend(n.id);
+                return this.process(n);
+            }
+            case 3: {
+                //chain step
+                let actionArr = this.zoneHandler.respond(n.data, this.toDry(), true)
+                actionArr.forEach(i => {
+                    if(i.isChain) this.actionTree.attachArbitrary(n.id, i);
+                    else this.actionTree.attachArbitrary(this.actionTree.root.id, i);
+                })
+                this.phaseIdx = 4;
+                return this.process(n)
+            }
+            case 4: {
+                //recur step
+                //recur until the last element of processStack is reached
+                //then that element is removed
+                this.processStack.push(n.id)
+                this.phaseIdx = 1;
+                return this.process(this.actionTree.getNext());
+            }
+            case 5: {
+                //resolve
+                this.processStack.pop();
+                let x = this.actionSwitch_resolve(n.data)
+                if(x) {
+                    x.forEach(i => {
+                        if(i.isChain) this.actionTree.attachArbitrary(n.id, i);
+                        else this.actionTree.attachArbitrary(this.actionTree.root.id, i);
+                    })
+                }
+                console.log("finish resolving acion: " + n.data.type)
+                this.phaseIdx = 6;
+                return this.process(n);
+            }
+            case 6: {
+                //trigger
+                let actionArr = this.zoneHandler.respond(n.data, this.toDry(), false)
+                actionArr.forEach(i => {
+                    if(i.isChain) this.actionTree.attachArbitrary(n.id, i);
+                    else this.actionTree.attachArbitrary(this.actionTree.root.id, i);
+                })
+                this.phaseIdx = 7;
+                return this.process(n);
+            }
+            case 7: {
+                //complete 
+                n.markComplete();
+                this.phaseIdx = 1;
+                return this.process(this.actionTree.getNext());
+            }
+        }
+        console.log("accessed invalid phaseIdx: " + this.phaseIdx)
+    }
 
-        //step 5 : trigger
-        actionArr = this.zoneHandler.respond(n.data, this.toDry(), false)
-        actionArr.forEach(i => {
-            if(i.isChain) this.actionTree.attachArbitrary(n.id, i);
-            else this.actionTree.attachArbitrary(this.actionTree.root.id, i);
-        })
+    suspend(nid : number){
+        this.suspendID = nid;
+    }
 
-        //step 6 : mark this as complete
-        n.markComplete()
+    continue(){
+        let n = this.actionTree.getNode(this.suspendID)
+        this.suspendID = -1;
+        this.process(n)
     }
 
     toDry(){
@@ -145,7 +198,7 @@ class queenSystem {
     initializeTestGame(cardArr : card[]){
         //draw 1 card to hand
         this.zoneHandler.deck.forceCardArrContent(cardArr)
-        this.initializesTurn()
+        this.restartTurn()
         let a = this.zoneHandler.deck.getAction_draw(true, false, this.zoneHandler.hand.lastPos)
         this.actionTree.attachArbitrary(this.actionTree.root.id, a)
     }
