@@ -1,5 +1,5 @@
 # qpRemake
-remake of the qp engine, with moddability in mind
+Remake of the qp engine, with moddability in mind
 
 # Current tasks:
 - fix hard coded error line numbers (minor, dont remove them just yet, Ctrl F the number helps)
