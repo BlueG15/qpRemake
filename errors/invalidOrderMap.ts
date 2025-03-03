@@ -1,4 +1,4 @@
-import error from "../actionTypes/error"
+import error from "../specialActionTypes/error"
 
 class invalidOrderMap extends error {
     orderMap : Map<number, number>

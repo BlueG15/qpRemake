@@ -1,16 +1,14 @@
-import turnStart from "../specificAction/turnStart";
 import _node from "../baseClass/node";
 import _tree from "../baseClass/tree";
 import Action from "../baseClass/action";
-import turnEnd from "../specificAction/turnEnd";
 import zoneHandler from "./zoneHandler";
 import dry_system from "../dryData/dry_system";
 
-import type error from "../actionTypes/error";
+import type error from "../specialActionTypes/error";
 import type turnReset from "../specificAction/turnReset";
 import type activateEffect from "../specificAction/activateEffect";
 import type posChange from "../specificAction/posChange";
-import drawAction from "../specificAction/draw";
+import { drawAction, turnEnd, turnStart } from "./actionHandler";
 import type shuffle from "../specificAction/shuffle";
 import type card from "../baseClass/card";
 // import position from "../baseClass/position";
@@ -19,7 +17,8 @@ class queenSystem {
     threatLevel : number
     zoneHandler : zoneHandler
 
-    private processStack : number[] = [] //stores id of node before step "recur until meet this again"
+    private processStack : number[] = [] 
+    //stores id of node before step "recur until meet this again"
     private suspendID : number = -1; 
     //^ node id of the node before suspended, 
     //when unsuspended, continue processing this node from phaseIdx 3
@@ -48,37 +47,26 @@ class queenSystem {
         if(typeof a.typeID !== "number") return
         switch(a.typeID){
             case 0 : break
-            case -1 : {
-                return this.resolveError(a as error)
+            case -1 : return this.resolveError(a as error)
+            
+            
+            case 1 : break; //turn start
+            case 2 : break; //turn end
+            case 3 : return this.zoneHandler.handleTurnReset(a as turnReset)
+            case 4 : {
+                //to be implemented                
                 break;
             }
             
-            case 1 : break;
-            case 2 : break;
-            case 3 : {
-                return this.zoneHandler.handleTurnReset(a as turnReset)
-                break;
-            }
 
-            case 101 : {
-                return this.zoneHandler.handleEffectActivation(a as activateEffect, this.toDry())
-                break;
-            }
+            case 101 : return this.zoneHandler.handleEffectActivation(a as activateEffect, this.toDry())
+            
 
-            case 102 : {
-                return this.zoneHandler.handlePosChange(a as posChange)
-                break;
-            }
+            case 102 : return this.zoneHandler.handlePosChange(a as posChange)
 
-            case 103 : {
-                return this.zoneHandler.handlePosChange(a as drawAction)
-                break;
-            }
+            case 103 : return this.zoneHandler.handlePosChange(a as drawAction)
 
-            case 104 : {
-                return this.zoneHandler.handleShuffle(a as shuffle)
-                break;
-            }
+            case 104 : return this.zoneHandler.handleShuffle(a as shuffle)
 
             case 105 : {
                 //to be implemented                    
@@ -94,6 +82,16 @@ class queenSystem {
                 //to be implemented                
                 break;
             }
+
+            case 108 : {
+                //to be implemented                
+                break;
+            }
+
+            case 109 : {
+                //to be implemented                
+                break;
+            }
         }
     }
 
@@ -104,9 +102,15 @@ class queenSystem {
     }
 
     process(n : _node<Action> | undefined) : void {
-        //linear structure
-        //1 calls 2, 2 calls 3 and so until 4, which calls 1 with the next node
-        //condition check is move to 1 instead, which jumps to 5
+        //[phase progression graph:
+
+        //v--------------\--------------\
+        //1 -> 2 -> 3 -> 4    5 -> 6 -> 7
+        //\--if visited once--^
+
+        //technically 6 needs to go to 1 and loop through all again but screw it, 
+        //we already resolved the dang thing, just mark it as complete and move on
+        
         if(!n) {
             console.log("finish processing turn, clearing tree");
             this.restartTurn();
@@ -169,7 +173,7 @@ class queenSystem {
                     else this.actionTree.attachArbitrary(this.actionTree.root.id, i);
                 })
                 this.phaseIdx = 7;
-                return this.process(n);
+                return this.process(n);  
             }
             case 7: {
                 //complete 

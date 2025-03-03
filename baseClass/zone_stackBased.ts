@@ -1,13 +1,14 @@
 //hand, grave, field, deck, etc extends from this, reserve index 0 for system
 import type card from "./card";
 import type res from "./universalResponse";
+import type { zoneData } from "../data/zoneRegistry";
 //import position from "./position";
 //import utils from "./util";
 import Zone from "./zone";
 
 class Zone_stack extends Zone {
-    constructor(n : string){
-        super(n)
+    constructor(id : string, name: string, data? : Record<string, zoneData>){
+        super(id, name, data)
         this.cardArr = []
     }
     //helper properties

@@ -1,4 +1,4 @@
-import error from "../actionTypes/error"
+import error from "../specialActionTypes/error"
 import type position from "../baseClass/position";
 
 class invalidPosition extends error {

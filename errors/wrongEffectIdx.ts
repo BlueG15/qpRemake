@@ -1,4 +1,4 @@
-import error from "../actionTypes/error"
+import error from "../specialActionTypes/error"
 
 class wrongEffectIdx extends error {
     constructor(eid : number, cid : string){

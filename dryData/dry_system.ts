@@ -2,6 +2,8 @@ import type queenSystem from "../handlers/queenSystem"
 import type dry_zone from "./dry_zone"
 
 class dry_system {
+    //TODO : include reblances of the stack strace up until the point of this object's creation
+    //for checking hard unique and unique
     readonly threat_level : number
     readonly phaseIdx : number
 
@@ -16,7 +18,8 @@ class dry_system {
         })
     } 
 
-    get isInChainPhase() {return this.phaseIdx == 2}
+    get isInChainPhase() {return this.phaseIdx === 3}
+    get isInTriggerPhase() {return this.phaseIdx === 6}
 }
 
 export default dry_system

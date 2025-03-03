@@ -1,4 +1,4 @@
-import error from "../actionTypes/error"
+import error from "../specialActionTypes/error"
 
 class unknownError extends error {
     constructor(){

@@ -3,9 +3,12 @@ import type res from "../baseClass/universalResponse";
 import type card from "../baseClass/card";
 
 import position from "../baseClass/position";
-import drawAction from "../specificAction/draw";
-import turnReset from "../specificAction/turnReset";
 import zone_stack from "../baseClass/zone_stackBased";
+
+import {
+    drawAction,
+    turnReset
+} from "../handlers/actionHandler"
 
 
 class deck extends zone_stack {

@@ -5,6 +5,9 @@ import shuffle from "../specificAction/shuffle";
 import turnEnd from "../specificAction/turnEnd";
 import turnReset from "../specificAction/turnReset";
 import turnStart from "../specificAction/turnStart";
+import freeUpStatusIDs from "../specificAction/freeUpStatusIDs";
+import addStatusEffect from "../specificAction/addStatusEffect";
+import removeStatusEffect from "../specificAction/removeStatusEffect";
 
 export {
     drawAction,
@@ -13,5 +16,8 @@ export {
     shuffle,
     turnStart,
     turnReset,
-    turnEnd
+    turnEnd,
+    freeUpStatusIDs,
+    addStatusEffect,
+    removeStatusEffect
 }

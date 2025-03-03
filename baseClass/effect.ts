@@ -2,17 +2,19 @@ import dry_effect from "../dryData/dry_effect";
 import type dry_system from "../dryData/dry_system";
 import type action from "./action"
 import type card from "./card";
+import type effectSubtype from "./effectSubtype";
 
 //some effects can modify event data 
 //so in general, activate takes in an event and spits out an event
 
 class Effect {
+    id: string
     type: string = "";
-    subTypes: string[] = []
+    subTypes: effectSubtype[] = []
     desc: string = "";
 
-    canRespondDuringChain : boolean
-    canRespondDuringTrigger : boolean
+    isDisabled: boolean = false //I DO NOT LIKE THIS NAME
+
     //note to self: may make a modifier array
     //solely for checking purposes
     //see, my original plan was for like once and unique and such to
@@ -22,28 +24,65 @@ class Effect {
     
     attr: Map<string, number> = new Map(); //position and stuff is in here
 
-    canRespondAndActivate(c : card, system : dry_system, a : action){return false}
+    //actual effects override these two
+    canRespondAndActivate_proto(c : card, system : dry_system, a : action) : boolean{return false}
+    activate_proto(c : card, system : dry_system, a : action) : action[] {return []};
 
-    activate(c : card, system : dry_system) : action[] //normal activate, no passing in action since action is ..activate this effect
-    activate(c : card, system : dry_system, a : action) : action[] //passive activate
-    activate(c : card, system : dry_system, a? : action) : action[] {return []};
+    //effectTypes override these
+    canRespondAndActivate_type(c : card, system : dry_system, a : action) : -1 | boolean{return -1}
+
+    canRespondAndActivate(c : card, system : dry_system, a : action) : boolean{
+        let res : -1 | boolean = -1;
+        if(this.isDisabled) return false
+        for(let i = 0; i < this.subTypes.length; i++){
+            //if any non-disabled subtype returns returns that instead
+            if(this.subTypes[i].isDisabled) continue
+            res = this.subTypes[i].canActivate(c, system, a);
+            if(res === -1) continue;
+            return res
+        }
+        res = this.canRespondAndActivate_type(c, system, a);
+        if(res !== -1) return res;
+        return this.canRespondAndActivate_proto(c, system, a)
+    }
+    activate(c : card, system : dry_system, a : action) : action[]{
+        if(this.isDisabled) return []
+        let res : -1 | [boolean, action[]] = -1;
+        let final : action[] = []
+        for(let i = 0; i < this.subTypes.length; i++){
+            if(this.subTypes[i].isDisabled) continue
+            res = this.subTypes[i].activate(c, system, a);
+            if(res === -1) continue;
+            if(res[0] === true) final.push(...res[1]);
+            else return res[1]
+        }
+        return final.concat(...this.activate_proto(c, system, a))
+    };
  
-    constructor(type : string, canRespondDuringChain : boolean = false, canRespondDuringTrigger : boolean = false){
+    constructor(id: string, type : string){
+        this.id = id
         this.type = type
-        this.canRespondDuringChain = canRespondDuringChain
-        this.canRespondDuringTrigger = canRespondDuringTrigger
     }
 
-    addSubType(str : string){
-        this.subTypes.push(str)
-    }
+    //fix later
+    // addSubType(str : string){
+    //     this.subTypes.push(str)
+    // }
 
-    removeSubType(str : string){
-        this.subTypes = this.subTypes.filter(i => i !== str)
-    }
+    // removeSubType(str : string){
+    //     this.subTypes = this.subTypes.filter(i => i !== str)
+    // }
     
     toDry() : dry_effect {
         return new dry_effect(this)
+    }
+
+    disable(){
+        this.isDisabled = true
+    }
+
+    enable() {
+        this.isDisabled = false
     }
 
     //effect types:

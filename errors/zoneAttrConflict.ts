@@ -1,4 +1,4 @@
-import error from "../actionTypes/error"
+import error from "../specialActionTypes/error"
 
 class zoneAttrConflict extends error {
     constructor(zoneID : number, actionName? : string, cardID? : string){

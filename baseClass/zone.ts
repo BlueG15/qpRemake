@@ -6,7 +6,7 @@ import type res from "./universalResponse";
 import position from "./position";
 import utils from "./util";
 
-import zoneRegistry from "../data/zoneRegistry";
+import type zoneData from "../data/zoneRegistry"
 
 import {
   turnReset,
@@ -36,12 +36,13 @@ class Zone {
   //Infinity is uncapped
   //game function, empty for now, need to be overwritten later
   init() {}
-  constructor(n: string) {
-    this.name = n;
-    if (zoneRegistry[n]) {
-      this.attr = new Map(Object.entries(zoneRegistry[n]));
+  constructor(id : string, name : string, data? : typeof zoneData) {
+    this.name = name;
+    if (data) {
+      this.attr = new Map(Object.entries(data));
     } else this.attr = new Map();
     this.cardArr = []; //new Array(Math.min(this.capacity, 100)).fill(undefined)
+    this.attr.set("index", id)
   }
   //helper properties
   get isFull() {

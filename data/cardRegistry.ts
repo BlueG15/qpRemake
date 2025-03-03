@@ -18,7 +18,19 @@ type cardData_general = {
   extensionArr_normal: string[];
   atk_normal: number; //starting stat, think of these 2 as starting_maxAtk and starting_maxHp instead
   hp_normal: number;
-  effectID_normal: string[];
+  effectIDs_normal: string[];
+  effectPartition_normal: number[] //len <= 3
+
+  //effect partition explanation
+  //stores count of real effects per index
+  //for mapping from the 3 (or less) display effects to the actual effects
+  //arr length = 3
+  //ex : 
+  //[1, 1, 1] is the default for a full 3 effect card, meaning a 1 to 1 mapping
+  //[1, 2, 1] means the middle display effects takes 2 effects in the actualization
+  //the sum must match the count of actual effects
+  
+  //why? for the copy effect functionality
 
   //stuff for display purposes
   //DO NOT CHECK THIS FOR FUNCTIONALITY
@@ -28,27 +40,72 @@ type cardData_general = {
 
   //note : these exist because the displayed effects are not the actual activated effects of the card
   //weird i know
-  effectStr_normal: effectData[];
+  effectDisplayData_normal: effectDisplayDataItem[];
 }
 
-export type cardData = cardData_general & ({isUpgradable : false} | {
+export type cardData_single = cardData_general & ({isUpgradable : false} | {
   isUpgradable: true;
 
   //upgraded version
   extensionArr_upgrade: string[];
   atk_upgrade: number;
   hp_upgrade: number;
-  effectID_upgrade: string[];
-  effectStr_upgrade: effectData[];
+  effectIDs_upgrade: string[];
+  effectDisplayData_upgrade: effectDisplayDataItem[];
+  effectPartition_upgrade: number[] //len <= 3
 });
 
-export type effectData = {
+export type effectDisplayDataItem = {
   mainType : string
   subTypeArr : string[]
   XML : string
 } 
 
+export type cardData_merged = {
+  id: string;
+  level: number;
+  rarityID: number;
+  archtype: string;
+
+  extensionArr: string[];
+  atk: number; //starting stat, think of these 2 as starting_maxAtk and starting_maxHp instead
+  hp: number;
+  effectIDs: string[];
+
+  //stuff for display purposes
+  name: string;
+  rarityStr: string;
+  rarityHex: string;
+  effectDisplayData: effectDisplayDataItem[];
+  effectPartition: number[];
+
+  isUpgraded: boolean,
+  isUpgradable: boolean
+}
+
+export type cardData_statOnly = {
+  id: string;
+  level: number;
+  rarityID: number;
+  archtype: string;
+
+  extensionArr: string[];
+  atk: number; //starting stat, think of these 2 as starting_maxAtk and starting_maxHp instead
+  hp: number;
+
+  //stuff for display purposes
+  name: string;
+  rarityStr: string;
+  rarityHex: string;
+
+  isUpgraded: boolean,
+  isUpgradable: boolean
+}
+
+export const rarityArr = ["white", "blue", "green", "purple", "yellow", "red"]
+//also broken, but broken == not found = -1
+
 import {default as cardData} from "./cardData"
-export default cardData as Record<string, cardData>
+export default cardData as Record<string, cardData_single>
 
-
+export type allValidCardKeys = keyof typeof cardData

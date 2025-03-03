@@ -16,13 +16,15 @@ import type _void from "../zones/void";
 
 import utils from "../baseClass/util";
 import type zoneRegistry from "../data/zoneRegistry";
-
-import cardNotExist from "../errors/cardNotExist";
-import turnReset from "../specificAction/turnReset";
-import drawAction from "../specificAction/draw";
 import action from "../baseClass/action";
-import shuffle from "../specificAction/shuffle";
-import activateEffect from "../specificAction/activateEffect";
+
+import { cardNotExist } from "./errorHandler";
+import {
+    turnReset,
+    drawAction,
+    shuffle,
+    activateEffect
+} from "./actionHandler"
 
 class zoneHandler {
     zoneArr : zone[] = []
@@ -40,8 +42,7 @@ class zoneHandler {
         .sort((a, b) => a[1].priority - b[1].priority)
         .map(async ([keyStr, zoneData], index) => {
             let zoneClass = (await import(zoneData.importURL)).default;
-            let zoneInstance = new zoneClass(keyStr) as zone;
-            zoneInstance.attr.set("index", index)
+            let zoneInstance = new zoneClass(index, keyStr, zoneData) as zone;
             this.zoneArr.push(zoneInstance);
         });
 

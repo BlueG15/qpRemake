@@ -8,11 +8,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "syncMarker",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -25,6 +25,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "syncMarker1": {
@@ -36,11 +40,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "syncMarker1",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -53,6 +57,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "syncMarker2": {
@@ -64,11 +72,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "syncMarker2",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -81,6 +89,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "syncMarker4": {
@@ -92,11 +104,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "syncMarker4",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -109,6 +121,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "timeBomb2": {
@@ -120,16 +136,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "timeBomb2",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "timeBomb3": {
@@ -141,16 +160,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "timeBomb3",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "timeBomb4": {
@@ -162,16 +184,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "timeBomb4",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "timeBomb7": {
@@ -183,16 +208,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "timeBomb7",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "timeBomb_h5_t6": {
@@ -204,16 +232,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "timeBomb_h5_t6",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "timeBomb_h5_t5": {
@@ -225,16 +256,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "timeBomb_h5_t5",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "timeBomb_h5_t4": {
@@ -246,16 +280,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "timeBomb_h5_t4",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "puzzleBlank": {
@@ -267,11 +304,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Blank",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "storyVolatileCircuit_t2": {
         "isUpgradable": false,
@@ -282,11 +320,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "storyVolatileCircuit_t2",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -297,6 +335,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "storyVolatileCircuit_t3": {
@@ -308,11 +350,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "storyVolatileCircuit_t3",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -323,6 +365,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "storyVolatileCircuit_t4": {
@@ -334,11 +380,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "storyVolatileCircuit_t4",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -349,6 +395,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "storyVolatileCircuit_t5": {
@@ -360,11 +410,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "storyVolatileCircuit_t5",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -375,6 +425,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "storyVolatileCircuit_t6": {
@@ -386,11 +440,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "storyVolatileCircuit_t6",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -401,6 +455,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "storyVolatileCircuit_t7": {
@@ -412,11 +470,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "storyVolatileCircuit_t7",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -427,6 +485,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "storyVolatileCircuit_t8": {
@@ -438,11 +500,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "storyVolatileCircuit_t8",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -453,6 +515,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "storyExplosiveCircuit_t4": {
@@ -464,11 +530,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 6,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "ExplosiveCircuit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -479,6 +545,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "storyFragileCircuit_t6": {
@@ -490,11 +560,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "FragileCircuit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -505,6 +575,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "volatileCircuit_h4_t8": {
@@ -516,11 +590,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "volatileCircuit_h4_t8",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -531,6 +605,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "volatileCircuit_h5_t4": {
@@ -542,11 +620,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "volatileCircuit_h5_t4",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -557,6 +635,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "volatileCircuit_h5_t6": {
@@ -568,11 +650,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "volatileCircuit_h5_t6",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -583,6 +665,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "volatileCircuit_h5_t7": {
@@ -594,11 +680,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "volatileCircuit_h5_t7",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -609,6 +695,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "volatileCircuit_h5_t8": {
@@ -620,11 +710,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "volatileCircuit_h5_t8",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -635,6 +725,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "infiniteReload": {
@@ -646,11 +740,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Navigation",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -661,6 +755,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "infiniteInstantDraft": {
@@ -672,11 +770,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "HyperCompiler",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -687,6 +785,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "quantumKnifeTutorial": {
@@ -700,11 +802,12 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Knife.hck",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "quantumSigil": {
         "isUpgradable": false,
@@ -715,11 +818,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Quantum",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "enemySentryNoAttack": {
         "isUpgradable": false,
@@ -732,11 +836,12 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Sentry.sc",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "stageMarker": {
         "isUpgradable": false,
@@ -747,11 +852,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "StageMarker",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "securityLock": {
         "isUpgradable": false,
@@ -764,11 +870,12 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Security.x",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "objectiveData1": {
         "isUpgradable": false,
@@ -781,11 +888,12 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Data.txt",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "openingDungeonMark": {
         "isUpgradable": false,
@@ -796,11 +904,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "ACTIVE",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "puzzleDummy": {
         "isUpgradable": false,
@@ -811,11 +920,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Dummy",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "lootDummy": {
         "isUpgradable": false,
@@ -826,11 +936,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "ItemCage",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "puzzleIronWall": {
         "isUpgradable": false,
@@ -841,16 +952,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "IronWall",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
                 "XML": "This card takes no <physical>physical damage</>."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "puzzleIronWall2": {
@@ -862,11 +976,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "TemperedWall",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
@@ -877,6 +991,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Reduce all incoming damage by <key>4</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "auroraAntiSentry": {
@@ -890,16 +1008,19 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 6,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Sentry2+.sc",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
                 "XML": "Reduce user <key>AURORA's</> health to zero."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "queenLock": {
@@ -911,11 +1032,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "QueensLock",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -926,6 +1047,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card takes damage, <key>SUSPEND</> it by 2 turns."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "queenLockCore": {
@@ -937,11 +1062,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Lock",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "machineBlock": {
         "isUpgradable": false,
@@ -952,11 +1078,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "machineBlock",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "machineBlock2": {
         "isUpgradable": false,
@@ -967,11 +1094,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "machineBlock2",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "machineGear": {
         "isUpgradable": false,
@@ -982,16 +1110,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Contraption",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
                 "XML": "If this card takes damage but is not destroyed, your opponent loses the game."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "machineCoin": {
@@ -1003,11 +1134,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Coin",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "brainThorn": {
         "isUpgradable": false,
@@ -1018,16 +1150,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "ThornBubble",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
                 "XML": "When this card takes damage, it attacks."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "brainHeart": {
@@ -1041,16 +1176,19 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "BrokenHeart.z",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
                 "XML": "This card takes no damage."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "brainQueen": {
@@ -1062,11 +1200,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Queen",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "endgameLockGeneral": {
         "isUpgradable": false,
@@ -1079,16 +1218,19 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Red.lock",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
                 "XML": "This card takes no damage."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "endgameLock1": {
@@ -1100,11 +1242,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 10,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "endgameLock1",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
@@ -1115,6 +1257,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "In the presence of a <key>Dragoon's flame</> that has <decompile>decompiled</> a certain card, destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "endgameLock2": {
@@ -1126,11 +1272,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 10,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "endgameLock2",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
@@ -1141,6 +1287,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "In the presence of a <key>Dragoon's flame</> that has <decompile>decompiled</> a certain card, destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "endgameLock3": {
@@ -1152,11 +1302,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 10,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "endgameLock3",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
@@ -1167,6 +1317,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "In the presence of a <key>Dragoon's flame</> that has <decompile>decompiled</> a certain card, destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "endgameLock4": {
@@ -1178,11 +1332,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 10,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "endgameLock4",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
@@ -1193,6 +1347,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "In the presence of a <key>Dragoon's flame</> that has <decompile>decompiled</> a certain card, destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "endgameLock5": {
@@ -1204,11 +1362,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 10,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "endgameLock5",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
@@ -1219,6 +1377,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "In the presence of a <key>Dragoon's flame</> that has <decompile>decompiled</> a certain card, destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "storyOxygen": {
@@ -1230,11 +1392,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Oxygen",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "storyHydrogen": {
         "isUpgradable": false,
@@ -1245,11 +1408,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Hydrogen",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "storyBackdoor": {
         "isUpgradable": false,
@@ -1260,11 +1424,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Backdoor",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "flowerHologram": {
         "isUpgradable": false,
@@ -1275,11 +1440,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Hologram",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "haloShield": {
         "isUpgradable": false,
@@ -1290,16 +1456,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Protection",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
                 "XML": "Cards with a different name from this card take no damage."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "boss1": {
@@ -1313,11 +1482,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 35,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zyrite.z",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -1334,8 +1503,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 90,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -1353,6 +1522,15 @@ export default {
                 "subTypeArr": [],
                 "XML": "Heal all cards on your field <health>5</> health. Then add <key>1</> counter to this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "boss1Minion": {
@@ -1366,11 +1544,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "ZyriteFragment.z",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
@@ -1387,8 +1565,8 @@ export default {
         ],
         "atk_upgrade": 4,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
@@ -1399,6 +1577,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "boss2": {
@@ -1412,11 +1598,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 40,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zlime.z",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -1433,8 +1619,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 80,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -1450,6 +1636,15 @@ export default {
                 "subTypeArr": [],
                 "XML": "Spawn minions to all but one of your empty field slots. These minions have health equal to the number of your empty field slots <key>x2</> (CURRENT <health>0</> health)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "boss2Minion": {
@@ -1463,16 +1658,19 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 0,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zlob.z",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "void",
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "boss3": {
@@ -1486,11 +1684,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 45,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zarakuri.z",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -1512,8 +1710,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 50,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -1529,6 +1727,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Reduce all damage this card takes to <key>0</> unless your opponent has exactly <key>3</> cards with no effects (CURRENT 0/3)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "boss3Virus": {
@@ -1542,11 +1750,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Purple.virus",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -1557,6 +1765,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card takes no damage from cards with no effects."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "boss4": {
@@ -1570,11 +1782,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 40,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zeaper.z",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -1596,8 +1808,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 60,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -1613,6 +1825,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Attack 4 times."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "boss4Scythe": {
@@ -1626,11 +1848,11 @@ export default {
         ],
         "atk_normal": 4,
         "hp_normal": 20,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zcythe.z",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -1647,8 +1869,8 @@ export default {
         ],
         "atk_upgrade": 5,
         "hp_upgrade": 10,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -1659,6 +1881,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "If this card is sent from the field to the trash, increase the attack of all cards on your field by <key>10</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "boss4Dagger": {
@@ -1672,11 +1902,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 10,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zagger.z",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -1693,8 +1923,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 10,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -1705,6 +1935,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "If this card is sent from the field to the trash, increase the attack of all cards on your field by <key>10</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "boss4Soul": {
@@ -1716,16 +1954,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Soul",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
                 "XML": "If this card is sent from the field to the trash, you lose the game."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "boss5": {
@@ -1739,11 +1980,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 35,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zirus.z",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -1759,6 +2000,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "If this card would take damage, add a counter to it. If this card already had a counter on it, remove a counter and negate the damage instead."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "boss5AttackMinion": {
@@ -1772,16 +2018,19 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zpike.z",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "void",
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "boss5BombMinion": {
@@ -1795,11 +2044,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zingularity.z",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "death",
                 "subTypeArr": [],
@@ -1815,6 +2064,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "boss5Left": {
@@ -1828,11 +2082,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 40,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "ZeftArm.z",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -1843,6 +2097,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Spawn a minion on your opponent's side of the field in the front row of the same column this card is in. If the slot already has a card in it, overwrite it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "boss5Right": {
@@ -1856,11 +2114,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 50,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "ZightArm.z",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -1871,6 +2129,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Spawn 2 attack minions to your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB1": {
@@ -1884,11 +2146,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 65,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Demeter.dark",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -1906,6 +2168,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Add a <key>3</> counters to this card (MAX 3). Other cards you control take 1 less damage from all sources for every counter on this card. If this card takes damage, remove a counter."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossB1Minion": {
@@ -1917,11 +2184,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 2,
         "hp_normal": 10,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "BlackThorns",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -1932,6 +2199,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB2": {
@@ -1945,11 +2216,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 55,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Remi.dark",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -1965,6 +2236,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "If a card with a counter(s) would take damage, reduce the damage to 0 and remove a counter from it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossB2Minion": {
@@ -1976,11 +2252,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Note",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -1991,6 +2267,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB3": {
@@ -2004,11 +2284,11 @@ export default {
         ],
         "atk_normal": 4,
         "hp_normal": 55,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "MasterKobo.dark",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2026,6 +2306,11 @@ export default {
                 ],
                 "XML": "Each time one of your other cards is destroyed, activate the <img id=\"manual\"/> effect(s) of all other cards you control."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossB3Minion1": {
@@ -2039,11 +2324,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Katana.dark",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2054,6 +2339,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB3Minion2": {
@@ -2067,11 +2356,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Bow.dark",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2082,6 +2371,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB3Minion3": {
@@ -2095,11 +2388,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kunai.dark",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2110,6 +2403,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB3Minion4": {
@@ -2123,11 +2420,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Lantern.dark",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2143,6 +2440,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossB4": {
@@ -2156,11 +2458,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 90,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Plasma.dark",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2176,6 +2478,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Deal <magic>magic damage</> to all your opponent's cards equal to the number of counters on this card (minimum 1 damage)(CURRENT DAMAGE <magic>1</><img id=\"dmg_magic\"/>)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossB4Minion": {
@@ -2189,16 +2496,19 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Energy.dark",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "void",
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "bossB5": {
@@ -2212,11 +2522,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 90,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Persephone.dark",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2234,6 +2544,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Increase this card's attack by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossB5Minion": {
@@ -2245,16 +2560,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Thorn",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "void",
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "bossB6": {
@@ -2268,11 +2586,11 @@ export default {
         ],
         "atk_normal": 5,
         "hp_normal": 50,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Griffin.dark",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2288,6 +2606,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card can only take damage up to the amount of counters on this card (0 damage if there are no counters on this card). If this card would take damage, remove counters from this card equal to the damage taken."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossB6Extra": {
@@ -2301,11 +2624,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Treasure.dark",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2316,6 +2639,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card takes no damage."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB6Minion": {
@@ -2327,16 +2654,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 2,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Curse",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "void",
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "bossB7": {
@@ -2350,11 +2680,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 95,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Lorado.dark",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2370,6 +2700,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Attack a number of times equal to the number of counters on this card (MINIMUM <key>1</>)(CURRENT ATTACKS <key>1</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossB7Minion1": {
@@ -2381,16 +2716,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "bossB7Minion1",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "void",
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "bossB7Minion2": {
@@ -2402,11 +2740,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "bossB7Minion2",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "void",
                 "subTypeArr": [],
@@ -2417,6 +2755,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card cannot take more than <physical>1</><img id=\"dmg_phys\"/> damage at once."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB7Minion3": {
@@ -2428,16 +2770,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 2,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "bossB7Minion3",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "void",
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "bossB8": {
@@ -2451,11 +2796,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 60,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Amaterasu.dark",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2473,6 +2818,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Deal <key>X</><img id=\"dmg_magic\"/> <magic>magic damage</> to all your opponent's cards, where <key>X</> is the number of counters on this card (MIN <magic>1</><img id=\"dmg_magic\"/> damage). Then remove the counters on this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossB8Minion": {
@@ -2484,16 +2834,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "SpiritEmber",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "void",
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "bossB9": {
@@ -2507,11 +2860,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 60,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Tsukuyomi.dark",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2527,6 +2880,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Reduce all damage all your cards take by <key>5</>, unless this card has <key>4</> or <key>8</> counters on it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossB9Minion": {
@@ -2538,11 +2896,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 3,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Moonlight",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -2555,6 +2913,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB10": {
@@ -2568,11 +2930,11 @@ export default {
         ],
         "atk_normal": 4,
         "hp_normal": 90,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Decima.dark",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -2590,6 +2952,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Play all cards in your trash to the field, in order, left to right, front row to back row. Then create <key>3</> spell minion cards in your trash."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossB10Minion1": {
@@ -2603,11 +2970,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Ignis.dark",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "death",
                 "subTypeArr": [],
@@ -2618,6 +2985,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Attack with <key>X</> <physical>physical damage</> ahead, where <key>X</> = total <health>health</> of all copies of this card on your field. (CURRENT X = <key>0</>)"
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB10Minion2": {
@@ -2631,11 +3002,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Gravitas.dark",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "death",
                 "subTypeArr": [],
@@ -2646,6 +3017,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Deal <key>X</><img id=\"dmg_magic\"/> <magic>magic damage</> to all your opponent's cards, where <key>X</> = total <health>health</> of all copies of this card on your field. (CURRENT X = <key>0</>)"
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB10Minion3": {
@@ -2659,11 +3034,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Creo.dark",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "death",
                 "subTypeArr": [],
@@ -2674,6 +3049,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Send the top <key>X</> cards of your opponent's deck to the trash, where <key>X</> = total <health>health</> of all copies of this card on your field. If your opponent has no cards in their deck when this effect activates, deal <key>X</> <img id=\"player_health\"/> damage instead. (CURRENT X = <key>0</>)"
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossB10MinionSpawn": {
@@ -2685,11 +3064,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "DarkPower",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "bossMahou": {
         "isUpgradable": false,
@@ -2702,11 +3082,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 75,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "TrialsOfHeart.x",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -2722,6 +3102,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> all other <expose>exposed</> cards on the field and all cards in your trash. Then spawn <key>4</> random minion cards and add <key>4</> counters to this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossComet1": {
@@ -2735,11 +3120,11 @@ export default {
         ],
         "atk_normal": 5,
         "hp_normal": 30,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zira.z",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -2750,6 +3135,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Attack with <physical>1</><img id=\"dmg_phys\"/> damage four times."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossComet1Minion": {
@@ -2761,11 +3150,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 3,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Afterimage",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -2776,6 +3165,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossComet2": {
@@ -2787,11 +3180,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 3,
         "hp_normal": 35,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zira.z (2)",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2807,6 +3200,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card takes damage, it attacks."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossComet3": {
@@ -2818,11 +3216,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 20,
         "hp_normal": 60,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zira.z (3)",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -2838,6 +3236,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Spawn a <key>Corruption</> card to each of your opponent's empty field slots."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "bossComet3Minion": {
@@ -2849,16 +3252,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 2,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "ShadowSabre",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "void",
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "bossComet3Minion2": {
@@ -2870,11 +3276,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Corruption",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "death",
                 "subTypeArr": [],
@@ -2885,6 +3291,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "If this card is moved to a different field slot, shuffle it into your deck."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "bossCometDefeat": {
@@ -2898,11 +3308,12 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zira.z (4)",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "bossWaystone": {
         "isUpgradable": false,
@@ -2913,11 +3324,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "CorruptedBit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -2928,6 +3339,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "cometRuinSanctum": {
@@ -2939,11 +3354,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Sanctum?",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -2954,6 +3369,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "cometSanctum1": {
@@ -2965,11 +3384,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "cometSanctum1",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -2980,6 +3399,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "cometSanctum2": {
@@ -2991,11 +3414,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "cometSanctum2",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -3006,6 +3429,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "depthsSanctum": {
@@ -3017,11 +3444,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "depthsSanctum",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -3032,6 +3459,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "dungeonBug": {
@@ -3045,11 +3476,12 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Bug.mw",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "enemyArtillery": {
         "isUpgradable": false,
@@ -3062,16 +3494,19 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Artillery.sc",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "death",
                 "subTypeArr": [],
                 "XML": "Increase the attack of all other <key>Artillery.sc</> on the field by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyBlackVirus": {
@@ -3085,11 +3520,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Black.virus",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -3105,6 +3540,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "enemyBossCandle": {
@@ -3118,11 +3558,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zandle.z",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -3133,6 +3573,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyBug": {
@@ -3146,11 +3590,12 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Bug.mw",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "enemyCache": {
         "isUpgradable": false,
@@ -3161,11 +3606,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "CryptCache",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -3176,6 +3621,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyCacheDrafting": {
@@ -3187,11 +3636,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "SourceCache",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -3202,6 +3651,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyCacheRandom": {
@@ -3213,11 +3666,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "BitCache",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -3228,6 +3681,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyChandelier": {
@@ -3241,11 +3698,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Chandelier.mw",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -3253,6 +3710,9 @@ export default {
                 ],
                 "XML": "When a card(s) is moved on the field, increase attack by <key>1</>. Attacking resets this effect."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyCollapse": {
@@ -3266,11 +3726,11 @@ export default {
         ],
         "atk_normal": 5,
         "hp_normal": 8,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Guillotine.ex",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -3278,6 +3738,9 @@ export default {
                 ],
                 "XML": "If your opponent has <key>5</> or more cards on their field, whenever your opponent activates a card effect, deal <magic>2</><img id=\"dmg_magic\"/> damage to all your opponent's cards."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyDaggers": {
@@ -3291,11 +3754,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Daggers.ex",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -3303,6 +3766,9 @@ export default {
                 ],
                 "XML": "When your opponent plays a card from their hand, attack with this card, then increase this card's <attack>attack power</> by <attack>1</> (MAX <attack>+2</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyDisruptor": {
@@ -3316,11 +3782,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Disruptor.sc",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -3332,13 +3798,19 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 7,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
                 "XML": "When this card takes damage, send the top of your opponent's deck to the trash."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "enemyGhostBlue": {
@@ -3352,16 +3824,19 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Blue.ghst",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
                 "XML": "Cards that damage or are damaged by this card are moved to a random slot."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyGhostRed": {
@@ -3375,11 +3850,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Red.ghst",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -3390,6 +3865,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card cannot take more than <physical>1</><img id=\"dmg_phys\"/> physical damage at once."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyGuardian": {
@@ -3403,16 +3882,19 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Guardian.sc",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
                 "XML": "When a card is drawn, increase this card's attack by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyInterceptor": {
@@ -3426,11 +3908,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Interceptor.sc",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -3438,6 +3920,9 @@ export default {
                 ],
                 "XML": "When one of your cards takes damage, attack with this card."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyMiasma": {
@@ -3451,11 +3936,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Miasma.ex",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -3466,6 +3951,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Deal <magic>1</><img id=\"dmg_magic\"/> damage to all your opponent's cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyMine": {
@@ -3479,16 +3968,19 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Mine.sc",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "death",
                 "subTypeArr": [],
                 "XML": "Deal <magic>1</><img id=\"dmg_magic\"/> damage to all cards on the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyMirrorShard": {
@@ -3502,11 +3994,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "MirrorShard.mw",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -3514,6 +4006,9 @@ export default {
                 ],
                 "XML": "When this card takes damage, attack with all other <key>MirrorShard.mw</> cards with power equal to the damage taken."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyObserver": {
@@ -3527,11 +4022,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 6,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Observer.sc",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -3547,6 +4042,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Attack 2 times."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "enemyPassiveBug": {
@@ -3560,11 +4060,12 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Bug.mw",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "enemyPathogen": {
         "isUpgradable": false,
@@ -3577,11 +4078,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Pathogen.mw",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -3592,6 +4093,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your opponent discards all cards in their hand, then draws the same number of cards discarded."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyPredator": {
@@ -3605,11 +4110,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Predator.sc",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -3622,6 +4127,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card takes damage, it attacks."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyRail": {
@@ -3635,16 +4144,19 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "RailGun.sc",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
                 "XML": "When this card takes damage, increase its attack by <attack>3</>."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemySentry": {
@@ -3658,11 +4170,12 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Sentry.sc",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "enemySentry2": {
         "isUpgradable": false,
@@ -3675,16 +4188,19 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Sentry2.sc",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
                 "XML": "When this card takes damage, it attacks."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemySignal": {
@@ -3698,11 +4214,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Trance.ex",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -3713,6 +4229,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Attack with all your cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyStageTarget": {
@@ -3724,11 +4244,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "StageMark",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "enemyStealerTutorial": {
         "isUpgradable": false,
@@ -3739,16 +4260,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "???",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "<decompile>Decompile</> all cards in your opponent's hand, deck, and field to the trash."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyStrongBug": {
@@ -3762,18 +4286,20 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "StrongBug.mw",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [],
+        "effectDisplayData_normal": [],
         "extensionArr_upgrade": [
             ".mw"
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 5,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": []
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [],
+        "effectPartition_normal": [],
+        "effectPartition_upgrade": []
     },
     "enemyStrongWall": {
         "isUpgradable": true,
@@ -3786,18 +4312,20 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 6,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Firewall.scx",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [],
+        "effectDisplayData_normal": [],
         "extensionArr_upgrade": [
             ".scx"
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 10,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": []
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [],
+        "effectPartition_normal": [],
+        "effectPartition_upgrade": []
     },
     "enemyTalismanBlack": {
         "isUpgradable": false,
@@ -3810,11 +4338,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Black.tlsm",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -3825,6 +4353,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card cannot take more than <key>1</> damage at once."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyTalismanWhite": {
@@ -3838,11 +4370,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "White.tlsm",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -3855,6 +4387,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card cannot take more than <key>1</> damage at once."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyVenom": {
@@ -3868,11 +4404,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Venom.mw",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "death",
                 "subTypeArr": [],
@@ -3888,6 +4424,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Deal 2 <img id=\"player_health\"/> damage."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "enemyVirusBlue": {
@@ -3901,16 +4442,19 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Blue.virus",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
                 "XML": "Cards that damage or are damaged by this card lose their effects."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyVirusRed": {
@@ -3924,11 +4468,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Red.virus",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -3939,6 +4483,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card takes no damage from cards with no effects."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "enemyWeakTarget": {
@@ -3950,11 +4498,12 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Target",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "enemyWeakWall": {
         "isUpgradable": false,
@@ -3967,11 +4516,12 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Firewall.sc",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "enemyWormBlue": {
         "isUpgradable": false,
@@ -3984,11 +4534,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Blue.wrm",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -3996,6 +4546,9 @@ export default {
                 ],
                 "XML": "If this card damages a card by attacking, deal <magic>1</><img id=\"dmg_magic\"/> damage to all other cards in the same row as the damaged card."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyWormRed": {
@@ -4009,16 +4562,19 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Red.wrm",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
                 "XML": "Attack 2 times."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "enemyZombie": {
@@ -4032,11 +4588,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Zombie.mw",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -4049,6 +4605,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Attack 2 times."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "miniboss1": {
@@ -4062,11 +4622,12 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Curse.x",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "omegaboss": {
         "isUpgradable": false,
@@ -4077,11 +4638,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 3,
         "hp_normal": 22,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "omegaboss",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -4097,6 +4658,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Reduce <img id=\"player_health\"/> to 0."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "omegabossUnstable": {
@@ -4108,11 +4674,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 7,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "omegabossUnstable",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -4123,6 +4689,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Reduce <img id=\"player_health\"/> to 0."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "omegacore": {
@@ -4136,11 +4706,11 @@ export default {
         ],
         "atk_normal": 10,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "VoidSpike.z",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
@@ -4151,6 +4721,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card takes damage, <key>SUSPEND</> all other cards on your field by 2 turns."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "potionHealth": {
@@ -4164,16 +4738,19 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 0,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Health.potion",
         "rarityStr": "broken",
         "rarityHex": "FF008A",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "crash",
                 "subTypeArr": [],
                 "XML": "Crash the game."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "potionStorage": {
@@ -4187,16 +4764,19 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 0,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Storage.potion",
         "rarityStr": "broken",
         "rarityHex": "FF008A",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "crash",
                 "subTypeArr": [],
                 "XML": "Crash the game."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "abilityAurora": {
@@ -4208,11 +4788,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Serenity",
         "rarityStr": "yellow",
         "rarityHex": "FFFF45",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -4228,6 +4808,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "abilityDragoon": {
@@ -4239,16 +4824,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Imagination",
         "rarityStr": "yellow",
         "rarityHex": "FFFF45",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "All cards in your hand, deck, field, and trash gain the wildcard <key>.*</> in their name. Cards with <key>.*</> match anything."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "abilityEsper": {
@@ -4260,11 +4848,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "WorldSeed",
         "rarityStr": "yellow",
         "rarityHex": "FFFF45",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -4273,6 +4861,9 @@ export default {
                 ],
                 "XML": "When another level <key>2</> or lower card is played to your field (except <key>WorldSeed</>), transform this card into a copy of that original card."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "abilityIdol": {
@@ -4284,11 +4875,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Encore",
         "rarityStr": "yellow",
         "rarityHex": "FFFF45",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -4296,6 +4887,9 @@ export default {
                 ],
                 "XML": "Return all cards on your field to your hand. Then play up to the same number of cards from your hand back to the field, except cards that were originally on the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "abilityLeo": {
@@ -4307,11 +4901,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Mountain",
         "rarityStr": "yellow",
         "rarityHex": "FFFF45",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -4327,6 +4921,10 @@ export default {
                 ],
                 "XML": "When a card is sent to your trash (except <key>Mountain</>), add that card to your hand."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "abilityOmega": {
@@ -4338,11 +4936,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Paradox",
         "rarityStr": "yellow",
         "rarityHex": "FFFF45",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -4350,6 +4948,9 @@ export default {
                 ],
                 "XML": "Select up to two cards on the field. For selected cards on your field, <key>AUTOMATE</> them. For selected cards on the enemy field, <key>delay</> them by <key>6</> turns."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "abilityQueen": {
@@ -4361,11 +4962,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Checkmate",
         "rarityStr": "yellow",
         "rarityHex": "FFFF45",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -4378,6 +4979,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "artifactGreed": {
@@ -4391,11 +4996,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Greed.algo",
         "rarityStr": "purple",
         "rarityHex": "9F00A7",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "preload",
                 "subTypeArr": [],
@@ -4411,6 +5016,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Draw <key>2</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "artifactMemory": {
@@ -4424,11 +5034,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Memory.algo",
         "rarityStr": "purple",
         "rarityHex": "9F00A7",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "preload",
                 "subTypeArr": [],
@@ -4444,6 +5054,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Add one card from your <key>Storage</> to your hand. If you have no cards in <key>Storage</>, draw 2 cards instead."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "artifactMomentum": {
@@ -4457,11 +5072,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Momentum.algo",
         "rarityStr": "purple",
         "rarityHex": "9F00A7",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "preload",
                 "subTypeArr": [],
@@ -4477,6 +5092,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Perform your <key>Turn Draw</> immediately."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "artifactSpire": {
@@ -4490,11 +5110,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Spire.algo",
         "rarityStr": "purple",
         "rarityHex": "9F00A7",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "preload",
                 "subTypeArr": [],
@@ -4510,6 +5130,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Discard your hand. Draw <key>4</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "chessBishop": {
@@ -4521,11 +5146,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 2,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Bishop",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -4536,6 +5161,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Target 1 enemy diagonal to this card. Attack it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "chessKing": {
@@ -4547,11 +5176,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "King",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [
@@ -4569,6 +5198,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Return this card to your deck, then shuffle and draw a card. This effect can be activated on the field or in the trash."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "chessKnight": {
@@ -4580,11 +5214,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 3,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Knight",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -4595,6 +5229,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Target an enemy two spaces vertically and one horizontally, or two spaces horizontally and one vertically. Attack it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "chessPawn": {
@@ -4606,11 +5244,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Pawn",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -4626,6 +5264,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "chessQueen": {
@@ -4637,11 +5280,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 3,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Queen",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -4657,6 +5300,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Deal <magic>1</><img id=\"dmg_magic\"/> damage to all enemy cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "chessRook": {
@@ -4668,11 +5316,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Rook",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -4688,6 +5336,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card cannot take more than <physical>1</><img id=\"dmg_phys\"/> physical damage at once."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "consumablePotionHealth": {
@@ -4699,11 +5352,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "HealthPotion",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -4718,8 +5371,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -4730,6 +5383,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card disappears permanently when used."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "consumablePotionStorage": {
@@ -4741,11 +5402,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "StoragePotion",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -4760,8 +5421,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -4772,6 +5433,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card disappears permanently when used."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "consumablePotionVoid": {
@@ -4783,11 +5452,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "VoidPotion",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -4798,6 +5467,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card disappears permanently when used."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "debugKnife": {
@@ -4811,16 +5484,19 @@ export default {
         ],
         "atk_normal": 20,
         "hp_normal": 30,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Knife.debug",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": ""
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "dragoonFlame": {
@@ -4832,11 +5508,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "DragoonFlame",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -4849,6 +5525,10 @@ export default {
                 ],
                 "XML": "If this card is in the trash, activate to return this card to the deck and shuffle."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "fantasyArae": {
@@ -4862,11 +5542,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Arae.myth",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -4888,8 +5568,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -4905,6 +5585,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "If this card damages an enemy card, add a counter to it (MAX <uadd>[</><key>3</><uadd>]</>). If an enemy card in the same column as this card takes damage, increase the damage by number of counters on the enemy card (up to <uadd>[</><attack>+3</><uadd>]</> extra damage)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "fantasyCockatrice": {
@@ -4918,11 +5608,11 @@ export default {
         ],
         "atk_normal": 4,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Cockatrice.myth",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -4944,8 +5634,8 @@ export default {
         ],
         "atk_upgrade": 5,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -4961,6 +5651,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "You must have <key>10</> or more cards in your trash, and no cards in your trash with the same name"
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "fantasyGolem": {
@@ -4974,11 +5674,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Golem.myth",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -5000,8 +5700,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -5017,6 +5717,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card takes damage, it attacks."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "fantasyGriffin": {
@@ -5030,11 +5740,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 15,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Griffin.myth",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -5050,6 +5760,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "If any of your other cards would take more than <key>1</> damage (except cards with the same name as this card), redirect the damage to this card instead."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "fantasyMermaid": {
@@ -5063,11 +5778,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Mermaid.myth",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -5089,8 +5804,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -5106,6 +5821,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "You must have 10 or more cards in your trash, and no cards in your trash with the same name."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "fantasyPhoenix": {
@@ -5119,11 +5844,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Phoenix.myth",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -5145,8 +5870,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -5162,6 +5887,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "fantasyUnicorn": {
@@ -5175,11 +5910,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 8,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Unicorn.myth",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -5201,8 +5936,8 @@ export default {
         ],
         "atk_upgrade": 4,
         "hp_upgrade": 12,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "dragoonLink",
                 "subTypeArr": [],
@@ -5218,6 +5953,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your cards with more than 1 health will always survive damage with at least 1 health remaining."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "genericAfterburner": {
@@ -5229,11 +5974,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Afterburner",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5248,8 +5993,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5260,6 +6005,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericAvarice": {
@@ -5271,11 +6024,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Avarice",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5285,13 +6038,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Return exactly <key>5</> cards from trash to deck. Draw <uadd>[</><key>2</><uadd>]</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericBattery": {
@@ -5303,11 +6062,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Battery",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5317,8 +6076,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5329,6 +6088,13 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericBearTrap": {
@@ -5340,11 +6106,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "ClawTrap",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -5356,8 +6122,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -5365,6 +6131,12 @@ export default {
                 ],
                 "XML": "Activate only from the trash. Delay all enemies by <uadd>[</><key>5</><uadd>[</> turns and deal <uadd>[</><magic>1</><uadd>]</> damage to them. Then <void>VOID</> this card."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericCapacitor": {
@@ -5376,11 +6148,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "DamageCapacitor",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -5404,8 +6176,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -5425,6 +6197,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Reset all <img id=\"once\"/> effects on this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "genericCinder": {
@@ -5436,11 +6218,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Cinder",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -5452,8 +6234,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -5461,6 +6243,12 @@ export default {
                 ],
                 "XML": "Delay all enemies by <uadd>[</>3<uadd>[</> turn(s)."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericConstantCorrection": {
@@ -5472,11 +6260,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "ConstantCorrection",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5486,13 +6274,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Target a card on your field. Remove all its effects and stat modifiers, then change its stats to <uadd>[</><attack>4</> | <health>4</><uadd>]</>."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericCrystalBall": {
@@ -5504,11 +6298,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "CrystalBall",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5518,8 +6312,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5530,6 +6324,13 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericDoubleExecute": {
@@ -5541,11 +6342,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "DoubleExecute",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5560,8 +6361,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5579,6 +6380,15 @@ export default {
                 ],
                 "XML": "If this card is in the trash, add it to your hand."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "genericEmber": {
@@ -5590,11 +6400,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Ember",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -5604,13 +6414,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
                 "XML": "Draw <uadd>[</>2<uadd>]</> card(s)."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericFireball": {
@@ -5622,11 +6438,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Fireball",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5636,13 +6452,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Deal <uadd>[</><magic>3</><img id=\"dmg_magic\"/><uadd>]</> magic damage ahead."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericFlashAttack": {
@@ -5654,11 +6476,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Flash",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5669,6 +6491,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "genericFlashbang": {
@@ -5680,11 +6506,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Flashbang",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5699,8 +6525,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5711,6 +6537,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericForce": {
@@ -5722,11 +6556,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Force",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5741,8 +6575,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5760,6 +6594,15 @@ export default {
                 ],
                 "XML": "If this card is in your trash, add it to your hand."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "genericInferno": {
@@ -5771,11 +6614,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Inferno",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -5785,13 +6628,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
                 "XML": "Each time you play another card, deal <uadd>[</><magic>2</><img id=\"dmg_magic\"/><uadd>]</> damage to all other cards on the field. This card must be on the field to resolve this effect."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericMagicEmber": {
@@ -5803,11 +6652,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "MagicEmber",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5817,8 +6666,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5829,6 +6678,13 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericMagicFlare": {
@@ -5840,11 +6696,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "MagicFlare",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5854,8 +6710,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5868,6 +6724,13 @@ export default {
                 ],
                 "XML": "If this card is in your trash, add it to your hand."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericMegaRush": {
@@ -5879,11 +6742,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "RushMega",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -5893,13 +6756,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "If you have 1 <img id=\"player_health\"/>, increase the attack of all other cards on your field by <uadd>[</><attack>6</><uadd>]</> and destroy this card."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericOmen": {
@@ -5911,11 +6780,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Omen",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -5925,13 +6794,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
                 "XML": "Each time another activated card effect resolves, increase this card's attack by <attack>1</> (MAX attack <uadd>[</><attack>10</><uadd>]</>). Attacking resets this effect."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericPendulum": {
@@ -5943,11 +6818,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Pendulum",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -5965,8 +6840,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -5980,6 +6855,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericPureHeart": {
@@ -5991,11 +6874,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "PureHeart",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -6010,8 +6893,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -6022,6 +6905,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Can only play if this is the only card in your hand."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericReincarnation": {
@@ -6033,11 +6924,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Reincarnation",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -6047,8 +6938,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -6059,6 +6950,13 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericScalpel": {
@@ -6070,11 +6968,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Scalpel",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -6087,8 +6985,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -6104,6 +7002,13 @@ export default {
                 ],
                 "XML": "If this card is in your trash, add it to your hand."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericShatter": {
@@ -6115,11 +7020,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Shatter",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -6129,13 +7034,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Select <uadd>[</>up to 2<uadd>]</> cards on your field. Deal <img id=\"dmg_magic\"/> <magic>damage</> to all enemies equal to the total current health of the selected cards and deal <img id=\"dmg_magic\"/> <magic>damage</> to each selected card equal to its max health."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericSpark": {
@@ -6147,11 +7058,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Spark",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6161,8 +7072,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -6170,6 +7081,12 @@ export default {
                 ],
                 "XML": "Select one inactive card on your field (except <key>Spark</>), reactivate it."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericThunderclap": {
@@ -6181,11 +7098,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Thunderclap",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -6195,13 +7112,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Delay the enemy ahead by <uadd>[</><key>7</><uadd>]</> turns. Then add the card <key>'Flash'</> to the top of your deck and set your turn draw countdown to <key>0</>."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "genericTreasure": {
@@ -6213,11 +7136,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Treasure",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -6227,13 +7150,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Draw <uadd>[</>4<uadd>]</> cards, but set your turn draw countdown to 10."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "mdvAxe": {
@@ -6247,11 +7176,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Axe.mech",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6273,8 +7202,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6290,6 +7219,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Attack increases are <uadd>[</><key>4x </><uadd>]</> as effective on this card, but are reset when this card attacks. If this card's attack would increase above <uadd>[</><attack>10</><uadd>]</>, deal <physical>1</> damage to all other cards on the field instead (including your own)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mdvCore": {
@@ -6303,11 +7242,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Core.mech",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -6324,8 +7263,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -6336,6 +7275,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select 1 card on the field, deal <uadd>[</><magic>5</><img id=\"dmg_magic\"/><uadd>]</> damage to it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mdvGatling": {
@@ -6349,11 +7296,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Gatling.mech",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6375,8 +7322,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6392,6 +7339,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Each time a card on your field is destroyed, add <key>2</> counter(s) to this card (MAX <key>4</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mdvHammer": {
@@ -6405,11 +7362,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Hammer.mech",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6426,8 +7383,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6438,6 +7395,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Deal <uadd>[</><physical>2</><img id=\"dmg_phys\"/><uadd>]</> damage to all other cards on the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mdvHydro": {
@@ -6451,11 +7416,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Hydro.mech",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -6481,8 +7446,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -6502,6 +7467,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "If exactly <key>1</> of your cards were just destroyed, you can play this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mdvPlasma": {
@@ -6515,11 +7490,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 8,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Plasma.mech",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6537,6 +7512,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "If exactly <key>2</> of your cards were just destroyed, you can play this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "mdvPod": {
@@ -6548,11 +7528,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "DropPod",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -6562,13 +7542,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Select one level <uadd>[</>2<uadd>]</> or lower <key>.mech</> card from your deck with <key>1</> or more attack power. Destroy this card and play the selected card to the same slot this card was in, then deal <physical>1</><img id=\"dmg_phys\"/> damage to all other cards on the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "mdvRocket": {
@@ -6580,11 +7566,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "RocketBarrage",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -6599,8 +7585,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -6611,6 +7597,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Remove a counter from this card, then deal <uadd>[</><physical>2</><img id=\"dmg_phys\"/><uadd>]</> damage to all enemies. Repeat this effect until there are no more counters on this card (will currently deal <physical>2x0</><img id=\"dmg_phys\"/> damage)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mdvSpear": {
@@ -6624,11 +7618,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Spear.mech",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -6645,8 +7639,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -6657,6 +7651,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Add one level <uadd>[</>3<uadd>]</> or lower <key>.mech</> card from deck to hand (except <key>Spear.mech</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mdvSword": {
@@ -6670,11 +7672,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Sword.mech",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6691,8 +7693,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6703,6 +7705,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Deal <uadd>[</><physical>2</><img id=\"dmg_phys\"/><uadd>]</> damage ahead."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mdvThunder": {
@@ -6716,11 +7726,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Thunder.mech",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6742,8 +7752,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 6,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -6759,6 +7769,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "If exactly <key>1</> of your cards were just destroyed, you can play this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mdvTower": {
@@ -6770,11 +7790,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "CommandTower",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -6784,13 +7804,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
                 "XML": "Your cards cannot be damaged by your own cards, instead, damaging your own cards (except <key>CommandTower</>) <uadd>[</>heals by the damage amount<uadd>]</> and reactivates them."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "mdvUnity": {
@@ -6802,11 +7828,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Unity",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -6823,8 +7849,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -6842,6 +7868,15 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "musicBass": {
@@ -6855,11 +7890,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Bass.muse",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -6880,8 +7915,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -6896,6 +7931,14 @@ export default {
                 ],
                 "XML": "Other cards <exec>EXECUTED</> with this card gain attack equal to their health."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "musicDoubleEighth": {
@@ -6909,11 +7952,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "DoubleEighth.muse",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "execute",
                 "subTypeArr": [],
@@ -6925,13 +7968,19 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "execute",
                 "subTypeArr": [],
                 "XML": "Attack with <uadd>[</><physical>3</><img id=\"dmg_phys\"/><uadd>]</> damage twice."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "musicEqualize": {
@@ -6945,11 +7994,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Equalize.muse",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -6963,8 +8012,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -6972,6 +8021,12 @@ export default {
                 ],
                 "XML": "Discard 1 card. Draw <uadd>[</>3<uadd>]</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "musicFermata": {
@@ -6985,11 +8040,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Fermata.muse",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "execute",
                 "subTypeArr": [
@@ -7003,8 +8058,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "execute",
                 "subTypeArr": [
@@ -7017,6 +8072,13 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "musicForte": {
@@ -7030,11 +8092,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Forte.muse",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "execute",
                 "subTypeArr": [
@@ -7048,8 +8110,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "execute",
                 "subTypeArr": [
@@ -7057,6 +8119,12 @@ export default {
                 ],
                 "XML": "Increase the attack power of all <key>.muse</> cards in the same row as this card by <uadd>[</><key>3</><uadd>]</>."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "musicIdol1": {
@@ -7070,11 +8138,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Airi.muse",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7091,8 +8159,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7103,6 +8171,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Target 1 card on your field. <exec>EXECUTE</> it and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "musicIdol2": {
@@ -7116,11 +8192,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Miki.muse",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7137,8 +8213,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7149,6 +8225,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Target 1 card on your field. <exec>EXECUTE</> it and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "musicIdol3": {
@@ -7162,11 +8246,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Yuki.muse",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7185,8 +8269,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7199,6 +8283,14 @@ export default {
                 ],
                 "XML": "Target a <uadd>[</>level 2 or lower<uadd>]</> <key>.muse</> card in your trash. Play it to the field. Its effects gain <img id=\"once\"/>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "musicIdol4": {
@@ -7212,11 +8304,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kano.muse",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7235,8 +8327,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7249,6 +8341,14 @@ export default {
                 ],
                 "XML": "Play one <uadd>[</>level 2 or lower<uadd>]</> <key>.muse</> card from your hand to your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "musicIdol5": {
@@ -7262,11 +8362,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Erika.muse",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7283,8 +8383,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7295,6 +8395,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "When a card is drawn, increase this card's attack by <uadd>[</><attack>2</><uadd>]</> (CURRENT: <attack>+0</>)(MAX <uadd>[</><attack>+6</><uadd>]</>). After this card attacks, the attack increase resets to 0."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "musicIdolBoss": {
@@ -7308,11 +8416,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Remi.muse",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7328,6 +8436,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Discard 1 other card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "musicPiano": {
@@ -7341,11 +8454,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Piano.muse",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "execute",
                 "subTypeArr": [],
@@ -7357,13 +8470,19 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "execute",
                 "subTypeArr": [],
                 "XML": "Increase the max health of all cards on your field by <uadd>[</><health>2</><uadd>]</>."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "musicQuarter": {
@@ -7377,11 +8496,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Quarter.muse",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "execute",
                 "subTypeArr": [],
@@ -7393,13 +8512,19 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "execute",
                 "subTypeArr": [],
                 "XML": "Deal <uadd>[</><magic>6</><img id=\"dmg_magic\"/><uadd>]</> magic damage ahead."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "musicQuarterRest": {
@@ -7413,11 +8538,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "QuarterRest.muse",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "execute",
                 "subTypeArr": [],
@@ -7429,13 +8554,19 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "execute",
                 "subTypeArr": [],
                 "XML": "Draw <uadd>[</>3<uadd>]</> Cards."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "musicTreble": {
@@ -7449,11 +8580,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Treble.muse",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -7470,8 +8601,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -7482,6 +8613,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Draw 1 card for every other card <exec>EXECUTED</> with this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "musicTriplet": {
@@ -7495,11 +8634,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Triplet.muse",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "execute",
                 "subTypeArr": [],
@@ -7511,13 +8650,19 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "execute",
                 "subTypeArr": [],
                 "XML": "Deal <uadd>[</><magic>2</><img id=\"dmg_magic\"/><uadd>]</> damage to all enemies."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalApple": {
@@ -7531,11 +8676,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Apple.fruit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7547,13 +8692,19 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Add up to <uadd>[</>2<uadd>]</> cards with the same name as this card from deck to hand."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalBanana": {
@@ -7567,11 +8718,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Banana.fruit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7583,13 +8734,19 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Target one level 1 card in your trash (except cards with the same name as this card). Play it to the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalCherry": {
@@ -7603,11 +8760,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Cherry.fruit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7619,13 +8776,19 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Draw 2 card(s)."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalDemeter": {
@@ -7639,11 +8802,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 8,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Demeter.fruit",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7661,6 +8824,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Can only play if you have at least 1 copies of a level 1 <key>.fruit</> card in your trash (CURRENT 0/3 copies)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "naturalFall": {
@@ -7674,11 +8842,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Autumn.fruit",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7690,13 +8858,19 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Remove the effects from all level 1 <key>.fruit</> cards on your field. Draw 1 for each card that had effects removed this way <uadd>[</>and increase their attack by <attack>1</>.<uadd>]</>"
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalGreenhouse": {
@@ -7708,11 +8882,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Greenhouse",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -7724,8 +8898,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -7733,6 +8907,12 @@ export default {
                 ],
                 "XML": "When a level <uadd>[</>2<uadd>]</> or lower card is played behind this card (except <key>Greenhouse</>), and there is at least one card in your trash with the same name as the played card. Add the card in your trash to your hand."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalGrowth": {
@@ -7744,11 +8924,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Growth",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7758,13 +8938,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Select a card in your trash. Return all copies of it to your deck. Draw 1 card for each card returned this way."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalLemon": {
@@ -7778,11 +8964,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Lemon.fruit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7794,13 +8980,19 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Attack with all cards on your field with the same name as this card."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalPersephone": {
@@ -7814,11 +9006,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Persephone.fruit",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7834,6 +9026,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Can only play if you have at least three level 1 <key>.fruit</> cards with different names on your field (CURRENT 0/3)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "naturalPollination": {
@@ -7845,11 +9042,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Pollination",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7859,13 +9056,19 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Target one level 1 <key>.fruit</> card in your deck with at least 1 effect. Send it to the trash and add its leftmost effect to all level 1 cards in your hand (cards cannot have more than 3 effects). The effect added gains <img id=\"once\"/>."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalPomegranate": {
@@ -7879,11 +9082,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Pomegranate.fruit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -7895,13 +9098,19 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
                 "XML": "If this card is sent to the trash, <uadd>[</>deal <magic>2</><img id=\"dmg_magic\"/> damage to all <expose>exposed</> enemies then <magic>1</><img id=\"dmg_magic\"/> damage to all <cover>covered</> enemies.<uadd>]</>"
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalPumpkin": {
@@ -7915,11 +9124,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Pumpkin.fruit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7936,8 +9145,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7948,6 +9157,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "If this card attacks, destroy it afterwards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "naturalSpring": {
@@ -7961,11 +9178,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Spring.fruit",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -7977,13 +9194,19 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Target one lv <uadd>[</>2<uadd>]</> or lower <key>.fruit</> card in your trash (except <key>Spring.fruit</>). Play a copy of the original card to the field and increase its attack by <attack>1</> for each other copy in your trash (MAX <attack>+3</> attack)."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalSummer": {
@@ -7997,11 +9220,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Summer.fruit",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8013,13 +9236,19 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Add one lv <uadd>[</>3<uadd>]</> or lower <key>.fruit</> card from deck to hand (except <key>Summer.fruit</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "naturalWinter": {
@@ -8033,11 +9262,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Winter.fruit",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8054,8 +9283,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8066,6 +9295,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card cannot take more than <key>1</> damage at once."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "sakuraBow": {
@@ -8079,11 +9316,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Bow.hana",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -8097,8 +9334,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -8106,6 +9343,12 @@ export default {
                 ],
                 "XML": "Attack with <uadd>[</><physical>6</><img id=\"dmg_phys\"/><uadd>]</> physical damage."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "sakuraKatana": {
@@ -8119,11 +9362,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Katana.hana",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -8138,8 +9381,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -8148,6 +9391,12 @@ export default {
                 ],
                 "XML": "Attack with this card."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "sakuraKunai": {
@@ -8161,11 +9410,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kunai.hana",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -8179,8 +9428,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -8188,6 +9437,12 @@ export default {
                 ],
                 "XML": "Deal <uadd>[</><physical>2</><img id=\"dmg_phys\"/><uadd>]</> damage to all enemy cards."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "sakuraLantern": {
@@ -8201,11 +9456,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Lantern.hana",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -8219,8 +9474,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -8228,6 +9483,12 @@ export default {
                 ],
                 "XML": "Add one level <uadd>[</>2<uadd>]</> or lower <key>.hana</> card from deck to hand (except <key>Lantern.hana</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "sakuraNinja1": {
@@ -8241,11 +9502,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Saya.hana",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8257,13 +9518,19 @@ export default {
         ],
         "atk_upgrade": 4,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Activate the <img id=\"manual\"/> effects of a <key>.hana</> card behind this card (ignores <img id=\"once\"/> restrictions)."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "sakuraNinja2": {
@@ -8277,11 +9544,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Ishida.hana",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8293,13 +9560,19 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Play one level <uadd>[</><key>2</><uadd>]</> or lower <key>.hana</> card from hand to field."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "sakuraNinja3": {
@@ -8313,11 +9586,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Mira.hana",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -8341,8 +9614,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -8360,6 +9633,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Discard 1 other card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "sakuraNinja4": {
@@ -8373,11 +9656,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Saigo.hana",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8389,13 +9672,19 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 5,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Gain an original copy of the <img id=\"manual\"/> effects of the level <uadd>[</>2<uadd>]</> or lower cards to the left and right of this card. This card will only take one effect from each."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "sakuraNinjaBoss": {
@@ -8409,11 +9698,11 @@ export default {
         ],
         "atk_normal": 4,
         "hp_normal": 8,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "MasterKobo.hana",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -8426,6 +9715,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "<decompile>Decompile</> one <key>Bloom.hana</> and one level 2 <key>.hana</> card on your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "sakuraPriestess": {
@@ -8439,11 +9732,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Chiyo.hana",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8465,8 +9758,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8482,6 +9775,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "There must be exactly <key>2</> used <img id=\"once\"/><img id=\"manual\"/> effects on your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "sakuraShide": {
@@ -8495,11 +9798,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Shide.hana",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -8513,8 +9816,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -8522,6 +9825,12 @@ export default {
                 ],
                 "XML": "Target 1 <key>.hana</> card on the field (except <key>Shide.hana</>). Return it to your hand, refresh any <img id=\"once\"/> effects on it, draw 1 card."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "sakuraStorm": {
@@ -8535,11 +9844,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Bloom.hana",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -8553,8 +9862,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -8562,6 +9871,12 @@ export default {
                 ],
                 "XML": "Activate all <img id=\"manual\"/> effects of <key>.hana</> cards. Ignores <img id=\"once\"/> restrictions."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "sakuraTorii": {
@@ -8575,11 +9890,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 7,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Torii.hana",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -8598,8 +9913,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 10,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -8612,6 +9927,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "<decompile>Decompile</> 1 <key>.hana</> card on your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "spDeckEdit": {
@@ -8623,11 +9946,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Reprogram",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -8642,6 +9965,10 @@ export default {
                 ],
                 "XML": "If this card is in the trash, activate to return this card to the deck and shuffle."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "spDeckReload": {
@@ -8653,11 +9980,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Rejuvenate",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8670,6 +9997,10 @@ export default {
                 ],
                 "XML": "If this card is in the trash, activate to return this card to the deck and shuffle."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "spInitialize": {
@@ -8681,16 +10012,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Initialize",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "<key>Reload</> all your cards (move all cards in the trash, field, and hand back to the deck and draw a new hand)."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "spInstantDraft": {
@@ -8702,11 +10036,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Compile",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8722,6 +10056,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card will always be at the top of your deck after <key>reloading</> your deck."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "spiritAmaterasu": {
@@ -8735,11 +10074,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Amaterasu.spirit",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8757,6 +10096,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "You must have exactly <key>5</> cards in each your hand, trash, deck, and field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "spiritKitsune": {
@@ -8770,11 +10114,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kitsune.spirit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8798,8 +10142,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8817,6 +10161,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "[hand]:\nDiscard this card. Deal <uadd>[</><magic>2</><img id=\"dmg_magic\"/><uadd>]</> to all <expose>exposed</> enemy cards.\n\n[field]:\nSelect an enemy card. Deal <magic>X</><img id=\"dmg_magic\"/> damage to it, where <magic>X</> = the total <attack>attack power</> of all <key>.spirit</> cards <pathed>PATHED</> to this card (CURRENT: <magic>0</><img id=\"dmg_magic\"/>)(MAX: <uadd>[</><key>6</><uadd>]</>), then reduce the <attack>attack</> of those <pathed>PATHED</> cards by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "spiritKusanagi": {
@@ -8830,11 +10184,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kusanagi.spirit",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8851,8 +10205,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8863,6 +10217,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "When a card is added to your hand (except by drawing it), give this card a <uadd>[</><attack>+2</><uadd>]</> <specialbuff>single attack buff</> (MAX: <uadd>[</><attack>+4</><uadd>]</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "spiritMagatama": {
@@ -8876,11 +10238,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Yasakani.spirit",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8902,8 +10264,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8919,6 +10281,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "While this card has <key>counters</> on it, damage your cards would take removes <key>counters</> from this card instead of <health>health</> from the target."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "spiritNeko": {
@@ -8932,11 +10304,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Neko.spirit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8960,8 +10332,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -8979,6 +10351,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "[hand]:\nSelect a <key>.spirit</> card in your hand (except <key>Neko.spirit</>), Discard this card and the selected card, then draw <uadd>[</><key>3</><uadd>]</> card(s).\n\n[field]:\nDraw <key>X</> cards, where <key>X</> = the total <attack>attack power</> of all <key>.spirit</> cards <pathed>PATHED</> to this card (CURRENT: <key>0</>)(MAX: <uadd>[</><key>3</><uadd>]</>), then reduce the <attack>attack</> of those <pathed>PATHED</> cards by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "spiritNezumi": {
@@ -8992,11 +10374,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Nezumi.spirit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9020,8 +10402,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9039,6 +10421,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "When a <key>.spirit</> card (except <key>Nezumi.spirit</>) activates a <img id=\"manual\"/> or <img id=\"init\"/> effect:\n\n[hand]:\nPlay this card to the field.\n[field]:\nAttack with this card, then reduce its <attack>attack</> by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "spiritSika": {
@@ -9052,11 +10444,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Sika.spirit",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9080,8 +10472,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9101,6 +10493,16 @@ export default {
                 ],
                 "XML": "[hand]:\nSelect a level <key>1</> <key>.spirit</> card on your field with at least one <img id=\"manual\"/> effect, activate all <img id=\"manual\"/> effects on the card (ignores <img id=\"once\"/> restrictions).\n[field]:\nDelay all enemies <key>X</> turns, where <key>X</> = the total <attack>attack power</> of all <key>.spirit</> cards <pathed>PATHED</> to this card (CURRENT: <key>0</>)(MAX: <key>4</>), then reduce the <attack>attack</> of those <pathed>PATHED</> cards by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "spiritTanzaku": {
@@ -9114,11 +10516,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Tanzaku.spirit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -9132,8 +10534,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -9146,6 +10548,13 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "spiritTsukuyomi": {
@@ -9159,11 +10568,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Tsukuyomi.spirit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -9174,6 +10583,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "You must have exactly <key>4</> cards in each your hand, trash, deck, and field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "spiritTsuru": {
@@ -9187,11 +10600,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Tsuru.spirit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9215,8 +10628,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9234,6 +10647,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "[hand]:\nDiscard this card. All <key>.spirit</> cards on your field with <attack>1</> or more original <attack>attack power</> gain <uadd>[</><attack>+2</><uadd>]</> attack (MAX <uadd>[</><key>+2</><uadd>]</>).\n[field]:\nAttack with all <key>.spirit</> cards <pathed>PATHED</> to this card, then reduce their <attack>attack</> by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "spiritWatatsumi": {
@@ -9247,11 +10670,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 5,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Watatsumi.spirit",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "lock",
                 "subTypeArr": [],
@@ -9275,8 +10698,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 5,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "lock",
                 "subTypeArr": [],
@@ -9294,6 +10717,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "[hand]:\nDiscard this card. Remove all stat modifiers from cards on your field.\n\n[field]:\nShuffle all cards in your hand into your deck. Increase this card's attack and health by <attack>+1</> | <health>+1</> for each card shuffled (CURRENT <attack>+0</> | <health>+0</>)(MAX <uadd>[</><attack>+5</> | <health>+5</><uadd>]</>), then draw <uadd>[</><key>4</><uadd>]</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "spiritYamata": {
@@ -9307,11 +10740,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 8,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Yamata.spirit",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "lock",
                 "subTypeArr": [],
@@ -9335,8 +10768,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 8,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "lock",
                 "subTypeArr": [],
@@ -9354,6 +10787,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "[hand]:\nDiscard this card. Deal <uadd>[</><magic>2</><img id=\"dmg_magic\"/><uadd>]</> to all enemy cards.\n\n[field]:\nShuffle all cards in your hand into your deck. Deal <img id=\"dmg_magic\"/> <magic>damage</> to all <expose>exposed</> enemies equal to the number of cards shuffled (CURRENT <magic>0</> <img id=\"dmg_magic\"/>), then draw <uadd>[</><key>4</><uadd>]</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "spiritYata": {
@@ -9367,11 +10810,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Yata.spirit",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -9390,8 +10833,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -9404,6 +10847,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "When a card is added to your hand (except by drawing it) while this card is <key>active</>, play a level <uadd>[</><key>2</><uadd>]</> or lower <key>.spirit</> card from your hand to the field. Then deactivate this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "spStorageHit": {
@@ -9415,11 +10866,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "CacheHit",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9430,6 +10881,10 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
         ]
     },
     "tutorialFireball": {
@@ -9441,16 +10896,19 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Fireball",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Deal <magic>3</><img id=\"dmg_magic\"/> magic damage ahead."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "vampGen1": {
@@ -9464,11 +10922,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Lorado.legion",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9484,6 +10942,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "You must have exactly <key>3</> cards on your field and those cards must have the same <attack>attack power</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "vampGen2_minion": {
@@ -9497,18 +10960,20 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Clone.legion",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [],
+        "effectDisplayData_normal": [],
         "extensionArr_upgrade": [
             ".legion"
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": []
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [],
+        "effectPartition_normal": [],
+        "effectPartition_upgrade": []
     },
     "vampGen2": {
         "isUpgradable": true,
@@ -9521,11 +10986,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Syka.legion",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -9549,8 +11014,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [],
@@ -9568,6 +11033,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "You must have exactly <key>3</> <key>.blood</> cards in your trash (CURRENT 0/3)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vampHyper": {
@@ -9581,11 +11056,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Hyper.blood",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9597,8 +11072,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9609,6 +11084,13 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "vampLieu1": {
@@ -9622,11 +11104,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Yiko.legion",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9648,8 +11130,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9665,6 +11147,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card deals <img id=\"dmg_phys\"/> <physical>damage</>, heal it <health>1</> health and increase its attack by <attack>1</> (MAX <attack>+3</>). If this card takes damage, reduce its attack by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vampLieu2": {
@@ -9678,11 +11170,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Misera.legion",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9704,8 +11196,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9721,6 +11213,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card deals <img id=\"dmg_phys\"/> <physical>damage</>, heal it <health>1</> health and increase its attack by <attack>1</> (MAX <attack>+3</>). If this card takes damage, reduce its attack by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vampOrb": {
@@ -9734,11 +11236,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Orb.blood",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9760,8 +11262,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9777,6 +11279,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vampOrigin": {
@@ -9790,11 +11302,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Origin.blood",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9811,8 +11323,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9823,6 +11335,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "vampPlunge": {
@@ -9836,11 +11356,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Plunge.blood",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9857,8 +11377,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9876,6 +11396,15 @@ export default {
                 ],
                 "XML": "If this card is in your trash, add it to your hand."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vampRevival": {
@@ -9889,11 +11418,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Revival.blood",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9910,8 +11439,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -9922,6 +11451,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "vampShield": {
@@ -9935,11 +11472,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Shield.blood",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
@@ -9961,8 +11498,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "defense",
                 "subTypeArr": [],
@@ -9978,6 +11515,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vampSol1": {
@@ -9991,11 +11538,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Li.legion",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10019,8 +11566,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10038,6 +11585,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card deals <img id=\"dmg_phys\"/> <physical>damage</>, heal it <health>1</> health and increase its attack by <attack>1</> (MAX <attack>+2</>). If this card takes damage, reduce its attack by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vampSol2": {
@@ -10051,11 +11608,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Ora.legion",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10077,8 +11634,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10094,6 +11651,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card deals <img id=\"dmg_phys\"/> <physical>damage</>, heal it <health>1</> health and increase its attack by <attack>1</> (MAX <attack>+2</>). If this card takes damage, reduce its attack by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vampSol3": {
@@ -10107,11 +11674,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Xelia.legion",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10135,8 +11702,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10154,6 +11721,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card deals <img id=\"dmg_phys\"/> <physical>damage</>, heal it <health>1</> health and increase its attack by <attack>1</> (MAX <attack>+2</>). If this card takes damage, reduce its attack by <attack>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vampSpear": {
@@ -10167,11 +11744,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Spear.blood",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10195,8 +11772,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10214,6 +11791,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vampSword": {
@@ -10227,11 +11814,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Sword.blood",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -10253,8 +11840,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -10270,6 +11857,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mageSorcIgnis": {
@@ -10283,11 +11880,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Ignis.sorc",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10306,8 +11903,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10320,6 +11917,14 @@ export default {
                 ],
                 "XML": "If this card is added to your hand, except by drawing it, set this card's <health>max health</> to its <health>current health</> <uadd>[</>x <key>2</><uadd>]</> (MAX <uadd>[</><health>4</><uadd>]</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mageSorcEffingo": {
@@ -10333,11 +11938,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Effingo.sorc",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10356,8 +11961,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10370,6 +11975,14 @@ export default {
                 ],
                 "XML": "If this card is added to your hand, except by drawing it, set this card's <health>max health</> to its <health>current health</> <uadd>[</>x <key>2</><uadd>]</> (MAX <uadd>[</><health>4</><uadd>]</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mageSorcCreo": {
@@ -10383,11 +11996,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Creo.sorc",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10406,8 +12019,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10425,6 +12038,15 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mageSorcGravitas": {
@@ -10438,11 +12060,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Gravitas.sorc",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10461,8 +12083,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10475,6 +12097,14 @@ export default {
                 ],
                 "XML": "If this card is added to your hand, except by drawing it, set this card's <health>max health</> to its <health>current health</> <uadd>[</>x <key>2</><uadd>]</> (MAX <uadd>[</><health>4</><uadd>]</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mageSorcPotentia": {
@@ -10488,11 +12118,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Potentia.sorc",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10511,8 +12141,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10530,6 +12160,15 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mageSorcTempus": {
@@ -10543,11 +12182,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Tempus.sorc",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10571,8 +12210,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10590,6 +12229,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mageSorcLux": {
@@ -10603,11 +12252,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Lux.sorc",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10626,8 +12275,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10640,6 +12289,14 @@ export default {
                 ],
                 "XML": "If this card is added to your hand, except by drawing it, set this card's <health>max health</> to its <health>current health</> <uadd>[</>x <key>2</><uadd>]</> (MAX <uadd>[</><health>4</><uadd>]</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mageLucia": {
@@ -10653,11 +12310,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Lucia.mage",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10674,8 +12331,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10686,6 +12343,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Discard a card in your hand, deal <magic>3</><img id=\"dmg_magic\"/> damage ahead."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mageAurelia": {
@@ -10699,11 +12364,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Aurelia.mage",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10720,8 +12385,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10732,6 +12397,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select a card in your hand, add the top card of your deck to your hand then shuffle the selected card into your deck."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mageCamilla": {
@@ -10745,11 +12418,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Camilla.mage",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10761,13 +12434,19 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Select a level <uadd>[</><key>2</><uadd>]</> or lower card with <attack>0</> attack and at least one <img id=\"init\"/> effect on your field. Add its leftmost <img id=\"init\"/> effect to this card as a <img id=\"manual\"/> effect and give it <img id=\"once\"/><img id=\"gunique\"/>. Then send the selected card to the trash."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "mageMariana": {
@@ -10781,11 +12460,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Mariana.mage",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10809,8 +12488,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10828,6 +12507,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card is moved to a different field slot, refresh all <img id=\"once\"/> on it <uadd>[</>and reactivate it<uadd>]</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mageOctavia": {
@@ -10841,11 +12530,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Octavia.mage",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10870,8 +12559,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10890,6 +12579,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "When this card is moved to a different field slot, refresh all <img id=\"once\"/> on it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mageValeria": {
@@ -10903,11 +12602,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Valeria.mage",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -10933,8 +12632,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -10954,6 +12653,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Discard <key>3</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mageDecima": {
@@ -10967,11 +12676,11 @@ export default {
         ],
         "atk_normal": 4,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Decima.mage",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -10989,6 +12698,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "You must have exactly <key>3</> <key>.sorc</> cards in your trash."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "genericUpdraft": {
@@ -11000,11 +12714,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Updraft",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11014,8 +12728,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11026,6 +12740,13 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericTaser": {
@@ -11037,11 +12758,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Taser",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -11056,8 +12777,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -11068,6 +12789,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericAmbush": {
@@ -11079,11 +12808,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Ambush",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11098,8 +12827,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11110,6 +12839,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "genericRupture": {
@@ -11121,11 +12858,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Rupture",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11135,8 +12872,8 @@ export default {
         "extensionArr_upgrade": [],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11149,6 +12886,13 @@ export default {
                 ],
                 "XML": "If this card is in your trash, add it to your hand."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "edenSaffron": {
@@ -11162,11 +12906,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Saffron.eden",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11188,8 +12932,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11205,6 +12949,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "If the <img id=\"init\"/> effect of another one of your level <key>1</> or higher cards is activated in the same column as this card, this card is treated as the source of that effect instead. Then, if the card was a <key>.edx </> card, <decompile>DECOMPILE</> the other card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenThunder": {
@@ -11218,11 +12972,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Thunder.edx",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11244,8 +12998,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11261,6 +13015,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your turn draw countdown must be <key>4</> or less. When played, increase your turn draw countdown by <key>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenGunner": {
@@ -11274,11 +13038,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Gunner.eden",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -11302,8 +13066,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -11319,6 +13083,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "If the <img id=\"init\"/> effect of another one of your level <key>1</> or higher cards is activated in the same column as this card, this card is treated as the source of that effect instead. Then, if the card was a <key>.edx </> card, <decompile>DECOMPILE</> the other card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenReva": {
@@ -11332,11 +13106,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Reva.eden",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -11358,8 +13132,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 6,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -11375,6 +13149,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "If the <img id=\"init\"/> effect of another one of your level <key>1</> or higher cards is activated in the same column as this card, this card is treated as the source of that effect instead. Then, if the card was a <key>.edx </> card, <decompile>DECOMPILE</> the other card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenHazel": {
@@ -11388,11 +13172,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Hazel.eden",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11414,8 +13198,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11431,6 +13215,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "If the <img id=\"init\"/> effect of another one of your level <key>1</> or higher cards is activated in the same column as this card, this card is treated as the source of that effect instead. Then, if the card was a <key>.edx </> card, <decompile>DECOMPILE</> the other card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenSelicy": {
@@ -11444,11 +13238,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Selicy.eden",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -11467,8 +13261,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -11481,6 +13275,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "If the <img id=\"init\"/> effect of another one of your level <key>1</> or higher cards is activated in the same column as this card, this card is treated as the source of that effect instead. Then, if the card was a <key>.edx </> card, <decompile>DECOMPILE</> the other card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "edenShiso": {
@@ -11494,11 +13296,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Shiso.eden",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -11524,8 +13326,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -11543,6 +13345,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "If the <img id=\"init\"/> effect of another one of your level <key>1</> or higher cards is activated in the same column as this card, this card is treated as the source of that effect instead. Then, if the card was a <key>.edx </> card, <decompile>DECOMPILE</> the other card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenTerra": {
@@ -11556,11 +13368,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Terra.eden",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -11582,8 +13394,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "passive",
                 "subTypeArr": [],
@@ -11599,6 +13411,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "If the <img id=\"init\"/> effect of another one of your level <key>1</> or higher cards is activated in the same column as this card, this card is treated as the source of that effect instead. Then, if the card was a <key>.edx </> card, <decompile>DECOMPILE</> the other card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenViolette": {
@@ -11612,11 +13434,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Violette.eden",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -11640,8 +13462,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [],
@@ -11659,6 +13481,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "If the <img id=\"init\"/> effect of another one of your level <key>1</> or higher cards is activated in the same column as this card, this card is treated as the source of that effect instead. Then, if the card was a <key>.edx </> card, <decompile>DECOMPILE</> the other card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenStepSlash": {
@@ -11672,11 +13504,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "StepSlash.edx",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11698,8 +13530,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11715,6 +13547,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your turn draw countdown must be <key>4</> or less. When played, increase your turn draw countdown by <key>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenBowSnipe": {
@@ -11728,11 +13570,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "BowSnipe.edx",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11754,8 +13596,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11771,6 +13613,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your turn draw countdown must be <key>2</> or less. When played, increase your turn draw countdown by <key>3</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenCrossfire": {
@@ -11784,11 +13636,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Crossfire.edx",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11810,8 +13662,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11827,6 +13679,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your turn draw countdown must be <key>2</> or less. When played, increase your turn draw countdown by <key>3</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenWave": {
@@ -11840,11 +13702,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "KineticWave.edx",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11866,8 +13728,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11883,6 +13745,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your turn draw countdown must be <key>4</> or less. When played, increase your turn draw countdown by <key>1</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "edenRagnarok": {
@@ -11896,11 +13768,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Ragnarok.edx",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11916,6 +13788,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Your turn draw countdown must be <key>0</> or less. When played, increase your turn draw countdown by <key>5</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "edenShopkeeper": {
@@ -11929,11 +13806,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Shopkeeper.eden",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11951,6 +13828,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "If the <img id=\"init\"/> effect of another one of your level <key>1</> or higher cards is activated in the same column as this card, this card is treated as the source of that effect instead. Then, if the card was a <key>.edx </> card, <decompile>DECOMPILE</> the other card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "crossEleHeat": {
@@ -11964,11 +13846,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Heat.element",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -11992,8 +13874,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12011,6 +13893,16 @@ export default {
                 ],
                 "XML": "Remove all counters from your cards <align>ALIGNED</> with this card (including this card). Activate an effect based on the number of counters removed:\n\n[<key>3+ </>]: attack with <physical>4</><img id=\"dmg_phys\"/> damage.\n[<key>6+ </>]: attack with <physical>2</><img id=\"dmg_phys\"/> + <physical>2</><img id=\"dmg_phys\"/> + <physical>4</><img id=\"dmg_phys\"/> damage in sequence.\n\nThen <decompile>DECOMPILE</> this card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "crossEleCold": {
@@ -12024,11 +13916,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Cold.element",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12052,8 +13944,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12071,6 +13963,16 @@ export default {
                 ],
                 "XML": "Remove all counters from your cards <align>ALIGNED</> with this card (including this card). Activate an effect based on the number of counters removed:\n\n[<key>3+ </>]: delay all enemies <key>3</> turns.\n[<key>6+ </>]: delay all enemies <key>6</> turns.\n\nThen <decompile>DECOMPILE</> this card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "crossEleShock": {
@@ -12084,11 +13986,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Shock.element",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12112,8 +14014,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12131,6 +14033,16 @@ export default {
                 ],
                 "XML": "Remove all counters from your cards <align>ALIGNED</> with this card (including this card). Activate an effect based on the number of counters removed:\n\n[<key>3+ </>]: deal <magic>2</><img id=\"dmg_magic\"/> damage ahead. This damage spreads to adjacent enemies (ignores diagonals).\n[<key>6+ </>]: deals <magic>4</><img id=\"dmg_magic\"/> damage instead.\n\nThen <decompile>DECOMPILE</> this card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "crossEleWave": {
@@ -12144,11 +14056,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Wave.element",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12172,8 +14084,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12191,6 +14103,16 @@ export default {
                 ],
                 "XML": "Remove all counters from your cards <align>ALIGNED</> with this card (including this card). Activate an effect based on the number of counters removed:\n\n[<key>3+ </>]: Play a level <key>2</> or lower card from your hand to the field, add <key>3</> counters to it.\n[<key>6+ </>]: Do the effect for two cards instead of one.\n\nThen <decompile>DECOMPILE</> this card and draw a card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "crossLea": {
@@ -12204,11 +14126,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Lea.cross",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12232,8 +14154,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12251,6 +14173,16 @@ export default {
                 ],
                 "XML": "If this card has counters on it, Select an enemy card, deal <magic>1</><img id=\"dmg_magic\"/> x <key>X</> damage to it, where <key>X</> = the number of counters on this card. Then remove all counters from this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "crossEmilienator": {
@@ -12264,11 +14196,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Emilienator.cross",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12292,8 +14224,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12311,6 +14243,16 @@ export default {
                 ],
                 "XML": "If this card has counters on it, deal <physical>1</><img id=\"dmg_phys\"/> damage to the enemy card one slot in front of this card for every counter on this card, if the enemy <key>resists delays</>, deal <physical>2</><img id=\"dmg_phys\"/> damage instead. Then remove all counters from this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "crossCtron": {
@@ -12324,11 +14266,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "C'tron.cross",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -12353,8 +14295,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -12373,6 +14315,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "If this card has counters on it, select one of your cards on the field (except <key>C'tron.cross</>), transfer counters on this card to the selected card (MAX <uadd>[</><key>6</><uadd>]</> counters on the transfer target)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "crossLukas": {
@@ -12386,11 +14338,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Schneider.cross",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -12409,8 +14361,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -12423,6 +14375,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select <key>1</> card(s) on your field with counters, transfer the counters to this card and shuffle the card(s) into your deck."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "crossApollo": {
@@ -12436,11 +14396,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Apollo.cross",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12464,8 +14424,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12483,6 +14443,16 @@ export default {
                 ],
                 "XML": "If this card has counters on it, Select an enemy card, deal <magic>1</><img id=\"dmg_magic\"/> x <key>X</> damage to it, where <key>X</> = the number of counters on this card. Then remove all counters from this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "crossJoern": {
@@ -12496,11 +14466,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 4,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Joern.cross",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -12519,8 +14489,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 6,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -12533,6 +14503,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select <key>1</> card(s) on your field with counters, transfer the counters to this card and shuffle the card(s) into your deck."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "crossHlin": {
@@ -12546,11 +14524,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Hlin.cross",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12572,8 +14550,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12589,6 +14567,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select <key>2</> card(s) on your field with counters, transfer the counters to this card and shuffle the card(s) into your deck."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "crossBuggy": {
@@ -12602,11 +14590,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Buggy.cross",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -12625,8 +14613,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "manual",
                 "subTypeArr": [
@@ -12639,6 +14627,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select <key>1</> card(s) on your field with counters, transfer the counters to this card and shuffle the card(s) into your deck."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "crossAlbert": {
@@ -12652,11 +14648,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Beowulf.cross",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12680,8 +14676,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12699,6 +14695,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select <key>2</> card(s) on your field with counters, transfer the counters to this card and shuffle the card(s) into your deck."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "crossShizuka": {
@@ -12712,11 +14718,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Shizuka.cross",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12732,6 +14738,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "You must have exactly <key>6</> counters on your field (CURRENT 0/6). Transfer all of them to this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "mahouBunnyFire": {
@@ -12745,11 +14756,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kufi.mahou",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12766,8 +14777,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12778,6 +14789,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select another card on the field. <decompile>DECOMPILE</> this card and deal <uadd>[</><magic>3</><img id=\"dmg_magic\"/><uadd>]</> damage to it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mahouGirlFire": {
@@ -12791,11 +14810,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Akane.mahou",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12817,8 +14836,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12834,6 +14853,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select a <key>.mahou</> card in your deck with a different name and level less than or equal to this card's level, shuffle this card into the deck, then play the selected card to the slot this card was in and deactivate it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mahouBunnyEarth": {
@@ -12847,11 +14876,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kuea.mahou",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12868,8 +14897,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12880,6 +14909,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select up to <uadd>[</><key>3</><uadd>]</> enemy cards. <decompile>DECOMPILE</> this card and deal <magic>1</><img id=\"dmg_magic\"/> damage to each of them."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mahouGirlEarth": {
@@ -12893,11 +14930,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Chie.mahou",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12919,8 +14956,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12936,6 +14973,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select a <key>.mahou</> card in your deck with a different name and level less than or equal to this card's level, shuffle this card into the deck, then play the selected card to the slot this card was in and deactivate it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mahouBunnyWind": {
@@ -12949,11 +14996,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kuwi.mahou",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12970,8 +15017,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -12982,6 +15029,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select up to <uadd>[</><key>2</><uadd>]</> other cards on your field, <decompile>DECOMPILE</> this card and return the selected cards to your hand."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mahouGirlWind": {
@@ -12995,11 +15050,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kazane.mahou",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13023,8 +15078,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13042,6 +15097,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select a <key>.mahou</> card in your deck with a different name and level less than or equal to this card's level, shuffle this card into the deck, then play the selected card to the slot this card was in and deactivate it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mahouBunnyWater": {
@@ -13055,11 +15120,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kuwa.mahou",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13076,8 +15141,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13088,6 +15153,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "<decompile>DECOMPILE</> this card and draw <uadd>[</><key>3</><uadd>]</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mahouGirlWater": {
@@ -13101,11 +15174,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Aoi.mahou",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13127,8 +15200,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13144,6 +15217,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select a <key>.mahou</> card in your deck with a different name and level less than or equal to this card's level, shuffle this card into the deck, then play the selected card to the slot this card was in and deactivate it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mahouBunnyDark": {
@@ -13157,11 +15240,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kuda.mahou",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13178,8 +15261,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13190,6 +15273,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "<decompile>DECOMPILE</> this card, then deal <uadd>[</><magic>2</><img id=\"dmg_magic\"/><uadd>]</> damage to all enemy cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mahouGirlDark": {
@@ -13203,11 +15294,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Tsukiyo.mahou",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13229,8 +15320,8 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 2,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13246,6 +15337,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select a <key>.mahou</> card in your deck with a different name and level less than or equal to this card's level, shuffle this card into the deck, then play the selected card to the slot this card was in and deactivate it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mahouBunnyLight": {
@@ -13259,11 +15360,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Kuli.mahou",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13282,8 +15383,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13296,6 +15397,14 @@ export default {
                 ],
                 "XML": "<decompile>DECOMPILE</> this card, then <key>delay</> all enemies <uadd>[</><key>4</><uadd>]</> turns."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "mahouGirlLight": {
@@ -13309,11 +15418,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Hoshiko.mahou",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13335,8 +15444,8 @@ export default {
         ],
         "atk_upgrade": 2,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13352,6 +15461,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select a <key>.mahou</> card in your deck with a different name and level less than or equal to this card's level, shuffle this card into the deck, then play the selected card to the slot this card was in and deactivate it."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mahouWish": {
@@ -13365,11 +15484,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Wish.mahou",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13393,8 +15512,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13412,6 +15531,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "mahouHeartTrial": {
@@ -13423,11 +15552,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "TrialOfHeart",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13443,6 +15572,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "<decompile>DECOMPILE</> <key>3</> card(s) on your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "vaultCombo": {
@@ -13454,11 +15588,11 @@ export default {
         "extensionArr_normal": [],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Combo",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "trigger",
                 "subTypeArr": [
@@ -13467,6 +15601,9 @@ export default {
                 ],
                 "XML": "While this card is in your <key>hand</> or <key>field</>, if one of your <key>.vault</> cards with <attack>1</> or more <attack>attack</> declares a <img id=\"init\"/> effect, activate that effect again (after it resolves) and <void>VOID</> this card (ignores effects activated by another <key>Combo</> card)."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "vaultSlash": {
@@ -13480,11 +15617,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Slash.vault",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13501,8 +15638,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13513,6 +15650,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Activate only in your hand. Discard this card and reduce your <key>turn draw countdown</> by <key>1</>. Then, if this was the last card in your hand, draw <key>3</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "vaultBlade": {
@@ -13526,11 +15671,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "HiddenBlade.vault",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13547,8 +15692,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13564,6 +15709,15 @@ export default {
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vaultJab": {
@@ -13577,11 +15731,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Jab.vault",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13598,8 +15752,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13610,6 +15764,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Activate only in your hand. Discard this card and reduce your <key>turn draw countdown</> by <key>1</>. Then, if this was the last card in your hand, draw <key>3</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "vaultApprentice": {
@@ -13623,11 +15785,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Apprentice.vault",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13649,8 +15811,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13666,6 +15828,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "<decompile>DECOMPILE</> <key>2</> card(s) on your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vaultMultiBlade": {
@@ -13679,11 +15851,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "BladeOnBlades.vault",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13705,8 +15877,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13722,6 +15894,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "<decompile>DECOMPILE</> <key>2</> card(s) on your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vaultBide": {
@@ -13735,11 +15917,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 6,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Bide.vault",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13761,8 +15943,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 10,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13778,6 +15960,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "<decompile>DECOMPILE</> <key>3</> card(s) on your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vaultJuggle": {
@@ -13791,11 +15983,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Juggle.vault",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13812,8 +16004,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13824,6 +16016,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Activate only in your hand. Discard this card and reduce your <key>turn draw countdown</> by <key>1</>. Then, if this was the last card in your hand, draw <key>3</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "vaultChar": {
@@ -13837,11 +16037,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 10,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "TheHidden.vault",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "preload",
                 "subTypeArr": [],
@@ -13857,6 +16057,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "Delay an enemy <key>2</> turns. Create a <key>HiddenBlade.vault</> and <key>Combo</> card to your hand. This effect may also be activated in your trash, in that case, also shuffle this card into your deck."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "vaultOnceMore": {
@@ -13870,11 +16075,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "OnceMore.vault",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13896,8 +16101,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13913,6 +16118,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "<decompile>DECOMPILE</> <key>1</> card(s) on your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vaultAgility": {
@@ -13926,11 +16141,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Agility.vault",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13947,8 +16162,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13964,6 +16179,15 @@ export default {
                 "subTypeArr": [],
                 "XML": "Playing this card does not take a turn."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vaultLightUp": {
@@ -13977,11 +16201,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "LightItUp.vault",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -13998,8 +16222,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14010,6 +16234,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Activate only in your hand. Discard this card and reduce your <key>turn draw countdown</> by <key>1</>. Then, if this was the last card in your hand, draw <key>3</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "vaultOpportunist": {
@@ -14023,11 +16255,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Opportunist.vault",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14049,8 +16281,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14066,6 +16298,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "<decompile>DECOMPILE</> <key>1</> card(s) on your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "vaultParry": {
@@ -14079,11 +16321,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Parry.vault",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14100,8 +16342,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 5,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14112,6 +16354,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Activate only in your hand. Discard this card and reduce your <key>turn draw countdown</> by <key>1</>. Then, if this was the last card in your hand, draw <key>3</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "novaStandard": {
@@ -14125,18 +16375,20 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Protean.nova",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [],
+        "effectDisplayData_normal": [],
         "extensionArr_upgrade": [
             ".nova"
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": []
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [],
+        "effectPartition_normal": [],
+        "effectPartition_upgrade": []
     },
     "novaAssault": {
         "isUpgradable": true,
@@ -14149,11 +16401,11 @@ export default {
         ],
         "atk_normal": 2,
         "hp_normal": 2,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Assault.nova",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14165,13 +16417,19 @@ export default {
         ],
         "atk_upgrade": 3,
         "hp_upgrade": 3,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
                 "XML": "Play a level <uadd>[</><key>2</><uadd>]</> or lower <key>.mod</> card from your <key>deck</> to a slot adjacent to this card (excludes diagonals)."
             }
+        ],
+        "effectPartition_normal": [
+            1
+        ],
+        "effectPartition_upgrade": [
+            1
         ]
     },
     "novaSentinel": {
@@ -14185,11 +16443,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Sentinel.nova",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14206,8 +16464,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 4,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14218,6 +16476,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Reduce damage this card takes to <key>0</>, then remove this effect."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "novaResearch": {
@@ -14231,11 +16497,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Research.nova",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14252,8 +16518,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14264,6 +16530,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "Select a <key>.mod</> card in your hand. Shuffle it into your deck and draw <key>2</> cards."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "novaCarrier": {
@@ -14277,11 +16551,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 3,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Carrier.nova",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14303,8 +16577,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 6,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14320,6 +16594,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "Return a <key>.nova</> card on your field with <key>3</> effects to your hand (except <key>Carrier.nova</>)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "novaCarrier_minion": {
@@ -14333,16 +16617,19 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Swarm.nova",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "void",
                 "subTypeArr": [],
                 "XML": "<void>VOID</> this card when it is removed from the field."
             }
+        ],
+        "effectPartition_normal": [
+            1
         ]
     },
     "novaArchitect": {
@@ -14356,11 +16643,11 @@ export default {
         ],
         "atk_normal": 1,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Architect.nova",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14382,8 +16669,8 @@ export default {
         ],
         "atk_upgrade": 1,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14399,6 +16686,16 @@ export default {
                 "subTypeArr": [],
                 "XML": "You must have no <key>.nova</> cards on your field."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1,
+            1
         ]
     },
     "novaLeviathan": {
@@ -14412,11 +16709,11 @@ export default {
         ],
         "atk_normal": 3,
         "hp_normal": 10,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Leviathan.nova",
         "rarityStr": "red",
         "rarityHex": "B10000",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [
@@ -14434,6 +16731,11 @@ export default {
                 "subTypeArr": [],
                 "XML": "You must have no cards on your field and <key>3</> or more <key>.mod</> cards in your trash with different names (CURRENT 0/3)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1,
+            1
         ]
     },
     "novaBurstFire": {
@@ -14447,11 +16749,12 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "BurstFire.mod",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "novaFusillade": {
         "isUpgradable": true,
@@ -14464,11 +16767,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Fusillade.mod",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14485,8 +16788,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14497,6 +16800,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "If this card <physical>attacks</>, deal <uadd>[</><physical>2</><img id=\"dmg_phys\"/><uadd>]</> damage to all other cards in the same row as the attack target."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "novaHighExplosive": {
@@ -14510,11 +16821,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "HighExplosive.mod",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14531,8 +16842,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14543,6 +16854,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "If this card deals <img id=\"dmg_phys\"/> <physical>damage</>, deal <uadd>[</><magic>3</><img id=\"dmg_magic\"/><uadd>]</> damage to all enemy cards adjacent to the target (excludes diagonals). If the initial target was destroyed, deal <uadd>[</><magic>6</><img id=\"dmg_magic\"/><uadd>]</> damage instead."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "novaHeavyCaliber": {
@@ -14556,11 +16875,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "HeavyCaliber.mod",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14577,8 +16896,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14589,6 +16908,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card's attacks gain <uadd>[</><physical>+2</><img id=\"dmg_phys\"/><uadd>]</> damage. After this card attacks move it backwards. If a card was in the way, return that card to your hand."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "novaConvergence": {
@@ -14602,11 +16929,12 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Convergence.mod",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": []
+        "effectDisplayData_normal": [],
+        "effectPartition_normal": []
     },
     "novaTacLink": {
         "isUpgradable": true,
@@ -14619,11 +16947,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "TacticalLink.mod",
         "rarityStr": "white",
         "rarityHex": "FFFFFF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14640,8 +16968,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14652,6 +16980,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "When you play another card adjacent to this card (excluding diagonals), increase the <health>health</> of both this card and the played card by <uadd>[</><health>+2</><uadd>]</> (MAX <uadd>[</><health>+2</><uadd>]</> max health)."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "novaBarrier": {
@@ -14665,11 +17001,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Barrier.mod",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14686,8 +17022,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14698,6 +17034,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card cannot take more than <key>1</> damage at once."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "novaStrike": {
@@ -14711,11 +17055,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "SingularStrike.mod",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14732,8 +17076,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14744,6 +17088,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "If this card attacks, increase the damage of the attack by <uadd>[</><key>3</><uadd>]</> for each effect on this card (CURRENT <key>+0</> power). After this card attacks remove all effects from this card."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "novaLance": {
@@ -14757,11 +17109,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "CelestialLance.mod",
         "rarityStr": "blue",
         "rarityHex": "0089FF",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14778,8 +17130,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14790,6 +17142,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "While this card has more than <health>1</> health, when it moves, it takes <magic>1</><img id=\"dmg_magic\"/> damage then attacks for <uadd>[</><physical>4</><img id=\"dmg_phys\"/><uadd>]</> damage."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     },
     "novaAtaraxia": {
@@ -14803,11 +17163,11 @@ export default {
         ],
         "atk_normal": 0,
         "hp_normal": 1,
-        "effectID_normal": [],
+        "effectIDs_normal": [],
         "name": "Ataraxia.mod",
         "rarityStr": "green",
         "rarityHex": "00FF00",
-        "effectStr_normal": [
+        "effectDisplayData_normal": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14824,8 +17184,8 @@ export default {
         ],
         "atk_upgrade": 0,
         "hp_upgrade": 1,
-        "effectID_upgrade": [],
-        "effectStr_upgrade": [
+        "effectIDs_upgrade": [],
+        "effectDisplayData_upgrade": [
             {
                 "mainType": "init",
                 "subTypeArr": [],
@@ -14836,6 +17196,14 @@ export default {
                 "subTypeArr": [],
                 "XML": "This card gains effects based on how many <key>.mod</> cards are in your hand (CURRENT: 0):\n\n[2+]: Attacking reduces your turn draw countdown by <uadd>[</><key>2</><uadd>]</>.\n\n[3+]: Attacking an enemy delays them by <uadd>[</><key>5</><uadd>]</>.\n\n[4+]: Increase all damage dealt by <uadd>[</><key>+2</><uadd>]</>."
             }
+        ],
+        "effectPartition_normal": [
+            1,
+            1
+        ],
+        "effectPartition_upgrade": [
+            1,
+            1
         ]
     }
 }

@@ -1,3 +1,5 @@
+import type { cardData_single, cardData_merged } from "../data/cardRegistry";
+
 const utils = {
     toProper(str : string){
         return str.toLowerCase().replace(/(?:^|\s)\w/g, function(match) {
@@ -76,6 +78,41 @@ const utils = {
         }
     
         return flatIndex;
+    },
+
+    collapseCardData(isUpgraded : boolean, cardData : cardData_single) : cardData_merged{
+        let res : cardData_merged = {
+          id: cardData.id,
+          level: cardData.level,
+          rarityID: cardData.rarityID,
+          archtype: cardData.archtype,
+        
+          extensionArr: cardData.extensionArr_normal,
+          atk: cardData.atk_normal, //starting stat, think of these 2 as starting_maxAtk and starting_maxHp instead
+          hp: cardData.hp_normal,
+          effectIDs: cardData.effectIDs_normal,
+        
+          //stuff for display purposes
+          name: cardData.name,
+          rarityStr: cardData.rarityStr,
+          rarityHex: cardData.rarityHex,
+          effectDisplayData: cardData.effectDisplayData_normal,
+          effectPartition: cardData.effectPartition_normal,
+        
+          isUpgraded: isUpgraded,
+          isUpgradable: cardData.isUpgradable
+        }
+
+        if(!cardData.isUpgradable || !isUpgraded) return res;
+
+        res.atk = cardData.atk_upgrade
+        res.hp = cardData.hp_upgrade
+        res.extensionArr = cardData.extensionArr_upgrade
+        res.effectIDs = cardData.effectIDs_upgrade
+        res.effectDisplayData = cardData.effectDisplayData_upgrade
+        res.effectPartition = cardData.effectPartition_upgrade
+
+        return res;
     }
 }
 

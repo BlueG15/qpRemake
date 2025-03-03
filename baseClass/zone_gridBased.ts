@@ -1,11 +1,12 @@
 //hand, grave, field, deck, etc extends from this, reserve index 0 for system
+import type { zoneData } from "../data/zoneRegistry";
 import position from "./position";
 import utils from "./util";
 import Zone from "./zone";
 
 class Zone_grid extends Zone {
-    constructor(n : string){
-        super(n)
+    constructor(id : string, name: string, data? : Record<string, zoneData>){
+        super(id, name, data)
         //cant have infinite capacity
         this.cardArr = (this.valid) ? new Array(this.capacity).fill(undefined) : []
     }

@@ -1,4 +1,4 @@
-import error from "../actionTypes/error"
+import error from "../specialActionTypes/error"
 
 class cardNotInApplicableZone extends error {
     constructor(zoneID : number, cardID : string){

@@ -1,4 +1,5 @@
 import cardNotExist from "./cardNotExist";
+import effectNotExist from "./effectNotExist";
 import cardNotInApplicableZone from "./cardNotInApplicableZone";
 import effectCondNotMet from "./effectCondNotMet";
 import invalidOrderMap from "./invalidOrderMap";
@@ -18,4 +19,5 @@ export {
   wrongEffectIdx,
   zoneAttrConflict,
   zoneFull,
+  effectNotExist
 };
