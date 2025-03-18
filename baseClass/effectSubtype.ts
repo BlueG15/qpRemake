@@ -1,8 +1,12 @@
 import type Card from "./card";
 import type dry_system from "../dryData/dry_system";
 import type Action from "./action";
+import type Effect from "./effect";
 
-type doAppendInsteadOfOverride = boolean
+import dry_effectSubType from "../dryData/dry_effectSubType";
+
+type doNothingCode = -1
+type doNothingAndSkipTypeCheckCode = -2
 class effectSubtype {
     type : string
     id : string
@@ -17,14 +21,19 @@ class effectSubtype {
 
     //remember, what returns here is simply the extra functionality of the subtype
     //we do not care here what the fuck the effect do
-    canActivate(c : Card, system : dry_system, a : Action) : -1 | boolean {
-        //-1 means no change
+    onEffectCheckCanActivate(c : Card, e : Effect, system : dry_system, a : Action) : doNothingCode | doNothingAndSkipTypeCheckCode | boolean {
+        return -1
+    }
+    
+    onEffectActivate(c : Card, e : Effect, system : dry_system, a : Action) : doNothingCode | Action[] {
+        //I hereby declare that
+        //subtypes cannot override effects
+        //whatever returns here shall be appended
         return -1
     }
 
-    activate(c : Card, system : dry_system, a : Action) : -1 | [doAppendInsteadOfOverride, Action[]] {
-        return -1
-    }
+    //this is for subtype specific functionality
+    activateSpecificFunctionality(c : Card, e : Effect, system : dry_system, a : Action) : Action[] {return []}
 
     disable(){
         this.isDisabled = true
@@ -32,6 +41,10 @@ class effectSubtype {
 
     enable() {
         this.isDisabled = false
+    }
+
+    toDry(){
+        return new dry_effectSubType(this)
     }
 }
 

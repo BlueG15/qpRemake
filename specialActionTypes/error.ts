@@ -23,6 +23,8 @@ class error extends action {
     callStack : debugInfo[] = []; //larger index = higher hierachy
     constructor(cardID? : string){
         super("error", true, cardID);
+        this.canBeChainedTo = false;
+        this.canBeTriggeredTo = false;
     }
     add(file : string, func? : string, line? : number){
         this.callStack.push(new debugInfo(file, func, line));

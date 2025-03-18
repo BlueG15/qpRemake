@@ -1,9 +1,10 @@
 import _node from "./node";
+import type Action from "./action";
 
-class _tree<T> {
+class _tree {
     protected length : number = 0
-    root : _node<T>
-    constructor(a : T){
+    root : _node
+    constructor(a : Action){
         this.root = new _node(a, 0, this.length)
         this.length++;
     }
@@ -16,7 +17,7 @@ class _tree<T> {
     //     if(node.isLeaf) return func(node)
     //     return this.handleNode(func, node.firstChild, ...data)
     // }
-    protected handleNode(func: (node: _node<T>) => void, node: _node<T> = this.root, ...data : any[]): boolean {
+    protected handleNode(func: (node: _node) => void, node: _node = this.root, ...data : any[]): boolean {
         if (!node) return false;
         for (let child of node.childArr) {
             if (this.handleNode(func, child, data)) return true;
@@ -27,14 +28,14 @@ class _tree<T> {
         }
         return false;
     }
-    attach(...data: T[]){
-        this.handleNode((n : _node<T>) => {
+    attach(...data: Action[]){
+        this.handleNode((n : _node) => {
             return n.attach(this.length, ...data)
         }, this.root, ...data)
         this.length += data.length
     }
-    modify(func : (a : T) => T){
-        return this.handleNode((n : _node<T>) => {
+    modify(func : (a : Action) => Action){
+        return this.handleNode((n : _node) => {
             return n.modifySelf(func)
         }, this.root, func)
     }
@@ -47,7 +48,7 @@ class _tree<T> {
         return this.root.flat()
     }
     invalidate(){
-        return this.handleNode((n : _node<T>) => {
+        return this.handleNode((n : _node) => {
             return n.invalidate()
         }, this.root)
     }
@@ -57,7 +58,7 @@ class _tree<T> {
     //     console.log(node.data);
     // }
 
-    getNormal(node: _node<T> = this.root): T | undefined {
+    getNormal(node: _node = this.root): Action | undefined {
         if (!node) return undefined;
         for (let child of node.childArr) {
             let result = this.getNormal(child);
@@ -68,7 +69,7 @@ class _tree<T> {
     }
     
     //archaic methods
-    protected handleNodeWithID(nodeID : number, func: (node: _node<T>) => void, node: _node<T> = this.root, ...data : any[]): boolean {
+    protected handleNodeWithID(nodeID : number, func: (node: _node) => void, node: _node = this.root, ...data : any[]): boolean {
         if(!this.IDValid(nodeID)) return false
         if (!node) return false;
         for (let child of node.childArr) {
@@ -83,28 +84,28 @@ class _tree<T> {
     IDValid(nodeID : number){
         return nodeID >= 0 && nodeID < this.length
     }
-    attachArbitrary(nodeID : number, ...data : T[]){
+    attachArbitrary(nodeID : number, ...data : Action[]){
         if(!data.length) return false;
-        let a = this.handleNodeWithID(nodeID, (n : _node<T>) => {
+        let a = this.handleNodeWithID(nodeID, (n : _node) => {
             return n.attach(this.length, ...data)
         }, this.root, ...data)
         if(a) this.length += data.length
         return a
     }
-    modifyArbitrary(nodeID : number, func : (a : T) => T){
-        return this.handleNodeWithID(nodeID, (n : _node<T>) => {
+    modifyArbitrary(nodeID : number, func : (a : Action) => Action){
+        return this.handleNodeWithID(nodeID, (n : _node) => {
             return n.modifySelf(func)
         }, this.root, func)
     }
     invalidateArbitrary(nodeID : number){
-        return this.handleNodeWithID(nodeID, (n : _node<T>) => {
+        return this.handleNodeWithID(nodeID, (n : _node) => {
             return n.invalidate()
         }, this.root)
     }
 
-    recurAll(func : (a : _node<T>) => boolean, stopID? : number){
+    recurAll(func : (a : _node) => boolean, stopID? : number){
         let flag : boolean = false
-        this.handleNode((n : _node<T>) => {
+        this.handleNode((n : _node) => {
             if(n.id === stopID) {
                 flag = true
                 return
@@ -117,16 +118,16 @@ class _tree<T> {
 
     //added, kinda danerous since now outsider have access to node pointers 
     getNode(id : number){
-        let n : _node<T> = this.root
-        this.handleNodeWithID(id, (k : _node<T>) => {
+        let n : _node = this.root
+        this.handleNodeWithID(id, (k : _node) => {
             n = k;
         })
         return n;
     }
 
-    getNext(){
-        let n : _node<T> | undefined = undefined
-        this.handleNode((k : _node<T>) => {
+    getNext() : _node | undefined {
+        let n : _node | undefined = undefined
+        this.handleNode((k : _node) => {
             n = k;
         })
         return n;

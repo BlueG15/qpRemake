@@ -17,6 +17,11 @@ class turnReset extends action {
 
     set doIncrementTurn(k : boolean) {this.modifyAttr("doIncrementTurn", k)}
     set doFieldRefresh(k : boolean) {this.modifyAttr("doFieldRefresh", k)}
+
+    protected override verifyNewValue(key: string, newVal: any): boolean {
+        if((key === "doIncrementTurn" || key === "doFieldRefresh") && typeof newVal === "boolean") return true
+        return super.verifyNewValue(key, newVal);
+    }
 }
 
 export default turnReset

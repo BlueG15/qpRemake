@@ -2,9 +2,9 @@
 import zone_stack from "../baseClass/zone_stackBased";
 
 class _void extends zone_stack {
-    constructor(){
-        super("void");
-    }
+    // constructor(){
+    //     super("void");
+    // }
 }
 
 export default _void

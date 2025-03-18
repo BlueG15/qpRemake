@@ -34,6 +34,14 @@ class dry_zone {
             cardMap : c
         }, null, spaces)
     }
+
+    getCardWithID(cid : string) : dry_card | undefined{
+        let res : dry_card | undefined = undefined
+        this.cardMap.forEach(i => {
+            if(i.id === cid) res = i
+        })
+        return res
+    }
 }
 
 export default dry_zone

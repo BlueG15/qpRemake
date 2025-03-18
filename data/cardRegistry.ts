@@ -52,7 +52,7 @@ export type cardData_single = cardData_general & ({isUpgradable : false} | {
   hp_upgrade: number;
   effectIDs_upgrade: string[];
   effectDisplayData_upgrade: effectDisplayDataItem[];
-  effectPartition_upgrade: number[] //len <= 3
+  effectPartition_upgrade: number[] //len <= 3 hopefully?
 });
 
 export type effectDisplayDataItem = {

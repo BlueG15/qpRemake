@@ -6,13 +6,16 @@ import type dry_card from "../dryData/dry_card";
 import actionRegistry from "../data/actionRegistry";
 
 class Action {
+  id: number
   type: string;
   causeCardID?: string; //the cause of the action
   targetCardID?: string; //the target of the action
   targetActionID?: number; // the target of the action, type action
   isChain: boolean;
   canBeChainedTo: boolean;
+  canBeTriggeredTo: boolean;
   inputTypeArr: ("position" | "card" | "number" | "boolean")[];
+  isDisabled : boolean = false
 
   protected attr: Map<string, any> = new Map();
 
@@ -26,7 +29,7 @@ class Action {
     targetActionID?: number,
 
     canBeChainedTo: boolean = true,
-
+    canBeTriggeredTo: boolean = true,
     inputTypeArr: ("position" | "card" | "number" | "boolean")[] = []
   ) {
     this.type = type;
@@ -35,7 +38,12 @@ class Action {
     this.targetActionID = targetActionID;
     this.isChain = isChain; //true -> atatched this as child node
     this.canBeChainedTo = canBeChainedTo;
+    this.canBeTriggeredTo = canBeTriggeredTo
     this.inputTypeArr = inputTypeArr;
+  }
+
+  assignID(n : number){
+    this.id = n
   }
 
   get hasCardTarget() {
@@ -47,21 +55,31 @@ class Action {
   get hasCause() {
     return this.causeCardID !== undefined;
   } //dont have cause -> cause is from playerAction
-  get fromPlayer() {
-    return this.hasCause;
-  }
+  // get fromPlayer() {
+  //   return this.hasCause;
+  // }
   get fromCard() {
     return !this.hasCause;
   }
   get typeID() {
-    return actionRegistry[this.type];
+    return actionRegistry[this.type] ?? NaN;
   }
   get requireInput() {
     return this.inputTypeArr.length === 0
   }
 
-  modifyAttr(key: string, newVal: any) {
+  protected verifyNewValue(key: string, newVal: any){
+    //should override this
+    //but call super at the end
+    if(key === "targetCardID" && typeof newVal === "string") return true
+    if(key === "targetActionID" && typeof newVal === "number") return true
+    return false
+  }
+
+  modifyAttr(key: string, newVal: any){
     if (newVal === this.attr.get(key)) return;
+    //check type
+    if(!this.verifyNewValue(key, newVal)) return;
     if (key == "targetCardID") return this.changeTarget(String(newVal));
     if (key == "targetActionID")
       return this.changeTarget(Number.parseInt(newVal));
@@ -80,10 +98,16 @@ class Action {
     this.modifiedSinceLastAccessed = true;
   }
 
-  //do?() : action // action may modifies an actions
-
   //resolve<T extends action | card>(a : T) : T{return a}
   applyUserInput(input: dry_position | string | dry_card | number): void {}
+
+  disable(){
+    this.isDisabled = true
+  }
+
+  enable() {
+      this.isDisabled = false
+  }
 }
 
 export default Action;

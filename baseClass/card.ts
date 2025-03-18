@@ -184,6 +184,24 @@ class Card {
         //fix later
         return [undefined, this.totalEffects[idx].activate(this, system, a)]
     }
+
+    activateEffectSubtypeSpecificFunc(eidx : number, subTypeidx : number, system : dry_system, a : action) : res;
+    activateEffectSubtypeSpecificFunc(eidx : number, subTypeID  : string, system : dry_system, a : action) : res;
+    activateEffectSubtypeSpecificFunc(eID  : string, subTypeID  : string, system : dry_system, a : action) : res;
+    activateEffectSubtypeSpecificFunc(eID  : string, subTypeidx : number, system : dry_system, a : action) : res;
+    activateEffectSubtypeSpecificFunc(effectIdentifier : string | number, subtypeIdentifier : string | number, system : dry_system, a : action) : res{
+        let idx : number
+        if(typeof effectIdentifier === "string"){
+            idx = this.findEffectIndex(effectIdentifier)
+            if(idx < 0) return [new effectNotExist(effectIdentifier, this.id), undefined]
+        } else idx = effectIdentifier;
+        if(!this.totalEffects[idx]){
+            let err = new wrongEffectIdx(idx, this.id)
+            err.add("card.ts", "activateEffect", 25)
+            return [err, undefined]
+        }
+        return [undefined, this.totalEffects[idx].activateSubtypeSpecificFunc(subtypeIdentifier, this, system, a)];
+    }
     turnReset(a : turnReset) : action[]{
         this.canAct = true
         return this.clearAllStatus()

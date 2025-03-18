@@ -29,6 +29,15 @@ const utils = {
         return s.join("");
     },
 
+    dataIDToUniqueID(type : string, num : number, len? : number){
+        let runID = this.generateID(len);
+        return type + '_' + runID + '_' + num;
+    },
+
+    uniqueIDTodataID(id : string){
+        return id.split("_")[0]
+    },
+
     removeDuplicates(...arr : any[][]){
         return [...new Set(([] as any[]).concat(...arr))];
     },

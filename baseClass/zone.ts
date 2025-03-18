@@ -26,7 +26,7 @@ import {
   zoneAttrConflict,
   invalidPosition,
   zoneFull,
-} from "../handlers/errorHandler";
+} from "../errors";
 
 class Zone {
   //list of boolean attributes:
@@ -412,28 +412,41 @@ class Zone {
     });
     return res;
   }
-  getZoneRespond(a: action, isChain: boolean): action[] {
+  getZoneRespond(a: action, system : dry_system): action[] {
+    //zone responses bypasses cannot chain
+    //only calls in chain phase
     return [];
   }
   getCanRespondMap(a: action, system: dry_system) {
-    let res = new Map<number, [number[], dry_card]>();
+    let res = new Map<dry_card, number[]>();
     this.cardArr.forEach((i, idx) => {
       if (i) {
-        res.set(idx, [i.getResponseIndexArr(system, a), i.toDry()]);
+        res.set(i.toDry(), i.getResponseIndexArr(system, a));
       }
     });
     return res;
   }
 
-  activateEffect(
-    cidx: number,
-    eID: number,
-    system: dry_system,
-    a: action
-  ): res {
-    if (!this.cardArr[cidx]) return [new unknownError(), undefined];
-    return (this.cardArr[cidx] as card).activateEffect(eID, system, a);
-  }
+  // activateEffect(
+  //   cidx: number,
+  //   eidx: number,
+  //   system: dry_system,
+  //   a: action
+  // ): res {
+  //   if (!this.cardArr[cidx]) return [new unknownError(), undefined];
+  //   return (this.cardArr[cidx] as card).activateEffect(eidx, system, a);
+  // }
+
+  // activateEffectSubtypeSpecificFunc(
+  //   cidx: number,
+  //   eidx: number,
+  //   subTypeidx: number, 
+  //   system: dry_system,
+  //   a: action
+  // ) : res {
+  //   if (!this.cardArr[cidx]) return [new unknownError(), undefined];
+  //   return (this.cardArr[cidx] as card).activateEffectSubtypeSpecificFunc(eidx, subTypeidx, system, a)
+  // }
 
   //can override section
   handleCardNotExist(func: string, line?: number): res {

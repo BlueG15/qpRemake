@@ -1,7 +1,6 @@
 import Action from "../baseClass/action";
 
 class addStatusEffect extends Action {
-    statusID : string
     constructor(
         isChain: boolean, 
         targetCardID : string, 
@@ -10,6 +9,14 @@ class addStatusEffect extends Action {
     ){
         super("addStatusEffect", isChain, originateCardID, targetCardID)
         this.statusID = statusID
+    }
+
+    get statusID() : string {return this.attr.get("statusID")}
+    set statusID(newID : string) {this.modifyAttr("statusID", newID)}
+
+    protected override verifyNewValue(key: string, newVal: any): boolean {
+        if(key === "statusID" && typeof newVal === "string") return true
+        return super.verifyNewValue(key, newVal);
     }
 }
 

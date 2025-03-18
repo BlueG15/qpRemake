@@ -8,6 +8,11 @@ import turnStart from "../specificAction/turnStart";
 import freeUpStatusIDs from "../specificAction/freeUpStatusIDs";
 import addStatusEffect from "../specificAction/addStatusEffect";
 import removeStatusEffect from "../specificAction/removeStatusEffect";
+import activateEffectSubtypeSpecificFunc from "../specificAction/activateEffectSubtypeSpecificFunc";
+import internalActivateEffectSignal from "../specificAction/internalActivateEffectSignal";
+import increaseTurnCount from "../specificAction/increaseTurnCount";
+import setThreatLevel from "../specificAction/setThreatLevel";
+import modifyAnotherAction from "../specificAction/modifyAnotherAction";
 
 export {
     drawAction,
@@ -19,5 +24,10 @@ export {
     turnEnd,
     freeUpStatusIDs,
     addStatusEffect,
-    removeStatusEffect
+    removeStatusEffect,
+    activateEffectSubtypeSpecificFunc,
+    internalActivateEffectSignal,
+    increaseTurnCount,
+    setThreatLevel,
+    modifyAnotherAction
 }

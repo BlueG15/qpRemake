@@ -26,6 +26,12 @@ class drawAction extends posChange {
 
     get doChangeCooldown() : boolean {return isNaN(this.cooldown)}
     get hasCard() : boolean {return Boolean(this.targetCardID) && this.targetCardID != "unknownID"}
+
+    protected override verifyNewValue(key: string, newVal: any): boolean {
+        if(key === "cooldown" && typeof newVal === "number") return true
+        if(key === "doTurnReset" && typeof newVal === "boolean") return true
+        return super.verifyNewValue(key, newVal);
+    }
 }
 
 export default drawAction

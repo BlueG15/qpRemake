@@ -1,21 +1,22 @@
 import type effect from "../baseClass/effect";
+import type dry_effectSubType from "./dry_effectSubType";
 
 class dry_effect {
+    readonly id : string
     readonly type: string
-    readonly subTypes: string[]
+    readonly subTypes: dry_effectSubType[]
     readonly desc: string
-    readonly canRespondDuringChain : boolean
-    readonly canRespondDuringTrigger : boolean
+    readonly isDisabled : boolean
     readonly attr: Map<string, number> //position and stuff is in here
 
     constructor(eff : effect){
+        this.id = eff.id
         this.type = eff.type
         this.subTypes = []
-        this.subTypes.push(...eff.subTypes)
+        this.subTypes.push(...eff.subTypes.map(i => i.toDry()))
         this.desc = eff.desc
-        this.canRespondDuringChain = eff.canRespondDuringChain
-        this.canRespondDuringTrigger = eff.canRespondDuringTrigger
         this.attr = new Map<string, number>(Object.entries(eff.attr))
+        this.isDisabled = eff.isDisabled
     }
 
     toString(spaces : number){
@@ -23,8 +24,6 @@ class dry_effect {
             type : this.type,
             subTypes : this.subTypes,
             desc : this.desc,
-            canRespondDuringChain : this.canRespondDuringChain,
-            canRespondDuringTrigger : this.canRespondDuringTrigger,
             attr : JSON.stringify(Array.from(Object.entries(this.attr)))
         }, null, spaces)
     }

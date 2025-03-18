@@ -13,17 +13,20 @@ import type grave from "../zones/grave";
 import type hand from "../zones/hand";
 import type field from "../zones/field";
 import type _void from "../zones/void";
+// import type dry_card from "../dryData/dry_card";
 
 import utils from "../baseClass/util";
 import type zoneRegistry from "../data/zoneRegistry";
 import action from "../baseClass/action";
 
-import { cardNotExist } from "./errorHandler";
+import { cardNotExist } from "../errors";
 import {
     turnReset,
     drawAction,
     shuffle,
-    activateEffect
+    activateEffect,
+    internalActivateEffectSignal,
+    activateEffectSubtypeSpecificFunc,
 } from "./actionHandler"
 
 class zoneHandler {
@@ -115,20 +118,44 @@ class zoneHandler {
         return [new cardNotExist().add("cardHandler", "handleEffectActivation", 102)]       
     }
 
-    respond(a : action, system : dry_system, isChain : boolean){
-        let arr : action[] = []
+    handleActivateEffectSubtypeFunc(a : activateEffectSubtypeSpecificFunc, system : dry_system){
+        let cardIdx = a.targetCardID as string
         this.zoneArr.forEach(i => {
-            arr.push(...i.getZoneRespond(a, isChain))
+            let t = i.findIndex(cardIdx)
+            if(t >= 0){
+                let k = (i.cardArr[t] as card).activateEffectSubtypeSpecificFunc(a.effectID, a.subTypeID ,system, a)
+                if(k[0]) return [k[0].add("cardHandler", "handleEffectActivation", 127)]
+                else return k[1]
+            }
+        }) 
+        return [new cardNotExist().add("cardHandler", "handleEffectActivation", 131)]
+    }
+
+    respond(a : action, system : dry_system, zoneResponsesOnly : boolean = false) : [action[], [string, string[]][]]{
+        let arr : action[] = []
+        let infoLog : Map<string, string[]> = new Map() //cardID, effectIDs[]
+        this.zoneArr.forEach(i => {
+            arr.push(...i.getZoneRespond(a, system))
         })
+        if(zoneResponsesOnly) return [arr, []];
         this.zoneArr.forEach(i => {
             let respondMap = i.getCanRespondMap(a, system)
-            respondMap.forEach(([edixArr, cardInfo], index) => {
-                edixArr.forEach(eidx => {
-                    arr.push(new activateEffect(isChain, cardInfo.id, eidx, a.causeCardID))
+            respondMap.forEach((eidxArr, cardInfo) => {
+                eidxArr.forEach(eidx => {
+                    arr.push(new internalActivateEffectSignal(
+                        cardInfo.id, 
+                        cardInfo.effects[eidx].id, 
+                        a.causeCardID
+                    ))
+                    if(infoLog.has(cardInfo.id)) {
+                        (infoLog.get(cardInfo.id) as string[]).push(cardInfo.effects[eidx].id);
+                    } else {
+                        infoLog.set(cardInfo.id, [cardInfo.effects[eidx].id])
+                    } 
                 })
             })
         })
-        return arr
+        return [arr, Object.entries(infoLog)]
     }
 
     enforceCardIntoZone(zoneIdx : number, cardArr : card[]){
@@ -137,6 +164,15 @@ class zoneHandler {
 
     getZoneWithName(zoneName : string){
         return this.zoneArr.find(a => a.name == zoneName)
+    }
+
+    getCardFromID(cardID : string){
+        for(let i = 0; i < this.zoneArr.length; i++){
+            let index = this.zoneArr[i].cardArr.findIndex(i => i && i.id === cardID)
+            if(index < 0) continue;
+            return this.zoneArr[i].cardArr[index];
+        }
+        return undefined
     }
 
     //get stuff

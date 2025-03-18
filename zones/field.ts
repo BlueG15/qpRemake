@@ -10,13 +10,13 @@ import zone_grid from "../baseClass/zone_gridBased";
 //flipped if enemy
 
 class field extends zone_grid {
-    constructor(isPlayerField : boolean);
-    constructor(keyStr : string);
-    constructor(param : boolean | string = true){
-        if(typeof param == "string") super(param);
-        else if(param) super("playerField");
-        else super("enemyField");
-    }
+    // constructor(isPlayerField : boolean);
+    // constructor(keyStr : string);
+    // constructor(param : boolean | string = true){
+    //     if(typeof param == "string") super(param);
+    //     else if(param) super("playerField");
+    //     else super("enemyField");
+    // }
 
     getEmptyPosArr(){
         let res : position[] = [];

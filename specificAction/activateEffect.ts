@@ -13,6 +13,11 @@ class activateEffect extends action {
 
     get effectID() : string {return this.attr.get("effectID")}
     set effectID(newID : string) {this.modifyAttr("effectID", newID)}
+
+    protected override verifyNewValue(key: string, newVal: any): boolean {
+        if(key === "effectID" && typeof newVal === "string") return true
+        return super.verifyNewValue(key, newVal);
+    }
 }
 
 export default activateEffect

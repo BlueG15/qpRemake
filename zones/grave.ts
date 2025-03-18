@@ -4,13 +4,13 @@ import type card from "../baseClass/card";
 import zone_stack from "../baseClass/zone_stackBased";
 
 class grave extends zone_stack {
-    constructor(isPlayerGrave : boolean);
-    constructor(keyStr : string);
-    constructor(param : boolean | string = true){
-        if(typeof param == "string") super(param);
-        else if(param) super("playerGrave");
-        else super("enemyGrave");
-    }
+    // constructor(isPlayerGrave : boolean);
+    // constructor(keyStr : string);
+    // constructor(param : boolean | string = true){
+    //     if(typeof param == "string") super(param);
+    //     else if(param) super("playerGrave");
+    //     else super("enemyGrave");
+    // }
 
     setCapacity(newCapacity : number){this.posBound = [newCapacity];} 
 

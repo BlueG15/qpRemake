@@ -8,6 +8,8 @@ import unknownError from "./unknownError";
 import wrongEffectIdx from "./wrongEffectIdx";
 import zoneAttrConflict from "./zoneAttrConflict";
 import zoneFull from "./zoneFull";
+import subTypeOverrideConflict from "./subTypeOverrideConflict";
+import unregisteredAction from "./unregisteredAction";
 
 export {
   cardNotExist,
@@ -19,5 +21,7 @@ export {
   wrongEffectIdx,
   zoneAttrConflict,
   zoneFull,
-  effectNotExist
+  effectNotExist,
+  subTypeOverrideConflict,
+  unregisteredAction,
 };

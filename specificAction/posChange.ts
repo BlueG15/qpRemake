@@ -1,4 +1,4 @@
-import type position from "../baseClass/position";
+import position from "../baseClass/position";
 import action from "../baseClass/action";
 
 //fromPos may do nothing, most zones just check the dang card with id
@@ -27,6 +27,28 @@ class posChange extends action {
 
     get swapTargetID() : string | undefined {return this.attr.get("swapTargetID")}
     set swapTargetID(value: string | undefined) {this.modifyAttr("swapTargetID", value)}
+
+    protected override verifyNewValue(key: string, newVal: any): boolean {
+        if(
+            key === "fromPos" && 
+            typeof newVal === "object" &&
+            newVal instanceof position
+        ) return true
+
+        if(
+            key === "toPos" && 
+            (typeof newVal === "object" &&
+            newVal instanceof position) ||
+            (typeof newVal === "undefined")
+        ) return true
+
+        if(
+            key === "swapTargetID" && 
+            typeof newVal === "string" ||
+            typeof newVal === "undefined"
+        ) return true
+        return super.verifyNewValue(key, newVal);
+    }
 }
 
 export default posChange

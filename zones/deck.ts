@@ -19,10 +19,6 @@ class deck extends zone_stack {
     maxCoolDown = 10;
     currentCoolDown = 10;
 
-    constructor(){
-        super("deck");
-    }
-
     getAction_draw(isChain : boolean, isTurnDraw : boolean, toPos? : position){
         let cid : string | undefined;
         cid = (this.cardArr[0]) ? this.cardArr[0].id : undefined

@@ -33,8 +33,7 @@ class cardHandler {
         this.cardCounterMap.set(cardID, num)
 
         //generate random ID to append to the cardID
-        let runID = utils.generateID(this.randomIDLen);
-        runID = cardID + '_' + runID + '_' + num;
+        let runID = utils.dataIDToUniqueID(cardID, num, this.randomIDLen)
 
         return new Card(runID, cardID, utils.collapseCardData(isUpgraded, this.cardReg[cardID]))
     }
