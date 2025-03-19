@@ -6,7 +6,7 @@ import type dry_card from "../dryData/dry_card";
 import actionRegistry from "../data/actionRegistry";
 
 class Action {
-  id: number
+  id: number = NaN
   type: string;
   causeCardID?: string; //the cause of the action
   targetCardID?: string; //the target of the action

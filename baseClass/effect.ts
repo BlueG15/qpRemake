@@ -23,6 +23,7 @@ class Effect {
     //inherit this and modifies something here to implement their functionality
     //ima still do that since thats is easier to immagine and bullshit like once unique dont happen
     //but we need to keep track of what sub-types we have for display / checking purposes
+    //^ done, status effect and subType is a thing
     
     attr: Map<string, number> = new Map(); //position and stuff is in here
 
