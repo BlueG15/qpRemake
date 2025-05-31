@@ -1,0 +1,23 @@
+import Action from "../abstract/gameComponents/action"
+
+class activateEffect extends Action {
+    constructor(
+        isChain: boolean, 
+        targetCardID: string, 
+        effectID: string, 
+        originateCardID?: string
+    ){
+        super("activateEffect", isChain, originateCardID, targetCardID)
+        this.attr.set("effectID", effectID)
+    }
+
+    get effectID() : string {return this.attr.get("effectID")}
+    set effectID(newID : string) {this.modifyAttr("effectID", newID)}
+
+    protected override verifyNewValue(key: string, newVal: any): boolean {
+        if(key === "effectID" && typeof newVal === "string") return true
+        return super.verifyNewValue(key, newVal);
+    }
+}
+
+export default activateEffect

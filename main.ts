@@ -1,9 +1,9 @@
-import queenSystem from "./handlers/queenSystem";
-import zoneHandler from "./handlers/zoneHandler";
+import queenSystem from "./_queenSystem/main";
+import zoneHandler from "./_queenSystem/zoneHandler";
 
 import blankCard from "./specificCard/blank";
 
-import zoneRegistry from "./data/zoneRegistry";
+import zoneRegistry from "./types/data/zoneRegistry";
 
 async function main(){
     let z = new zoneHandler()
