@@ -1,4 +1,4 @@
-import { component, mod, moduleInputObject, parseOptions, mode, textComponent } from '../../types/abstract/parser';
+import { component, effectTextParserModule, moduleInputObject, parseOptions, mode, textComponent } from '../../types/abstract/parser';
 type nestedTree<T> = T[] | nestedTree<T>[]
 
 const head_symbol = [
@@ -285,7 +285,7 @@ function merge(symbolArr : string[]){
     return res
 }
 
-export default class stringParseModule extends mod {
+export default class stringParseModule extends effectTextParserModule {
 
     override cmdName = ['string'];
     override requiredAttr = [["expr"]];

@@ -1,4 +1,4 @@
-import zoneRegistry from "../../data/zoneRegistry";
+import zoneDataRegistry from "../../data/zoneRegistry";
 import dry_position from "../../data/dry/dry_position";
 import utils from "../../../utils";
 
@@ -38,7 +38,7 @@ class Position {
         this.arr = new Array(this.length).fill(-1);
     }
     toString(){
-        if(this.valid) return `[${Object.keys(zoneRegistry)[this.zoneID]}, ${
+        if(this.valid) return `[${Object.keys(zoneDataRegistry)[this.zoneID]}, ${
             (this.length == 1) ? this.arr[0] : 
             this.arr.join(", ")
         }]`;

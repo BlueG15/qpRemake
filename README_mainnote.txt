@@ -219,10 +219,52 @@ Patcher has these methods:
     | --> patch(cardID, variantID, baseData) : CardData | undefined
     | --> getValidVariantID() : string[]
  
-Eventually i want to demolish the data folder
+DO NOT DELETE THE DATA FOLDER
+registrys are still needed
+
+-----
+June 1 2025
+
+to remind myself to no longer think ab dynamic effect loading
+mods rn only defines the cards, including the effects in it
+
+if we decouple again, mods have to define both 
+
+I mean this is possible?
+
+-------
+June 2 2025
+
+Maybe we do both way dynamic loading, reverting to Card() when needed
+
+theoretically, cardData has 5 more properties
+
+effectID[]
+statusEffectIDs[]
+statusEffectSubtypeID[][]
+statusEffectIDs
+effectSubtypeID[][] //used to load subtypes into effects
 
 
+This is 
+honestly very long?
 
+Maybe a custom instruction set to deal with this
+
+or a different structure, like
+
+cardData
+    | ... Stats
+    | ... Display data
+    | effects : {
+        effectID : subTypeID[]
+    }
+    | statusEffects : {
+        effectID : subtypeID[]
+    }
+
+
+on account of every cards can be enemies, everycard's base variant is default to player's, then have an extra variant called enemy
 
 
 

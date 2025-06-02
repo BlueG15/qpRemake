@@ -1,6 +1,6 @@
 import { iconID, component, componentID, textComponent, numberComponent, imageComponent, referenceComponent, iconComponent } from "./component";
 import modPack from "./modPack";
-import { mod } from "./mod";
+import { effectTextParserModule } from "../../mods/effectTextParserModule";
 import moduleInputObject from "./moduleInputObject";
 import { mode, parseOptions, loadOptions, lib_parse_option } from "./options";
 
@@ -14,7 +14,7 @@ export {
     imageComponent, 
     referenceComponent, 
     iconComponent,
-    mod,
+    effectTextParserModule,
     modPack,
     moduleInputObject,
     mode, 

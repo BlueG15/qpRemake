@@ -1,14 +1,16 @@
-import { component, mod, componentID, iconID, moduleInputObject, parseOptions, textComponent, iconComponent } from '../../types/abstract/parser';
+import { component, effectTextParserModule, componentID, iconID, moduleInputObject, parseOptions, textComponent, iconComponent } from '../../types/abstract/parser';
 type nestedTree<T> = T[] | nestedTree<T>[]
 
-export default class sectionIDModule extends mod {
+export default class sectionIDModule extends effectTextParserModule {
 
-    private quickKeyword = ['void', 'decompile', 'decompiled', 'pathed', 'expose', 'exec', 'exec-ed', 'align', 'cover']
+    private quickKeyword = ['void', 'decompile', 'decompiled', 'pathed', 'expose', 'exec', 'exec-ed', 'align', 'aligned','cover', 'suspend', 'automate']
     private normalKeyword = ['key', 'physical', 'magic', 'health', 'attack', 'specialbuff']
+    private colorKeyword = ['red', 'green', 'blue', 'white', 'black', 'yellow', 'orange', 'purple']
     
     override cmdName = [
         ...this.normalKeyword,
         ...this.quickKeyword,     
+        ...this.colorKeyword,
         'physical2', 'magic2', 
     ];
     override requiredAttr = new Array(this.cmdName.length).fill([]);
@@ -35,6 +37,7 @@ export default class sectionIDModule extends mod {
         let x = cmd
         if(x == "exec-ed") {x = "exec"; pastFlag = true}
         else if(x == "decompiled"){x = "decompile", pastFlag = true}
+        else if(x == "aligned"){x = "align", pastFlag = true}
 
         if(addIconFlag) x = x.slice(0, -1);
         

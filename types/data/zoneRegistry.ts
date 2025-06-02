@@ -9,10 +9,11 @@ interface zoneData {
 
     importURL : string
 }
+
 //on zone creation, 1 param will always be provided and it is the key here
 //importURL will be executed from zoneHandler point of view
 //i have no idea how i can force it to execute at main point of view
-const zoneRegistry : Record<string, zoneData> =  {
+const zoneDataRegistry : Record<string, zoneData> =  {
     "system" : {
         priority: Infinity,
         posBound: [],
@@ -93,5 +94,5 @@ const zoneRegistry : Record<string, zoneData> =  {
     }
 }
 
-export default zoneRegistry
-export type {zoneData, zoneRegistry}
+export default zoneDataRegistry
+export type {zoneData, zoneDataRegistry}

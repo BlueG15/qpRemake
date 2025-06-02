@@ -14,7 +14,7 @@ export default class cardHandler {
     //so because of this, I decided, we load the code too, why not
     //
 
-    
+    //TODO: finish this file
     dataCache : Map<string, number> = new Map()
     classCache : Map<string, typeof Card> = new Map()
 

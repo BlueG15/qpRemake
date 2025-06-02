@@ -1,7 +1,7 @@
-import { component, mod, moduleInputObject, parseOptions, mode, textComponent } from '../../types/abstract/parser';
+import { component, effectTextParserModule, moduleInputObject, parseOptions, mode, textComponent } from '../../types/abstract/parser';
 type nestedTree<T> = T[] | nestedTree<T>[]
 
-export default class uadduminusModule extends mod {
+export default class uadduminusModule extends effectTextParserModule {
 
     override cmdName = ['uadd', 'uminus'];
     override requiredAttr = [[], []];

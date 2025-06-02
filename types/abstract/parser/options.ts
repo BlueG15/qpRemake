@@ -1,3 +1,7 @@
+import type { cardData } from "../../data/cardRegistry"
+
+//TODO : integrate cardData and effectData into this
+
 export enum mode {
     "gameplay" = 0,
     "info",

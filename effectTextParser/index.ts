@@ -1,14 +1,14 @@
 import { parseXml } from '@rgrove/parse-xml';
 import {XmlProcessingInstruction, XmlElement} from '@rgrove/parse-xml'
 
-import { component, textComponent, mod, parseOptions, loadOptions, lib_parse_option } from '../types/abstract/parser';
+import { component, textComponent, effectTextParserModule, parseOptions, loadOptions, lib_parse_option } from '../types/abstract/parser';
 type nestedTree<T> = T[] | nestedTree<T>[]
 
 type XMLTree =  XmlProcessingInstruction | XmlElement
 
 export default class parser {
     private loaded = false;
-    private moduleArr : mod[] = []
+    private moduleArr : effectTextParserModule[] = []
     private moduleMap : Map<string, [number, number]> = new Map()
     //[module index, command index]
 
@@ -26,10 +26,10 @@ export default class parser {
             if(!moduleClass || !moduleClass.default){
                 console.warn(`WARN: Cannot import module ${i} in path ${path + i}`);
             } else {
-                let moduleInstance = new moduleClass.default() as mod
+                let moduleInstance = new moduleClass.default() as effectTextParserModule
                 
                 //test malformed module
-                if(!(moduleInstance instanceof mod)){
+                if(!(moduleInstance instanceof effectTextParserModule)){
                     console.warn(`WARN: file ${path + i} is not a module, skipped`)
                 } else {
                     if(moduleInstance.requiredAttr.length != moduleInstance.cmdName.length){
@@ -140,7 +140,7 @@ export default class parser {
         return r;
     }
 
-    parse(XML : string, o : parseOptions) : component[] | nestedTree<component>{
+    parse(XML : string, o : parseOptions) : nestedTree<component>{
         if(!this.loaded){
             throw `Parser did not finish loading modules, call load() first`;
         }

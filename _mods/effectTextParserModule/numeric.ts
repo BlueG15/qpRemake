@@ -1,4 +1,4 @@
-import { mod, moduleInputObject, parseOptions, numberComponent } from '../../types/abstract/parser';
+import { effectTextParserModule, moduleInputObject, parseOptions, numberComponent } from '../../types/abstract/parser';
 // type nestedTree<T> = T[] | nestedTree<T>[]
 
 const head_symbol = [
@@ -224,7 +224,7 @@ console.log(`expr evauated to: ${evaluate(str, input)}`) */
 
 //numeric module takes in an expression an array of numbers
 //returns a number, NaN if parse fails
-export default class numericModule extends mod {
+export default class numericModule extends effectTextParserModule {
 
     override cmdName = ['numeric'];
     override requiredAttr = [["expr"]];

@@ -3,11 +3,11 @@ import zoneHandler from "./_queenSystem/zoneHandler";
 
 import blankCard from "./specificCard/blank";
 
-import zoneRegistry from "./types/data/zoneRegistry";
+import zoneDataRegistry from "./types/data/zoneRegistry";
 
 async function main(){
     let z = new zoneHandler()
-    await z.init(zoneRegistry)
+    await z.init(zoneDataRegistry)
     let s = new queenSystem(z)
 
     s.initializeTestGame([new blankCard(0), new blankCard(1)])

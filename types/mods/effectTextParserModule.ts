@@ -1,10 +1,10 @@
-import type { parseOptions } from "./options";
-import { component, componentID, textComponent } from "./component";
-import moduleInputObject from "./moduleInputObject";
+import type { parseOptions } from "../abstract/parser/options";
+import { component, componentID, textComponent } from "../abstract/parser/component";
+import moduleInputObject from "../abstract/parser/moduleInputObject";
 type nestedTree<T> = T[] | nestedTree<T>[]
 
 //abstract class
-export class mod {
+export class effectTextParserModule {
     cmdName : string[] = []
     requiredAttr : string[][] = []
     doCheckRequiredAttr = false

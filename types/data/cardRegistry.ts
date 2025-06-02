@@ -1,3 +1,5 @@
+//TODO: rework this
+
 export type cardData = {
     id: string;
     level: number;
@@ -11,6 +13,7 @@ export type cardData = {
     effectPartition: number[]
 
     //stuff for display purposes
+    //TODO: offload the text attr to a localizer, here stores only the ids
     name: string;
     rarityStr: string;
     rarityHex: string;

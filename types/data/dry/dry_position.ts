@@ -1,5 +1,5 @@
 import type Position from "../../abstract/generics/position"
-import zoneRegistry from "../zoneRegistry"
+import zoneDataRegistry from "../zoneRegistry"
 
 class dry_position {
     readonly zoneID : number
@@ -21,7 +21,7 @@ class dry_position {
     }
 
     toString(){
-        if(this.valid) return `[${Object.keys(zoneRegistry)[this.zoneID]}, ${
+        if(this.valid) return `[${Object.keys(zoneDataRegistry)[this.zoneID]}, ${
             (this.posArr.length == 1) ? this.posArr[0] : 
             this.posArr.join(", ")
         }]`;

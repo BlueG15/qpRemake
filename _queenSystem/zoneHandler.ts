@@ -16,7 +16,7 @@ import type _void from "../types/zones/void";
 // import type dry_card from "../dryData/dry_card";
 
 import utils from "../utils";
-import type zoneRegistry from "../types/data/zoneRegistry";
+import type zoneDataRegistry from "../types/data/zoneRegistry";
 import Action from "../types/abstract/gameComponents/action";
 
 import { cardNotExist } from "../types/errors";
@@ -32,7 +32,7 @@ import {
 class zoneHandler {
     zoneArr : zone[] = []
     constructor(){}
-    async init(zoneReg : typeof zoneRegistry){
+    async init(zoneReg : typeof zoneDataRegistry){
         //every entries in zoneReg house an importURL leading to a child class extended from zone 
         //assuming the importURL are correct, import and create a new instance of those class
         //stores inside this class's zoneArr

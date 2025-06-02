@@ -1,6 +1,6 @@
-import { component, mod, moduleInputObject, parseOptions, iconID, iconComponent, imageComponent } from '../../types/abstract/parser';
-type nestedTree<T> = T[] | nestedTree<T>[]
-export default class imgModule extends mod {
+import { component, effectTextParserModule, moduleInputObject, parseOptions, iconID, iconComponent, imageComponent } from '../../types/abstract/parser';
+
+export default class imgModule extends effectTextParserModule {
 
     override cmdName = ['img', 'icon'];
     override requiredAttr = [[], []];

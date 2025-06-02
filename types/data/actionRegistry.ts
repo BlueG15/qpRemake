@@ -24,7 +24,7 @@ enum actionRegistry {
     "reprogramStart", //not implemented
     "reprogramEnd", //not implemented
 
-    "addStatusEffect", //is implementing, unfinished
+    "addStatusEffect", //is implementng, unfinished
     "removeStatusEffect", //is implementing, unfinished
     
     "activateEffectSubtypeSpecificFunc",
@@ -34,8 +34,8 @@ enum actionRegistry {
 type actionName = keyof typeof actionRegistry
 type actionID = (typeof actionRegistry)[actionName]
 
-export default actionRegistry //as Record<actionName, actionID>
-export {actionName, actionID}
+export default actionRegistry
+export type {actionName, actionID}
 
 
 
