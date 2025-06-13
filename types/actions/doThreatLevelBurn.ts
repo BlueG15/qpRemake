@@ -6,7 +6,7 @@ class doThreatLevelBurn extends action {
     //can be chain to tho
     constructor(){
         super(
-            "doThreatLevelBurn", 
+            "a_do_threat_burn", 
             true,
             undefined,
             undefined,

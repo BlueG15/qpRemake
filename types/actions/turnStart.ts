@@ -3,7 +3,7 @@ import action from "../abstract/gameComponents/action";
 class turnStart extends action {
     //system level action
     constructor(){
-        super("turnStart", true)
+        super("a_turn_start", true)
     }
 }
 

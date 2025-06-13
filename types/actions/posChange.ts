@@ -13,7 +13,7 @@ class posChange extends Action {
         swapTargetID? : string, 
         originateCardID? : string
     ){
-        super("posChange", isChain, originateCardID, targetCardID)
+        super("a_pos_change", isChain, originateCardID, targetCardID)
         this.attr.set("fromPos", fromPos);
         if(toPos) this.attr.set("toPos", toPos);
         if(swapTargetID) this.attr.set("swapTargetID", swapTargetID);

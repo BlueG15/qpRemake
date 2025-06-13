@@ -4,15 +4,16 @@ import type Action from "../../abstract/gameComponents/action"
 import type Card from "../../abstract/gameComponents/card"
 import type dry_system from "../../data/dry/dry_system"
 
+import effectTypeRegistry from "../../data/effectTypeRegistry"
+
 class triggerEffect extends Effect {
     //behaviors:
     //1. activates only in the trigger phase if and only if no subtype overrides the result 
     //2. activate has 2 behaviors: 
     //      action != "activate self" -> returns an "activate self" action, isChain = false
     //      action == "activate self" -> returns whatever super.activate returns, isChain = true
-    constructor(id : string, type = "trigger"){
-        super(id, type)
-    }
+
+    override type = effectTypeRegistry[effectTypeRegistry.e_trigger]
 
     override canRespondAndActivate_type(c: Card, system: dry_system, a: Action): -1 | boolean {
         //enforces only respond in the trigger phase

@@ -3,7 +3,7 @@ import posChange from "./posChange";
 
 class drawAction extends posChange {
     constructor(
-        cid : string = "noID", 
+        cid : string = "", 
         isChain : boolean,
         fromPos : Position, 
         cooldown : number, 
@@ -12,7 +12,7 @@ class drawAction extends posChange {
         originateCardID? : string
     ){
         super(cid, isChain, fromPos, toPos, undefined, originateCardID)
-        this.type = "draw"
+        this.type = "a_draw"
         this.attr.set("cooldown", cooldown)
         this.attr.set("doTurnReset", doTurnReset)
     }
@@ -24,8 +24,8 @@ class drawAction extends posChange {
     get doTurnReset() : boolean  {return this.attr.get("doTurnReset")}
     set doTurnReset(t : boolean) {this.modifyAttr("doTurnReset", t)} 
 
-    get doChangeCooldown() : boolean {return isNaN(this.cooldown)}
-    get hasCard() : boolean {return Boolean(this.targetCardID) && this.targetCardID != "unknownID"}
+    get doChangeCooldown() : boolean {return isNaN(this.cooldown) && this.cooldown >= 0}
+    get hasCard() : boolean {return Boolean(this.targetCardID)}
 
     protected override verifyNewValue(key: string, newVal: any): boolean {
         if(key === "cooldown" && typeof newVal === "number") return true

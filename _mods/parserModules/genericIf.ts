@@ -1,10 +1,15 @@
-import { component, effectTextParserModule, moduleInputObject, parseOptions, textComponent, numberComponent, componentID } from '../../types/abstract/parser';
+import { 
+    component, 
+    parserModule, 
+    moduleInputObject, 
+    parseOptions, 
+    textComponent, 
+    numberComponent, 
+    componentID 
+} from '../../types/abstract/parser';
 type nestedTree<T> = T[] | nestedTree<T>[]
 
-// import numericModule from "./numeric";
-// import stringParseModule from "./string";
-
-export default class genericIfModule extends effectTextParserModule {
+export default class genericIfModule extends parserModule {
 
     override cmdName = ['if'];
     override requiredAttr = [['type']];

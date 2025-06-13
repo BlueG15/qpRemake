@@ -262,14 +262,42 @@ cardData
     | statusEffects : {
         effectID : subtypeID[]
     }
+    | variantData : {
+
+    }
 
 
 on account of every cards can be enemies, everycard's base variant is default to player's, then have an extra variant called enemy
 
+There are 2 ids
 
+runtime id
 
+And
 
+data id
 
+---------
+June 3rd
+
+effect partition gets an upgrade
+
+since am decoupling effectID and displayID, effect how have effectDisplayID
+
+one problem tho, partition old style doesnt allow for "gaps"
+aka, ghost effects
+
+solution 1: [number, number][] //marks beinning and ends of blocks
+solution 2: number[][] //marks indexes
+solution 3: number[] //length = length of actual effects Array, marks partitionIndex of the effects, -1 for ghost
+
+ima go with 3, merged with effectData
+
+also variant is an array now, stacking variant yayyy, fun
+---------------
+June 10th
+note to self : make a registry for operators, add a loader for operators, finalizing the game state Object
+optional: mayyyybe make a save state system (later)
 
 
 

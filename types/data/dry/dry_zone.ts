@@ -8,6 +8,8 @@ class dry_zone {
     readonly priority : number
     readonly cardMap : Map<dry_position, dry_card>
 
+    private ref : zone 
+
     constructor(zone : zone){
         this.id = zone.id
         this.name = zone.name
@@ -20,6 +22,8 @@ class dry_zone {
                 this.cardMap.set(x.pos, x)
             }
         })
+
+        this.ref = zone;
     }
 
     toString(spaces : number, simplify : boolean = false){
@@ -43,13 +47,16 @@ class dry_zone {
         return res
     }
 
-    hasCardWithDataID(cdid : string) : boolean {
-        let res = false
+    getCardWithDataID(cdid : string) : dry_card | undefined {
+        let res : dry_card | undefined = undefined
         this.cardMap.forEach(i => {
-            if(i.id.includes(cdid)) res = true
+            if(i.dataID === cdid) res = i
         })
         return res
     }
+
+    get firstPos() {return this.ref.firstPos}
+    get lastPos() {return this.ref.lastPos}
 }
 
 export default dry_zone

@@ -1,7 +1,7 @@
-import { component, effectTextParserModule, moduleInputObject, parseOptions, mode, textComponent } from '../../types/abstract/parser';
+import { component, parserModule, moduleInputObject, parseOptions, mode, textComponent } from '../../types/abstract/parser';
 type nestedTree<T> = T[] | nestedTree<T>[]
 
-export default class variantCheckModule extends effectTextParserModule {
+export default class variantCheckModule extends parserModule {
 
     override cmdName = [
         'variantInclude', 'variantExclude'
@@ -37,7 +37,7 @@ export default class variantCheckModule extends effectTextParserModule {
         //remove bracket by default
         
         const checkVariant = (args.getAttr("expr") as string).split(' ')
-        let correctVariantFlag = checkVariant.includes(option.variantID)
+        let correctVariantFlag = option.cardData.variants.some(i => checkVariant.includes(i))
         if((correctVariantFlag && cmd == "variantExclude") || (!correctVariantFlag && cmd == "variantInclude")){
             return []
         }

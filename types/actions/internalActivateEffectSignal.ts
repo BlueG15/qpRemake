@@ -12,7 +12,7 @@ class internalActivateEffectSignal extends activateEffect {
         originateCardID?: string
     ){
         super(true, targetCardID, effectID, originateCardID)
-        this.type = "internalActivateEffectSignal";
+        this.type = "a_activate_effect_internal";
         this.canBeChainedTo = false;
         this.canBeTriggeredTo = false;
     }

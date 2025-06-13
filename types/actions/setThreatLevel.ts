@@ -6,7 +6,7 @@ class setThreatLevel extends action {
     //can be chain to tho
     constructor(newThreatLevel : number){
         super(
-            "setThreatLevel", 
+            "a_set_threat_level", 
             true,
             undefined,
             undefined,

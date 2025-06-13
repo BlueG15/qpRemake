@@ -3,9 +3,8 @@ import type dry_system from "../../data/dry/dry_system";
 import type action from "./action"
 import type card from "./card";
 import type effectSubtype from "./effectSubtype";
-import { effectDisplayItem_text, effectText_sectionID, effectText_tokenID, type effectDisplayItem } from "../../data/old/old_file_for_reference/effectDisplayItem_old";
-// import type error from "../specialActionTypes/error";
 import { subTypeOverrideConflict } from "../../errors";
+import type { effectData } from "../../data/cardRegistry";
 
 //some effects can modify event data 
 //so in general, activate takes in an event and spits out an event
@@ -13,8 +12,8 @@ import { subTypeOverrideConflict } from "../../errors";
 class Effect {
     id: string;
     type: string = "";
-    subTypes: effectSubtype[] = []
-    desc: string = "";
+    subTypes: effectSubtype[]
+    displayID: string
 
     isDisabled: boolean = false //I DO NOT LIKE THIS NAME
 
@@ -28,8 +27,17 @@ class Effect {
     
     attr: Map<string, number> = new Map(); //position and stuff is in here
 
+    get signature_type() : string {
+        return this.type
+    }
+
+    get signature_type_subtype() : string {
+        let sep = "==="
+        return this.signature_type + sep + this.subTypes.map(i => i.id).join(sep) 
+    }
+
     //actual effects override these two
-    canRespondAndActivate_proto(c : card, system : dry_system, a : action) : boolean{return false}
+    canRespondAndActivate_proto(c : card, system : dry_system, a : action) : boolean{return true}
     activate_proto(c : card, system : dry_system, a : action) : action[] {return []};
 
     //effectTypes override these
@@ -45,6 +53,7 @@ class Effect {
         let skipTypeCheck = false
 
         if(this.isDisabled) return false
+        if(!c.canAct) return false
         for(let i = 0; i < this.subTypes.length; i++){
             //if any non-disabled subtype returns returns that instead
             if(this.subTypes[i].isDisabled) continue
@@ -66,12 +75,14 @@ class Effect {
 
         if(!skipTypeCheck){
             res = this.canRespondAndActivate_type(c, system, a);
+            //if(system.isInTriggerPhase) console.log(" type check occurs, res is ", res);
             if(res !== -1) return res;
         } 
         return this.canRespondAndActivate_proto(c, system, a);
     }
     activate(c : card, system : dry_system, a : action) : action[]{
         if(this.isDisabled) return []
+        if(!c.canAct) return []
         let res : -1 | action[] = -1;
         let appenddedRes : action[] = [] 
         
@@ -103,9 +114,11 @@ class Effect {
         return this.subTypes[subtypeIdentifier].activateSpecificFunctionality(c, this, system, a);
     }
  
-    constructor(id: string, type : string){
+    constructor(id : string, subTypes: effectSubtype[] = [], displayID? : string){
         this.id = id
-        this.type = type
+        this.type = "default"
+        this.subTypes = subTypes
+        this.displayID = displayID ? displayID : id
     }
 
     //fix later
@@ -129,16 +142,6 @@ class Effect {
         this.isDisabled = false
     }
 
-    getDisplayItems() : effectDisplayItem[] {
-        return [
-            new effectDisplayItem_text(
-                "Default effect text",
-                effectText_sectionID.other,
-                effectText_tokenID.text
-            )
-        ];
-    }
-
     //effect types:
 
     // + trigger : 
@@ -153,6 +156,11 @@ class Effect {
     // + chained trigger : 
     // responds to "effect activation"
     // adds a "activate effect" action as a child node to the current node, which activates this one
+
+    //^ implemented
+
+    //should override
+    getDisplayInput() : (string | number)[] {return []}
 }
 
 export default Effect

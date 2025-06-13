@@ -1,7 +1,7 @@
-import { component, effectTextParserModule, moduleInputObject, parseOptions } from '../../types/abstract/parser';
+import { component, parserModule, moduleInputObject, parseOptions } from '../../types/abstract/parser';
 type nestedTree<T> = T[] | nestedTree<T>[]
 
-export default class tagsModule extends effectTextParserModule {
+export default class tagsModule extends parserModule {
 
     override cmdName = ["tags"];
     override requiredAttr = [["ID"]];

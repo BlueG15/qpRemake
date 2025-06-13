@@ -10,12 +10,28 @@ import turnReset from "../actions/turnReset";
 
 
 class deck extends zone_stack {
-    //add editting ability
+    //TODO : add editting ability
     isEditting : boolean = false;
-    maxCardCount = 20;
-    minCardCount = 1;
-    maxCoolDown = 10;
-    currentCoolDown = 10;
+
+    //quick data access
+
+    //draw attributes
+
+    get startCoolDown() {return this.attr.get("startCoolDown") ?? -1};
+    // set startCoolDown(newVal : number) {this.attr.set("startCoolDown", newVal)};
+
+    get maxCoolDown() {return this.attr.get("maxCoolDown") ?? -1};
+    set maxCoolDown(newVal : number) {this.attr.set("maxCoolDown", newVal)};
+
+    //deck editting attributes, unused rn
+
+    get maxLoad() {return this.attr.get("maxLoad") ?? -1};
+    set maxLoad(newVal : number) {this.attr.set("maxLoad", newVal)};
+
+    get minLoad() {return this.attr.get("minLoad") ?? -1};
+    set minLoad(newVal : number) {this.attr.set("minLoad", newVal)};
+
+    currentCoolDown : number = this.startCoolDown
 
     getAction_draw(isChain : boolean, isTurnDraw : boolean, toPos? : Position){
         let cid : string | undefined;
@@ -46,7 +62,7 @@ class deck extends zone_stack {
             cid, 
             isChain,
             this.firstPos, 
-            NaN, 
+            NaN,
             false,
             toPos
         )

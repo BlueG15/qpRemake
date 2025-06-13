@@ -53,6 +53,7 @@ export enum componentID {
     text,
     image,
     reference,
+    symbol,
 }
 
 export class component{
@@ -83,7 +84,11 @@ export class component{
         this.raw = (raw) ? raw : ""
     }
 
-    addSectionID(newID : string | string[]){if(typeof newID == "string") this.sectionIDs.push(newID); else this.sectionIDs.push(...newID)}
+    addSectionID(newID : string | string[]){
+        if(typeof newID == "string") this.sectionIDs.push(newID); 
+        else this.sectionIDs.push(...newID);
+        return this;
+    }
 }
 
 export class textComponent extends component{
@@ -153,6 +158,19 @@ export class referenceComponent extends component {
     ){
         super(componentID.reference, errMsg, fromCmd, raw);
         this.ref = ref;
+    }
+}
+
+export class symbolComponent extends component {
+    readonly symbolID : string
+    constructor(
+        id : string,
+        errMsg? : string,
+        fromCmd? : string,
+        raw? : string
+    ){
+        super(componentID.symbol, errMsg, fromCmd, raw);
+        this.symbolID = id;
     }
 }
 

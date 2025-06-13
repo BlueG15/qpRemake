@@ -6,7 +6,7 @@ class increaseTurnCount extends action {
     //can be chain to tho
     constructor(){
         super(
-            "increaseTurnCount", 
+            "a_increase_turn_count", 
             true,
             undefined,
             undefined,

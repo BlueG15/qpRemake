@@ -11,7 +11,7 @@ class shuffle extends action {
         shuffleMap : Map<number, number>, 
         originateCardID? : string
     ){
-        super("shuffle", isChain, originateCardID)
+        super("a_shuffle", isChain, originateCardID)
         this.shuffleMap = shuffleMap
         this.attr.set("zoneID", zoneID)
     }

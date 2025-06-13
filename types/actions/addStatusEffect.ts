@@ -7,7 +7,7 @@ class addStatusEffect extends Action {
         statusID : string, 
         originateCardID? : string
     ){
-        super("addStatusEffect", isChain, originateCardID, targetCardID)
+        super("a_add_status_effect", isChain, originateCardID, targetCardID)
         this.statusID = statusID
     }
 

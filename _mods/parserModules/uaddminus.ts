@@ -1,7 +1,7 @@
-import { component, effectTextParserModule, moduleInputObject, parseOptions, mode, textComponent } from '../../types/abstract/parser';
+import { component, parserModule, moduleInputObject, parseOptions, mode, textComponent } from '../../types/abstract/parser';
 type nestedTree<T> = T[] | nestedTree<T>[]
 
-export default class uadduminusModule extends effectTextParserModule {
+export default class uadduminusModule extends parserModule {
 
     override cmdName = ['uadd', 'uminus'];
     override requiredAttr = [[], []];
@@ -26,7 +26,7 @@ export default class uadduminusModule extends effectTextParserModule {
             
         //remove bracket by default
         
-        let upgradeFlag = option.variantID.toLowerCase().includes("upgrade")
+        let upgradeFlag = option.cardData.variants.join(" ").toLowerCase().includes("upgrade")
         if((upgradeFlag && cmd == "uminus") || (!upgradeFlag && cmd == "uadd")){
             return []
         }

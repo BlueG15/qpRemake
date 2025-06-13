@@ -1,4 +1,5 @@
-import type { cardData } from "../../data/cardRegistry"
+import type dry_card from "../../data/dry/dry_card"
+import type dry_effect from "../../data/dry/dry_effect"
 
 //TODO : integrate cardData and effectData into this
 
@@ -17,7 +18,8 @@ class parseOptions {
     mode : mode
 
     //cardInfo
-    variantID : string
+    cardData : dry_card
+    effectData : dry_effect
 
     //inputs
     inputNumber : number[]
@@ -25,13 +27,15 @@ class parseOptions {
 
     constructor(
         mode : mode, 
-        variantID : string, 
+        card : dry_card,
+        eff : dry_effect,
         input : (number | string)[],
         flat_parse : boolean = false
     ){
         this.flat_parse = flat_parse
         this.mode = mode;
-        this.variantID = variantID;
+        this.cardData = card
+        this.effectData = eff
         this.inputNumber = []
         this.inputString = []
 
@@ -46,7 +50,7 @@ class loadOptions {
     modulesInUse : string[]
     modulePath : string
 
-    constructor(modulePath = "../_mods/effectTextParserModule/", modules = ["qpOriginal"]){
+    constructor(modulePath : string, modules = []){
         this.modulePath = modulePath
         this.modulesInUse = modules
     }

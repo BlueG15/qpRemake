@@ -3,11 +3,11 @@ import Action from "../abstract/gameComponents/action";
 class forcefullyEndTheGame extends Action {
     constructor(
         endWithALoss : boolean = true,
-        fromID: string,
-        isChain: boolean
+        isChain: boolean,
+        fromID?: string,
     ){
         super(
-            "forcefullyEndTheGame",
+            "a_force_end_game",
             isChain,
             fromID,
             undefined,

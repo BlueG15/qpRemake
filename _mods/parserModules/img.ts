@@ -1,6 +1,14 @@
-import { component, effectTextParserModule, moduleInputObject, parseOptions, iconID, iconComponent, imageComponent } from '../../types/abstract/parser';
+import { 
+    component, 
+    parserModule, 
+    moduleInputObject, 
+    parseOptions, 
+    iconID, 
+    iconComponent, 
+    imageComponent 
+} from '../../types/abstract/parser';
 
-export default class imgModule extends effectTextParserModule {
+export default class imgModule extends parserModule {
 
     override cmdName = ['img', 'icon'];
     override requiredAttr = [[], []];

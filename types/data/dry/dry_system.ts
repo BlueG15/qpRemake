@@ -1,8 +1,9 @@
-import type queenSystem from "../../../_queenSystem/main"
+import type queenSystem from "../../../_queenSystem/queenSystem"
 import type dry_zone from "./dry_zone"
 import type dry_card from "./dry_card"
-import type Action from "../../gameComponents/action"
-import type { logInfo } from "../../../_queenSystem/main"
+import type Action from "../../abstract/gameComponents/action"
+import type { logInfo } from "../../../_queenSystem/queenSystem"
+import { zoneRegistry } from "../zoneRegistry"
 
 type effectID = string
 type cardID = string
@@ -37,7 +38,7 @@ class dry_system {
         return this.fullLog.map(i => {
             if(i.currentPhase !== 5) return undefined;
             return i.currentAction
-        }).filter(i => i !== undefined)
+        }).filter(i => i !== undefined) as Action[]
     }
 
     constructor(system : queenSystem){//fix later
@@ -67,15 +68,15 @@ class dry_system {
         return res
     }
 
-    get system() {return this.zoneMap.get("system") as dry_zone}
-    get deck() {return this.zoneMap.get("deck") as dry_zone}
-    get storage() {return this.zoneMap.get("storage") as dry_zone}
-    get enemyGrave() {return this.zoneMap.get("enemyGrave") as dry_zone}
-    get playerGrave() {return this.zoneMap.get("playerGrave") as dry_zone}
-    get hand() {return this.zoneMap.get("hand") as dry_zone}
-    get enemyField() {return this.zoneMap.get("enemyField") as dry_zone}
-    get playerField() {return this.zoneMap.get("playerField") as dry_zone}
-    get void() {return this.zoneMap.get("void") as dry_zone}
+    get system() {return this.zoneMap.get(zoneRegistry[zoneRegistry.z_system]) as dry_zone}
+    get deck() {return this.zoneMap.get(zoneRegistry[zoneRegistry.z_deck]) as dry_zone}
+    get storage() {return this.zoneMap.get(zoneRegistry[zoneRegistry.z_storage]) as dry_zone}
+    get enemyGrave() {return this.zoneMap.get(zoneRegistry[zoneRegistry.z_p2_grave]) as dry_zone}
+    get playerGrave() {return this.zoneMap.get(zoneRegistry[zoneRegistry.z_p1_grave]) as dry_zone}
+    get hand() {return this.zoneMap.get(zoneRegistry[zoneRegistry.z_hand]) as dry_zone}
+    get enemyField() {return this.zoneMap.get(zoneRegistry[zoneRegistry.z_p2_field]) as dry_zone}
+    get playerField() {return this.zoneMap.get(zoneRegistry[zoneRegistry.z_p1_field]) as dry_zone}
+    get void() {return this.zoneMap.get(zoneRegistry[zoneRegistry.z_void]) as dry_zone}
 }
 
 export default dry_system

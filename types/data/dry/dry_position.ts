@@ -1,14 +1,16 @@
 import type Position from "../../abstract/generics/position"
-import zoneDataRegistry from "../zoneRegistry"
 
 class dry_position {
     readonly zoneID : number
-    readonly posArr : number[]
+    readonly zoneName : string
+    readonly posArr : ReadonlyArray<number>
+    private str : string
 
     constructor(pos : Position){
         this.zoneID = pos.zoneID
-        this.posArr = []
-        this.posArr.push(...pos.flat())
+        this.zoneName = String(pos.zoneName)
+        this.posArr = pos.flat()
+        this.str = pos.toString()
     }
 
     get valid(){
@@ -21,11 +23,7 @@ class dry_position {
     }
 
     toString(){
-        if(this.valid) return `[${Object.keys(zoneDataRegistry)[this.zoneID]}, ${
-            (this.posArr.length == 1) ? this.posArr[0] : 
-            this.posArr.join(", ")
-        }]`;
-        return `[Invalid pos]`;
+        return this.str
     }
 }
 

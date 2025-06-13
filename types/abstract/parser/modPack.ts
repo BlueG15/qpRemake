@@ -1,13 +1,13 @@
 import { component } from "./component";
-import { effectTextParserModule } from "../../mods/effectTextParserModule";
+import { parserModule } from "../../mods/effectTextParserModule";
 import moduleInputObject from "./moduleInputObject";
 import { parseOptions } from "./options";
 type nestedTree<T> = T[] | nestedTree<T>[]
 
-class modPack extends effectTextParserModule {
+class modPack extends parserModule {
 
     private moduleMap = new Map<string, number>()
-    protected moduleArr : effectTextParserModule[] = []
+    protected moduleArr : parserModule[] = []
 
     override cmdName : string[] = []
     override requiredAttr : string[][] = []

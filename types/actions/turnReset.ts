@@ -7,7 +7,7 @@ class turnReset extends action {
         doFieldRefresh : boolean = true, 
         originateCardID? : string
     ){
-        super("turnReset", isChain, originateCardID)
+        super("a_turn_reset", isChain, originateCardID)
         this.attr.set("doIncrementTurn", doIncrementTurn)
         this.attr.set("doFieldRefresh", doFieldRefresh)
     }

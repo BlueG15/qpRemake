@@ -2,33 +2,33 @@
 enum actionRegistry {
     //special
     "error" = -1,
-    "null" = 0,
+    "a_null" = 0,
     
     //0xx = system signal actions
-    "turnStart" = 1,
-    "turnEnd",
-    "turnReset",
-    "freeUpStatusIDs",
-    "internalActivateEffectSignal",
-    "increaseTurnCount",
-    "setThreatLevel",
-    "doThreatLevelBurn",
-    "forcefullyEndTheGame",
+    "a_turn_start" = 1,
+    "a_turn_end",
+    "a_turn_reset",
+    "a_activate_effect_internal",
+    "a_increase_turn_count",
+    "a_set_threat_level",
+    "a_do_threat_burn",
+    "a_force_end_game",
 
     //1xx = API related actions
-    "activateEffect" = 100,
-    "posChange",
-    "draw",
-    "shuffle",
-    "execute", //not implemented
-    "reprogramStart", //not implemented
-    "reprogramEnd", //not implemented
+    "a_activate_effect" = 100,
+    "a_pos_change",
+    "a_draw",
+    "a_shuffle",
+    "a_execute", //not implemented
+    "a_reprogram_start", //not implemented
+    "a_reprogram_end", //not implemented
 
-    "addStatusEffect", //is implementng, unfinished
-    "removeStatusEffect", //is implementing, unfinished
+    "a_add_status_effect", //is implementng, unfinished
+    "a_remove_status_effect", //is implementing, unfinished
+    "a_reset_card",
     
-    "activateEffectSubtypeSpecificFunc",
-    "modifyAnotherAction" //is implementing, unfinished
+    "a_activate_effect_subtype",
+    "a_modify_action" //is implementing, unfinished
 }
 
 type actionName = keyof typeof actionRegistry

@@ -8,7 +8,7 @@ class activateEffectSubtypeSpecificFunc extends Action {
         subTypeID: string,
         originateCardID?: string
     ){
-        super("activateEffectSubtypeSpecificFunc", isChain, originateCardID, targetCardID)
+        super("a_activate_effect_subtype", isChain, originateCardID, targetCardID)
         this.effectID = effectID
         this.subTypeID = subTypeID
     }

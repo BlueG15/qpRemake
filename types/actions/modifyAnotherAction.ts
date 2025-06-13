@@ -9,7 +9,7 @@ class modifyAnotherAction extends Action {
         fromID : string,
     ){
         super(
-            "modifyAnotherAction", 
+            "a_modify_action", 
             isChain,
             fromID, 
             undefined, 

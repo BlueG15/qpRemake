@@ -11,7 +11,7 @@ class effectSubtype {
     type : string
     id : string
     isDisabled : boolean = false
-    constructor(id : string, type : string){
+    constructor(id : string, type : string = "default"){
         this.type = type
         this.id = id
     }

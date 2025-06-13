@@ -1,10 +1,10 @@
-import zoneDataRegistry from "../../data/zoneRegistry";
 import dry_position from "../../data/dry/dry_position";
 import utils from "../../../utils";
 
 class Position {
     arr : number[] = []
     zoneID : number
+    zoneName : string 
     get length(){return this.arr.length}
     get x(){
         if(!this.arr[0]) return -1;
@@ -21,9 +21,22 @@ class Position {
         this.arr.forEach(func)
     }
     flat(){return this.arr}
-    constructor(zoneID: number = -1, ...args : number[]){
-        this.zoneID = zoneID;
-        this.arr = args;
+    constructor(
+        zoneID?: number, //runtime ID, NOT data id, the index of the zone in the zone loader
+        zoneName?: string, 
+        ...args : number[]
+    );
+    constructor(drypos : dry_position);
+    constructor(param1 : number | dry_position = -1, zoneName : string = "unknown", ...args : number[]){
+        if(typeof param1 == "number"){
+            this.zoneID = param1;
+            this.zoneName = zoneName;
+            this.arr = args;
+        } else {
+            this.zoneID = param1.zoneID
+            this.zoneName = param1.zoneName,
+            this.arr = param1.posArr.slice()
+        }
     }
     get valid(){
         if(this.zoneID < 0) return false;
@@ -35,10 +48,11 @@ class Position {
     }
     invalidate(){
         this.zoneID = -1;
+        this.zoneName = "unknown"
         this.arr = new Array(this.length).fill(-1);
     }
     toString(){
-        if(this.valid) return `[${Object.keys(zoneDataRegistry)[this.zoneID]}, ${
+        if(this.valid) return `[${this.zoneName}, ${
             (this.length == 1) ? this.arr[0] : 
             this.arr.join(", ")
         }]`;
@@ -66,10 +80,6 @@ class Position {
     }
     toDry() : dry_position {
         return new dry_position(this)
-    }
-    copyFromDry(dryPos : dry_position){
-        this.arr = [...dryPos.posArr]
-        this.zoneID = dryPos.zoneID
     }
 }
 

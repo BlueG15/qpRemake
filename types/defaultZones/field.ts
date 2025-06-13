@@ -22,7 +22,7 @@ class field extends zone_grid {
         let res : Position[] = [];
         for(let i = 0; i < this.capacity; i++){
             if(this.cardArr[i]) continue;
-            let p = new Position(this.id, ...utils.indexToPosition(i, this.shape))
+            let p = new Position(this.id, this.name, ...utils.indexToPosition(i, this.shape))
             res.push(p);
         }
         return res;

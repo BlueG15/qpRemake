@@ -1,14 +1,23 @@
-import { component, effectTextParserModule, componentID, iconID, moduleInputObject, parseOptions, textComponent, iconComponent } from '../../types/abstract/parser';
+import { 
+    component, 
+    parserModule, 
+    componentID, iconID, 
+    moduleInputObject, 
+    parseOptions, 
+    textComponent, iconComponent, symbolComponent 
+} from '../../types/abstract/parser';
 type nestedTree<T> = T[] | nestedTree<T>[]
 
-export default class sectionIDModule extends effectTextParserModule {
+export default class sectionIDModule extends parserModule {
 
-    private quickKeyword = ['void', 'decompile', 'decompiled', 'pathed', 'expose', 'exec', 'exec-ed', 'align', 'aligned','cover', 'suspend', 'automate']
+    private quickKeyword = ['void', 'decompile', 'pathed', 'exposed', 'exec', 'align','cover', 'suspend', 'automate']
     private normalKeyword = ['key', 'physical', 'magic', 'health', 'attack', 'specialbuff']
+    private pastKeyword = ['decompiled', 'exec-ed', 'aligned']
     private colorKeyword = ['red', 'green', 'blue', 'white', 'black', 'yellow', 'orange', 'purple']
     
     override cmdName = [
         ...this.normalKeyword,
+        ...this.pastKeyword,
         ...this.quickKeyword,     
         ...this.colorKeyword,
         'physical2', 'magic2', 
@@ -31,27 +40,20 @@ export default class sectionIDModule extends effectTextParserModule {
 
     override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<component> {
         let quickFlag = this.quickKeyword.includes(cmd)
-        let pastFlag = false
         let addIconFlag = cmd.endsWith('2')
 
         let x = cmd
-        if(x == "exec-ed") {x = "exec"; pastFlag = true}
-        else if(x == "decompiled"){x = "decompile", pastFlag = true}
-        else if(x == "aligned"){x = "align", pastFlag = true}
 
         if(addIconFlag) x = x.slice(0, -1);
-        
 
         let final = args.getChilren()
 
         if(quickFlag && !final.length){
             //special behavior
-            if(x == "exec") x = "execute"
-            if(pastFlag) x += "d"
-            x = x.toUpperCase()
+            // x = x.toLowerCase()
             return [
-                new textComponent(
-                    x, undefined, cmd, raw
+                new symbolComponent(
+                    "key_" + x, undefined, cmd, raw
                 )
             ]
         }

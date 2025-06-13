@@ -1,8 +1,9 @@
+//UNUSED
 import Action from "../abstract/gameComponents/action";
 
 class freeUpStatusIDs extends Action {
     constructor(idToClear : string[]){
-        super("freeUpStatusIDs", true, undefined, undefined, undefined, false)
+        super("error", true, undefined, undefined, undefined, false)
         this.idToClear = idToClear
     }
 
@@ -26,4 +27,5 @@ class freeUpStatusIDs extends Action {
 }
 
 export default freeUpStatusIDs
+
 

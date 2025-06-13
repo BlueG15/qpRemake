@@ -1,2 +1,8 @@
 {
+    "[plaintext]": {
+        "editor.wordBasedSuggestions": "off",
+        "editor.quickSuggestions": {
+            
+        },
+    },
 }

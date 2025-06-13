@@ -6,7 +6,7 @@ class turnEnd extends action {
     //can be chain to tho
     constructor(doIncreaseTurnCount : boolean = true){
         super(
-            "turnEnd", 
+            "a_turn_end", 
             false,
             undefined,
             undefined,

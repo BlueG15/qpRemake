@@ -1,14 +1,14 @@
 import { parseXml } from '@rgrove/parse-xml';
 import {XmlProcessingInstruction, XmlElement} from '@rgrove/parse-xml'
 
-import { component, textComponent, effectTextParserModule, parseOptions, loadOptions, lib_parse_option } from '../types/abstract/parser';
+import { component, textComponent, parserModule, parseOptions, loadOptions, lib_parse_option } from '../types/abstract/parser';
 type nestedTree<T> = T[] | nestedTree<T>[]
 
 type XMLTree =  XmlProcessingInstruction | XmlElement
 
 export default class parser {
     private loaded = false;
-    private moduleArr : effectTextParserModule[] = []
+    private moduleArr : parserModule[] = []
     private moduleMap : Map<string, [number, number]> = new Map()
     //[module index, command index]
 
@@ -26,10 +26,10 @@ export default class parser {
             if(!moduleClass || !moduleClass.default){
                 console.warn(`WARN: Cannot import module ${i} in path ${path + i}`);
             } else {
-                let moduleInstance = new moduleClass.default() as effectTextParserModule
+                let moduleInstance = new moduleClass.default() as parserModule
                 
                 //test malformed module
-                if(!(moduleInstance instanceof effectTextParserModule)){
+                if(!(moduleInstance instanceof parserModule)){
                     console.warn(`WARN: file ${path + i} is not a module, skipped`)
                 } else {
                     if(moduleInstance.requiredAttr.length != moduleInstance.cmdName.length){

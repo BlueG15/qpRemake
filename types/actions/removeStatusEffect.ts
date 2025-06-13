@@ -8,7 +8,7 @@ class removeStatusEffect extends Action {
         statusID : string, 
         originateCardID? : string
     ){
-        super("removeStatusEffect", isChain, originateCardID, targetCardID)
+        super("a_remove_status_effect", isChain, originateCardID, targetCardID)
         this.statusID = statusID
     }
 }

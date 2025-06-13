@@ -23,6 +23,14 @@ export default {
     o_real_omega : "Kyril",
     o_real_kaia : "Kaia",
 
+    //rarities
+    r_white : "<white> white </>",
+    r_blue : "<blue> blue </>",
+    r_green : "<green> green </>",
+    r_red : "<red> red </>",
+    r_ability : "<yellow> ability </>",
+    r_algo : "<purple> algo </>",
+
     //archtype names
     //TODO : insert all, just have fruit for now
     a_fruit : "All Natural",
@@ -35,11 +43,12 @@ export default {
     ui_credit : "credit",
 
     //setting options:
+    //TODO : finish this when Setting is done
     ui_s_language : "language",
     ui_s_mods : "mods",
 
     //helps
-    h_activate: "<green>[click to activate]</>",
+    h_activate: "<green>[Click to activate]</>",
 
     //errors
     err_noActivate: "<yellow>[ will not activate ]</>",
@@ -57,16 +66,31 @@ export default {
     err_editNoAllow: "Not enough health.",
 
     //keyword desc
-    key_void: "<void/> - Voided cards are removed from play until the deck is RELOADED.",
-    key_suspend: "<suspend/> - Delay the target, but does not make the target immune to further delays.",
-    key_decompile: "<decompile/> - Send the card to the trash without destroying it. Does not claim loot on the target.",
-    key_exposed: "<expose/> - Card has no other card in front of it.",
-    key_covered: "<cover/> - Card has another card in front of it.",
-    key_automate: "<automate/> - Card acts on its own.",
-    key_decaybuff: "<specialbuff>DECAY BUFF</> - Buff is reduced at the end of each turn.",
-    key_singlebuff: "<specialbuff>SINGLE ATTACK BUFF</> - Buff is removed after attacking.",
-    key_aligned: "<align/> - In the same column as this card.",
-    key_pathed: "<pathed/> - There exists a continuous line of cards between two of your cards (excluding diagonals).",
+    key_desc_void: "<void/> - Voided cards are removed from play until the deck is RELOADED.",
+    key_desc_suspend: "<suspend/> - Delay the target, but does not make the target immune to further delays.",
+    key_desc_decompile: "<decompile/> - Send the card to the trash without destroying it. Does not claim loot on the target.",
+    key_desc_exposed: "<exposed/> - Card has no other card in front of it.",
+    key_desc_covered: "<cover/> - Card has another card in front of it.",
+    key_desc_automate: "<automate/> - Card acts on its own.",
+    key_desc_decaybuff: "<specialbuff>DECAY BUFF</> - Buff is reduced at the end of each turn.",
+    key_desc_singlebuff: "<specialbuff>SINGLE ATTACK BUFF</> - Buff is removed after attacking.",
+    key_desc_aligned: "<aligned/> - In the same column as this card.",
+    key_desc_pathed: "<pathed/> - There exists a continuous line of cards between two of your cards (excluding diagonals).",
+    key_desc_exec: "<exec/> - Activates when the card is executed, after the attack and before being sent to the grave",
+    
+    key_void: "vOID",
+    key_suspend: "SUSPEND",
+    key_decompile: "COMPILE",
+    key_exposed: "EXPOSED",
+    key_covered: "COVER",
+    key_automate: "AUTOMATE",
+    key_aligned: "ALIGNED",
+    key_pathed: "PATHED",
+    key_exec: "EXECUTE",
+
+    key_decaybuff: "DECAY BUFF",
+    key_singlebuff: "SINGLE ATTACK BUFF",
+
     
     //effect type/subtype name
     //TODO : add more later once coded
@@ -82,8 +106,9 @@ export default {
     e_status : "STATUS EFFECT",
     e_desc_status : "Status effects are temporary effects.",
 
-    // effectTypeInit,"INITIALIZE"
-    // effectTypeInit_desc,"Activates when this card is played to the field."
+    e_init : "INITIALIZE",
+    e_desc_init : "Activates when this card is played to the field.",
+
     // effectTypeCondition,"CONDITION"
     // effectTypeCondition_desc,"You must do something in order to play this card from your hand manually."
     // effectTypeExec,"EXECUTE"
@@ -91,7 +116,7 @@ export default {
     // effectTypeDestruction,"DESTRUCTION"
     // effectTypeDestruction_desc,"Activates when this card is destroyed (DECOMPILE and EXECUTE do not count as destruction)."
     // effectTypeVolatile,"VOLATILE"
-    // effectTypeVolatile_desc,"VOID this card when it leaves the field."
+    // effectTypeVolatile_desc,"VOID thsis card when it leaves the field."
     // effectTypeDefense,"DEFENSE"
     // effectTypeDefense_desc,"This card cannot take more than a certain amount of damage at once."
     // effectTypeQuick,"QUICK"
@@ -130,21 +155,23 @@ export default {
     c_banana : "Banana",
     c_cherry : "Cherry",
 
-    //effect types name
-
-    //effect types desc
-
     //effectID -> display XML
+
 
     //zone names
     z_deck : "deck",
     z_p1_field : "player field",
     z_p2_field : "enemy field",
+    z_p1_grave : "GY",
+    z_p2_grave : "GY",
     z_grave : "grave",
     z_hand : "hand",
+    z_void : "void",
+    z_system : "system",
+    z_storage : "storage",
 
     //Log command
-    //action names
+    //action names (chahnge this)
     l_turnStart : "turnStart",
     l_turnReset : "turnReset",
     l_turnEnd :"turnEnd",

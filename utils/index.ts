@@ -1,4 +1,7 @@
-import { cardData, patchData } from "../types/data/cardRegistry";
+import type { cardData_unified, patchData } from "../types/data/cardRegistry";
+import { Setting, id_style } from "../types/abstract/gameComponents/settings";
+// import { partitionData } from "../types/data/cardRegistry";
+import { partitionSetting } from "../types/abstract/gameComponents/settings";
 
 const utils = {
     toProper(str : string){
@@ -30,17 +33,25 @@ const utils = {
     },
 
     dataIDToUniqueID(
-        type : string, 
+        id : string, 
         num : number, 
-        len? : number,
+        s : Setting,
         ...append : string[]
     ){
-        let runID = this.generateID(len);
-        return type + '_' + append.join("_") + '_' + runID + '_' + num;
-    },
-
-    uniqueIDTodataID(id : string){
-        return id.split("_")[0]
+        let randID = this.generateID(s.dynamic_id_len);
+        let arr = [randID, num]
+        switch(s.id_style){
+            case id_style.MINIMAL: return arr.join(s.id_separator);
+            case id_style.REDUCED: {
+                arr.unshift(id);
+                return arr.join(s.id_separator);
+            }
+            case id_style.FULL: {
+                arr.unshift(...append);
+                arr.unshift(id);
+                return arr.join(s.id_separator);
+            }
+        }
     },
 
     removeDuplicates(...arr : any[][]){
@@ -94,11 +105,47 @@ const utils = {
         return flatIndex;
     },
 
-    patchCardData(cData : cardData, patchData : patchData){
-        Object.entries(patchData).forEach(([key, val]) => {
-            (cData as any)[key] = val //have to force type, idk how to not
+    isPartitioningManual(ps : partitionSetting){
+        return ps === partitionSetting.manual_mapping_no_ghost || ps === partitionSetting.manual_mapping_with_ghost || ps === partitionSetting.manual_mapping_with_ghost_spread
+    },
+
+    isPartitioningAuto(ps : partitionSetting){
+        return ps === partitionSetting.auto_mapping_one_to_one || ps === partitionSetting.auto_mapping_types || ps === partitionSetting.auto_mapping_subtypes || ps === partitionSetting.auto_mapping_ygo
+    },
+
+    patchCardData(cData : cardData_unified, patchData : patchData){
+        Object.keys(patchData).forEach(i => {
+            if(
+                patchData[i as keyof patchData] !== undefined &&
+                cData[i as keyof cardData_unified] !== undefined
+            ){
+                (cData as any)[i] = patchData[i as keyof patchData]
+            }
         })
-    }
+    },
+
+    //apply a partial onto an original
+    patchGeneric<T extends Object>(original : T, patch : Partial<T>){
+        Object.keys(patch).forEach(i => {
+            if(
+                original[i as keyof T] !== undefined &&
+                patch[i as keyof T] !== undefined
+            ){
+                original[i as keyof T] = patch[i as keyof T] as any //as any here cause even though i checked b4, ts still says undefine is possible here, kinda dum
+            }
+        })
+    },
+
+    range(len : number, min : number = 0){
+        return Array.from({length : len}, (_, index) => index + min)
+    },
+
+    //assumes arr is sorted
+    insertionSort<T extends any>(arr : T[], insertElement : T, comparator : ((a : T, b : T) => number)){
+        let indexToBeInserted = arr.findIndex((a) => {let x = comparator(a, insertElement); return isNaN(x) ? false : x >= 0});
+        if(indexToBeInserted < 0) arr.push(insertElement);
+        else arr.splice(indexToBeInserted, 0, insertElement);
+    },
 }
 
 export default utils

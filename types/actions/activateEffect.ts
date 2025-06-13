@@ -7,7 +7,7 @@ class activateEffect extends Action {
         effectID: string, 
         originateCardID?: string
     ){
-        super("activateEffect", isChain, originateCardID, targetCardID)
+        super("a_activate_effect", isChain, originateCardID, targetCardID)
         this.attr.set("effectID", effectID)
     }
 

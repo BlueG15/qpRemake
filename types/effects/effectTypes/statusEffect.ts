@@ -12,13 +12,14 @@ import {
     removeStatusEffect,
 } from "../../actions"
 
+import effectTypeRegistry from "../../data/effectTypeRegistry";
+
 class StatusEffect extends Effect {
-    constructor(id : string, type : string){
-        super(id, type);
-        // the existence of id neccessitates a handler
-        // this handler is special tho, it need to create the Status effect first, apply later
-        // unlike card or s.th, which creates and provide in the same function
-    }
+    // the existence of id neccessitates a handler
+    // this handler is special tho, it need to create the Status effect first, apply later
+    // unlike card or s.th, which creates and provide in the same function
+
+    override type = effectTypeRegistry[effectTypeRegistry.e_status]
 
     activateOnTurnStart?(c : card, system : dry_system, a : Action) : Action[]  
     activateOnTurnEnd?(c : card, system : dry_system, a : Action) : Action[] 

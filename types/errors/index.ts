@@ -10,6 +10,7 @@ import zoneFull from "./zoneFull";
 import subTypeOverrideConflict from "./subTypeOverrideConflict";
 import unregisteredAction from "./unregisteredAction";
 import wrongEffectIdx from "./wrongEffectIdx";
+import cannotLoad from "./cannotLoad";
 
 export {
   cardNotExist,
@@ -24,4 +25,5 @@ export {
   wrongEffectIdx,
   subTypeOverrideConflict,
   unregisteredAction,
+  cannotLoad
 };

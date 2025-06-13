@@ -4,7 +4,7 @@ import moduleInputObject from "../abstract/parser/moduleInputObject";
 type nestedTree<T> = T[] | nestedTree<T>[]
 
 //abstract class
-export class effectTextParserModule {
+export class parserModule {
     cmdName : string[] = []
     requiredAttr : string[][] = []
     doCheckRequiredAttr = false
