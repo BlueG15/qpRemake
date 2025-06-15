@@ -6,9 +6,12 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
+  "author": "Blu",
   "license": "ISC",
   "devDependencies": {
     "@types/node": "^22.13.1"
+  },
+  "dependencies": {
+    "@rgrove/parse-xml": "^4.2.0"
   }
 }

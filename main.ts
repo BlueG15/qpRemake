@@ -1,26 +1,13 @@
-import queenSystem from "./handlers/queenSystem";
-import zoneHandler from "./handlers/zoneHandler";
-
-import blankCard from "./specificCard/blank";
-
-import zoneRegistry from "./data/zoneRegistry";
+import queenSystem from "./_queenSystem/queenSystem";
+import { defaultSetting } from "./types/abstract/gameComponents/settings";
+import testSuite from "./_queenSystem/testSuite";
 
 async function main(){
-    let z = new zoneHandler()
-    await z.init(zoneRegistry)
-    let s = new queenSystem(z)
+    let s = new defaultSetting();
+    let sys = new queenSystem(s);
+    await sys.load();
 
-    s.initializeTestGame([new blankCard(0), new blankCard(1)])
-    console.log("hand-before:\n", z.hand.toDry().toString(2, true))
-    console.log("deck-before:\n", z.deck.toDry().toString(2, true))
-
-    console.log("deck len before: ", z.deck.cardArr.length)
-
-    s.processTurn()
-    console.log("hand-after:\n", z.hand.toDry().toString(2, true))
-    console.log("deck-after:\n", z.deck.toDry().toString(2, true))
-
-    console.log("deck len after: ", z.deck.cardArr.length)
+    testSuite.test2(sys);
 }
 
 main()

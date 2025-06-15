@@ -1,0 +1,21 @@
+import action from "../abstract/gameComponents/action";
+
+class doThreatLevelBurn extends action {
+    //system level action
+    //cannot be triggered to
+    //can be chain to tho
+    constructor(){
+        super(
+            "a_do_threat_burn", 
+            true,
+            undefined,
+            undefined,
+            undefined,
+            true, //can be chained to
+            false //can be triggered to
+        )
+    }
+
+}
+
+export default doThreatLevelBurn

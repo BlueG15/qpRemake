@@ -1,4 +1,4 @@
-# qpRemake
+# qpRemake (alpha branch)
 Remake of the qp engine, with moddability in mind
 
 # Current tasks:
