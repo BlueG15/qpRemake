@@ -1,5 +1,5 @@
-import type dry_card from "../../data/dry/dry_card"
-import type dry_effect from "../../data/dry/dry_effect"
+import type dry_card from "../../../data/dry/dry_card"
+import type dry_effect from "../../../data/dry/dry_effect"
 
 //TODO : integrate cardData and effectData into this
 

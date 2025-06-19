@@ -1,4 +1,4 @@
-import dry_position from "../../data/dry/dry_position";
+import dry_position from "../../../data/dry/dry_position";
 import utils from "../../../utils";
 
 class Position {

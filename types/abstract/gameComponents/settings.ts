@@ -1,5 +1,5 @@
-import { partitionActivationBehavior } from "../../data/cardRegistry"
-import { loadOptions, parseOptions } from "../parser"
+import { partitionActivationBehavior } from "../../../data/cardRegistry"
+import { playerTypeID } from "../../../data/zoneRegistry"
 
 export enum partitionSetting {
     "manual_mapping_no_ghost" = 0,
@@ -58,25 +58,42 @@ interface Setting {
 
     //parser setting
     parser_modules : string[]
+
+    //optimization setting
+    singleton_effect_subtype : boolean
+    singleton_effect_type : boolean
+
+    //game setting
+    spawn_instanced_zones_per_player : boolean //enable this for multiplayer shenanigans
+    players : playerTypeID[] 
+    //this array dictates the order in which player plays / zone responses
+    //enemies turn are skipped
 }
 
 class defaultSetting implements Setting {
-    languageID = supporttedLanguages.English;
-    mods = []; //no mods
-    dynamic_id_len = 5;
-    id_style = id_style.MINIMAL;
-    id_separator = '_';
+    languageID = supporttedLanguages.English
+    mods = [] //no mods
+    dynamic_id_len = 5
+    id_style = id_style.MINIMAL
+    id_separator = '_'
     max_id_count = 65536
-    effectFolder = "../../specificEffects";
-    modFolder = "../../_mods";
-    localizationFolder = "../../_localizationFiles";
+    effectFolder = "../../specificEffects"
+    modFolder = "../../_mods"
+    localizationFolder = "../../_localizationFiles"
     ignore_undefined_subtype = true
     ignore_undefined_effect  = true
     show_negative_stat = true
-    ignore_invalid_partition_mapping = false;
+    ignore_invalid_partition_mapping = false
     global_partition_setting = partitionSetting.manual_mapping_no_ghost
     default_partition_behavior = partitionActivationBehavior.strict
-    parser_modules = ["qpOriginal"];
+    parser_modules = ["qpOriginal"]
+    singleton_effect_subtype = true
+    singleton_effect_type = true
+    spawn_instanced_zones_per_player = false;
+    players = [
+        playerTypeID.player, //player zone have priority
+        playerTypeID.enemy
+    ]
 } 
 
 export default new defaultSetting()

@@ -1,7 +1,8 @@
 import type Effect from "../../types/abstract/gameComponents/effect";
-import type { effectData } from "../../types/data/cardRegistry";
+import type { cardData_unified, effectData } from "../../data/cardRegistry";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 import type subtypeLoader from "./loader_subtype";
+import type typeLoader from "./loader_type";
 import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
 import utils from "../../utils";
 
@@ -20,10 +21,16 @@ export default class effectLoader {
     private countCache : Map<string, number> = new Map()
 
     private subtypeLoader : subtypeLoader
+    private typeLoader : typeLoader
 
-    constructor(dataRegistry : Record<string, effectData>, subtypeLoader : subtypeLoader){
+    constructor(
+        dataRegistry : Record<string, effectData>, 
+        subtypeLoader : subtypeLoader,
+        typeLoader : typeLoader,
+    ){
         this.dataCache = new Map(Object.entries(dataRegistry))
         this.subtypeLoader = subtypeLoader
+        this.typeLoader = typeLoader
     }
 
     private async loadSingle(path : string, eid : string, s : Setting){
@@ -55,7 +62,7 @@ export default class effectLoader {
         }
     }
 
-    getEffect(eid : string, s : Setting){
+    getEffect(eid : string, s : Setting, cdata? : cardData_unified){
         let data = this.dataCache.get(eid)
         if(!data) return undefined
 
@@ -66,8 +73,14 @@ export default class effectLoader {
         c = (c) ? (c + 1) % s.max_id_count : 0;
         this.countCache.set(eid, c); 
 
+        //load type
+        let type = this.typeLoader.getType(data.typeID, s, eid)
+        if(!type) return undefined
+
         let runID = utils.dataIDToUniqueID(eid, c, s, ...data.subTypeIDs)
 
+        if(cdata && cdata.effects[eid]) utils.patchGeneric(data, cdata.effects[eid])
+            
         //load subtypes
         let k : effectSubtype[] = []
         data.subTypeIDs.forEach(i => {
@@ -79,6 +92,6 @@ export default class effectLoader {
             return undefined
         }
 
-        return new eclass(runID, k, data.displayID_default);
+        return new eclass(runID, eid, type, k, data);
     }
 }

@@ -1,11 +1,11 @@
 import _node from "./node";
-import type Action from "../gameComponents/action";
+import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 
-class _tree {
+class _tree<RootType extends Action> {
     protected length : number = 0
-    root : _node
-    constructor(a : Action){
-        this.root = new _node(a, 0, this.length)
+    root : _node<RootType>
+    constructor(a : RootType){
+        this.root = new _node<RootType>(a, 0, this.length)
         this.length++;
     }
     toString() : string{

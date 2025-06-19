@@ -11,6 +11,8 @@ import subTypeOverrideConflict from "./subTypeOverrideConflict";
 import unregisteredAction from "./unregisteredAction";
 import wrongEffectIdx from "./wrongEffectIdx";
 import cannotLoad from "./cannotLoad";
+import incorrectActiontype from "./incorrectActionType";
+import zoneNotExist from "./zoneNotExist";
 
 export {
   cardNotExist,
@@ -25,5 +27,7 @@ export {
   wrongEffectIdx,
   subTypeOverrideConflict,
   unregisteredAction,
-  cannotLoad
+  cannotLoad,
+  incorrectActiontype,
+  zoneNotExist
 };

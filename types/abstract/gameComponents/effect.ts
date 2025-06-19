@@ -1,19 +1,21 @@
-import dry_effect from "../../data/dry/dry_effect";
-import type dry_system from "../../data/dry/dry_system";
-import type action from "./action"
-import type card from "./card";
+import dry_effect from "../../../data/dry/dry_effect";
+import type dry_system from "../../../data/dry/dry_system";
+import type { Action } from "../../../_queenSystem/handler/actionGenrator";
+import type Card from "./card";
 import type effectSubtype from "./effectSubtype";
 import { subTypeOverrideConflict } from "../../errors";
-import type { effectData } from "../../data/cardRegistry";
+import type { effectData } from "../../../data/cardRegistry";
+import EffectType from "./effectType";
 
 //some effects can modify event data 
 //so in general, activate takes in an event and spits out an event
 
 class Effect {
     id: string;
-    type: string = "";
+    dataID : string;
+    type: EffectType;
     subTypes: effectSubtype[]
-    displayID: string
+    readonly originalData : effectData
 
     isDisabled: boolean = false //I DO NOT LIKE THIS NAME
 
@@ -28,22 +30,19 @@ class Effect {
     attr: Map<string, number> = new Map(); //position and stuff is in here
 
     get signature_type() : string {
-        return this.type
+        return this.type.dataID
     }
 
     get signature_type_subtype() : string {
         let sep = "==="
-        return this.signature_type + sep + this.subTypes.map(i => i.id).join(sep) 
+        return this.signature_type + sep + this.subTypes.map(i => i.dataID).join(sep) 
     }
 
     //actual effects override these two
-    canRespondAndActivate_proto(c : card, system : dry_system, a : action) : boolean{return true}
-    activate_proto(c : card, system : dry_system, a : action) : action[] {return []};
+    canRespondAndActivate_proto(c : Card, system : dry_system, a : Action) : boolean{return false}
+    activate_proto(c : Card, system : dry_system, a : Action) : Action[] {return []};
 
-    //effectTypes override these
-    canRespondAndActivate_type(c : card, system : dry_system, a : action) : -1 | boolean{return -1}
-
-    canRespondAndActivate(c : card, system : dry_system, a : action) : boolean | subTypeOverrideConflict{
+    canRespondAndActivate(c : Card, system : dry_system, a : Action) : boolean {
         let res : -1 | -2 | boolean = -1;
         
         let trueForceFlag = false
@@ -68,23 +67,23 @@ class Effect {
         if(trueForceFlag && falseForceFlag){
             //conflict exists
             //false is prioritized
-            return new subTypeOverrideConflict(c.id, this.id, overrideIndexes)
+            // return new subTypeOverrideConflict(c.id, this.id, overrideIndexes)
+            return false
         }
         if(trueForceFlag) return true;
         if(falseForceFlag) return false;
 
         if(!skipTypeCheck){
-            res = this.canRespondAndActivate_type(c, system, a);
-            //if(system.isInTriggerPhase) console.log(" type check occurs, res is ", res);
+            res = this.type.canRespondAndActivate(c, system, a);
             if(res !== -1) return res;
         } 
         return this.canRespondAndActivate_proto(c, system, a);
     }
-    activate(c : card, system : dry_system, a : action) : action[]{
+    activate(c : Card, system : dry_system, a : Action) : Action[]{
         if(this.isDisabled) return []
         if(!c.canAct) return []
-        let res : -1 | action[] = -1;
-        let appenddedRes : action[] = [] 
+        let res : -1 | Action[] = -1;
+        let appenddedRes : Action[] = [] 
         
         for(let i = 0; i < this.subTypes.length; i++){
             if(this.subTypes[i].isDisabled) continue
@@ -93,20 +92,23 @@ class Effect {
             appenddedRes.push(...res);
         }
         
-        return this.activate_proto(c, system, a).concat(appenddedRes)
+        let final = this.activate_proto(c, system, a).concat(appenddedRes)
+        this.type.parseAfterActivate(c, system, final);
+        this.subTypes.forEach(st => st.parseAfterActivate(c, this, system, final));
+        return final;
     };
 
     //DO NOT OVERRIDE THESE
     getSubtypeidx(subtypeID : string){
         for(let i = 0; i > this.subTypes.length; i++){
-            if(this.subTypes[i].id === subtypeID) return i;
+            if(this.subTypes[i].dataID === subtypeID) return i;
         }
         return -1
     }
 
     //activateSubtypeSpecificFunc(subtypeID : string, c : card, system : dry_system, a : action) : action[] 
     //activateSubtypeSpecificFunc(subtypeidx : number, c : card, system : dry_system, a : action) : action[]
-    activateSubtypeSpecificFunc(subtypeIdentifier : string | number, c : card, system : dry_system, a : action) : action[]{
+    activateSubtypeSpecificFunc(subtypeIdentifier : string | number, c : Card, system : dry_system, a : Action) : Action[]{
         if(typeof subtypeIdentifier === "string"){
             subtypeIdentifier = this.getSubtypeidx(subtypeIdentifier);
         }
@@ -114,21 +116,29 @@ class Effect {
         return this.subTypes[subtypeIdentifier].activateSpecificFunctionality(c, this, system, a);
     }
  
-    constructor(id : string, subTypes: effectSubtype[] = [], displayID? : string){
+    constructor(id : string, dataID : string, type : EffectType, subTypes: effectSubtype[] = [], data : effectData){
         this.id = id
-        this.type = "default"
+        this.type = type
         this.subTypes = subTypes
-        this.displayID = displayID ? displayID : id
+        this.dataID = dataID;
+        this.originalData = data;
+
+        Object.entries(data).forEach(([key, val]) => {
+            if(typeof val === "number"){
+                this.attr.set(key, val)
+            }
+        })
     }
 
-    //fix later
-    // addSubType(str : string){
-    //     this.subTypes.push(str)
-    // }
+    get displayID() : string {return this.originalData.displayID_default ?? this.dataID}
 
-    // removeSubType(str : string){
-    //     this.subTypes = this.subTypes.filter(i => i !== str)
-    // }
+    addSubType(st : effectSubtype){
+        this.subTypes.push(st)
+    }
+
+    removeSubType(stid : string){
+        this.subTypes = this.subTypes.filter(i => i.dataID !== stid)
+    }
     
     toDry() : dry_effect {
         return new dry_effect(this)
@@ -160,7 +170,13 @@ class Effect {
     //^ implemented
 
     //should override
-    getDisplayInput() : (string | number)[] {return []}
+    getDisplayInput(c : Card, system : dry_system) : (string | number)[] {return []}
+
+    reset() : Action[] {
+        let res : Action[] = []
+        this.subTypes.forEach(i => res.push(...i.reset()))
+        return res;
+    }
 }
 
 export default Effect

@@ -1,7 +1,6 @@
 //hand, grave, field, deck, etc extends from this, reserve index 0 for system
 import type card from "./card";
 import type res from "../generics/universalResponse";
-import type { zoneID, zoneData } from "../../data/zoneRegistry";
 //import position from "./position";
 //import utils from "./util";
 import Zone from "./zone";

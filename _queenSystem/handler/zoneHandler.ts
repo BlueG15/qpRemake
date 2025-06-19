@@ -2,11 +2,13 @@
 //and importantly, converter from action to zone func calls
 
 import type Zone from "../../types/abstract/gameComponents/zone";
-import type posChange from "../../types/actions/posChange";
+import type Effect from "../../types/abstract/gameComponents/effect";
+import type Card from "../../types/abstract/gameComponents/card";
+import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
+
 import system from "../../types/defaultZones/system";
-import Card from "../../types/abstract/gameComponents/card";
 import res from "../../types/abstract/generics/universalResponse";
-import dry_system from "../../types/data/dry/dry_system";
+import dry_system from "../../data/dry/dry_system";
 import deck from "../../types/defaultZones/deck";
 import storage from "../../types/defaultZones/storage";
 import grave from "../../types/defaultZones/grave";
@@ -19,29 +21,25 @@ import zoneLoader from "../loader/loader_zone";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 
 import utils from "../../utils";
-import zoneDataRegistry, { zoneData } from "../../types/data/zoneRegistry";
-import { zoneRegistry, zoneName, zoneID } from "../../types/data/zoneRegistry";
-import Action from "../../types/abstract/gameComponents/action";
+import zoneDataRegistry, { playerTypeID, zoneData } from "../../data/zoneRegistry";
+import { zoneRegistry, zoneName, zoneID } from "../../data/zoneRegistry";
 
-import type StatusEffect from "../../types/effects/effectTypes/statusEffect";
+import type StatusEffect_base from "../../specificEffects/_statusEffect_base";
 
-import { cardNotExist } from "../../types/errors";
-import {
-    turnReset,
-    drawAction,
-    shuffle,
-    activateEffect,
-    internalActivateEffectSignal,
-    activateEffectSubtypeSpecificFunc,
-    addStatusEffect,
-    removeStatusEffect,
-} from "../../types/actions"
+import { cardNotExist, effectNotExist, incorrectActiontype, zoneAttrConflict, zoneNotExist } from "../../types/errors";
 import type registryHandler from "./registryHandler";
+import Position from "../../types/abstract/generics/position";
+import { Action, Action_class, actionConstructorRegistry, actionFormRegistry, TargetType } from "./actionGenrator";
+import { type identificationInfo_card, type identificationInfo, type identificationInfo_effect, type identificationInfo_subtype, identificationType } from "../../data/systemRegistry";
+import type error from "../../types/errors/error";
+import actionRegistry from "../../data/actionRegistry";
+import { damageType } from "../../data/misc";
+import type dry_position from "../../data/dry/dry_position";
 
 class zoneHandler {
-    readonly zoneArr : Zone[]
+    readonly zoneArr : ReadonlyArray<Zone> = []
     private loader : zoneLoader
-    
+
     //old
     // async load(zoneReg : typeof zoneDataRegistry){
     //     //every entries in zoneReg house an importURL leading to a child class extended from zone 
@@ -61,39 +59,44 @@ class zoneHandler {
     //     await Promise.all(zonePromises);
     // }
     
-    constructor(regs : registryHandler){
+    constructor(regs : registryHandler, s : Setting){
         this.loader = regs.zoneLoader
-        this.loader.load(zoneRegistry[zoneRegistry.z_system], zoneDataRegistry.z_system);
-        this.loader.load(zoneRegistry[zoneRegistry.z_deck], zoneDataRegistry.z_deck);
-        this.loader.load(zoneRegistry[zoneRegistry.z_hand], zoneDataRegistry.z_hand);
-        this.loader.load(zoneRegistry[zoneRegistry.z_void], zoneDataRegistry.z_void);
-        this.loader.load(zoneRegistry[zoneRegistry.z_storage], zoneDataRegistry.z_storage);
-        this.loader.load(zoneRegistry[zoneRegistry.z_p1_field], zoneDataRegistry.z_p1_field);
-        this.loader.load(zoneRegistry[zoneRegistry.z_p2_field], zoneDataRegistry.z_p2_field);
-        this.loader.load(zoneRegistry[zoneRegistry.z_p1_grave], zoneDataRegistry.z_p1_grave);
-        this.loader.load(zoneRegistry[zoneRegistry.z_p2_grave], zoneDataRegistry.z_p2_grave);
+        this.loader.load(zoneRegistry[zoneRegistry.z_system], zoneDataRegistry.z_system, system);
+        this.loader.load(zoneRegistry[zoneRegistry.z_deck], zoneDataRegistry.z_deck, deck);
+        this.loader.load(zoneRegistry[zoneRegistry.z_hand], zoneDataRegistry.z_hand, hand);
+        this.loader.load(zoneRegistry[zoneRegistry.z_void], zoneDataRegistry.z_void, _void);
+        this.loader.load(zoneRegistry[zoneRegistry.z_storage], zoneDataRegistry.z_storage, storage);
+        this.loader.load(zoneRegistry[zoneRegistry.z_field], zoneDataRegistry.z_field, field);
+        this.loader.load(zoneRegistry[zoneRegistry.z_grave], zoneDataRegistry.z_grave, grave);
 
-        //pre-sorted
-        this.zoneArr = [
-            new system(0, zoneRegistry[zoneRegistry.z_system], zoneDataRegistry.z_system), //Inf
-            
-            new field(1, zoneRegistry[zoneRegistry.z_p1_field], zoneDataRegistry.z_p1_field), //6
-            new field(2, zoneRegistry[zoneRegistry.z_p2_field], zoneDataRegistry.z_p2_field), //5
-            
-            new hand(3, zoneRegistry[zoneRegistry.z_hand], zoneDataRegistry.z_deck), //4
+        // this.maxPlayerIndex = s.players.length
 
-            new grave(4, zoneRegistry[zoneRegistry.z_p1_grave], zoneDataRegistry.z_p1_grave), //3
-            new grave(5, zoneRegistry[zoneRegistry.z_p2_grave], zoneDataRegistry.z_p2_grave), //2
+        Object.entries(zoneDataRegistry).forEach(([zkey, zdata], index) => {
+            if(!zdata.instancedFor.length){
+                let  zinstance = (this.loader.getZone(zkey, s) as Zone)
+                utils.insertionSort(
+                    this.zoneArr as Zone[], 
+                    zinstance,
+                    this.sortFunc
+                )
+            } else {
+                s.players.forEach((ptype, pindex) => {
+                    let zinstance = (this.loader.getZone(zkey, s, ptype, pindex) as Zone)
+                    if(zdata.instancedFor.includes(ptype)){
+                        utils.insertionSort(
+                            this.zoneArr as Zone[],
+                            zinstance,
+                            this.sortFunc
+                        )
+                    }
+                })
+            }
+        })
 
-            new deck(6, zoneRegistry[zoneRegistry.z_deck], zoneDataRegistry.z_deck), //1
-            new storage(7, zoneRegistry[zoneRegistry.z_storage], zoneDataRegistry.z_storage), //0
-
-            new abiltyZone(8, zoneRegistry[zoneRegistry.z_ability], zoneDataRegistry.z_ability), //-1
-            new _void(9, zoneRegistry[zoneRegistry.z_void], zoneDataRegistry.z_void), //-2
-        ]
+        this.correctID()
     }
 
-    private sortFunc(a : zoneData, b : zoneData) : number{
+    private sortFunc(a : zoneData | Zone, b : zoneData | Zone) : number{
         const x = a.priority, y = b.priority;
         if(Object.is(x, y)) return 0;
         const rank = (a : number) => isNaN(a) ? 0 : a === -Infinity ? 1 : a === +Infinity ? 3 : 2;
@@ -101,78 +104,180 @@ class zoneHandler {
         return (ra !== rb) ? rb - ra : y - x;
     }
 
+    private correctID(){
+        for(let i = 0; i < this.zoneArr.length; i++) this.zoneArr[i].id = i;
+    }
+
     load(key : string, data : zoneData, c? : typeof Zone){
         this.loader.load(key, data, c);
     }
 
-    add(zclassID : string, s : Setting, zDataID? : string){
-        let instance = this.loader.getZone(zclassID, s, zDataID);
+    add(zclassID : string, s : Setting, ptype? : playerTypeID | -1, pid? : number, zDataID? : string){
+        let instance = this.loader.getZone(zclassID, s, ptype, pid, zDataID);
         if(!instance) throw new Error(`Fail to create instance of zone ${zclassID}`);
-        utils.insertionSort(this.zoneArr, instance, this.sortFunc);
-        for(let i = 0; i < this.zoneArr.length; i++) this.zoneArr[i].id = i;
+        utils.insertionSort(this.zoneArr as Zone[], instance, this.sortFunc);
+        this.correctID()
     }
 
-    load_and_add(key : string, s : Setting, data : zoneData, c : typeof Zone) : void; //add both
-    load_and_add(key : string, s : Setting, _class : typeof Zone, dataID? : string) : void; //add class only, no ID use key
-    load_and_add(key : string, s : Setting, data : zoneData, classID? : string) : void; //add data only, no ID use key
-    load_and_add(key : string, s : Setting, param3 : zoneData | typeof Zone, param4? : typeof Zone | string){
+    load_and_add_noPlayer(key : string, s : Setting, data : zoneData, c : typeof Zone) : void; //add both
+    load_and_add_noPlayer(key : string, s : Setting, _class : typeof Zone, dataID? : string) : void; //add class only, no ID use key
+    load_and_add_noPlayer(key : string, s : Setting, data : zoneData, classID? : string) : void; //add data only, no ID use key
+    load_and_add_noPlayer(key : string, s : Setting, param3 : zoneData | typeof Zone, param4? : typeof Zone | string){
         //case 1, add both
         if(typeof param3 === "object" && typeof param4 === "function"){
             this.loader.load(key, param3, param4);
-            this.add(key, s, key);
+            this.add(key, s, -1, -1, key);
             return;
         } 
         if(!param4) param4 = key;
         //case 2, add class only
         if(typeof param3 === "function"){
             this.loader.load(key, undefined, param3);
-            this.add(key, s, param4 as string)
+            this.add(key, s, -1, -1, param4 as string)
             return;
         }
         //case 3, add data only
         if(typeof param3 === "object"){
             this.loader.load(key, param3);
-            this.add(key, s, param4 as string)
+            this.add(key, s, -1, -1, param4 as string)
             return;
         }
         //technically unreachable code
         throw new Error("Undefined behavior: load_and_add, zoneHandler");
     }
 
+    addNewPlayerInstancedZones(s : Setting, ptype : playerTypeID, pid : number = -1){
+        let insertNew : Zone[] = []
+        this.zoneArr.forEach(i => {
+            let data = this.loader.getData(i.dataID)
+            if(data && data.instancedFor.includes(ptype)){
+                let z = this.loader.getZone(i.classID, s, ptype, pid, i.dataID)
+                if(z) insertNew.push(z)
+            }
+        })
+
+        insertNew.forEach(i => utils.insertionSort(this.zoneArr as Zone[], i, this.sortFunc))
+        this.correctID()
+    }
+
     //operations
-    handlePosChange(a : posChange) : Action[]{
+
+    private genericHandler_card<
+        M extends [identificationInfo_card | identificationInfo_effect | identificationInfo_subtype, ...identificationInfo[]]
+    >(s : dry_system, a : Action_class<M>) : [true, error[]] | [false, Card] {
+        let target = a.targets[0]
+        let z = this.zoneArr[target.card.pos.zoneID]
+        let c = z.getCardByPosition(new Position(target.card.pos))
+        if(!c) {
+            c = this.getCardWithID(target.card.id);
+            if (!c) return [true, [new cardNotExist()]];
+        }
+        if(!a.resolvable(s, z.toDry(), c.toDry())) return [true, []]
+        return [false, c];
+    }
+
+    private genericHandler_effect<
+        M extends [identificationInfo_effect | identificationInfo_subtype, ...identificationInfo[]]
+    >(s : dry_system, a : Action_class<M>) : [true, error[]] | [false, Card, Effect] {
+        let target = a.targets[0]
+        let z = this.zoneArr[target.card.pos.zoneID]
+        let c = z.getCardByPosition(new Position(target.card.pos))
+        if(!c) {
+            c = this.getCardWithID(target.card.id);
+            if (!c) return [true, [new cardNotExist()]];
+        }
+
+        let eff : Effect | undefined
+        let eindex = c.findEffectIndex(target.eff.id)
+        if( eindex < 0 ) {
+            eff = this.getEffectWithID(target.eff.id);
+            if(!eff) return [true, [new effectNotExist(target.eff.id, c.id)]]
+        } else {
+            eff = c.totalEffects[eindex]
+        }
+
+        if(!a.resolvable(s, z.toDry(), c.toDry(), eff.toDry())) return [true, []]
+        return [false, c, eff]
+    }
+
+    private genericHandler_subtype<
+        M extends [identificationInfo_subtype, ...identificationInfo[]]
+    >(s : dry_system, a : Action_class<M>) : [true, error[]] | [false, Card, Effect, number] {
+        let target = a.targets[0]
+        let z = this.zoneArr[target.card.pos.zoneID]
+        let c = z.getCardByPosition(new Position(target.card.pos))
+        if(!c) {
+            c = this.getCardWithID(target.card.id);
+            if (!c) return [true, [new cardNotExist()]];
+        }
+
+        let eff : Effect | undefined
+        let eindex = c.findEffectIndex(target.eff.id)
+        if( eindex < 0 ) {
+            eff = this.getEffectWithID(target.eff.id);
+            if(!eff) return [true, [new effectNotExist(target.eff.id, c.id)]]
+        } else {
+            eff = c.totalEffects[eindex]
+        }
+
+        let st = eff.getSubtypeidx(target.subtype.dataID)
+        if(st < 0) return [true, [new effectNotExist(target.eff.id, c.id).add("zoneHandler", "handleActivateEffectSubtypeFunc", 326)]]
+
+        if(!a.resolvable(s, z.toDry(), c.toDry(), eff.toDry(), eff.subTypes[st].toDry())) return [true, []]
+
+        return [false, c, eff, st]
+
+    }
+
+
+
+
+    /**
+     * 
+     * @param a : a pos change action, with 2 targets, a card target and a position target in index 0 and 1
+     * @returns 
+     */
+    handlePosChange(s : dry_system, a : Action<"a_pos_change">) : Action[]{
+
+        let k1 = a.targets[0];
+        let k2 = a.targets[1];
+
+        let pos = new Position(k2.pos)
         let res : Action[] = []
-        
-        let idxFrom = a.fromPos.zoneID
-        let cardIdx = utils.positionToIndex(a.fromPos.flat(), this.zoneArr[idxFrom].shape)
-        let c = this.zoneArr[idxFrom].cardArr[cardIdx]
-        if(!c) return [
-            new cardNotExist().add("zoneHandler", "handlePosChange", 54)
-        ];
+
+        let z = this.zoneArr[k1.card.pos.zoneID]
+        let c = z.getCardByPosition(new Position(k1.card.pos))
+
+        // let idxFrom = pos.zoneID
+        // let cardIdx = utils.positionToIndex(pos.flat(), this.zoneArr[idxFrom].shape)
+        // let c = this.zoneArr[idxFrom].cardArr[cardIdx]
+        if(!c) {
+            c = this.getCardWithID(k1.card.id)
+            if(!c) return [
+                new cardNotExist().add("zoneHandler", "handlePosChange", 54)
+            ];
+        }
+
+        if(!a.resolvable(s, z.toDry(), c.toDry())) return [];
+
         let temp : res
 
-        if(a.toPos && a.toPos.valid && a.toPos.zoneID === idxFrom){
+        if(pos && pos.valid && pos.zoneID === c.pos.zoneID){
             console.log("move is triggered")
-            let idxTo = a.toPos.zoneID
-            temp = this.zoneArr[idxTo].move(c, a.toPos)
+            let idxTo = pos.zoneID
+            temp = this.zoneArr[idxTo].move(c, pos)
             //move is prioritized
             if(temp[0]) res.push(temp[0]);
             else res.push(...temp[1])
 
         } else {
-
-            if(a instanceof drawAction){
-                temp = this.deck.draw(a)
-            } else {
-                temp = this.zoneArr[idxFrom].remove(c)
-            }
+            temp = this.zoneArr[c.pos.zoneID].remove(c)
+            
             if(temp[0]) res.push(temp[0]);
             else res.push(...temp[1])
 
-            if(a.toPos){
-                let idxTo = a.toPos.zoneID
-                temp = this.zoneArr[idxTo].add(c, a.toPos)
-            }
+            temp = this.zoneArr[pos.zoneID].add(c, pos)
+                
             if(temp[0]) res.push(temp[0]);
             else res.push(...temp[1])
         }
@@ -180,63 +285,218 @@ class zoneHandler {
         return res
     }
 
-    handleShuffle(a : shuffle) : Action[]{
-        let temp = this.zoneArr[a.zoneID].shuffle(a.shuffleMap)
+    handleDraw(s : dry_system, a : Action<"a_draw">) : Action[]{
+        let zone = this.zoneArr[a.targets[0].zone.id]
+        if(!zone || !(zone as any).draw) return [
+            new zoneNotExist(a.targets[0].zone.id).add("zoneHandler", "handleDraw", 213)
+        ]
+
+        if(!a.resolvable(s, zone.toDry())) return [];
+
+        let deck = zone as deck;
+
+        let playerindex = deck.playerIndex
+        let hand = this.hands.filter(i => i.playerIndex === playerindex);
+
+        if(hand.length !== 1) return [
+            new zoneNotExist(-1).add("zoneHandler", "handleDraw", 222)
+        ]
+
+        let res = deck.draw(a, hand[0])
+        if(res[0]) return [res[0]];
+        else return res[1];
+    }   
+
+    handleShuffle(s : dry_system, a : Action<"a_shuffle">) : Action[]{
+        let z = this.zoneArr[a.targets[0].zone.id]
+        if(!z || !(z as any).draw) return [
+            new zoneNotExist(a.targets[0].zone.id).add("zoneHandler", "handleDraw", 213)
+        ]
+        if(!a.resolvable(s, z.toDry())) return [];
+        let temp = z.shuffle(a.flatAttr().shuffleMap)
         if(temp[0]) return [temp[0]]
         return temp[1]
     }
 
-    handleTurnReset(a : turnReset) : Action[]{
+    handleTurnReset(s : dry_system, a : Action<"a_turn_reset">) : Action[]{
         //only do field refresh
-        if(!a.doFieldRefresh) return []
-        return [...this.playerField.turnReset(a), ...this.enemyField.turnReset(a)]
+        let res : Action[] = []
+        this.zoneArr.forEach(i => res.push(...i.turnReset(a)))
+        return res;
     }
 
-    handleEffectActivation(a : activateEffect, system : dry_system) : Action[]{
-        let cardIdx = a.targetCardID as string
-        for(let k = 0; k < this.zoneArr.length; k++){
-            const i = this.zoneArr[k]
-            let t = i.findIndex(cardIdx)
-            if(t >= 0){
-                let k = (i.cardArr[t] as Card).activateEffect(a.effectID, system, a)
-                if(k[0]) return [k[0].add("zoneHandler", "handleEffectActivation", 98)]
-                else return k[1]
-            }
-        }
-        return [new cardNotExist().add("zoneHandler", "handleEffectActivation", 102)]       
+    handleCardReset(s : dry_system, a : Action<"a_reset_card">) : Action[]{
+        let res = this.genericHandler_card(s, a);
+        if(res[0]) return res[1];
+        return res[1].reset()
     }
 
-    handleActivateEffectSubtypeFunc(a : activateEffectSubtypeSpecificFunc, system : dry_system) : Action[]{
-        let cardIdx = a.targetCardID as string
-        for(let k = 0; k < this.zoneArr.length; k++){
-            const i = this.zoneArr[k]
-            let t = i.findIndex(cardIdx)
-            if(t >= 0){
-                let k = (i.cardArr[t] as Card).activateEffectSubtypeSpecificFunc(a.effectID, a.subTypeID ,system, a)
-                if(k[0]) return [k[0].add("zoneHandler", "handleEffectActivation", 127)]
-                else return k[1]
-            }
-        }
-        return [new cardNotExist().add("zoneHandler", "handleEffectActivation", 131)]
+    handleEffectReset(s : dry_system, a : Action<"a_reset_effect">) : Action[]{ 
+        let res = this.genericHandler_effect(s, a);
+        if(res[0]) return res[1];
+        return res[2].reset()
     }
 
-    handleAddStatusEffect(a : addStatusEffect, e : StatusEffect) : Action[]{
-        if(!a.targetCardID) return [new cardNotExist().add("zoneHandler", "handleAddStatusEffect", 220)]
-        let card = this.getCardFromID(a.targetCardID);
-        if(!card) return [new cardNotExist().add("zoneHandler", "handleAddStatusEffect", 222)];
-        card.addStatusEffect(e);
+    handleEffectActivation(s : dry_system, a : Action<"a_activate_effect">, system : dry_system) : Action[]{
+        let res = this.genericHandler_effect(s, a);
+        if(res[0]) return res[1];
+        return res[2].activate(res[1], s, a);
+    }
+
+    handleActivateEffectSubtypeFunc(s : dry_system, a : Action<"a_activate_effect_subtype">) : Action[]{
+        let res = this.genericHandler_subtype(s, a);
+        if(res[0]) return res[1];
+        return res[2].activateSubtypeSpecificFunc(res[3], res[1], s, a)
+    }
+
+    handleAddStatusEffect(s : dry_system, a : Action<"a_add_status_effect">, e : StatusEffect_base) : Action[]{
+        let res = this.genericHandler_card(s, a);
+        if(res[0]) return res[1];
+        res[1].addStatusEffect(e);
         return [];
     }
 
-    handleRemoveStatusEffect(a : removeStatusEffect) : Action[]{
-        if(!a.targetCardID) return [new cardNotExist().add("zoneHandler", "handleRemoveStatusEffect", 229)]
-        let card = this.getCardFromID(a.targetCardID);
-        if(!card) return [new cardNotExist().add("zoneHandler", "handleRemoveStatusEffect", 231)];
-        card.removeStatusEffect(a.statusID);
+    handleClearAllStatusEffect(s : dry_system, a : Action<"a_clear_all_status_effect">) : Action[] {
+        let res = this.genericHandler_card(s, a);
+        if(res[0]) return res[1];
+        res[1].clearAllStatus();
         return []
     }
 
-    respond(a : Action, system : dry_system, zoneResponsesOnly : boolean = false) : [Action[], [string, string[]][]]{
+    handleRemoveStatusEffect(s : dry_system, a : Action<"a_remove_status_effect">) : Action[]{
+        let res = this.genericHandler_effect(s, a);
+        if(res[0]) return res[1];
+        res[1].removeStatusEffect(res[2].id)
+        return []
+    }
+
+    handleCardStatus(s : dry_system, a : Action<"a_enable_card"> | Action<"a_disable_card">) : Action[]{
+        let res = this.genericHandler_card(s, a);
+        if(res[0]) return res[1];
+        res[1].canAct = (a.typeID === actionRegistry.a_enable_card)
+        return []
+    }
+
+    handleAttack(s : dry_system, a : Action<"a_attack">) : Action[] {
+        let attr = a.flatAttr()
+
+        //find opposite
+        if(a.cause.type !== identificationType.card) return []
+        let c = a.cause.card
+
+        let oppositeZone : Zone | undefined = this.zoneArr[c.pos.zoneID]
+        if(!oppositeZone) return []
+        
+        oppositeZone = oppositeZone.getOppositeZone(this.zoneArr)
+        if(!oppositeZone) return []
+
+        let targets = oppositeZone.getOppositeCards(c)
+        if(!targets) return []
+        
+        if(!targets.length){
+            return [
+                actionConstructorRegistry.a_deal_heart_damage(s, oppositeZone.playerIndex)(a.cause, {
+                    dmg : c.attr.get("atk") ?? 0
+                })
+            ]
+        }
+
+        targets = targets.sort((a, b) => a.pos.x - b.pos.x)
+
+        return [
+            actionConstructorRegistry.a_deal_damage_internal(s, targets[0].toDry())(a.cause, {
+                dmg : (attr.dmg === undefined) ? c.attr.get("atk") ?? 0 : attr.dmg,
+                dmgType : (attr.dmgType === undefined) ? damageType.physical : attr.dmgType
+            })
+        ]
+    }
+
+    handleDealDamage_1(s : dry_system, a : Action<"a_deal_damage_card"> | Action<"a_deal_damage_internal">){
+        let res = this.genericHandler_card(s, a);
+        if(res[0]) return res[1];
+
+        let attr = a.flatAttr();
+        res[1].hp -= attr.dmg;
+
+        if(res[1].hp === 0){
+            return [
+                actionConstructorRegistry.a_destroy(s, res[1].toDry())(actionFormRegistry.system())
+            ]
+        }
+        return []
+    }
+
+    handleDealDamage_2(s : dry_system, a : Action<"a_deal_damage_position">){
+        let pos = a.targets[0].pos
+
+        let c = this.getCardWithPosition(new Position(pos));
+        if(!c) return [
+            new cardNotExist()
+        ]
+
+        let attr = a.flatAttr();
+        c.hp -= attr.dmg
+
+        if(c.hp === 0){
+            return [
+                actionConstructorRegistry.a_destroy(s, c.toDry())(actionFormRegistry.system())
+            ]
+        }
+
+        return []
+    }
+
+    handleExecute(s : dry_system, a : Action<"a_execute">){
+        let res = this.genericHandler_card(s, a);
+        if(res[0]) return res[1];
+
+        //unpacks to an attack and a send to grave
+
+        let zoneid = res[1].pos.zoneID
+        let z = this.zoneArr[zoneid]
+        if(!z) return [
+            new zoneNotExist(zoneid)
+        ]
+
+        let pid = z.playerIndex
+
+        let g = this.graves[pid];
+        if(!g) return [
+            new zoneNotExist(pid)
+        ]
+
+        return [
+            actionConstructorRegistry.a_attack(a.cause, {
+                dmg : res[1].atk,
+                dmgType : damageType.physical
+            }),
+            actionConstructorRegistry.a_pos_change_force(s, res[1].toDry())(g.top.toDry())(actionFormRegistry.system()).dontchain()
+        ]
+    }
+
+    handleDestroy(s : dry_system, a : Action<"a_destroy">){
+        let res = this.genericHandler_card(s, a);
+        if(res[0]) return res[1];
+
+        let zoneid = res[1].pos.zoneID
+        let z = this.zoneArr[zoneid]
+        if(!z) return [
+            new zoneNotExist(zoneid)
+        ]
+
+        let pid = z.playerIndex
+
+        let g = this.graves[pid];
+        if(!g) return [
+            new zoneNotExist(pid)
+        ]
+
+        return [
+            actionConstructorRegistry.a_pos_change_force(s, res[1].toDry())(g.top.toDry())(actionFormRegistry.system())
+        ]
+    }
+
+    respond(system : dry_system, a : Action, zoneResponsesOnly : boolean = false) : [Action[], [string, string[]][]]{
         let arr : Action[] = []
         let infoLog : Map<string, string[]> = new Map() //cardID, effectIDs[]
         this.zoneArr.forEach(i => {
@@ -247,11 +507,9 @@ class zoneHandler {
             let respondMap = i.getCanRespondMap(a, system)
             respondMap.forEach((eidxArr, cardInfo) => {
                 eidxArr.forEach(eidx => {
-                    arr.push(new internalActivateEffectSignal(
-                        cardInfo.id, 
-                        cardInfo.effects[eidx].id, 
-                        a.causeCardID
-                    ))
+                    arr.push(
+                        actionConstructorRegistry.a_activate_effect_internal(system, cardInfo, cardInfo.effects[eidx])(a.cause)
+                    )
                     if(infoLog.has(cardInfo.id)) {
                         (infoLog.get(cardInfo.id) as string[]).push(cardInfo.effects[eidx].id);
                     } else {
@@ -263,15 +521,89 @@ class zoneHandler {
         return [arr, Object.entries(infoLog)]
     }
 
+    forEach(depth : 0, callback : ((z : Zone, zid? : number) => void)) : void;
+    forEach(depth : 1, callback : ((c : Card, zid? : number, cid? : number) => void)) : void;
+    forEach(depth : 2, callback : ((e : Effect, zid? : number, cid? : number, eid? : number) => void)) : void;
+    forEach(depth : 3, callback : ((st : effectSubtype, zid? : number, cid? : number, eid? : number, stid? : number) => void)) : void;
+    forEach(depth : number, callback : ((z : any, ...index : (number | undefined)[]) => void)) : void{
+        switch(depth){
+            case 0: 
+                return this.zoneArr.forEach((z : Zone, zid : number) => callback(z, zid));
+            case 1: 
+                return this.zoneArr.forEach(
+                    (z : Zone, zid : number) => z.cardArr.forEach((c, cid) => {
+                        if(c) callback(c, zid, cid)
+                    })
+                );
+            case 2: 
+                return this.zoneArr.forEach(
+                    (z : Zone, zid : number) => z.cardArr.forEach(
+                        (c, cid) => {
+                            if(c) c.totalEffects.forEach((e, eid) => callback(e, zid, cid, eid))
+                        }
+                    )
+                )
+            case 3 : 
+                return this.zoneArr.forEach(
+                    (z : Zone, zid : number) => z.cardArr.forEach(
+                        (c, cid) => {
+                            if(c) c.totalEffects.forEach(
+                                (e, eid) => e.subTypes.forEach((st, stid) => callback(st, zid, cid, eid, stid))
+                            )
+                        }
+                    )
+                )
+            
+            default : return;
+        }
+    }
+
+    map<T>(depth : 0, callback : ((z : Zone, zid? : number) => T)) : T[];
+    map<T>(depth : 1, callback : ((c : Card, zid? : number, cid? : number) => T)) : T[];
+    map<T>(depth : 2, callback : ((e : Effect, zid? : number, cid? : number, eid? : number) => T)) : T[];
+    map<T>(depth : 3, callback : ((st : effectSubtype, zid? : number, cid? : number, eid? : number, stid? : number) => T)) : T[];
+    map<T>(depth : number, callback : ((z : any, ...index : (number | undefined)[]) => T)) : T[]{
+        let final : T[] = [];
+        this.forEach(depth as any, (c, ...index : (number | undefined)[]) => {
+            final.push(callback(c, ...index));
+        })
+        return final;
+    }
+
+    getEffectWithID(eid : string) : Effect | undefined{
+        for(let i = 0; i < this.zoneArr.length; i++){
+            for(let j = 0; j < this.zoneArr[i].cardArr.length; j++){
+                let c = this.zoneArr[i].cardArr[j]
+                if(!c) continue;
+                let x = c.findEffectIndex(eid);
+                if(x < 0) continue;
+                return c.effects[x]
+            }
+        }
+        return undefined;
+    }
+
     enforceCardIntoZone(zoneIdx : number, cardArr : Card[]){
         this.zoneArr[zoneIdx].forceCardArrContent(cardArr)
+    }
+
+    getZoneWithDataID(dataID : string) : Zone[] {
+        return this.zoneArr.filter(i => i.dataID === dataID)
+    }
+
+    getZoneWithClassID(classID : string) : Zone[] {
+        return this.zoneArr.filter(i => i.classID === classID)
     }
 
     getZoneWithName(zoneName : string){
         return this.zoneArr.find(a => a.name == zoneName)
     }
 
-    getCardFromID(cardID : string){
+    getZoneWithID(id : number) : Zone | undefined{
+        return this.zoneArr[id];
+    }
+
+    getCardWithID(cardID : string){
         for(let i = 0; i < this.zoneArr.length; i++){
             let index = this.zoneArr[i].cardArr.findIndex(i => i && i.id === cardID)
             if(index < 0) continue;
@@ -280,22 +612,22 @@ class zoneHandler {
         return undefined
     }
 
+    getCardWithPosition(pos : Position){
+        let z = this.zoneArr[pos.zoneID]
+        if(!z) return undefined
+
+        return z.getCardByPosition(pos)
+    }
+
     //get stuff
-    get system() {return this.getZoneWithName(zoneRegistry[zoneRegistry.z_system]) as system}
-    
-    get deck() {return this.getZoneWithName(zoneRegistry[zoneRegistry.z_deck]) as deck}
-    get storage() {return this.getZoneWithName(zoneRegistry[zoneRegistry.z_storage]) as storage}
-
-    get enemyGrave() {return this.getZoneWithName(zoneRegistry[zoneRegistry.z_p2_grave]) as grave}
-    get playerGrave() {return this.getZoneWithName(zoneRegistry[zoneRegistry.z_p1_grave]) as grave}
-
-    get hand() {return this.getZoneWithName(zoneRegistry[zoneRegistry.z_hand]) as hand}
-
-    get enemyField() {return this.getZoneWithName(zoneRegistry[zoneRegistry.z_p2_field]) as field}
-    get playerField() {return this.getZoneWithName(zoneRegistry[zoneRegistry.z_p1_field]) as field}
-
-    get abilityZone() {return this.getZoneWithName(zoneRegistry[zoneRegistry.z_ability]) as abiltyZone}
-    get void() {return this.getZoneWithName(zoneRegistry[zoneRegistry.z_void]) as _void}
+    get system() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_system]) as system[]}
+    get void() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_void]) as _void[]}
+    get decks() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_deck]) as deck[]}
+    get storages() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_storage]) as storage[]}
+    get hands() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_hand]) as hand[]}
+    get abilityZones() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_ability]) as abiltyZone[]}
+    get graves() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_grave]) as grave[]}
+    get fields() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_field]) as field[]}
 }
 
 export default zoneHandler

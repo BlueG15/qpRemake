@@ -1,19 +1,17 @@
 import type Card from "./card";
-import type dry_system from "../../data/dry/dry_system";
-import type Action from "./action";
+import type dry_system from "../../../data/dry/dry_system";
+import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Effect from "./effect";
 
-import dry_effectSubType from "../../data/dry/dry_effectSubType";
+import dry_effectSubType from "../../../data/dry/dry_effectSubType";
 
 type doNothingCode = -1
 type doNothingAndSkipTypeCheckCode = -2
 class effectSubtype {
-    type : string
-    id : string
+    dataID : string
     isDisabled : boolean = false
-    constructor(id : string, type : string = "default"){
-        this.type = type
-        this.id = id
+    constructor(dataID : string){
+        this.dataID = dataID
     }
 
     //the job of this bullshit is to do additonal stuff before the two main functions
@@ -32,6 +30,8 @@ class effectSubtype {
         return -1
     }
 
+    parseAfterActivate(c : Card, e : Effect, system : dry_system, res : Action[]) : void {}
+
     //this is for subtype specific functionality
     activateSpecificFunctionality(c : Card, e : Effect, system : dry_system, a : Action) : Action[] {return []}
 
@@ -41,6 +41,10 @@ class effectSubtype {
 
     enable() {
         this.isDisabled = false
+    }
+
+    reset() : Action[] {
+        return []
     }
 
     toDry(){

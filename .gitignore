@@ -1,6 +1,7 @@
 #node
 /node_modules
 /dist
+/progress_tracker
 
 package-lock.json
 tsconfig.json

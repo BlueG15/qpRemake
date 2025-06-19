@@ -7,18 +7,20 @@ import effectLoader from "../loader/loader_effect";
 import operatorLoader from "../loader/loader_operator";
 import rarityLoader from "../loader/loader_rarity";
 import subtypeLoader from "../loader/loader_subtype";
+import typeLoader from "../loader/loader_type";
 import zoneLoader from "../loader/loader_zone";
 import customHandlerLoader from "../loader/loader_handler";
 import localizationLoader from "../loader/loader_localization";
 
-import { cardDataRegistry, type cardData, type effectData } from "../../types/data/cardRegistry";
+import { cardDataRegistry, type cardData, type effectData } from "../../data/cardRegistry";
+import effectDataRegistry from "../../data/effectRegistry";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
-import type Action from "../../types/abstract/gameComponents/action";
+import type Action_prototype from "../../types/abstract/gameComponents/action";
 import type queenSystem from "../queenSystem";
 import type Effect from "../../types/abstract/gameComponents/effect";
 import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
-import type { rarityData } from "../../types/data/rarityRegistry";
-import type { zoneData } from "../../types/data/zoneRegistry";
+import type { rarityData } from "../../data/rarityRegistry";
+import type { zoneData } from "../../data/zoneRegistry";
 import type Zone from "../../types/abstract/gameComponents/zone";
 
 export default class registryHandler implements registryAPI {
@@ -26,6 +28,7 @@ export default class registryHandler implements registryAPI {
     effectLoader : effectLoader
     operatorLoader : operatorLoader
     rarityLoader : rarityLoader
+    typeLoader : typeLoader
     subTypeLoader : subtypeLoader
     zoneLoader : zoneLoader
     customActionLoader : customHandlerLoader
@@ -38,19 +41,9 @@ export default class registryHandler implements registryAPI {
         this.operatorLoader = new operatorLoader();
         this.customActionLoader = new customHandlerLoader();
         this.localizationLoader = new localizationLoader(s);
+        this.typeLoader = new typeLoader();
 
-        let o : Record<string, effectData> = {}
-        Object.values(cardDataRegistry).forEach(i => {
-            Object.values(i.variantData).forEach(k => {
-                if(k.effects){
-                    Object.entries(k.effects).forEach(([key, val]) => {
-                        o[key] = val
-                    })
-                }
-            })
-        })
-
-        this.effectLoader = new effectLoader(o, this.subTypeLoader);
+        this.effectLoader = new effectLoader(effectDataRegistry, this.subTypeLoader, this.typeLoader);
         this.cardLoader = new cardLoader(this.effectLoader);
     }
 
@@ -58,7 +51,7 @@ export default class registryHandler implements registryAPI {
         this.cardLoader.load(key, value);
     }
 
-    registry_edit_custom_action_handler(actionIDs: number[], handlerFunc: ((a: Action, system: queenSystem) => undefined | void | Action[])): void {
+    registry_edit_custom_action_handler(actionIDs: number[], handlerFunc: ((a: Action_prototype, system: queenSystem) => undefined | void | Action_prototype[])): void {
         actionIDs.forEach(i => this.customActionLoader.load(i, handlerFunc));
     }
 

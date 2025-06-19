@@ -1,8 +1,8 @@
 import type queenSystem from "./queenSystem"
 import type Card from "../types/abstract/gameComponents/card"
 import Position from "../types/abstract/generics/position"
-import { zoneRegistry } from "../types/data/zoneRegistry"
-import { posChange } from "../types/actions"
+import { zoneRegistry } from "../data/zoneRegistry"
+import { posChange } from "../types/actions_old"
 
 const testSuite : Record<string, ((s : queenSystem) => void)> = {
     test1 : (s : queenSystem) => {

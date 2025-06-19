@@ -5,8 +5,11 @@ import type card from "../abstract/gameComponents/card";
 import type Position from "../abstract/generics/position";
 import zone_stack from "../abstract/gameComponents/zone_stackBased";
 
-import drawAction from "../actions/draw";
-import turnReset from "../actions/turnReset";
+import { Action, actionConstructorRegistry, actionFormRegistry } from "../../_queenSystem/handler/actionGenrator";
+import { identificationInfo } from "../../data/systemRegistry";
+import type hand from "./hand";
+import { ExtractReturn } from "../../data/misc";
+// import Action from "../abstract/gameComponents/action";
 
 
 class deck extends zone_stack {
@@ -33,54 +36,55 @@ class deck extends zone_stack {
 
     currentCoolDown : number = this.startCoolDown
 
-    getAction_draw(isChain : boolean, isTurnDraw : boolean, toPos? : Position){
+    getAction_draw(cause : identificationInfo, isTurnDraw : boolean) : Action<"a_draw">{
         let cid : string | undefined;
         cid = (this.cardArr[0]) ? this.cardArr[0].id : undefined
 
         if(isTurnDraw){
             if(this.currentCoolDown != 0) {
-                return new drawAction(
-                    undefined, 
-                    isChain,
-                    this.firstPos, 
-                    this.currentCoolDown - 1, 
-                    true,
-                    toPos
-                )
+                return actionConstructorRegistry.a_draw(this.id)(cause, {
+                    cooldown : this.currentCoolDown - 1, 
+                    doTurnReset : true,
+                    actuallyDraw : false,
+                })
             }
-            return new drawAction(
-                cid, 
-                isChain,
-                this.firstPos, 
-                this.maxCoolDown, 
-                true,
-                toPos
-            )
+            return actionConstructorRegistry.a_draw(this.id)(cause, {
+                cooldown : this.maxCoolDown,
+                doTurnReset : true,
+                actuallyDraw : true
+            })
         }
         //not turn draw, bypass mode, keep turn count the same
-        return new drawAction(
-            cid, 
-            isChain,
-            this.firstPos, 
-            NaN,
-            false,
-            toPos
-        )
+        return actionConstructorRegistry.a_draw(this.id)(cause, {
+            cooldown : NaN,
+            doTurnReset : false,
+            actuallyDraw : true
+        })
     }
 
-    draw(a : drawAction) : res {
+    override interact(cause : identificationInfo): [Action<"a_draw">] {
+        //interacting with the deck means we draw
+        return [this.getAction_draw(cause, true)];
+    }
+
+    draw(a : Action<"a_draw">, hand : hand) : res {
+        //assume the hand passed in is of the correct player
         let res : res = [undefined, []]
-        if(a.doChangeCooldown) this.currentCoolDown = a.cooldown
-        if(a.hasCard){
-            let idx = this.findIndex(a.targetCardID)
-            if(idx < 0 || !this.cardArr[idx]) res = this.handleCardNotExist("draw", 63)
-            else {
-                let c = this.cardArr[idx] as card
-                res = this.remove(c)
-            }
-        } else console.log("draw has no card")
-        if(res[0]) return res
-        if(a.doTurnReset) res[1].push(new turnReset(true))
+
+        let attr = a.flatAttr();
+
+        if(attr.cooldown >= 0 && !isNaN(attr.cooldown) && isFinite(attr.cooldown)) this.currentCoolDown = attr.cooldown
+        if(attr.actuallyDraw){
+            //draw the top card
+            let card = this.getCardByPosition(this.top);
+            if(card){
+                res[1] = [actionConstructorRegistry.a_pos_change(card.id)(hand.top.toDry())(actionFormRegistry.zone(this.id))]
+                
+            } else console.log("draw has no card")
+        }
+        if(attr.doTurnReset) res[1].push(
+            actionConstructorRegistry.a_turn_reset(actionFormRegistry.zone(this.id))
+        )
         return res
     }
 

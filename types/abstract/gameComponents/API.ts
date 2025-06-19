@@ -1,11 +1,11 @@
-import type { cardData, effectData } from "../../data/cardRegistry";
-import type { zoneData } from "../../data/zoneRegistry";
+import type { cardData, effectData } from "../../../data/cardRegistry";
+import type { zoneData } from "../../../data/zoneRegistry";
 import type Zone from "./zone";
 import type Effect from "./effect";
 import type effectSubtype from "./effectSubtype";
 import type queenSystem from "../../../_queenSystem/queenSystem";
-import type Action from "./action";
-import type { rarityData } from "../../data/rarityRegistry";
+import type Action_prototype from "./action";
+import type { rarityData } from "../../../data/rarityRegistry";
 
 export default interface registryAPI {
 
@@ -46,7 +46,7 @@ export default interface registryAPI {
     //UNSFAFE registry edit
     registry_edit_custom_action_handler(
         actionIDs : number[],
-        handlerFunc : ((a : Action, system : queenSystem) => undefined | void | Action[])
+        handlerFunc : ((a : Action_prototype, system : queenSystem) => undefined | void | Action_prototype[])
     ) : void;
    
     //localization edit

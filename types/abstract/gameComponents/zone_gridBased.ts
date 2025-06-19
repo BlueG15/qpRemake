@@ -1,5 +1,4 @@
 //hand, grave, field, deck, etc extends from this, reserve index 0 for system
-import type { zoneID, zoneData } from "../../data/zoneRegistry";
 import Position from "../generics/position";
 import utils from "../../../utils";
 import Zone from "./zone";
@@ -7,11 +6,7 @@ import Zone from "./zone";
 
 class Zone_grid extends Zone {
 
-    constructor(id : number, dataID: string, data?: zoneData){
-        super(id, dataID, data)
-        //cant have infinite capacity
-        this.cardArr = (this.valid) ? new Array(this.capacity).fill(undefined) : []
-    }
+    override cardArr = (this.valid) ? new Array(this.capacity).fill(undefined) : []
     //helper properties
 
     private get firstEmptyIndex() {return this.cardArr.indexOf(undefined)}

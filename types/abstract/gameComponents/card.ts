@@ -1,19 +1,18 @@
 import Effect from "./effect";
-import StatusEffect from "../../effects/effectTypes/statusEffect";
+import StatusEffect_base from "../../../specificEffects/_statusEffect_base";
 import Position from "../generics/position";
-import dry_card from "../../data/dry/dry_card";
+import dry_card from "../../../data/dry/dry_card";
 
-import type action from "./action";
+import { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type res from "../generics/universalResponse";
-import type turnReset from "../../actions/turnReset";
-import type dry_system from "../../data/dry/dry_system";
-import { cardData_unified, partitionData, partitionActivationBehavior, cardData, type_and_or_subtype_inference_method} from "../../data/cardRegistry";
+import type dry_system from "../../../data/dry/dry_system";
+import { cardData_unified, partitionData, partitionActivationBehavior, cardData, type_and_or_subtype_inference_method, statInfo} from "../../../data/cardRegistry";
 
 import { effectNotExist, wrongEffectIdx } from "../../errors";
 
 import { Setting, partitionSetting } from "./settings";
 import utils from "../../../utils";
-import { removeStatusEffect } from "../../actions";
+
 
 export class partitionData_class implements partitionData {
     mapping : number[]
@@ -68,7 +67,7 @@ class Card {
     extensionArr : string[] = []
 
     //status effects are temporary effects
-    statusEffects: StatusEffect[] = [];
+    statusEffects: StatusEffect_base[] = [];
     
     attr : Map<string, any> = new Map();
 
@@ -417,23 +416,23 @@ class Card {
         utils.patchGeneric(this.partitionInfo[targetPartitionID], patchData);
     }
 
-    getPartitionDisplayInputs(partitionIndex : number) : (string | number)[]; //input array
-    getPartitionDisplayInputs() : (string | number)[][]; //displayID -> input array
-    getPartitionDisplayInputs(pid = -1){
+    getPartitionDisplayInputs(sys : dry_system, partitionIndex : number) : (string | number)[]; //input array
+    getPartitionDisplayInputs(sys : dry_system) : (string | number)[][]; //displayID -> input array
+    getPartitionDisplayInputs(sys : dry_system, pid = -1){
         //default implementation
         if(pid < 0){
             //get all
 
             return this.partitionInfo.map(data => {
                 let res : (string | number)[] = []
-                data.mapping.forEach(i => res.push(...this.effects[i].getDisplayInput()))
+                data.mapping.forEach(i => res.push(...this.effects[i].getDisplayInput(this, sys)))
                 return res
             })
 
         } else {
             let res : (string | number)[] = []
             this.partitionInfo[pid].mapping.forEach(i => {
-                res.push(...this.effects[i].getDisplayInput())
+                res.push(...this.effects[i].getDisplayInput(this, sys))
             })
             return res
         }
@@ -442,16 +441,6 @@ class Card {
     
 
     //end partition API
-    addStatusEffect(s : StatusEffect){
-        //preferably also input the id into this thing, but to get the actual thing from the id
-        //we need the handler
-        //maybe we handle this outside or s.th
-        this.statusEffects.push(s);
-    }
-
-    removeStatusEffect(id : string){
-        this.statusEffects = this.statusEffects.filter(i => i.id !== id);
-    }
 
     toDry(){
         return new dry_card(this)
@@ -473,18 +462,65 @@ class Card {
         return -1;
     }
 
-    getResponseIndexArr(system : dry_system, a : action) : number[]{
-        //returns the effect ids that respond
-        let res : number[] = []
-        this.totalEffects.forEach((i, index) => {
-            if(i.canRespondAndActivate(this, system, a)) res.push(index)
+    getEffect(eid? :string) : Effect | undefined {
+        let index = this.findEffectIndex(eid);
+        if(index < 0) return undefined
+        return this.totalEffects[index]
+    }
+
+    getResponseIndexArr(system : dry_system, a : Action) : number[]{
+        //returns the effect indexes that respond
+        let res = new Set<number>()
+        let map = this.effects.map(i => i.canRespondAndActivate(this, system, a));
+
+        this.partitionInfo.forEach(i => {
+            switch(i.behaviorID){
+                case partitionActivationBehavior.first: {
+                    for(let j = 0; j < i.mapping.length; j++){
+                        if(map[ i.mapping[j] ]) {
+                            res.add(j)
+                            return;
+                        }
+                    }
+                    return;
+                }
+                case partitionActivationBehavior.last: {
+                    for(let j = i.mapping.length - 1; j >= 0; j--){
+                        if(map[ i.mapping[j] ]) {
+                            res.add(j)
+                            return;
+                        }
+                    }
+                    return;
+                }
+                case partitionActivationBehavior.loose: {
+                    for(let j = i.mapping.length - 1; j >= 0; j--){
+                        if(map[ i.mapping[j] ]) res.add(j)
+                    }
+                    return;
+                }
+                case partitionActivationBehavior.strict: {
+                    if(i.mapping.some(t => map[t] === false)) return;
+                    for(let j = i.mapping.length - 1; j >= 0; j--){
+                        if(map[ i.mapping[j] ]) res.add(j)
+                    }
+                    return;
+                }
+            }
         })
-        return res
+        let l = this.effects.length
+        this.statusEffects.forEach((i, index) => {
+            if(i.canRespondAndActivate(this, system, a)) res.add(index + l)
+        })
+        this.getAllGhostEffects().forEach(i => {
+            if( map[i] ) res.add(i)
+        })
+        return Array.from(res);
     }; 
 
-    activateEffect(idx : number, system : dry_system, a : action) : res 
-    activateEffect(eid : string, system : dry_system, a : action) : res
-    activateEffect(id : number | string, system : dry_system, a : action) : res {
+    activateEffect(idx : number, system : dry_system, a : Action) : res 
+    activateEffect(eid : string, system : dry_system, a : Action) : res
+    activateEffect(id : number | string, system : dry_system, a : Action) : res {
         let idx : number
         if(typeof id === "number"){
             idx = id;
@@ -502,11 +538,11 @@ class Card {
         return [undefined, this.totalEffects[idx].activate(this, system, a)]
     }
 
-    activateEffectSubtypeSpecificFunc(eidx : number, subTypeidx : number, system : dry_system, a : action) : res;
-    activateEffectSubtypeSpecificFunc(eidx : number, subTypeID  : string, system : dry_system, a : action) : res;
-    activateEffectSubtypeSpecificFunc(eID  : string, subTypeID  : string, system : dry_system, a : action) : res;
-    activateEffectSubtypeSpecificFunc(eID  : string, subTypeidx : number, system : dry_system, a : action) : res;
-    activateEffectSubtypeSpecificFunc(effectIdentifier : string | number, subtypeIdentifier : string | number, system : dry_system, a : action) : res{
+    activateEffectSubtypeSpecificFunc(eidx : number, subTypeidx : number, system : dry_system, a : Action) : res;
+    activateEffectSubtypeSpecificFunc(eidx : number, subTypeID  : string, system : dry_system, a : Action) : res;
+    activateEffectSubtypeSpecificFunc(eID  : string, subTypeID  : string, system : dry_system, a : Action) : res;
+    activateEffectSubtypeSpecificFunc(eID  : string, subTypeidx : number, system : dry_system, a : Action) : res;
+    activateEffectSubtypeSpecificFunc(effectIdentifier : string | number, subtypeIdentifier : string | number, system : dry_system, a : Action) : res{
         let idx : number
         if(typeof effectIdentifier === "string"){
             idx = this.findEffectIndex(effectIdentifier)
@@ -522,13 +558,16 @@ class Card {
 
     //misc APIs
     //this is specicfically for step2 - resolution of effects
-    //and specifically for finals, this dont return anything
-    turnReset_final(){
-        this.canAct = true
-        return
+    reset() : Action[] {
+        this.canAct = true;
+        let res : Action[] = [];
+        this.totalEffects.forEach(i => res.push(...i.reset()));
+        return res;
     }
 
-    clearAllStatus_final(){
+    //status effects stuff
+
+    clearAllStatus(){
         //i hereby declare, status effect do not do shit when they are cleared forcefully
         //i.e via this function
         //should this declaration fails in the future, modify this bad boi
@@ -546,12 +585,35 @@ class Card {
         this.loadStat()
     }
 
-    clearStatusEffect_final(statusID : string){
-        let index = this.statusEffects.findIndex(i => i.id === statusID)
-        if(index < 0) return
-        this.statusEffects.splice(index, 1);
+    addStatusEffect(s : StatusEffect_base){
+        //preferably also input the id into this thing, but to get the actual thing from the id
+        //we need the handler
+        //maybe we handle this outside or s.th
+        this.statusEffects.push(s);
     }
 
+    removeStatusEffect(id : string){
+        this.statusEffects = this.statusEffects.filter(i => i.id !== id);
+    }
+
+    mergeStatusEffect(){
+        let map = new Map<string | 0, StatusEffect_base[]>()
+        map.set(0, []);
+        this.statusEffects.forEach(i => {
+            let sig = i.mergeSignature
+            if(sig){
+                let k = map.get(sig);
+                if(k) k.push(i);
+                else map.set(sig, [i]);
+            } else (map.get(0) as StatusEffect_base[]).push(i)
+        })
+        let final : StatusEffect_base[] = []
+        map.forEach((val, key) => {
+            if(val.length <= 1 || key === 0) final.push(...val);
+            else final.push(...val[0].merge(val.slice(1)));
+        })
+        this.statusEffects = final;
+    }
 }
 
 export default Card

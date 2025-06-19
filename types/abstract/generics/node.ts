@@ -1,13 +1,13 @@
-import type Action from "../gameComponents/action"
+import type { Action } from "../../../_queenSystem/handler/actionGenrator"
 
-class _node {
+class _node<Type extends Action = Action> {
     data : Action
 
     completed : boolean = false
 
     childArr : _node[] = []
     depth : number
-    constructor(a : Action, depth : number, id : number){
+    constructor(a : Type, depth : number, id : number){
         this.data = a
         this.depth = depth
         this.id = id

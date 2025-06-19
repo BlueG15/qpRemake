@@ -1,5 +1,5 @@
 import Card from "../../types/abstract/gameComponents/card";
-import type { cardData, cardData_unified } from "../../types/data/cardRegistry";
+import type { cardData, cardData_unified } from "../../data/cardRegistry";
 import type effectLoader from "./loader_effect";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 import type Effect from "../../types/abstract/gameComponents/effect";
@@ -58,7 +58,7 @@ export default class cardLoader {
         
         let effArr : Effect[] = []
         Object.keys(d.effects).forEach(i => {
-            let e = this.effectHandler.getEffect(i, s);
+            let e = this.effectHandler.getEffect(i, s, d);
             if(e) effArr.push(e);
             // else console.log(`Effect id not found: ${i}\n`)
         })
