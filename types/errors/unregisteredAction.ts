@@ -1,8 +1,8 @@
 import error from "./error"
-import type Action_prototype from "../abstract/gameComponents/action";
+import type { Action } from "../../_queenSystem/handler/actionGenrator";
 
 class unregisteredAction extends error {
-    constructor(a : Action_prototype){
+    constructor(a : Action){
         super();
         this.messege = `an unregistered action is being resolved with type = ${a.type}`;
     }

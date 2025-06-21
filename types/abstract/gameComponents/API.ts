@@ -4,7 +4,7 @@ import type Zone from "./zone";
 import type Effect from "./effect";
 import type effectSubtype from "./effectSubtype";
 import type queenSystem from "../../../_queenSystem/queenSystem";
-import type Action_prototype from "./action";
+import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type { rarityData } from "../../../data/rarityRegistry";
 
 export default interface registryAPI {
@@ -46,7 +46,7 @@ export default interface registryAPI {
     //UNSFAFE registry edit
     registry_edit_custom_action_handler(
         actionIDs : number[],
-        handlerFunc : ((a : Action_prototype, system : queenSystem) => undefined | void | Action_prototype[])
+        handlerFunc : ((a : Action, system : queenSystem) => undefined | void | Action[])
     ) : void;
    
     //localization edit

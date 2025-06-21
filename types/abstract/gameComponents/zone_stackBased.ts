@@ -4,6 +4,8 @@ import type res from "../generics/universalResponse";
 //import position from "./position";
 //import utils from "./util";
 import Zone from "./zone";
+import Position from "../generics/position";
+import utils from "../../../utils";
 
 class Zone_stack extends Zone {
     // constructor(dataID: string, data?: zoneData){
@@ -33,6 +35,17 @@ class Zone_stack extends Zone {
         if(c.pos.zoneID == this.id) c.pos.invalidate()
 
         return [undefined, []]
+    }
+
+    override get lastPos(): Position {
+        return new Position(
+            this.id,
+            this.name,
+            ...utils.indexToPosition(
+                (this.cardArr.length === 0) ? 0 : this.cardArr.length - 1,
+                this.shape
+            )
+        );
     }
 }
 

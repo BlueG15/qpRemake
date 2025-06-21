@@ -1,17 +1,16 @@
 import type dry_system from "../data/dry/dry_system";
-import type Action_prototype from "../types/abstract/gameComponents/action";
+import { Action, actionConstructorRegistry, actionFormRegistry } from "../_queenSystem/handler/actionGenrator";
 import type Card from "../types/abstract/gameComponents/card";
-
+import type dry_card from "../data/dry/dry_card";
 import Effect from "../types/abstract/gameComponents/effect";
-import enableCard from "../types/actions_old/enableCard";
 
 export default class reactivateEffect extends Effect {
-    protected targetCID? : string // undefined means self
-    override activate_proto(c: Card, system: dry_system, a: Action_prototype): Action_prototype[] {
+    protected target? : dry_card // undefined means self
+    override activate(c: Card, system: dry_system, a: Action): Action[] {
+        let dry = c.toDry()
+        this.target = this.target ? this.target : dry
         return [
-            new enableCard(
-                (this.targetCID) ? this.targetCID : c.id, c.id, true
-            )
+            actionConstructorRegistry.a_enable_card(system, this.target)(actionFormRegistry.card(system, dry))
         ]
     }
 }

@@ -1,16 +1,9 @@
 // import type Card from "./card";
 import Effect from "../types/abstract/gameComponents/effect";
 import type dry_system from "../data/dry/dry_system";
-import type Action_prototype from "../types/abstract/gameComponents/action";
+import type { Action } from "../_queenSystem/handler/actionGenrator";
 import type card from "../types/abstract/gameComponents/card";
-
-import {
-    turnStart,
-    turnEnd,
-    addStatusEffect,
-    activateEffect,
-    removeStatusEffect,
-} from "../types/actions_old"
+import actionRegistry from "../data/actionRegistry";
 
 class StatusEffect_base extends Effect {
     // the existence of id neccessitates a handler
@@ -29,57 +22,57 @@ class StatusEffect_base extends Effect {
     //status effects are literally just effects with 1 extra function: merging
     //thats it
 
-    activateOnTurnStart?(c : card, system : dry_system, a : Action_prototype) : Action_prototype[]  
-    activateOnTurnEnd?(c : card, system : dry_system, a : Action_prototype) : Action_prototype[] 
-    activateOnApply?(c : card, system : dry_system, a : Action_prototype) : Action_prototype[] 
-    activateOnRemove?(c : card, system : dry_system, a : Action_prototype) : Action_prototype[] 
-    activateOnReProc?(c : card, system : dry_system, a : Action_prototype) : Action_prototype[] 
+    activateOnTurnStart?(c : card, system : dry_system, a : Action<"a_turn_start">) : Action[]  
+    activateOnTurnEnd?(c : card, system : dry_system, a : Action<"a_turn_end">) : Action[] 
+    activateOnApply?(c : card, system : dry_system, a : Action<"a_add_status_effect">) : Action[] 
+    activateOnRemove?(c : card, system : dry_system, a : Action<"a_remove_status_effect">) : Action[] 
+    activateOnReProc?(c : card, system : dry_system, a : Action<"a_activate_effect"> | Action<"a_activate_effect_internal">) : Action[] 
     // ^ if this status effects allows for reproc using activateEffect action
     //normally that isnt fucking possible? 
     //its like forcefully activating a passive
     //makes no sense on paper
     //but in practice....yeh its for expandability
 
-    override canRespondAndActivate_proto(c: card, system: dry_system, a: Action_prototype): boolean {
-        if(system.isInTriggerPhase && this.activateOnTurnStart && a instanceof turnStart){
+    override canRespondAndActivate_proto(c: card, system: dry_system, a: Action): boolean {
+        if(system.isInTriggerPhase && this.activateOnTurnStart && a.typeID === actionRegistry.a_turn_start){
             return true
         }
 
-        if(system.isInChainPhase && this.activateOnTurnEnd && a instanceof turnEnd){
+        if(system.isInChainPhase && this.activateOnTurnEnd && a.typeID === actionRegistry.a_turn_end){
             return true
         }
 
-        if(system.isInTriggerPhase && this.activateOnApply && a instanceof addStatusEffect && a.statusID === this.id){
+        if(system.isInTriggerPhase && this.activateOnApply && a.typeID === actionRegistry.a_add_status_effect && (a as Action<"a_add_status_effect">).flatAttr().statusID === this.id){
             return true
         }
 
-        if(system.isInChainPhase && this.activateOnRemove && a instanceof removeStatusEffect && a.statusID === this.id){
+        if(system.isInChainPhase && this.activateOnRemove && a.typeID === actionRegistry.a_remove_status_effect && (a as Action<"a_add_status_effect">).flatAttr().statusID === this.id){
             return true
         }
 
         return false
     }
 
-    override activate_proto(c: card, system: dry_system, a: Action_prototype): Action_prototype[] {
-        let res : Action_prototype[] = []
-        if(this.activateOnTurnStart && a instanceof turnStart){
-            res = this.activateOnTurnStart(c, system, a);
+    override activate_proto(c: card, system: dry_system, a: Action): Action[] {
+        let res : Action[] = []
+        if(this.activateOnTurnStart && a.typeID === actionRegistry.a_turn_start){
+            res = this.activateOnTurnStart(c, system, a as Action<"a_turn_start">);
         }
 
-        if(this.activateOnTurnEnd && a instanceof turnEnd){
-            res = this.activateOnTurnEnd(c, system, a);
+        if(this.activateOnTurnEnd && a.typeID === actionRegistry.a_turn_end){
+            res = this.activateOnTurnEnd(c, system, a as Action<"a_turn_end">);
         }
 
-        if(this.activateOnApply && a instanceof addStatusEffect){
-            res = this.activateOnApply(c, system, a);
+        if(this.activateOnApply && a.typeID === actionRegistry.a_add_status_effect){
+            res = this.activateOnApply(c, system, a as Action<"a_add_status_effect">);
         }
 
-        if(this.activateOnRemove && a instanceof removeStatusEffect){
-            res = this.activateOnRemove(c, system, a);
+        if(this.activateOnRemove && a.typeID === actionRegistry.a_remove_status_effect){
+            res = this.activateOnRemove(c, system, a as Action<"a_remove_status_effect">);
         }
 
-        if(this.activateOnReProc && a instanceof activateEffect){
-            res = this.activateOnReProc(c, system, a);
+        if(this.activateOnReProc && (a.typeID === actionRegistry.a_activate_effect || a.typeID === actionRegistry.a_activate_effect_internal)){
+            res = this.activateOnReProc(c, system, a as Action<"a_activate_effect">);
         }
 
         res.forEach(i => i.isChain = true)

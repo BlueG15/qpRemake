@@ -68,6 +68,7 @@ class zoneHandler {
         this.loader.load(zoneRegistry[zoneRegistry.z_storage], zoneDataRegistry.z_storage, storage);
         this.loader.load(zoneRegistry[zoneRegistry.z_field], zoneDataRegistry.z_field, field);
         this.loader.load(zoneRegistry[zoneRegistry.z_grave], zoneDataRegistry.z_grave, grave);
+        this.loader.load(zoneRegistry[zoneRegistry.z_ability], zoneDataRegistry.z_ability, abiltyZone);
 
         // this.maxPlayerIndex = s.players.length
 
@@ -291,7 +292,7 @@ class zoneHandler {
             new zoneNotExist(a.targets[0].zone.id).add("zoneHandler", "handleDraw", 213)
         ]
 
-        if(!a.resolvable(s, zone.toDry())) return [];
+        if(!a.resolvable(s, zone.toDry())) return []
 
         let deck = zone as deck;
 
@@ -302,7 +303,8 @@ class zoneHandler {
             new zoneNotExist(-1).add("zoneHandler", "handleDraw", 222)
         ]
 
-        let res = deck.draw(a, hand[0])
+        let res = deck.draw(s, a, hand[0])
+        console.log("2", a.flatAttr(), res)
         if(res[0]) return [res[0]];
         else return res[1];
     }   
@@ -460,8 +462,8 @@ class zoneHandler {
 
         let pid = z.playerIndex
 
-        let g = this.graves[pid];
-        if(!g) return [
+        let g = this.getPlayerZone(pid, zoneRegistry.z_grave);
+        if(!g || !g.length) return [
             new zoneNotExist(pid)
         ]
 
@@ -470,7 +472,7 @@ class zoneHandler {
                 dmg : res[1].atk,
                 dmgType : damageType.physical
             }),
-            actionConstructorRegistry.a_pos_change_force(s, res[1].toDry())(g.top.toDry())(actionFormRegistry.system()).dontchain()
+            actionConstructorRegistry.a_pos_change_force(s, res[1].toDry())(g[0].top.toDry())(actionFormRegistry.system()).dontchain()
         ]
     }
 
@@ -583,6 +585,10 @@ class zoneHandler {
         return undefined;
     }
 
+    getZoneWithType(type : number){
+        return this.zoneArr.filter(i => i.types.includes(type))
+    }
+
     enforceCardIntoZone(zoneIdx : number, cardArr : Card[]){
         this.zoneArr[zoneIdx].forceCardArrContent(cardArr)
     }
@@ -620,14 +626,18 @@ class zoneHandler {
     }
 
     //get stuff
-    get system() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_system]) as system[]}
-    get void() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_void]) as _void[]}
-    get decks() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_deck]) as deck[]}
-    get storages() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_storage]) as storage[]}
-    get hands() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_hand]) as hand[]}
-    get abilityZones() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_ability]) as abiltyZone[]}
-    get graves() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_grave]) as grave[]}
-    get fields() {return this.getZoneWithClassID(zoneRegistry[zoneRegistry.z_field]) as field[]}
+    get system() {return this.getZoneWithType(zoneRegistry.z_system) as system[]}
+    get void() {return this.getZoneWithType(zoneRegistry.z_void) as _void[]}
+    get decks() {return this.getZoneWithType(zoneRegistry.z_deck) as deck[]}
+    get storages() {return this.getZoneWithType(zoneRegistry.z_storage) as storage[]}
+    get hands() {return this.getZoneWithType(zoneRegistry.z_hand) as hand[]}
+    get abilityZones() {return this.getZoneWithType(zoneRegistry.z_ability) as abiltyZone[]}
+    get graves() {return this.getZoneWithType(zoneRegistry.z_grave) as grave[]}
+    get fields() {return this.getZoneWithType(zoneRegistry.z_field) as field[]}
+
+    getPlayerZone(pid : number, type : number) : Zone[]{
+        return this.zoneArr.filter(i => i.playerIndex === pid && i.types.includes(type))
+    }
 }
 
 export default zoneHandler

@@ -6,7 +6,17 @@ import type dry_effectSubType from "../../data/dry/dry_effectSubType";
 import dry_system from "../../data/dry/dry_system";
 import dry_position from "../../data/dry/dry_position";
 
-import { safeSimpleTypes, singleTypedArray, ExtractArgs, ExtractReturn, Fn, Fn_2, Fn_3, Fn_4, Fn_5, OnlyWritableProps} from "../../data/misc";
+import {
+    safeSimpleTypes,
+    singleTypedArray,
+    ExtractArgs,
+    ExtractReturn,
+    Fn,
+    Fn_any,
+    ExtractReturn_any,
+    OnlyWritableProps,
+} from "../../data/misc";
+
 import { 
     identificationInfo, 
     identificationInfo_action, 
@@ -28,7 +38,6 @@ import { zoneAttributes, zoneRegistry } from "../../data/zoneRegistry";
 
 export class Action_class<
     TargetType extends identificationInfo[] = identificationInfo[], 
-    CauseType extends identificationInfo = identificationInfo,
     mapElementType extends any = any,
     constructionObjType extends actionConstructionObj_variable<mapElementType> = any,  
 >{
@@ -40,7 +49,7 @@ export class Action_class<
     targets : TargetType
     cause : identificationInfo
 
-    originalCause : CauseType | identificationInfo_none
+    originalCause : identificationInfo
     originalTargets : TargetType | []
 
     inputTypeArr: inputType[];
@@ -51,7 +60,7 @@ export class Action_class<
 
     protected isInputsApplied_internal = false;
     get isInputsApplied() {
-        return this.inputTypeArr.length !== 0 && this.isInputsApplied_internal
+        return this.inputTypeArr.length === 0 || this.isInputsApplied_internal
     }
 
     // isChain: boolean; //if false, attach as new tree, if not, attach to curr action
@@ -147,7 +156,7 @@ export class Action_class<
             type : identificationType.none
         })
 
-        this.originalCause = this.cause as CauseType | identificationInfo_none
+        this.originalCause = this.cause
         this.originalTargets = this.targets as TargetType | []
 
         this.modifyAttr("canBeChainedTo", (o.canBeChainTo === false) ? false : true)
@@ -161,6 +170,12 @@ export class Action_class<
         if(o.checkers) {
             utils.patchGeneric(this.checkers, o.checkers);
         }
+
+        Object.entries(o).forEach(([key, val]) => {
+            if(key !== "type" && key !== "targets" && key !== "cause"){
+                this.attr.set(key, val as any)
+            }
+        })
     }
 
     dontchain(){
@@ -320,7 +335,7 @@ type checkerType = Partial<{
     }>
 
 function defaultChecker_zone(target : identificationInfo_zone, currZone : dry_zone) : boolean {
-    return target.zone.id === currZone.id
+    return target.zone.id === currZone.id;
 }
 
 function defaultCheker_card(target : identificationInfo_card | identificationInfo_effect | identificationInfo_subtype, currCard : dry_card, currZone : dry_zone, strict = false){
@@ -349,55 +364,55 @@ export type actionConstructionObj_fixxed = {
 } & actionConstructionObj_fixxed_unstaged
 
 export type actionConstructionObj_variable<T> = {
-    [key : string] : T 
+    [key : string] : T | undefined
 }
 
 export type actionConstructionObj<T> = actionConstructionObj_fixxed | (actionConstructionObj_fixxed & actionConstructionObj_variable<T>)
 
-function form_card(s : dry_system, card : dry_card) : identificationInfo_card {return {
+function form_card(s : dry_system) {return (card : dry_card) => {return {
     type : identificationType.card,
     sys : s,
     card : card,
-}}
+} as identificationInfo_card }}
 
-function form_action(s : dry_system, a : Action_class | Action) : identificationInfo_action {return {
+function form_action(s : dry_system){return (a : Action_class | Action) => {return {
     type : identificationType.action,
     sys : s,
     action : a
-}}
+} as identificationInfo_action }}
 
-function form_effect(s : dry_system, card : dry_card, eff : dry_effect) : identificationInfo_effect {return {
+function form_effect(s : dry_system){return (card : dry_card, eff : dry_effect) => {return {
     type : identificationType.effect,
     sys : s,
     card : card,
     eff : eff
-}}
+} as identificationInfo_effect }}
 
-function form_zone(s : dry_system, zone : dry_zone) : identificationInfo_zone {return {
+function form_zone(s : dry_system) {return (zone : dry_zone) => {return {
     type : identificationType.zone,
     sys : s,
     zone : zone
-}}
+} as identificationInfo_zone }}
 
-function form_position(s : dry_system, pos : dry_position) : identificationInfo_pos {return {
+function form_position(s : dry_system) {return (pos : dry_position) => {return {
     type : identificationType.position,
     sys : s,
     pos : pos
-}}
+} as identificationInfo_pos }}
 
-function form_player(s : dry_system, pid : number) : identificationInfo_player {return {
+function form_player(s : dry_system) {return (pid : number) => {return {
     type : identificationType.player,
     sys : s,
     id : pid
-}}
+} as identificationInfo_player }}
 
-function form_subtype(s : dry_system, card : dry_card, eff : dry_effect, subtype : dry_effectSubType) : identificationInfo_subtype {return {
+function form_subtype(s : dry_system) {return (card : dry_card, eff : dry_effect, subtype : dry_effectSubType) => {return {
     type : identificationType.effectSubtype,
     sys : s,
     card : card,
     eff : eff,
     subtype : subtype
-}}
+} as identificationInfo_subtype }}
 
 function form_none() : identificationInfo_none {return {
     type : identificationType.none
@@ -411,12 +426,10 @@ type formFuncs = typeof form_none | typeof form_card | typeof form_action | type
 
 type ExtractInnerType<A> = A extends actionConstructionObj_variable<infer B> ? B : never
 
-function ActionAssembler<
+function ActionAssembler_base<
     infoArr extends identificationInfo[],
-    M extends identificationInfo,
-    A extends any,
-    T extends actionConstructionObj_variable<A>, 
->(name : actionName, targets : infoArr, cause : M, info : T){
+    T extends actionConstructionObj_variable<any>, 
+>(name : actionName, targets : infoArr, cause : identificationInfo, info : T){
     const o1 = getDefaultObjContructionObj(actionRegistry[name]);
     const o2 = {
         targets : targets,
@@ -424,109 +437,138 @@ function ActionAssembler<
         ...o1,
         ...info
     }
-    return new Action_class<infoArr, M, A, T>(o2);
+    return new Action_class<infoArr, ExtractInnerType<T>, T>(o2);
 }
 
-function actionConstructor_none<
-    M extends identificationInfo
->(name : actionName){
-    return (cause : M) => ActionAssembler<[identificationInfo_none], M, never, {}>(name, [form_none()], cause, {})
-}
-
-function actionConstructor_none_with_additionalInfo<
-    M extends identificationInfo,
-    T extends actionConstructionObj_variable<any>,
->(name : actionName, format : T){
-    return (cause : M, infoObj : T) => ActionAssembler<[identificationInfo_none], M, ExtractInnerType<T>, T>(name, [form_none()], cause, infoObj)
-}
-
-function actionConstructor_1<
-    P extends any[], R extends identificationInfo,
-    M extends identificationInfo,
->(name : actionName, f : (s : dry_system, ...p : P) => R){
-    return (s : dry_system, ...p : P) => (cause : M) => ActionAssembler<[R], M, never, {}>(name, [f(s, ...p)], cause, {})
-}
-
-function actionConstructor_1_with_additionalInfo<
-    P extends any[], R extends identificationInfo,
-    M extends identificationInfo,
-    T extends actionConstructionObj_variable<any>,
->(name : actionName, f : (s : dry_system, ...p : P) => R, format : T){
-    return (s : dry_system, ...p : P) => (cause : M, infoObj : T) => ActionAssembler<[R], M, ExtractInnerType<T>, T>(name, [f(s, ...p)], cause, infoObj)
-}
-
-function actionConstructor_2<
+//0
+function ActionAssembler(name : actionName) : (cause : identificationInfo) => Action_class<[identificationInfo_none], never, {}>;
+//1
+function ActionAssembler<P1 extends any[], R1 extends identificationInfo>
+(name : actionName, f : (s : dry_system) => (...p : P1) => R1) : 
+(s : dry_system, ...p : P1) => (cause : identificationInfo) => Action_class<[R1], never, {}>;
+//2
+function ActionAssembler<
     P1 extends any[], R1 extends identificationInfo,
     P2 extends any[], R2 extends identificationInfo,
-    M extends identificationInfo,
->(name : actionName, f : (s : dry_system, ...p : P1) => R1, f2 : (s : dry_system, ...p : P2) => R2){
-    return (s : dry_system, ...p1 : P1) => (...p2 : P2) => (cause : M) => ActionAssembler<[R1, R2], M, never, {}>(name, [f(s, ...p1), f2(s, ...p2)], cause, {})
-}
-
-function actionConstructor_2_with_additional_info<
-    P1 extends any[], R1 extends identificationInfo,
-    P2 extends any[], R2 extends identificationInfo,
-    M extends identificationInfo,
-    T extends actionConstructionObj_variable<any>,
->(name : actionName, f : (s : dry_system, ...p : P1) => R1, f2 : (s : dry_system, ...p : P2) => R2, format : T){
-    return (s : dry_system, ...p1 : P1) => (...p2 : P2) => (cause : M, infoObj : T) => ActionAssembler<[R1, R2], M, ExtractInnerType<T>, T>(name, [f(s, ...p1), f2(s, ...p2)], cause, infoObj)
-}
-
-function actionConstructor_3<
+>(name : actionName, f : (s : dry_system) => (...p : P1) => R1, f2 : (s : dry_system) => (...p : P2) => R2) : 
+(s : dry_system, ...p1 : P1) => (...p2 : P2) => (cause : identificationInfo) => Action_class<[R1, R2], never, {}>
+//3
+function ActionAssembler<
     P1 extends any[], R1 extends identificationInfo,
     P2 extends any[], R2 extends identificationInfo,
     P3 extends any[], R3 extends identificationInfo,
-    M extends identificationInfo,
->(name : actionName, f : (s : dry_system, ...p : P1) => R1, f2 : (s : dry_system, ...p : P2) => R2, f3 : (s : dry_system, ...p : P3) => R3){
-    return (s : dry_system, ...p1 : P1) => (...p2 : P2) => (...p3 : P3) => (cause : M) => ActionAssembler<[R1, R2, R3], M, never, {}>(name, [f(s, ...p1), f2(s, ...p2), f3(s, ...p3)], cause, {})
-}
-
-function actionConstructor_3_with_additional_info<
+>(
+    name : actionName, 
+    f : (s : dry_system) => (...p : P1) => R1, 
+    f2 : (s : dry_system) => (...p : P2) => R2, 
+    f3 : (s : dry_system) => (...p : P3) => R3,
+) : (s : dry_system, ...p1 : P1) => (...p2 : P2) => (...p3 : P3) => 
+    (cause : identificationInfo) => Action_class<[R1, R2, R3], never, {}>
+//4
+function ActionAssembler<
     P1 extends any[], R1 extends identificationInfo,
     P2 extends any[], R2 extends identificationInfo,
     P3 extends any[], R3 extends identificationInfo,
-    M extends identificationInfo,
-    T extends actionConstructionObj_variable<any>,
->(name : actionName, f : (s : dry_system, ...p : P1) => R1, f2 : (s : dry_system, ...p : P2) => R2, f3 : (s : dry_system, ...p : P3) => R3, format : T){
-    return (s : dry_system, ...p1 : P1) => (...p2 : P2) => (...p3 : P3) => (cause : M, infoObj : T) => ActionAssembler<[R1, R2, R3], M, ExtractInnerType<T>, T>(name, [f(s, ...p1), f2(s, ...p2), f3(s, ...p3)], cause, infoObj)
-}
+    P4 extends any[], R4 extends identificationInfo,
+>(
+    name : actionName, 
+    f : (s : dry_system) => (...p : P1) => R1, 
+    f2 : (s : dry_system) => (...p : P2) => R2, 
+    f3 : (s : dry_system) => (...p : P3) => R3,
+    f4 : (s : dry_system) => (...p : P4) => R4,
+) : (s : dry_system, ...p1 : P1) => (...p2 : P2) => (...p3 : P3) => (...p4 : P4) =>
+    (cause : identificationInfo) => Action_class<[R1, R2, R3, R4], never, {}>
+//end overload-no info section
 
-function actionConstructor_none_with_functionalInfo<
-    M extends identificationInfo,
-    P extends any[], T extends actionConstructionObj_variable<any>,
->(name : actionName, f : (...p : P) => T){
-    return (cause : M) => (...p : P) => ActionAssembler<[identificationInfo_none], M, ExtractInnerType<T>, T>(name, [form_none()], cause, f(...p))
+// 0 with info
+function ActionAssembler<T extends actionConstructionObj_variable<any>>(name : actionName, format : T) : 
+(cause : identificationInfo, infoObj : T) => Action_class<[], ExtractInnerType<T>, T>;
+//1 with info
+function ActionAssembler<P1 extends any[], R1 extends identificationInfo, T extends actionConstructionObj_variable<any>>
+(name : actionName, f : (s : dry_system) => (...p : P1) => R1, format : T) : 
+(s : dry_system, ...p : P1) => (cause : identificationInfo, infoObj : T) => Action_class<[R1], ExtractInnerType<T>, T>;
+//2 with info
+function ActionAssembler<
+    P1 extends any[], R1 extends identificationInfo,
+    P2 extends any[], R2 extends identificationInfo,
+    T extends actionConstructionObj_variable<any>
+>(name : actionName, f : (s : dry_system) => (...p : P1) => R1, f2 : (s : dry_system) => (...p : P2) => R2, format : T) : 
+(s : dry_system, ...p1 : P1) => (...p2 : P2) => (cause : identificationInfo, infoObj : T) => Action_class<[R1, R2], ExtractInnerType<T>, T>
+//3 with info
+function ActionAssembler<
+    P1 extends any[], R1 extends identificationInfo,
+    P2 extends any[], R2 extends identificationInfo,
+    P3 extends any[], R3 extends identificationInfo,
+    T extends actionConstructionObj_variable<any>
+>(
+    name : actionName, 
+    f : (s : dry_system) => (...p : P1) => R1, 
+    f2 : (s : dry_system) => (...p : P2) => R2, 
+    f3 : (s : dry_system) => (...p : P3) => R3,
+    format : T
+) : (s : dry_system, ...p1 : P1) => (...p2 : P2) => (...p3 : P3) => 
+    (cause : identificationInfo, infoObj : T) => Action_class<[R1, R2, R3], ExtractInnerType<T>, T>
+//4 with info
+function ActionAssembler<
+    P1 extends any[], R1 extends identificationInfo,
+    P2 extends any[], R2 extends identificationInfo,
+    P3 extends any[], R3 extends identificationInfo,
+    P4 extends any[], R4 extends identificationInfo,
+    T extends actionConstructionObj_variable<any>
+>(
+    name : actionName, 
+    f : (s : dry_system) => (...p : P1) => R1, 
+    f2 : (s : dry_system) => (...p : P2) => R2, 
+    f3 : (s : dry_system) => (...p : P3) => R3,
+    f4 : (s : dry_system) => (...p : P4) => R4,
+) : (s : dry_system, ...p1 : P1) => (...p2 : P2) => (...p3 : P3) => (...p4 : P4) =>
+    (cause : identificationInfo, infoObj : T) => Action_class<[R1, R2, R3, R4], ExtractInnerType<T>, T>
+//end overload-with info section
+
+function ActionAssembler(name : actionName, ...f : any[]){
+    //for a general solution, we curried up to f[len - 2], if that last element is an object, we stop
+
+    //so the standard calls is (s, ...p) => ...ps
+    //we pre-curried the first param, then reuse s for the rest
+
+    if(f.length === 0) return (cause : identificationInfo) => ActionAssembler_base(name, [form_none()], cause, {});
+    const extractLast = (typeof f.at(-1) === "object")
+    if(f.length === 1 && extractLast) return (cause : identificationInfo, infoObj : any) => ActionAssembler_base(name, [form_none()], cause, infoObj);
+    if(extractLast) f.pop(); 
+
+    return (s : dry_system, ...p : any[]) => {
+        f = f.map(i => i(s))
+        const [first, ...rest] = f
+
+        return utils.genericCurrier(rest, (resArr : identificationInfo[]) => {
+            resArr.unshift(first(...p));
+            return (cause : identificationInfo, infoObj? : any) => ActionAssembler_base(name, resArr, cause, infoObj);
+        })
+    }
 }
 
 function modifyActionContructor<
-    M extends identificationInfo,
     targetType extends Exclude<actionName, "a_modify_action">,
 >(type : targetType){
-    return (s : dry_system, action : Action<targetType>) => (cause : M) => 
-        (p : ConstructionExtraParamsType<targetType> & Partial<{
+    return (s : dry_system, action : Action<targetType>) => (cause : identificationInfo) => 
+        (p : Partial<ConstructionExtraParamsType<targetType>> & Partial<{
                 targets : TargetType<targetType>,
                 cause : identificationInfo,
 
                 canBeChainedTo : boolean,
                 canBeTriggeredTo : boolean
-            }>) => ActionAssembler<
+            }>) => ActionAssembler_base<
                 [identificationInfo_action], 
-                M, 
-                ExtractInnerType<ConstructionExtraParamsType<targetType>> | TargetType<targetType> | identificationInfo | boolean, 
-                ConstructionExtraParamsType<targetType> & Partial<{
+                Partial<ConstructionExtraParamsType<targetType>> & Partial<{
                     targets : TargetType<targetType>,
                     cause : identificationInfo,
 
                     canBeChainedTo : boolean,
                     canBeTriggeredTo : boolean
-                } & {
-                    type : Exclude<actionName, "a_modify_action">
                 }>
-            >("a_modify_action", [form_action(s, action)], cause, {
-                ...p,
-                type : type
-            })
+            >("a_modify_action", [form_action(s)(action)], cause, p)
 }
+
 
 //default restriction is the loosest possible restriction
 //card : none (practically)
@@ -609,69 +651,69 @@ export function getDefaultObjContructionObj(id : actionID) : actionConstructionO
 
 
 const actionConstructorRegistry = {
-    error: actionConstructor_none("error"),
-    a_null: actionConstructor_none("a_null"),
-    a_do_threat_burn: actionConstructor_none("a_do_threat_burn"),
-    a_force_end_game: actionConstructor_none("a_force_end_game"),
-    a_increase_turn_count: actionConstructor_none("a_increase_turn_count"),
-    a_set_threat_level: actionConstructor_none_with_additionalInfo("a_set_threat_level", {
+    error: ActionAssembler("error"),
+    a_null: ActionAssembler("a_null"),
+    a_do_threat_burn: ActionAssembler("a_do_threat_burn"),
+    a_force_end_game: ActionAssembler("a_force_end_game"),
+    a_increase_turn_count: ActionAssembler("a_increase_turn_count"),
+    a_set_threat_level: ActionAssembler("a_set_threat_level", {
         newThreatLevel : 0 as number | number[]
     }),
-    a_turn_end: actionConstructor_none_with_additionalInfo("a_turn_end", {
+    a_turn_end: ActionAssembler("a_turn_end", {
         doIncreaseTurnCount : true
     }),
-    a_turn_reset: actionConstructor_none("a_turn_reset"),
-    a_turn_start: actionConstructor_none("a_turn_start"),
-    a_reprogram_start: actionConstructor_none("a_reprogram_start"),
-    a_reprogram_end: actionConstructor_none("a_reprogram_end"),
+    a_turn_reset: ActionAssembler("a_turn_reset"),
+    a_turn_start: ActionAssembler("a_turn_start"),
+    a_reprogram_start: ActionAssembler("a_reprogram_start"),
+    a_reprogram_end: ActionAssembler("a_reprogram_end"),
 
-    a_clear_all_status_effect: actionConstructor_1("a_clear_all_status_effect", form_card),
-    a_deal_damage_card: actionConstructor_1_with_additionalInfo("a_deal_damage_card", form_card, {
+    a_clear_all_status_effect: ActionAssembler("a_clear_all_status_effect", form_card),
+    a_deal_damage_card: ActionAssembler("a_deal_damage_card", form_card, {
         dmg : 0,
         dmgType : 0
     }),
-    a_deal_damage_position: actionConstructor_1_with_additionalInfo("a_deal_damage_position", form_position, {
+    a_deal_damage_position: ActionAssembler("a_deal_damage_position", form_position, {
         dmg : 0,
         dmgType : 0
     }),
-    a_deal_damage_internal: actionConstructor_1_with_additionalInfo("a_deal_damage_internal", form_card, {
+    a_deal_damage_internal: ActionAssembler("a_deal_damage_internal", form_card, {
         dmg : 0,
         dmgType : 0
     }),
-    a_deal_heart_damage : actionConstructor_1_with_additionalInfo("a_deal_heart_damage", form_player, {
+    a_deal_heart_damage : ActionAssembler("a_deal_heart_damage", form_player, {
         dmg : 0,
     }),
-    a_destroy: actionConstructor_1("a_destroy", form_card),
-    a_disable_card: actionConstructor_1("a_disable_card", form_card),
-    a_enable_card: actionConstructor_1("a_enable_card", form_card),
-    a_execute: actionConstructor_1("a_execute", form_card),
-    a_pos_change: actionConstructor_2("a_pos_change", form_card, form_position),  
-    a_pos_change_force : actionConstructor_2("a_pos_change_force", form_card, form_position),
-    a_attack: actionConstructor_none_with_additionalInfo("a_attack", {
+    a_destroy: ActionAssembler("a_destroy", form_card),
+    a_disable_card: ActionAssembler("a_disable_card", form_card),
+    a_enable_card: ActionAssembler("a_enable_card", form_card),
+    a_execute: ActionAssembler("a_execute", form_card),
+    a_pos_change: ActionAssembler("a_pos_change", form_card, form_position),  
+    a_pos_change_force : ActionAssembler("a_pos_change_force", form_card, form_position),
+    a_attack: ActionAssembler("a_attack", {
         dmg : 0 as number | undefined,
         dmgType : 0 as number | undefined
     }),
-    a_reset_card: actionConstructor_1("a_reset_card", form_card),
+    a_reset_card: ActionAssembler("a_reset_card", form_card),
 
-    a_reset_effect: actionConstructor_1("a_reset_effect", form_effect),
-    a_activate_effect: actionConstructor_1("a_activate_effect", form_effect),
-    a_activate_effect_internal: actionConstructor_1("a_activate_effect_internal", form_effect),
-    a_add_status_effect: actionConstructor_1_with_additionalInfo("a_add_status_effect", form_card, {
+    a_reset_effect: ActionAssembler("a_reset_effect", form_effect),
+    a_activate_effect: ActionAssembler("a_activate_effect", form_effect),
+    a_activate_effect_internal: ActionAssembler("a_activate_effect_internal", form_effect),
+    a_add_status_effect: ActionAssembler("a_add_status_effect", form_card, {
         statusID : "",
     }),
-    a_remove_status_effect: actionConstructor_1("a_remove_status_effect", form_effect),
+    a_remove_status_effect: ActionAssembler("a_remove_status_effect", form_effect),
 
-    a_activate_effect_subtype: actionConstructor_1("a_activate_effect_subtype", form_subtype),
+    a_activate_effect_subtype: ActionAssembler("a_activate_effect_subtype", form_subtype),
     
     a_modify_action: modifyActionContructor,
-    a_negate_action: actionConstructor_1("a_negate_action", form_action),
-    a_replace_action: actionConstructor_1("a_replace_action", form_action),
+    a_negate_action: ActionAssembler("a_negate_action", form_action),
+    a_replace_action: ActionAssembler("a_replace_action", form_action),
     
-    a_zone_interact: actionConstructor_1("a_zone_interact", form_zone),
-    a_shuffle: actionConstructor_1_with_additionalInfo("a_shuffle", form_zone, {
+    a_zone_interact: ActionAssembler("a_zone_interact", form_zone),
+    a_shuffle: ActionAssembler("a_shuffle", form_zone, {
         shuffleMap : {} as Map<number, number>
     }),
-    a_draw: actionConstructor_1_with_additionalInfo("a_draw", form_zone, {
+    a_draw: ActionAssembler("a_draw", form_zone, {
         cooldown : 0,
         doTurnReset : true,
         actuallyDraw : true,
@@ -679,34 +721,25 @@ const actionConstructorRegistry = {
 } as const;
 
 export type ConstructionExtraParamsType<name extends actionName> = 
-    typeof actionConstructorRegistry[name] extends Fn<any, Action_class<any, any, any, infer T0>> ? T0 :
-    typeof actionConstructorRegistry[name] extends Fn_2<any, any, Action_class<any, any, any, infer T1>> ? T1 :
-    typeof actionConstructorRegistry[name] extends Fn_3<any, any, any, Action_class<any, any, any, infer T2>> ? T2 : 
-    typeof actionConstructorRegistry[name] extends Fn_4<any, any, any, any, Action_class<any, any, any, infer T3>> ? T3 :
-    typeof actionConstructorRegistry[name] extends Fn_5<any, any, any, any, any, Action_class<any, any, any, infer T4>> ? T4 : any
+    name extends "a_modify_action" ? {} :
+    ExtractReturn_any<typeof actionConstructorRegistry[name]> extends Action_class<any, any, infer T0> ? T0 : {}
 
 export type AttrType<name extends actionName> = 
-    typeof actionConstructorRegistry[name] extends Fn<any, Action_class<any, any, infer T0, any>> ? T0 :
-    typeof actionConstructorRegistry[name] extends Fn_2<any, any, Action_class<any, any, infer T1, any>> ? T1 :
-    typeof actionConstructorRegistry[name] extends Fn_3<any, any, any, Action_class<any, any, infer T2, any>> ? T2 : 
-    typeof actionConstructorRegistry[name] extends Fn_4<any, any, any, any, Action_class<any, any, infer T3, any>> ? T3 :
-    typeof actionConstructorRegistry[name] extends Fn_5<any, any, any, any, any, Action_class<any, any, infer T4, any>> ? T4 : any
+    name extends "a_modify_action" ? any :
+    ExtractReturn_any<typeof actionConstructorRegistry[name]> extends Action_class<any, infer T0, any> ? T0 : any
 
 export type TargetType<name extends actionName> = 
-    typeof actionConstructorRegistry[name] extends Fn<any, Action_class<infer T0, any, any, any>> ? T0 :
-    typeof actionConstructorRegistry[name] extends Fn_2<any, any, Action_class<infer T1, any, any, any>> ? T1 :
-    typeof actionConstructorRegistry[name] extends Fn_3<any, any, any, Action_class<infer T2, any, any, any>> ? T2 : 
-    typeof actionConstructorRegistry[name] extends Fn_4<any, any, any, any, Action_class<infer T3, any, any, any>> ? T3 :
-    typeof actionConstructorRegistry[name] extends Fn_5<any, any, any, any, any, Action_class<infer T4, any, any, any>> ? T4 : identificationInfo[]
+    name extends "a_modify_action" ? [identificationInfo_action] :
+    ExtractReturn_any<typeof actionConstructorRegistry[name]> extends Action_class<infer T0, any, any> ? T0 : never
 
 const actionFormRegistry = {
-    action : form_action,
-    card : form_card,
-    effect : form_effect,
-    subtype : form_subtype,
-    player : form_player,
-    position : form_position,
-    zone : form_zone,
+    action : (s : dry_system, a : Action | Action_class) => form_action(s)(a),
+    card : (s : dry_system, c : dry_card) => form_card(s)(c),
+    effect : (s : dry_system, c : dry_card, eff : dry_effect) => form_effect(s)(c, eff),
+    subtype : (s : dry_system, c : dry_card, eff : dry_effect, subtype : dry_effectSubType) => form_subtype(s)(c, eff, subtype),
+    position : (s : dry_system, pos: dry_position) => form_position(s)(pos),
+    zone : (s : dry_system, zone: dry_zone) => form_zone(s)(zone),
+    player : (s : dry_system, pid: number) => form_player(s)(pid),
     none : form_none,
     system : form_system
 } as const 
@@ -715,18 +748,16 @@ export type Action<name extends actionName | undefined = undefined, name2 extend
     name extends actionName ? (name extends "a_modify_action" ? 
     Action_class<
         TargetType<name>, 
-        identificationInfo, 
         ExtractInnerType<ConstructionExtraParamsType<name2>> | TargetType<name2> | identificationInfo | boolean, 
-        ConstructionExtraParamsType<name2> & Partial<{
+        Partial<ConstructionExtraParamsType<name2>> & Partial<{
             targets : TargetType<name2>,
             cause : identificationInfo,
 
             canBeChainedTo : boolean,
             canBeTriggeredTo : boolean
-        }> & {
-            type : Exclude<actionName, "a_modify_action">
-        }
-    > : Action_class<TargetType<name>, identificationInfo, AttrType<name>, ConstructionExtraParamsType<name>>) : Action_class
+        }>
+    > : Action_class<TargetType<name>, AttrType<name>, ConstructionExtraParamsType<name>>) : Action_class
 
+export type ExtractActionName<A> = A extends Action<infer name> ? name : never
 
 export {actionConstructorRegistry, actionFormRegistry}

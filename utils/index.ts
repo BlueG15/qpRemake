@@ -180,6 +180,21 @@ const utils = {
         }
         return k
     },
+
+    genericCurrier(f : any[], callback : (p : any[]) => any, res : any[] = []) : any{
+        if(!f.length) return callback([]);
+        const [first, ...rest] = f;
+        if(typeof first === "function"){
+            return (...p : any[]) => {
+                res.push(first(...p))
+                if(rest.length === 0) return callback(res);
+                return this.genericCurrier(rest, callback, res);
+            }
+        } else {
+            res.push(first);
+            return this.genericCurrier(rest, callback, res);
+        };
+    }
 }
 
 export default utils

@@ -211,7 +211,7 @@ class queenSystem {
                         actionConstructorRegistry.a_increase_turn_count(actionFormRegistry.system())
                     ]
                 }
-                return []
+                return
             }; 
 
             case actionRegistry.a_turn_reset : 
@@ -220,7 +220,7 @@ class queenSystem {
             //note : may move the resolution of 6, 7, 8 to zone/system
             case actionRegistry.a_increase_turn_count : {
                 this.turnCount++;
-                return [];
+                return;
             }
 
             case actionRegistry.a_set_threat_level : {
@@ -231,7 +231,7 @@ class queenSystem {
                         actionConstructorRegistry.a_do_threat_burn(actionFormRegistry.system())
                     ]
                 }
-                return []
+                return
             }
 
             case actionRegistry.a_do_threat_burn : {
@@ -246,6 +246,7 @@ class queenSystem {
                 //am uhh not sure how to implememt this shit yet
                 //i think this is fine? for now?
                 this.suspend(this.actionTree.root.id)
+                return;
             } 
 
             case actionRegistry.a_activate_effect_internal : 
@@ -273,12 +274,12 @@ class queenSystem {
                 //make some kinda input_interface object
 
                 //plug it in here
-                break;
+                return;
             }
 
             case actionRegistry.a_reprogram_end : {
                 //to be implemented                
-                break;
+                return;
             }
 
             case actionRegistry.a_add_status_effect :  {
@@ -301,17 +302,16 @@ class queenSystem {
                 let target = (a as Action<"a_modify_action">).targets[0].action
                 let modifyObj = (a as Action<"a_modify_action">).flatAttr()
 
-                if(target.type !== modifyObj.type) return;
-
                 Object.entries(modifyObj).forEach(([key, val]) => {
                     if(key !== "type") target.modifyAttr(key, val);
                 })
+                return;
             }
             case actionRegistry.a_reset_card : 
                 return this.zoneHandler.handleCardReset(this.toDry(), a as Action<"a_reset_card">);
             
             case actionRegistry.a_replace_action:
-                case actionRegistry.a_negate_action : return; //tecnically not possible
+            case actionRegistry.a_negate_action : return; //tecnically not possible
                 
             case actionRegistry.a_clear_all_status_effect : 
                 return this.zoneHandler.handleClearAllStatusEffect(this.toDry(), a as Action<"a_clear_all_status_effect">)
@@ -347,7 +347,7 @@ class queenSystem {
 
             case actionRegistry.a_zone_interact:
                 let zid = (a as Action<"a_zone_interact">).targets[0].zone.id
-                return this.zoneHandler.zoneArr[zid].interact(a.cause);
+                return this.zoneHandler.zoneArr[zid].interact(this.toDry(), a.cause);
 
             default : {
                 //only should reach here iff effect is unregistered
@@ -358,7 +358,6 @@ class queenSystem {
                 //mods may emit new undefined actions
                 //go to zone handler to fix this shit
 
-                let k = a.typeID 
                 return this.registryFile.customActionLoader.handle(a.id, a, this);
             }
         }

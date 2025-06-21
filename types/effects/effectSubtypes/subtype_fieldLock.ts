@@ -4,7 +4,7 @@ import type Card from "../../abstract/gameComponents/card";
 import type dry_system from "../../../data/dry/dry_system";
 import type Effect from "../../abstract/gameComponents/effect";
 // import utils from "../../../utils";
-import { zoneAttributes } from "../../../data/zoneRegistry";
+import { zoneRegistry } from "../../../data/zoneRegistry";
 
 class subtype_fieldLock extends effectSubtype {
     override onEffectCheckCanActivate(c: Card, e : Effect, system: dry_system, a: Action): -1 | boolean {
@@ -13,7 +13,7 @@ class subtype_fieldLock extends effectSubtype {
         //i dont like it, so i make it a new subtype
         let zone = system.getZoneWithID(c.pos.zoneID)
         if(!zone) return false;
-        if(zone.attrArr.includes(zoneAttributes.isField)) return -1;
+        if(zone.types.includes(zoneRegistry.z_field)) return -1;
         return false;
     }
 }

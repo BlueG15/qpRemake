@@ -1,4 +1,4 @@
-import type Action_prototype from "../../abstract/gameComponents/action"
+import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "../../abstract/gameComponents/card"
 import type dry_system from "../../../data/dry/dry_system"
 
@@ -11,7 +11,7 @@ class triggerEffect extends EffectType {
     //      action != "activate self" -> returns an "activate self" action, isChain = false
     //      action == "activate self" -> returns whatever super.activate returns, isChain = true
 
-    override canRespondAndActivate(c: Card, system: dry_system, a: Action_prototype): -1 | boolean {
+    override canRespondAndActivate(c: Card, system: dry_system, a: Action): -1 | boolean {
         //enforces only respond in the trigger phase
         //if and only if no subtype overrides the result
         //this function only runs if no override happens 
@@ -19,7 +19,7 @@ class triggerEffect extends EffectType {
         return -1;
     }
 
-    override parseAfterActivate(c: Card, system: dry_system, res: Action_prototype[]) {
+    override parseAfterActivate(c: Card, system: dry_system, res: Action[]) {
         res.forEach(i => i.isChain = false);
     }
 }

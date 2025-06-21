@@ -7,6 +7,7 @@ import { zoneRegistry } from "../zoneRegistry"
 import { Action } from "../../_queenSystem/handler/actionGenrator"
 
 import utils from "../../utils"
+import { actionName } from "../actionRegistry"
 
 type effectID = string
 type cardID = string
@@ -14,15 +15,13 @@ class dry_system {
     //TODO : include reblances of the stack strace up until the point of this object's creation
     //for checking hard unique and unique
     //^ done
-    readonly threat_level : number
     readonly phaseIdx : number
 
     readonly turnActionID : number
     readonly turnCount : number
-    readonly maxThreatLevel : number
     readonly rootID : number
 
-    readonly playerStat : player_stat
+    readonly playerStat : ReadonlyArray<player_stat>
 
     readonly fullLog : logInfo[] = []
 
@@ -53,7 +52,6 @@ class dry_system {
     }
 
     constructor(system : queenSystem){//fix later
-        this.threat_level = system.threatLevel
         this.ref = system
         this.phaseIdx = system.phaseIdx
 
@@ -64,16 +62,12 @@ class dry_system {
         this.fullLog = system.fullLog //dangerous property, not deep copied, but maybe too expensive to deep copy
         this.turnActionID = system.turnActionID
         this.turnCount = system.turnCount
-        this.maxThreatLevel = system.maxThreatLevel
         this.rootID = system.rootID
 
-        this.playerStat = {
-            playerIndex : system.player_stat.playerIndex,
-            heart : system.player_stat.heart,
-            maxHeart : system.player_stat.maxHeart,
-            operator : system.player_stat.operator,
-            deckInfo : system.player_stat.deckInfo //change later
-        }
+        this.playerStat = system.player_stat.map(i => Object.entries(i).reduce((curr, ele) => {
+            curr[ele[0] as keyof player_stat] = ele[1];
+            return curr;
+        }, {} as player_stat))
 
         this.rootAction = system.actionTree.root.data as Action<"a_turn_end">
     } 
@@ -146,7 +140,9 @@ class dry_system {
      * 
      * Search is first comes first serve, B is the first in the resoution log of A that has the wanted type (id 1 in the arr) 
      */
-    findSpecificChainOfAction_resolve(typeArr : string[]) : Action[] | undefined{
+    findSpecificChainOfAction_resolve<
+        T extends actionName[]
+    >(typeArr : T) : Action[] | undefined{
         if(!typeArr.length) return [];
         let res : Action[] = [];
 
@@ -185,6 +181,16 @@ class dry_system {
         return c
     }
 
+    getAllZonesOfPlayer(pid : number) : Record<number, dry_zone[]>{
+        if(pid < 0) return {}
+        let res : Record<number, dry_zone[]> = {}
+
+        this.zoneMap.forEach((val, key) => {
+            if(val.playerIndex === pid) val.types.forEach(i => res[i] ? res[i].push(val) : res[i] = [val])
+        })
+
+        return res;
+    }
 
 }
 

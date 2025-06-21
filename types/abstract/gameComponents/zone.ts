@@ -29,7 +29,7 @@ import { identificationInfo } from "../../../data/systemRegistry";
 class Zone {
     //list of boolean attributes:
     attr: Map<string, any>;
-    cardArr: (card | undefined)[];
+    cardArr: (card | undefined)[] = [];
     readonly types : ReadonlyArray<number>
     readonly dataID: string;    
     readonly name : string
@@ -60,7 +60,6 @@ class Zone {
             if(typeof t === "number") this.types = [t];
             else this.types = []      
         }
-        this.cardArr = []; //new Array(Math.min(this.capacity, 100)).fill(undefined)
         this.attr.set("index", id);
         this.attr.set("playerIndex", playerIndex);
         this.attr.set("playerType", playerType);
@@ -228,10 +227,11 @@ class Zone {
     protected isPositionInBounds(p: Position) {
         if (this.capacity <= 0) return false;
         if (p.zoneID != this.id) return false;
+        let res = true;
         p.forEach((i, index) => {
-            if (i >= this.posBound[index]) return false;
+            if (i >= this.posBound[index]) res = false;
         });
-        return true;
+        return res;
     }
     validatePosition(p?: Position) {
         return p && p.valid && this.valid && this.isPositionInBounds(p);
@@ -528,7 +528,7 @@ class Zone {
     }
 
     //should override
-    interact(cause : identificationInfo) : Action[] {return [] as Action[]}
+    interact(s : dry_system, cause : identificationInfo) : Action[] {return [] as Action[]}
 
     // activateEffect(
     //     cidx: number,

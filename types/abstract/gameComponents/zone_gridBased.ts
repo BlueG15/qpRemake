@@ -6,7 +6,7 @@ import Zone from "./zone";
 
 class Zone_grid extends Zone {
 
-    override cardArr = (this.valid) ? new Array(this.capacity).fill(undefined) : []
+    override cardArr = isFinite(this.capacity) ? new Array(this.capacity).fill(undefined) : []
     //helper properties
 
     private get firstEmptyIndex() {return this.cardArr.indexOf(undefined)}

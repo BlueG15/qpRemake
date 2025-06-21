@@ -1,2 +1,0 @@
-actions need to remember what they are activated against, since action are just data, storing this is trivial
-change this

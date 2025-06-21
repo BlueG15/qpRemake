@@ -1,9 +1,8 @@
 import type dry_system from "../data/dry/dry_system";
-import type Action_prototype from "../types/abstract/gameComponents/action";
+import { actionConstructorRegistry, actionFormRegistry, type Action } from "../_queenSystem/handler/actionGenrator";
 import type Card from "../types/abstract/gameComponents/card";
 import Effect from "../types/abstract/gameComponents/effect";
-import { modifyAnotherAction } from "../types/actions_old";
-import dealDamage from "../types/actions_old/dealDamage";
+import actionRegistry from "../data/actionRegistry";
 
 export default class damageReductionEffect extends Effect {
 
@@ -19,31 +18,29 @@ export default class damageReductionEffect extends Effect {
         else this.attr.set("reductionDmgType", val)
     }
 
-    override canRespondAndActivate_proto(c: Card, system: dry_system, a: Action_prototype): boolean {
+    override canRespondAndActivate_proto(c: Card, system: dry_system, a: Action): boolean {
         //all dmg
-        if(a instanceof dealDamage){
+        if(
+            a.typeID === actionRegistry.a_deal_damage_card ||
+            a.typeID === actionRegistry.a_deal_damage_internal ||
+            a.typeID === actionRegistry.a_deal_damage_position
+        ){
             if(this.reductionDmgType === undefined) return true;
-            return a.dmgType === this.reductionDmgType
+            return a.flatAttr().dmgType === this.reductionDmgType
         }
         return false;
     }
 
-    override activate_proto(c: Card, system: dry_system, a: Action_prototype): Action_prototype[] {
-        if(a instanceof dealDamage){
-            let oldDmg = (a as dealDamage).dmg ?? 0;
-            let newDmg = oldDmg - this.reductionAmmount;
-            if(newDmg < this.minDmg) newDmg = 0
-            return [
-                new modifyAnotherAction(
-                    a.id, 
-                    "dmg",
-                    newDmg,
-                    true, 
-                    c.id
-                )
-            ]
-        }
-        return []
+    override activate_proto(c: Card, system: dry_system, a: Action<"a_deal_damage_card"> | Action<"a_deal_damage_internal"> | Action<"a_deal_damage_position">): Action[] {
+        const attr = a.flatAttr()
+        let oldDmg = attr.dmg ?? 0;
+        let newDmg = oldDmg - this.reductionAmmount;
+        if(newDmg < this.minDmg) newDmg = 0
+        return [
+            actionConstructorRegistry.a_modify_action("a_deal_damage_card")(system, a as any)(actionFormRegistry.card(system, c.toDry()))({
+                dmg : newDmg
+            })
+        ]
     }
 
     override getDisplayInput(c: Card, system: dry_system): (string | number)[] {

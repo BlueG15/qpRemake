@@ -9,7 +9,7 @@ import { Action, actionConstructorRegistry, actionFormRegistry } from "../../_qu
 import { identificationInfo } from "../../data/systemRegistry";
 import type hand from "./hand";
 import { ExtractReturn } from "../../data/misc";
-// import Action from "../abstract/gameComponents/action";
+import type dry_system from "../../data/dry/dry_system";
 
 
 class deck extends zone_stack {
@@ -36,54 +36,55 @@ class deck extends zone_stack {
 
     currentCoolDown : number = this.startCoolDown
 
-    getAction_draw(cause : identificationInfo, isTurnDraw : boolean) : Action<"a_draw">{
+    getAction_draw(s : dry_system, cause : identificationInfo, isTurnDraw : boolean) : Action<"a_draw">{
         let cid : string | undefined;
         cid = (this.cardArr[0]) ? this.cardArr[0].id : undefined
 
         if(isTurnDraw){
             if(this.currentCoolDown != 0) {
-                return actionConstructorRegistry.a_draw(this.id)(cause, {
+                return actionConstructorRegistry.a_draw(s, this.toDry())(cause, {
                     cooldown : this.currentCoolDown - 1, 
                     doTurnReset : true,
                     actuallyDraw : false,
                 })
             }
-            return actionConstructorRegistry.a_draw(this.id)(cause, {
+            return actionConstructorRegistry.a_draw(s, this.toDry())(cause, {
                 cooldown : this.maxCoolDown,
                 doTurnReset : true,
                 actuallyDraw : true
             })
         }
         //not turn draw, bypass mode, keep turn count the same
-        return actionConstructorRegistry.a_draw(this.id)(cause, {
+        return actionConstructorRegistry.a_draw(s, this.toDry())(cause, {
             cooldown : NaN,
             doTurnReset : false,
             actuallyDraw : true
         })
     }
 
-    override interact(cause : identificationInfo): [Action<"a_draw">] {
+    override interact(s : dry_system, cause : identificationInfo): [Action<"a_draw">] {
         //interacting with the deck means we draw
-        return [this.getAction_draw(cause, true)];
+        return [this.getAction_draw(s, cause, true)];
     }
 
-    draw(a : Action<"a_draw">, hand : hand) : res {
+    draw(s : dry_system, a : Action<"a_draw">, hand : hand) : res {
         //assume the hand passed in is of the correct player
         let res : res = [undefined, []]
 
         let attr = a.flatAttr();
+        let d = this.toDry()
 
         if(attr.cooldown >= 0 && !isNaN(attr.cooldown) && isFinite(attr.cooldown)) this.currentCoolDown = attr.cooldown
         if(attr.actuallyDraw){
             //draw the top card
             let card = this.getCardByPosition(this.top);
             if(card){
-                res[1] = [actionConstructorRegistry.a_pos_change(card.id)(hand.top.toDry())(actionFormRegistry.zone(this.id))]
+                res[1] = [actionConstructorRegistry.a_pos_change(s, card.toDry())(hand.top.toDry())(actionFormRegistry.zone(s, d))]
                 
             } else console.log("draw has no card")
         }
         if(attr.doTurnReset) res[1].push(
-            actionConstructorRegistry.a_turn_reset(actionFormRegistry.zone(this.id))
+            actionConstructorRegistry.a_turn_reset(actionFormRegistry.zone(s, d))
         )
         return res
     }
