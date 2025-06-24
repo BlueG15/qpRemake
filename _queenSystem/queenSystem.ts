@@ -1,39 +1,14 @@
 import _node from "../types/abstract/generics/node";
 import _tree from "../types/abstract/generics/tree";
-import Action from "../types/abstract/gameComponents/action";
 import zoneHandler from "./handler/zoneHandler";
-import dry_system from "../types/data/dry/dry_system";
-import actionRegistry, {actionName, actionID} from "../types/data/actionRegistry";
+import actionRegistry, {actionName, actionID} from "../data/actionRegistry";
 
-import { 
-    turnReset,
-    activateEffect,
-    posChange,
-    activateEffectSubtypeSpecificFunc, 
-    drawAction, 
-    increaseTurnCount, 
-    modifyAnotherAction, 
-    setThreatLevel, 
-    turnEnd, 
-    turnStart,
-    doThreatLevelBurn,
-    shuffle,
-    addStatusEffect
-} from "../types/actions";
-
-import type Card from "../types/abstract/gameComponents/card";
+import { Action, actionConstructorRegistry, actionFormRegistry } from "./handler/actionGenrator";
 import type error from "../types/errors/error";
-import { cannotLoad, unregisteredAction } from "../types/errors";
-
-import dry_card from "../types/data/dry/dry_card";
-import dry_position from "../types/data/dry/dry_position";
-
 import { 
-    logInfo,
-    player_stat,
-    suspensionReason,
-    TurnPhase
-} from "../types/data/systemRegistry";
+    unregisteredAction,
+    cannotLoad,
+} from "../types/errors";
 
 import { Setting } from "../types/abstract/gameComponents/settings";
 
@@ -42,7 +17,34 @@ import registryHandler from "./handler/registryHandler";
 import modHandler from "./handler/modHandler";
 import Localizer from "./handler/localizationHandler";
 
-import { operatorRegistry } from "../types/data/operatorRegistry";
+import { operatorRegistry } from "../data/operatorRegistry";
+import { StatusEffect_base } from "../specificEffects/e_status";
+import { playerTypeID, zoneRegistry } from "../data/zoneRegistry";
+
+import { 
+    inputData,
+    player_stat,
+    suspensionReason,
+    TurnPhase,
+
+    dry_card,
+    dry_effect,
+    dry_position,
+    dry_zone,
+    dry_effectType,
+    dry_effectSubType,
+
+    logInfoHasResponse,
+    logInfoNormal,
+    logInfoResolve,
+    logInfo,
+    dry_system,
+} from "../data/systemRegistry";
+
+import { Positionable } from "../types/misc";
+import Position from "../types/abstract/generics/position";
+
+import utils from "../utils";
 
 // import type dry_card from "../dryData/dry_card";
 // import position from "../baseClass/position";
@@ -54,12 +56,12 @@ type effectID = string
 
 class queenSystem {
     //properties
-    turnActionID : number = -Infinity
+    turnAction? : Action = undefined
     turnCount : number = 0
 
     //handlers
     zoneHandler : zoneHandler
-    cardHander : cardHandler
+    cardHandler : cardHandler
     registryFile : registryHandler
     modHandler : modHandler
     localizer : Localizer
@@ -68,8 +70,7 @@ class queenSystem {
     setting : Setting
 
     //
-    player_stat : player_stat
-
+    player_stat : player_stat[]
     
     private processStack : number[] = [] 
     //stores id of node before step "recur until meet this again"
@@ -78,124 +79,144 @@ class queenSystem {
     //when unsuspended, continue processing this node from phaseIdx 3
     
     private suspensionReason : suspensionReason | false = false
-    takenInput? : dry_position | string | dry_card | number = undefined
+    takenInput? : inputData[] = undefined
 
     get isSuspended() {return this.suspensionReason !== false}
 
     fullLog : logInfo[] = []
-    //the weird reduce thiny is equivalent to .flat(2), done since .flat is not available for es6
-    getActivatedEffectIDs() : effectID[] {
-        return this.fullLog.map(i => {
-            if(i.currentPhase !== 3 && i.currentPhase !== 6) return [];
-            return Object.values(i.responses).reduce((accu, ele) => accu.concat(ele))
-        }).reduce((accu, ele) => accu.concat(ele))
-    }
-    getActivatedCardIDs() : cardID[] {
-        return this.fullLog.map(i => {
-            if(i.currentPhase !== 3 && i.currentPhase !== 6) return [];
-            return Object.values(i.responses).reduce((accu, ele) => accu.concat(ele))
-        }).reduce((accu, ele) => accu.concat(ele))
-    }
-    getResolvedActions() : Action[] {
-        return this.fullLog.map(i => {
-            if(i.currentPhase !== 5) return undefined;
-            return i.currentAction
-        }).filter(i => i !== undefined) as Action[]
-    }
-    
-    //cardID, effectIDs[]
-    get rootID() : number {return this.actionTree.root.id}
-
-    
-    get threatLevel() : number {return this.zoneHandler.system.threat}
-    set threatLevel(val : number){
-        if(isNaN(val) || val < 0) val = 0
-        // if(val > this.zoneHandler.system.maxThreat) val = this.zoneHandler.system.maxThreat
-        this.zoneHandler.system.threat = val;
-    }
-
-    get maxThreatLevel() : number {return this.zoneHandler.system.maxThreat}
 
     phaseIdx : TurnPhase = TurnPhase.declare
-    actionTree : _tree
+    actionTree : _tree<Action<"a_turn_end">>
+
+    //cardID, effectIDs[]
+    get rootID() : number {return this.actionTree.root.id}
+    getRootAction() {return this.actionTree.root.data}
+    
+    get threatLevel() : number[] {return this.zoneHandler.system.map(i => i.threat)}
+    set threatLevel(val : number | number[]){
+        if(typeof val === "number"){
+            if(isNaN(val) || val < 0) val = 0;
+            // if(val > this.zoneHandler.system.maxThreat) val = this.zoneHandler.system.maxThreat
+            this.zoneHandler.system.forEach(i => i.threat = val as number);
+        } else {
+            const s = this.zoneHandler.system
+            val.forEach((t, index) => {
+                s[index].threat = t
+            })
+        }
+    }
+
+    get maxThreatLevel() : number[] {return this.zoneHandler.system.map(i => i.maxThreat)}
+
+    
 
     constructor(s : Setting){
         this.setting = s
 
         this.registryFile = new registryHandler(s)
-        this.zoneHandler = new zoneHandler(this.registryFile)
-        this.cardHander = new cardHandler(s, this.registryFile)
+        this.zoneHandler = new zoneHandler(this.registryFile, s)
+        this.cardHandler = new cardHandler(s, this.registryFile)
         this.modHandler = new modHandler(s, this.registryFile)
         this.localizer = new Localizer(this.registryFile)
 
-        this.actionTree = new _tree(new turnEnd())
+        this.actionTree = new _tree(
+            actionConstructorRegistry.a_turn_end(actionFormRegistry.system(), {
+                doIncreaseTurnCount : true
+            })
+        )
 
-        this.player_stat = {
-            heart : 20,
-            maxHeart : 20,
-            operator : operatorRegistry.o_esper,
-            deckInfo : []
-        }
+        this.player_stat = s.players.map((i, index) => 
+            i === playerTypeID.player ?
+            {
+                playerIndex : index,
+                heart : 20,
+                maxHeart : 20,
+                operator : operatorRegistry.o_esper,
+                deckInfo : []
+            } : {
+                playerIndex : index,
+                heart : Infinity,
+                maxHeart : Infinity,
+                operator : operatorRegistry.o_queen,
+                deckInfo : []
+            }
+        )
+
+        this.forEach = this.zoneHandler.forEach
+        this.map = this.zoneHandler.map
+        this.filter = this.zoneHandler.filter
     }
 
     restartTurn(a? : Action){
         this.actionTree.clear()
         if(a) {
             this.actionTree.attach(a);
-            this.turnActionID = a.id;
+            this.turnAction = a;
         }
-        this.actionTree.attach(new turnStart())
+        this.actionTree.attach(
+            actionConstructorRegistry.a_turn_start(actionFormRegistry.system())
+        )
         this.actionTree.root.data.modifyAttr("doIncreaseTurnCount", true)
 
         this.phaseIdx = TurnPhase.declare
-        this.turnActionID = -Infinity
     }
 
     resolveError(a : error){
         console.log(a.toString())
     }
 
-    private actionSwitch_resolve(a : Action) : undefined | void | Action[]{
+    private actionSwitch_resolve(a : Action) : undefined | Action[]{
         //ok this is just a bunch of ifs
         //lord forgive me for this
         if(typeof a.typeID !== "number") return [new unregisteredAction(a)]
         switch(a.typeID){
             case actionRegistry.a_null : 
-                break
+                return
             case actionRegistry.error : 
-                return this.resolveError(a as error)
+                this.resolveError(a as error);
+                break;
             
             case actionRegistry.a_turn_start : 
-                break; //turn start
+                return; //turn start
 
             case actionRegistry.a_turn_end : {
                 //turn end
-                if((a as turnEnd).doIncreaseTurnCount){
-                    return [new increaseTurnCount()]
+                
+                //merge statusEffects
+                this.zoneHandler.forEach(1, (c => {
+                    c.mergeStatusEffect();
+                }))
+
+                if((a as Action<"a_turn_end">).flatAttr().doIncreaseTurnCount){
+                    return [
+                        actionConstructorRegistry.a_increase_turn_count(actionFormRegistry.system())
+                    ]
                 }
-                return []
+                return
             }; 
 
             case actionRegistry.a_turn_reset : 
-                return this.zoneHandler.handleTurnReset(a as turnReset)
+                return this.zoneHandler.handleTurnReset(this.toDry(), a as Action<"a_turn_reset">)
 
             //note : may move the resolution of 6, 7, 8 to zone/system
             case actionRegistry.a_increase_turn_count : {
                 this.turnCount++;
-                return [];
+                return;
             }
 
             case actionRegistry.a_set_threat_level : {
-                this.threatLevel = (a as setThreatLevel).newThreatLevel
+                this.threatLevel = (a as Action<"a_set_threat_level">).flatAttr().newThreatLevel
                 if(this.threatLevel > this.maxThreatLevel) {
                     this.threatLevel = this.maxThreatLevel;
-                    return [new doThreatLevelBurn()]
+                    return [
+                        actionConstructorRegistry.a_do_threat_burn(actionFormRegistry.system())
+                    ]
                 }
-                return []
+                return
             }
 
             case actionRegistry.a_do_threat_burn : {
-                return this.zoneHandler.system.doThreatBurn(this.player_stat)
+                return this.zoneHandler.system.map((i, index) => i.doThreatBurn(this.toDry(), this.player_stat[index])).reduce((res, ele) => res.concat(ele))
             }
 
             case actionRegistry.a_force_end_game : {
@@ -206,66 +227,112 @@ class queenSystem {
                 //am uhh not sure how to implememt this shit yet
                 //i think this is fine? for now?
                 this.suspend(this.actionTree.root.id)
-            }
+                return;
+            } 
 
             case actionRegistry.a_activate_effect_internal : 
             case actionRegistry.a_activate_effect : 
                 // 5 and 101 resolves the same, just has different control flow
-                return this.zoneHandler.handleEffectActivation(a as activateEffect, this.toDry())
+                return this.zoneHandler.handleEffectActivation(this.toDry(), a as Action<"a_activate_effect">)
 
+            case actionRegistry.a_pos_change_force:
             case actionRegistry.a_pos_change : 
-                return this.zoneHandler.handlePosChange(a as posChange)
+                return this.zoneHandler.handlePosChange(this.toDry(), a as Action<"a_pos_change">)
 
             case actionRegistry.a_draw : 
-                return this.zoneHandler.handlePosChange(a as drawAction)
+                return this.zoneHandler.handleDraw(this.toDry(), a as Action<"a_draw">)
 
             case actionRegistry.a_shuffle : 
-                return this.zoneHandler.handleShuffle(a as shuffle)
+                return this.zoneHandler.handleShuffle(this.toDry(), a as Action<"a_shuffle">)
 
-            case actionRegistry.a_execute : {
-                //to be implemented                    
-                break;
-            }
+            case actionRegistry.a_execute : 
+                return this.zoneHandler.handleExecute(this.toDry(), a as Action<"a_execute">)
 
             case actionRegistry.a_reprogram_start : {
                 //to be implemented                
-                break;
+
+                //note to future me
+                //make some kinda input_interface object
+
+                //plug it in here
+                return;
             }
 
             case actionRegistry.a_reprogram_end : {
                 //to be implemented                
-                break;
+                return;
             }
 
-            case actionRegistry.a_add_status_effect : {
-                let eff = this.registryFile.effectLoader.getEffect((a as addStatusEffect).statusID, this.setting);
-                if(!eff) return [
-                    new cannotLoad((a as addStatusEffect).statusID, "statusEffect")
+            case actionRegistry.a_add_status_effect :  {
+                let s = (a as Action<"a_add_status_effect">).flatAttr().typeID
+                let eff = this.registryFile.effectLoader.getEffect(s, this.setting);
+                if(!eff || !(eff instanceof StatusEffect_base)) return [
+                    new cannotLoad(s, "statusEffect")
                 ];
-                return this.zoneHandler.handleAddStatusEffect(a as addStatusEffect, eff)               
+                return this.zoneHandler.handleAddStatusEffect(this.toDry(), (a as Action<"a_add_status_effect">), eff)               
             }
 
-            case actionRegistry.a_remove_status_effect : {
-                //to be implemented                
-                break;
-            }
+            case actionRegistry.a_remove_status_effect : 
+                return this.zoneHandler.handleRemoveStatusEffect(this.toDry(), a as Action<"a_remove_status_effect">)
+            
 
             case actionRegistry.a_activate_effect_subtype : 
-                return this.zoneHandler.handleActivateEffectSubtypeFunc(a as activateEffectSubtypeSpecificFunc, this.toDry());               
+                return this.zoneHandler.handleActivateEffectSubtypeFunc(this.toDry(), a as Action<"a_activate_effect_subtype">);               
             
             case actionRegistry.a_modify_action : {
-                let target = (a as modifyAnotherAction).targetActionID as number
-                let n = this.actionTree.getNode(target)
-                if(n.id !== target) return []
-                n.data.modifyAttr(
-                    (a as modifyAnotherAction).attrToModify, 
-                    (a as modifyAnotherAction).newAttrValue
-                )
-                return []
-            }
-            case actionRegistry.a_reset_card : {
+                let target = (a as Action<"a_modify_action">).targets[0].action
+                let modifyObj = (a as Action<"a_modify_action">).flatAttr()
+
+                Object.entries(modifyObj).forEach(([key, val]) => {
+                    if(key !== "type") target.modifyAttr(key, val);
+                })
                 return;
-            }   
+            }
+            case actionRegistry.a_reset_card : 
+                return this.zoneHandler.handleCardReset(this.toDry(), a as Action<"a_reset_card">);
+            
+            case actionRegistry.a_replace_action:
+            case actionRegistry.a_negate_action : return; //tecnically not possible
+                
+            case actionRegistry.a_clear_all_status_effect : 
+                return this.zoneHandler.handleClearAllStatusEffect(this.toDry(), a as Action<"a_clear_all_status_effect">)
+            
+            case actionRegistry.a_reset_effect: 
+                return this.zoneHandler.handleEffectReset(this.toDry(), a as Action<"a_reset_effect">)
+
+            case actionRegistry.a_enable_card: 
+                return this.zoneHandler.handleCardStatus(this.toDry(), a as Action<"a_enable_card">)
+
+            case actionRegistry.a_disable_card:
+                return this.zoneHandler.handleCardStatus(this.toDry(), a as Action<"a_disable_card">)
+
+            case actionRegistry.a_attack :
+                return this.zoneHandler.handleAttack(this.toDry(), a as Action<"a_attack">)
+
+            case actionRegistry.a_deal_damage_internal:
+            case actionRegistry.a_deal_damage_card :
+                return this.zoneHandler.handleDealDamage_1(this.toDry(), a as Action<"a_deal_damage_card">)
+
+            case actionRegistry.a_deal_damage_position:
+                return this.zoneHandler.handleDealDamage_2(this.toDry(), a as Action<"a_deal_damage_position">)
+
+            case actionRegistry.a_deal_heart_damage: 
+                let pid = (a as Action<"a_deal_heart_damage">).targets[0].id
+                let dmg = (a as Action<"a_deal_heart_damage">).flatAttr().dmg
+
+                if(this.player_stat[pid]) this.player_stat[pid].heart -= dmg;
+                return;
+
+            case actionRegistry.a_decompile:
+            case actionRegistry.a_destroy: 
+                return this.zoneHandler.handleSendToTop(this.toDry(), a as Action<"a_destroy"> | Action<"a_decompile">, zoneRegistry.z_grave)
+            
+            case actionRegistry.a_void:
+                return this.zoneHandler.handleSendToTop(this.toDry(), a as Action<"a_void">, zoneRegistry.z_void)
+
+            case actionRegistry.a_zone_interact:
+                let zid = (a as Action<"a_zone_interact">).targets[0].zone.id
+                return this.zoneHandler.zoneArr[zid].interact(this.toDry(), a.cause);
 
             default : {
                 //only should reach here iff effect is unregistered
@@ -276,7 +343,7 @@ class queenSystem {
                 //mods may emit new undefined actions
                 //go to zone handler to fix this shit
 
-                return this.zoneHandler.respond(a, this.toDry(), true)[0];
+                return this.registryFile.customActionLoader.handle(a.id, a, this);
             }
         }
 
@@ -348,12 +415,28 @@ class queenSystem {
             }
             case TurnPhase.chain: {
                 //chain step
-                let [actionArr, logInfo] = this.zoneHandler.respond(n.data, this.toDry(), !n.data.canBeChainedTo)
+                let [actionArr, logInfo] = this.zoneHandler.respond(this.toDry(), n.data, !n.data.canBeChainedTo)
                 this.fullLog.push({
                     currentPhase : 3,
                     currentAction : n.data,
                     responses : Object.fromEntries(logInfo)
                 })
+
+                //special handled
+                if(actionArr.some(
+                    i => i.id === actionRegistry.a_negate_action
+                )){
+                    this.phaseIdx = TurnPhase.complete;
+                    return false;
+                }
+
+                let replacements = actionArr.filter(i => i.id === actionRegistry.a_replace_action).map(i => (i as Action<"a_replace_action">).targets[0].action)
+                if(replacements.length){
+                    this.actionTree.attach(...replacements);
+                    this.phaseIdx = TurnPhase.complete;
+                    return false;
+                }
+
                 actionArr.forEach(i => {
                     if(i.isChain) this.actionTree.attachArbitrary(n.id, i);
                     else this.actionTree.attachArbitrary(this.actionTree.root.id, i);
@@ -395,7 +478,7 @@ class queenSystem {
             }
             case TurnPhase.trigger: {
                 //trigger
-                let [actionArr, logInfo] = this.zoneHandler.respond(n.data, this.toDry())
+                let [actionArr, logInfo] = this.zoneHandler.respond(this.toDry(), n.data)
                 this.fullLog.push({
                     currentPhase : 6,
                     currentAction : n.data,
@@ -451,19 +534,165 @@ class queenSystem {
         await Promise.all(arr);
     }
 
-    toDry(){
-        return new dry_system(this)
-    }
-
-    startTestGame(cardArr : Card[]){
-        //draw 1 card to hand
-        this.zoneHandler.deck.forceCardArrContent(cardArr)
-        this.restartTurn()
-        let a = this.zoneHandler.deck.getAction_draw(true, false, this.zoneHandler.hand.lastPos)
-        this.processTurn(a);
+    toDry() : dry_system{
+        return this
     }
 
 
+    //Parsing log API
+
+    //the weird reduce thiny is equivalent to .flat(2), done since .flat is not available for es6
+    getActivatedEffectIDs() : effectID[] {
+        return this.fullLog.map(i => {
+            if(i.currentPhase !== 3 && i.currentPhase !== 6) return [];
+            return Object.values(i.responses).reduce((accu, ele) => accu.concat(ele))
+        }).reduce((accu, ele) => accu.concat(ele))
+    }
+    getActivatedCardIDs() : cardID[] {
+        return this.fullLog.map(i => {
+            if(i.currentPhase !== 3 && i.currentPhase !== 6) return [];
+            return Object.values(i.responses).reduce((accu, ele) => accu.concat(ele))
+        }).reduce((accu, ele) => accu.concat(ele))
+    }
+    getResolvedActions() : Action[] {
+        return this.fullLog.map(i => {
+            if(i.currentPhase !== 5) return undefined;
+            return i.currentAction
+        }).filter(i => i !== undefined) as Action[]
+    }
+
+
+    //more API ported from dry_system
+    getCardWithID(cid : string) : dry_card | undefined{
+        return this.zoneHandler.getCardWithID(cid);
+    }
+
+    getCardWithDataID(cid : string) : dry_card[] {
+        return this.zoneHandler.filter(1, c => c.id === cid)
+    }
+    
+    getZoneWithID(zid : number) : dry_zone | undefined {
+        return this.zoneHandler.getZoneWithID(zid);
+    }
+
+    getZoneOf(obj : Positionable) : dry_zone | undefined {
+        return this.zoneHandler.getZoneWithID(obj.pos.zoneID)
+    }
+
+    get zoneArr() : ReadonlyArray<dry_zone> {return this.zoneHandler.zoneArr}
+
+    get resolutionLog() : logInfoResolve[]{
+        return this.fullLog.filter(i => i.currentPhase === TurnPhase.resolve) as logInfoResolve[]
+    }
+
+    get chainLog() : logInfoHasResponse[]{
+        return this.fullLog.filter(i => i.currentPhase === TurnPhase.chain) as logInfoHasResponse[]
+    }
+
+    get triggerLog() : logInfoHasResponse[]{
+        return this.fullLog.filter(i => i.currentPhase === TurnPhase.trigger) as logInfoHasResponse[]
+    }
+
+    get completionLog() : logInfoNormal[]{
+        return this.fullLog.filter(i => i.currentPhase === TurnPhase.complete) as logInfoNormal[]
+    }
+
+    hasActionCompleted(a : Action, startSearchingIndex : number = 0){
+        for(let i = startSearchingIndex; i < this.fullLog.length; i++){
+            if(this.fullLog[i].currentPhase === TurnPhase.complete){
+                if(this.fullLog[i].currentAction.id === a.id) return true
+            }
+        }
+        return false;
+    }
+
+
+    /**
+     * Finds a chain of action A -> resolved to B -> resolved to C -> ...
+     * @param typeArr : action types to search
+     * @returns  Action[] if success, unefined if not
+     * 
+     * 
+     * Search is first comes first serve, B is the first in the resoution log of A that has the wanted type (id 1 in the arr) 
+     */
+    findSpecificChainOfAction_resolve<
+        T extends actionName[]
+    >(typeArr : T) : Action[] | undefined{
+        if(!typeArr.length) return [];
+        let res : Action[] = [];
+
+        let candidateResolveLog : logInfoResolve | undefined = this.resolutionLog.find(k => k.currentAction.type === typeArr[0]);
+        if(!candidateResolveLog) return undefined
+        res.push(candidateResolveLog.currentAction)
+        if(typeArr.length === 1) return res;
+
+        for(let i = 1; i < typeArr.length; i++){
+            let matchedNext : Action | undefined = candidateResolveLog.resolvedResult.find(k => k.type === typeArr[i]);
+            if(!matchedNext) return undefined;
+
+            candidateResolveLog = this.resolutionLog.find(k => k.currentAction.id === matchedNext.id);
+            if(!candidateResolveLog) return undefined;
+            res.push(candidateResolveLog.currentAction)
+        }
+
+        return res;
+    }
+
+    /**
+     * Parses the whole log though the condition funciton, tally and returns the result
+     * @param condition a function that returns a thing parsable to a number
+     * @param stopEarlyCount a count that if reached, will return early
+     * @returns total count
+     * 
+     * 
+     */
+    count(condition : (log : logInfo) => number | boolean | undefined, stopEarlyCount? : number){
+        let c = 0;
+        if(stopEarlyCount === undefined) stopEarlyCount = Infinity
+        for(let i = 0; i < this.fullLog.length; i++){
+            c += utils.toSafeNumber( condition(this.fullLog[i]), true )
+            if(c >= stopEarlyCount) return c;
+        }
+        return c
+    }
+
+    getAllZonesOfPlayer(pid : number) : Record<number, dry_zone[]>{
+        if(pid < 0) return {}
+        let res : Record<number, dry_zone[]> = {}
+
+        this.zoneArr.forEach(val => {
+            if(val.playerIndex === pid) val.types.forEach(i => res[i] ? res[i].push(val) : res[i] = [val])
+        })
+
+        return res;
+    }
+
+    getWouldBeAttackTarget(a : Action<"a_attack">) : dry_card | undefined {
+        if((a.cause as any).card === undefined) return undefined
+        let c = (a.cause as any).card as dry_card
+
+        let oppositeZones : dry_zone | undefined = this.zoneArr[c.pos.zoneID]
+        if(!oppositeZones) return undefined
+        
+        let targetZone = oppositeZones.getOppositeZone(this.zoneArr)
+        if(!targetZone.length) return undefined
+
+        let targets = targetZone[0].getOppositeCards(c)
+        if(!targets) return undefined
+
+        return targets[0];
+    }
+
+    get isInTriggerPhase() {return this.phaseIdx === TurnPhase.trigger}
+    get isInChainPhase() {return this.phaseIdx === TurnPhase.chain}
+    
+    //APIs ported over from zoneHandlers
+    forEach : zoneHandler["forEach"]
+    map : zoneHandler["map"]
+    filter : zoneHandler["filter"]
+    
+    //const
+    readonly NULLPOS: dry_position = new Position(-1).toDry()
 }
 
 export default queenSystem

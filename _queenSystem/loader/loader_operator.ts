@@ -1,5 +1,5 @@
 import type { Setting } from "../../types/abstract/gameComponents/settings";
-import type { oparatorData } from "../../types/data/operatorRegistry";
+import type { oparatorData } from "../../data/operatorRegistry";
 
 export default class operatorLoader {
 

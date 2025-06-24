@@ -1,4 +1,5 @@
-import Action from "../abstract/gameComponents/action";
+import actionRegistry from "../../data/actionRegistry";
+import { Action_class, actionConstructionObj_fixxed, actionFormRegistry, getDefaultObjContructionObj } from "../../_queenSystem/handler/actionGenrator";
 //actions by default are NOT valid to listen to, they r just there
 
 class debugInfo {
@@ -18,13 +19,21 @@ class debugInfo {
     }
 }
 
-class error extends Action {
+class error extends Action_class<[], never, {}>  {
     messege : string = "";
     callStack : debugInfo[] = []; //larger index = higher hierachy
+
+    cardID : string | undefined
+
     constructor(cardID? : string){
-        super("error", true, cardID);
-        this.canBeChainedTo = false;
-        this.canBeTriggeredTo = false;
+        let o = getDefaultObjContructionObj(actionRegistry.error);
+        let o2 : actionConstructionObj_fixxed = {
+            ...o,
+            cause : actionFormRegistry.system(),
+            targets : []
+        }
+        super(o2);
+        this.cardID = cardID
     }
     add(file : string, func? : string, line? : number){
         this.callStack.push(new debugInfo(file, func, line));
@@ -34,5 +43,5 @@ class error extends Action {
         return 'Error: ' + this.messege + '\nAt\n' + this.callStack.map(i => i.toString()).join("\n")
     };
 }
-
+   
 export default error

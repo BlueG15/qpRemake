@@ -1,55 +1,107 @@
 import type queenSystem from "./queenSystem"
 import type Card from "../types/abstract/gameComponents/card"
-import Position from "../types/abstract/generics/position"
-import { zoneRegistry } from "../types/data/zoneRegistry"
-import { posChange } from "../types/actions"
+import type Zone from "../types/abstract/gameComponents/zone"
+import { actionConstructorRegistry, actionFormRegistry } from "./handler/actionGenrator"
 
 const testSuite : Record<string, ((s : queenSystem) => void)> = {
-    test1 : (s : queenSystem) => {
+    test1(s : queenSystem){
         //draw 1 card to hand
-        s.zoneHandler.deck.forceCardArrContent([
-            s.cardHander.getCard("c_blank") as Card,
-            s.cardHander.getCard("c_blank") as Card,
-            s.cardHander.getCard("c_blank") as Card,
+        s.zoneHandler.decks[0].forceCardArrContent([
+            s.cardHandler.getCard("c_blank") as Card,
+            s.cardHandler.getCard("c_blank") as Card,
+            s.cardHandler.getCard("c_blank") as Card,
         ])
         s.restartTurn()
 
-        console.log("deck before drawing: ", s.zoneHandler.deck.cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
-        console.log("hand before drawing: ", s.zoneHandler.hand.cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("deck before drawing: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("hand before drawing: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
 
-        let a = s.zoneHandler.deck.getAction_draw(true, false, s.zoneHandler.hand.lastPos)
+        let a = s.zoneHandler.decks[0].getAction_draw(s.toDry(), actionFormRegistry.player(s.toDry(), 0), false)
         s.processTurn(a);
 
-        console.log("deck after drawing: ", s.zoneHandler.deck.cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
-        console.log("hand after drawing: ", s.zoneHandler.hand.cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("deck after drawing: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("hand after drawing: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
     },
 
-    test2 : (s : queenSystem) => {
-        let target = s.cardHander.getCard("c_apple") as Card
-        s.zoneHandler.hand.forceCardArrContent([
+    test2(s : queenSystem){
+        let target = s.cardHandler.getCard("c_apple") as Card
+        s.zoneHandler.hands[0].forceCardArrContent([
             target,
         ])
-        s.zoneHandler.deck.forceCardArrContent([
-            s.cardHander.getCard("c_apple") as Card,
-            s.cardHander.getCard("c_apple") as Card,
+        s.zoneHandler.decks[0].forceCardArrContent([
+            s.cardHandler.getCard("c_apple") as Card,
+            s.cardHandler.getCard("c_apple") as Card,
         ])
         s.restartTurn()
+        const ds = s.toDry()
 
-        console.log("deck before: ", s.zoneHandler.deck.cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
-        console.log("hand before: ", s.zoneHandler.hand.cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
-        console.log("field before: ", s.zoneHandler.playerField.cardArr.map(i => i ? i.dataID : ""))
+        console.log("deck before: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("hand before: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("field before: ", s.zoneHandler.fields[0].cardArr.map(i => i ? i.dataID : ""))
 
-        let a = new posChange(
-            target.id,
-            true, 
-            target.pos,
-            s.zoneHandler.playerField.getRandomEmptyPos()
+        let a = actionConstructorRegistry.a_pos_change(
+            ds, 
+            target.toDry()
+        )(
+            s.zoneHandler.fields[0].getRandomEmptyPos().toDry()
+        )(
+            actionFormRegistry.player(ds, 0)
         )
         s.processTurn(a);
 
-        console.log("deck after: ", s.zoneHandler.deck.cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
-        console.log("hand after: ", s.zoneHandler.hand.cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
-        console.log("field after: ", s.zoneHandler.playerField.cardArr.map(i => i ? i.dataID : ""))
+        console.log("deck after: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("hand after: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("field after: ", s.zoneHandler.fields[0].cardArr.map(i => i ? i.dataID : ""))
+    },
+
+    test3(s : queenSystem){
+        let a = s.zoneHandler.decks[0].getAction_draw(s.toDry(), actionFormRegistry.system(), true)
+        console.dir(a, {depth : 2})
+    },
+
+    test4(s : queenSystem){
+        console.log("zoneData: ", s.zoneHandler.map(0, (z : Zone) => `${z.dataID}, pid_${z.playerIndex}`))
+    },
+
+    test5(s : queenSystem){
+        let target = s.cardHandler.getCard("c_lemon") as Card
+        s.zoneHandler.fields[0].forceCardArrContent([
+            s.cardHandler.getCard("c_lemon") as Card,
+            s.cardHandler.getCard("c_lemon") as Card,
+            s.cardHandler.getCard("c_lemon") as Card,
+            s.cardHandler.getCard("c_lemon") as Card,
+            s.cardHandler.getCard("c_lemon") as Card,
+        ])
+        s.zoneHandler.fields[1].forceCardArrContent([
+            s.cardHandler.getCard("c_lemon") as Card,
+            s.cardHandler.getCard("c_lemon") as Card,
+            s.cardHandler.getCard("c_lemon") as Card,
+            s.cardHandler.getCard("c_lemon") as Card,
+            s.cardHandler.getCard("c_lemon") as Card,
+        ])
+        s.zoneHandler.hands[0].forceCardArrContent([
+            target
+        ])
+        s.restartTurn()
+        const ds = s.toDry()
+
+        console.log("deck before: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("hand before: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("field before: ", s.zoneHandler.fields[0].cardArr.map(i => i ? i.dataID : ""))
+
+        let a = actionConstructorRegistry.a_pos_change(
+            ds, 
+            target.toDry()
+        )(
+            s.zoneHandler.fields[0].getRandomEmptyPos().toDry()
+        )(
+            actionFormRegistry.player(ds, 0)
+        )
+        s.processTurn(a);
+
+        console.log("deck after: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("hand after: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("field after: ", s.zoneHandler.fields[0].cardArr.map(i => i ? i.dataID : ""))
     },
 }
 

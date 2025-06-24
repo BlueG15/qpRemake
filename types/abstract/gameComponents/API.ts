@@ -1,11 +1,11 @@
-import type { cardData, effectData } from "../../data/cardRegistry";
-import type { zoneData } from "../../data/zoneRegistry";
+import type { cardData, effectData } from "../../../data/cardRegistry";
+import type { zoneData } from "../../../data/zoneRegistry";
 import type Zone from "./zone";
 import type Effect from "./effect";
 import type effectSubtype from "./effectSubtype";
 import type queenSystem from "../../../_queenSystem/queenSystem";
-import type Action from "./action";
-import type { rarityData } from "../../data/rarityRegistry";
+import type { Action } from "../../../_queenSystem/handler/actionGenrator";
+import type { rarityData } from "../../../data/rarityRegistry";
 
 export default interface registryAPI {
 
@@ -15,12 +15,12 @@ export default interface registryAPI {
     registry_edit_effect_data(key : string, data : effectData) : void;
     registry_edit_effect_class(
         key : string, 
-        constructor : typeof Effect
+        constructors : typeof Effect | Record<string, typeof Effect>
     ) : void;
     registry_edit_effect(
         key : string,
         data : effectData,
-        constructor : typeof Effect
+        constructors : typeof Effect | Record<string, typeof Effect>
     ): void
     registry_edit_effect_subtype(
         key : string, 

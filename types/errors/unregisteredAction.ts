@@ -1,5 +1,5 @@
 import error from "./error"
-import type Action from "../abstract/gameComponents/action";
+import type { Action } from "../../_queenSystem/handler/actionGenrator";
 
 class unregisteredAction extends error {
     constructor(a : Action){

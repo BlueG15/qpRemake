@@ -1,5 +1,5 @@
 import Card from "../../types/abstract/gameComponents/card";
-import type { cardData, cardData_unified } from "../../types/data/cardRegistry";
+import type { cardData, cardData_unified, effectData } from "../../data/cardRegistry";
 import type effectLoader from "./loader_effect";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 import type Effect from "../../types/abstract/gameComponents/effect";
@@ -24,9 +24,16 @@ export default class cardLoader {
         this.effectHandler = effectHandler
     }
 
-    load(key : string, data : cardData, c? : typeof Card){
+    load(key : string, data : cardData, c? : typeof Card | Record<string, typeof Card>){
         this.dataCache.set(key, data)
-        if(c) this.customClassCache.set(key, c);
+        if(c) {
+            if(typeof c === "function") this.customClassCache.set(key, c);
+            else {
+                for(const key in Object.keys(c)){
+                    this.customClassCache.set(key, c[key]);
+                }
+            }
+        }
     }
 
     getCard(cid : string, s : Setting, variantid? : string[]){
@@ -58,9 +65,10 @@ export default class cardLoader {
         
         let effArr : Effect[] = []
         Object.keys(d.effects).forEach(i => {
-            let e = this.effectHandler.getEffect(i, s);
+            const eObj : effectData | undefined = (d.effects as any)[i]
+            let e = this.effectHandler.getEffect(i, s, eObj);
             if(e) effArr.push(e);
-            // else console.log(`Effect id not found: ${i}\n`)
+            else console.log(`Effect id not found: ${i}\n`)
         })
         
         if(effArr.length != Object.keys(d.effects).length && !s.ignore_undefined_effect){

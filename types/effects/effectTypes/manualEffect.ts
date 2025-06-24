@@ -1,18 +1,22 @@
-import Effect from "../../abstract/gameComponents/effect"
-import type Action from "../../abstract/gameComponents/action"
+import { actionConstructorRegistry, actionFormRegistry, type Action } from "../../../_queenSystem/handler/actionGenrator"
 import type Card from "../../abstract/gameComponents/card"
-import type dry_system from "../../data/dry/dry_system"
+import type { dry_system } from "../../../data/systemRegistry"
 
-import effectTypeRegistry from "../../data/effectTypeRegistry"
+import EffectType from "../../abstract/gameComponents/effectType"
 
-class manualEffect extends Effect {
+class manualEffect extends EffectType {
     //behaviors:
     //manual effect uhh just sits there, until the action "activate effect" forcefull activate it
 
-    override type: string = effectTypeRegistry[effectTypeRegistry.e_manual];
-
-    override canRespondAndActivate_type(c: Card, system: dry_system, a: Action): boolean {
+    override canRespondAndActivate(c: Card, system: dry_system, a: Action): boolean {
         return false
+    }
+
+    override parseAfterActivate(c: Card, system: dry_system, res: Action[]): void {
+        let d = c.toDry()
+        res.push(
+            actionConstructorRegistry.a_disable_card(system, d)(actionFormRegistry.card(system, d))
+        )
     }
 }
 

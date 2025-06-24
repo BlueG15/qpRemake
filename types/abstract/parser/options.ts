@@ -1,5 +1,4 @@
-import type dry_card from "../../data/dry/dry_card"
-import type dry_effect from "../../data/dry/dry_effect"
+import type { dry_card, dry_effect } from "../../../data/systemRegistry"
 
 //TODO : integrate cardData and effectData into this
 

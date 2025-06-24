@@ -1,7 +1,9 @@
 import zone from "../abstract/gameComponents/zone";
-import type { player_stat } from "../data/systemRegistry";
-import type Action from "../abstract/gameComponents/action";
-import { forcefullyEndTheGame } from "../actions";
+import type { player_stat } from "../../data/systemRegistry";
+import type { Action } from "../../_queenSystem/handler/actionGenrator";
+import type { dry_system } from "../../data/systemRegistry";
+
+import { actionConstructorRegistry, actionFormRegistry } from "../../_queenSystem/handler/actionGenrator";
 
 class system extends zone {
     // constructor(){
@@ -20,13 +22,19 @@ class system extends zone {
     get maxThreat() : number {return this.attr.get("maxThreat") ?? 20}
     get clearThreatWhenBurn() : boolean {return this.attr.get("clearThreatWhenBurn") ?? false}
 
-    doThreatBurn(pdata : player_stat) : Action[]{
+    doThreatBurn(s : dry_system, pdata : player_stat) : Action[]{
         if(pdata.heart === 1) {
             pdata.heart = 0;
-            return [new forcefullyEndTheGame(true, true)]
+            return [
+                actionConstructorRegistry.a_force_end_game(actionFormRegistry.zone(s, this.toDry()))
+            ]
         }
         pdata.heart = Math.floor(pdata.heart / 2)
-        return []
+        return this.clearThreatWhenBurn ? [
+            actionConstructorRegistry.a_set_threat_level(actionFormRegistry.zone(s, this.toDry()), {
+                newThreatLevel : 0
+            })
+        ] :[]
     }
 }
 

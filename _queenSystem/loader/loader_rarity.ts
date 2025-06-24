@@ -1,5 +1,5 @@
 import type { Setting } from "../../types/abstract/gameComponents/settings";
-import type { rarityData } from "../../types/data/rarityRegistry";
+import type { rarityData } from "../../data/rarityRegistry";
 
 export default class rarityLoader {
 

@@ -302,7 +302,10 @@ optional: mayyyybe make a save state system (later)
 
 
 
-
+change zone to no be instanced
+specify numPlayers
+change zoneData to have 2 more properties, isFieldZone and isPlayerInstanced
+if isPlayerInstanced, spawn one for every player
 
 
 

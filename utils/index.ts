@@ -1,9 +1,11 @@
-import type { cardData_unified, patchData } from "../types/data/cardRegistry";
+import type { cardData_unified, patchData } from "../data/cardRegistry";
 import { Setting, id_style } from "../types/abstract/gameComponents/settings";
 // import { partitionData } from "../types/data/cardRegistry";
 import { partitionSetting } from "../types/abstract/gameComponents/settings";
+import { typeSigatureSimple, typeSignature } from "../types/misc";
 
 const utils = {
+
     toProper(str : string){
         return str.toLowerCase().replace(/(?:^|\s)\w/g, function(match) {
             return match.toUpperCase();
@@ -16,6 +18,20 @@ const utils = {
 
     round(num : number, precision : number){ 
         return Math.round((num + Number.EPSILON) * Math.pow(10, precision)) / Math.pow(10, precision)
+    },
+
+    toSafeNumber(n? : number | boolean | string, doTruncation = false) : number{
+        if(!n) return 0;
+        if(n === true){
+            return 1;
+        }
+        if(typeof n === "string"){
+            n = doTruncation ?  parseInt(n) : parseFloat(n);
+        }
+
+        if( isNaN(n) ) return 0;
+        if( isFinite(n) ) return n;
+        return doTruncation ? Math.trunc(n) : n;
     },
 
     generateID(length = 10){
@@ -92,7 +108,7 @@ const utils = {
         return position;
     },
 
-    positionToIndex(position : number[], shapeArr :  number[]) {
+    positionToIndex(position : ReadonlyArray<number>, shapeArr :  number[]) {
         if(!shapeArr.length || !position.length) return -1;
         let flatIndex = 0;
         let stride = 1;
@@ -142,10 +158,43 @@ const utils = {
 
     //assumes arr is sorted
     insertionSort<T extends any>(arr : T[], insertElement : T, comparator : ((a : T, b : T) => number)){
-        let indexToBeInserted = arr.findIndex((a) => {let x = comparator(a, insertElement); return isNaN(x) ? false : x >= 0});
+        let indexToBeInserted = arr.findIndex((a) => {let x = comparator(a, insertElement); return isNaN(x) ? false : x > 0});
+        //changed x >= 0 to x > 0 for new equal elements be inserted last
         if(indexToBeInserted < 0) arr.push(insertElement);
         else arr.splice(indexToBeInserted, 0, insertElement);
     },
+
+    getTypeSigature(val : any, simpleParse = false) : typeSignature {
+        let k = typeof val;
+        if(k !== "object") return k;
+        if(Array.isArray(val)) {
+            if(val.length === 0) return "empty[]"
+            if(simpleParse) return "any[]"
+
+            let t = typeof val[0]
+            for(let i = 1; i < val.length; i++){
+                let t2 = typeof val[i]
+                if(t2 !== t) return "any[]"
+            }
+            return `${t}[]`
+        }
+        return k
+    },
+
+    genericCurrier(f : any[], callback : (p : any[]) => any, res : any[] = []) : any{
+        if(!f.length) return callback([]);
+        const [first, ...rest] = f;
+        if(typeof first === "function"){
+            return (...p : any[]) => {
+                res.push(first(...p))
+                if(rest.length === 0) return callback(res);
+                return this.genericCurrier(rest, callback, res);
+            }
+        } else {
+            res.push(first);
+            return this.genericCurrier(rest, callback, res);
+        };
+    }
 }
 
 export default utils

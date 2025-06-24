@@ -1,13 +1,13 @@
-import type Action from "../gameComponents/action"
+import type { Action } from "../../../_queenSystem/handler/actionGenrator"
 
-class _node {
-    data : Action
+class _node<Type extends Action = Action> {
+    data : Type
 
     completed : boolean = false
 
     childArr : _node[] = []
     depth : number
-    constructor(a : Action, depth : number, id : number){
+    constructor(a : Type, depth : number, id : number){
         this.data = a
         this.depth = depth
         this.id = id
@@ -30,7 +30,7 @@ class _node {
     attach(id : number, ...a : Action[]){
         this.childArr.push(...a.map((i, index) => new _node(i, this.depth + 1, id + index)))
     }
-    modifySelf(func : (a : Action) => Action){
+    modifySelf(func : (a : Type) => Type){
         this.data = func(this.data)
     }
     toString() : string{

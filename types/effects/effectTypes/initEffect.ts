@@ -1,22 +1,23 @@
-import type Action from "../../abstract/gameComponents/action";
+import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "../../abstract/gameComponents/card";
-import type dry_system from "../../data/dry/dry_system";
-import { posChange } from "../../actions";
+import type { dry_system } from "../../../data/systemRegistry";
 import triggerEffect from "./triggerEffect";
-
-import effectTypeRegistry from "../../data/effectTypeRegistry";
+import actionRegistry from "../../../data/actionRegistry";
+import { zoneRegistry } from "../../../data/zoneRegistry";
 
 export default class initEffect extends triggerEffect {
 
-    override type: string = effectTypeRegistry[effectTypeRegistry.e_trigger]
+    override canRespondAndActivate(c: Card, system: dry_system, a: Action): -1 | boolean {
+        if (a.typeID !== actionRegistry.a_pos_change && a.typeID !== actionRegistry.a_pos_change_force) return false;
+        let targets = (a as Action<"a_pos_change">).targets
 
-    override canRespondAndActivate_type(c: Card, system: dry_system, a: Action): -1 | boolean {
+        let zone = system.getZoneWithID(targets[1].pos.zoneID);
+        if(!zone) return false;
+
         if(
-            a instanceof posChange && 
-            a.targetCardID === c.id &&
-            a.toPos &&
-            a.toPos.zoneID === system.playerField.id
-        ) return super.canRespondAndActivate_type(c, system, a);
+            targets[0].is(c) &&
+            zone.types.includes(zoneRegistry.z_field)
+        ) return super.canRespondAndActivate(c, system, a);
 
         return false;
     }

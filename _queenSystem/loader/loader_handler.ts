@@ -1,7 +1,7 @@
-import type Action from "../../types/abstract/gameComponents/action"
+import type { Action } from "../handler/actionGenrator"
 import type queenSystem from "../queenSystem"
 
-type handlerFunc = ((a: Action, system: queenSystem) => undefined | void | Action[])
+type handlerFunc = ((a: Action, system: queenSystem) => undefined | Action[])
 export default class customHandlerLoader {
     private funcCache = new Map<number, handlerFunc>()
 
