@@ -1,21 +1,14 @@
 import actionRegistry, { actionID, actionName } from "../../data/actionRegistry";
-import type dry_card from "../../data/dry/dry_card";
-import type dry_zone from "../../data/dry/dry_zone";
-import type dry_effect from "../../data/dry/dry_effect";
-import type dry_effectSubType from "../../data/dry/dry_effectSubType";
-import dry_system from "../../data/dry/dry_system";
-import dry_position from "../../data/dry/dry_position";
+import type { dry_card, dry_effect, dry_zone, dry_system, dry_position, dry_effectSubType } from "../../data/systemRegistry";
+
+import type { effectName, effectData_specific } from "../../data/effectRegistry";
+import type { effectData } from "../../data/cardRegistry";
 
 import {
     safeSimpleTypes,
     singleTypedArray,
-    ExtractArgs,
-    ExtractReturn,
-    Fn,
-    Fn_any,
     ExtractReturn_any,
-    OnlyWritableProps,
-} from "../../data/misc";
+} from "../../types/misc";
 
 import { 
     identificationInfo, 
@@ -34,12 +27,13 @@ import {
 } from "../../data/systemRegistry";
 
 import utils from "../../utils";
-import { zoneAttributes, zoneRegistry } from "../../data/zoneRegistry";
+import { zoneRegistry } from "../../data/zoneRegistry";
+import Position from "../../types/abstract/generics/position";
 
 export class Action_class<
     TargetType extends identificationInfo[] = identificationInfo[], 
     mapElementType extends any = any,
-    constructionObjType extends actionConstructionObj_variable<mapElementType> = any,  
+    constructionObjType extends actionConstructionObj_variable<mapElementType> = any,
 >{
 
     id: number = NaN;
@@ -52,15 +46,29 @@ export class Action_class<
     originalCause : identificationInfo
     originalTargets : TargetType | []
 
-    inputTypeArr: inputType[];
-    protected attr = new Map<keyof constructionObjType, mapElementType>()
+    get inputHandlerFunc() : actionInputObj["applyInput"]{
+        const x = this.attr.get("applyInput");
+        if(!x || typeof x !== "function") return undefined;
+        return x as any;
+    }
+
+    get inputs(): inputType[] {
+        const x = this.attr.get("inputs")
+        if(Array.isArray(x) && this.inputHandlerFunc) return x;
+        return []
+    };
+
+    protected attr = new Map<
+        keyof constructionObjType | keyof actionInputObj | "isChain" | "canBeChainedTo" | "canBeTriggeredTo", 
+        mapElementType | actionInputObj[keyof actionInputObj] | boolean
+    >()
     modifiedSinceLastAccessed: boolean;
 
     protected checkers : Required<checkerType>
 
     protected isInputsApplied_internal = false;
     get isInputsApplied() {
-        return this.inputTypeArr.length === 0 || this.isInputsApplied_internal
+        return this.inputs.length === 0 || this.isInputsApplied_internal
     }
 
     // isChain: boolean; //if false, attach as new tree, if not, attach to curr action
@@ -78,7 +86,6 @@ export class Action_class<
             originalTargets : this.originalTargets,
             originalCause : this.originalCause,
 
-            inputTypeArr : this.inputTypeArr,
             modifiedSinceLastAccessed : this.modifiedSinceLastAccessed,
             isDisabled : this.isDisabled,
 
@@ -89,7 +96,11 @@ export class Action_class<
             canBeChainedTo : this.canBeChainedTo,
             canBeTriggeredTo : this.canBeTriggeredTo,
 
-            attr : {} as constructionObjType
+            attr : {} as constructionObjType & {
+                isChain? : boolean,
+                canBeChainedTo? : boolean,
+                canBeTriggeredTo? : boolean,
+            }
         }
 
         this.attr.forEach((val, key) => {
@@ -100,7 +111,11 @@ export class Action_class<
     }
 
     flatAttr(){
-        let x = {} as constructionObjType;
+        let x = {} as constructionObjType & {
+                isChain? : boolean,
+                canBeChainedTo? : boolean,
+                canBeTriggeredTo? : boolean,
+            };
         this.attr.forEach((val, key) => {
             x[key] = val as any
         })
@@ -150,7 +165,6 @@ export class Action_class<
     ) {
         this.typeID = o.type;
         this.isChain = (o.isChainDefault === false) ? false : true;
-        this.inputTypeArr = o.inputs ?? [];
         this.targets = (o.targets ?? []) as TargetType
         this.cause = (o.cause ?? {
             type : identificationType.none
@@ -172,8 +186,13 @@ export class Action_class<
         }
 
         Object.entries(o).forEach(([key, val]) => {
-            if(key !== "type" && key !== "targets" && key !== "cause"){
-                this.attr.set(key, val as any)
+            if(
+                key !== "type" && 
+                key !== "targets" && 
+                key !== "cause" &&
+                val !== undefined
+            ){
+                this.attr.set(key as any, val as any)
             }
         })
     }
@@ -212,14 +231,14 @@ export class Action_class<
         return actionRegistry[this.typeID]
     }
     get requireInput() {
-        return this.inputTypeArr.length !== 0
+        return this.inputs.length !== 0
     }
 
-    protected verifyNewValue(key: string, newVal: any){
+    protected verifyNewValue(key: string | symbol | number, newVal: any){
         if(key === "target") return true //handled later
         if(key === "canBeChainedTo" && typeof newVal === "boolean") return true
         if(key === "canBeTriggeredTo" && typeof newVal === "boolean") return true
-        let oldVal = this.attr.get(key);
+        let oldVal = this.attr.get(key as any);
         if(utils.getTypeSigature(oldVal) === utils.getTypeSigature(newVal)) return true;
         return false;
     }
@@ -228,8 +247,8 @@ export class Action_class<
     modifyAttr(key : "canBeChainedTo", newVal : boolean) : void;
     modifyAttr(key : "canBeTriggeredTo", newVal : boolean) : void;
     modifyAttr(key : keyof constructionObjType, newVal : constructionObjType[typeof key]) : void;
-    modifyAttr(key: string, newVal: any){
-        if (newVal === this.attr.get(key)) return;
+    modifyAttr(key: string | symbol | number, newVal: any){
+        if (newVal === this.attr.get(key as any)) return;
         //check type
         if(!this.verifyNewValue(key, newVal)) return;
 
@@ -252,7 +271,7 @@ export class Action_class<
         }
 
         this.modifiedSinceLastAccessed = true;
-        this.attr.set(key, newVal)
+        this.attr.set(key as any, newVal)
     }
 
     protected verifyTarget(val : any, compareType : identificationType) : identificationInfo | undefined {
@@ -275,7 +294,7 @@ export class Action_class<
                 return undefined
             }
             case identificationType.position : {
-                if(val.pos instanceof dry_position) return val;
+                if(val.pos instanceof Position) return val;
                 return undefined
             }
             case identificationType.action : {
@@ -290,8 +309,22 @@ export class Action_class<
         }
     }
 
+    verifyInput(input : inputData[]){
+        return input.length === this.inputs.length && input.every((i, index) => i.type === this.inputs[index])
+    }
+
+    verifyInput_target(input : inputData[]){
+        return (
+                this.verifyInput(input) && 
+                input.length === this.targets.length && 
+                input.every((i, index) => (
+                    typeof i.data === "object" && i.data.type === this.targets[index].type
+                ))
+            )
+    }
+
     applyUserInput(input: inputData[]): void {
-        
+        this.isInputsApplied_internal = (this.inputHandlerFunc!)(this, input);
     }
 
     disable(){
@@ -300,6 +333,10 @@ export class Action_class<
 
     enable() {
         this.isDisabled = false
+    }
+
+    is<T extends actionName>(type : T) : this is Action<T> {
+        return this.typeID === actionRegistry[type]
     }
 }
 
@@ -363,47 +400,70 @@ export type actionConstructionObj_fixxed = {
     cause : identificationInfo,
 } & actionConstructionObj_fixxed_unstaged
 
+export type actionInputObj = {
+    inputs? : inputType[]
+    applyInput? : (a : Action, inputs : inputData[]) => boolean //successful or not
+}
+
 export type actionConstructionObj_variable<T> = {
     [key : string] : T | undefined
 }
 
-export type actionConstructionObj<T> = actionConstructionObj_fixxed | (actionConstructionObj_fixxed & actionConstructionObj_variable<T>)
+export type actionConstructionObj<T> = actionConstructionObj_fixxed & actionInputObj | (actionConstructionObj_fixxed & actionConstructionObj_variable<T> & actionInputObj)
 
 function form_card(s : dry_system) {return (card : dry_card) => {return {
     type : identificationType.card,
     sys : s,
     card : card,
+    is(card : dry_card){
+        return card.id === this.card.id
+    }
 } as identificationInfo_card }}
 
 function form_action(s : dry_system){return (a : Action_class | Action) => {return {
     type : identificationType.action,
     sys : s,
-    action : a
+    action : a,
+    is<T extends actionName>(type : T){
+        return this.action.is<T>(type)
+    }
 } as identificationInfo_action }}
 
 function form_effect(s : dry_system){return (card : dry_card, eff : dry_effect) => {return {
     type : identificationType.effect,
     sys : s,
     card : card,
-    eff : eff
+    eff : eff,
+    is(card, eff) {
+        return card.id === this.card.id && eff.id === this.eff.id
+    },
 } as identificationInfo_effect }}
 
 function form_zone(s : dry_system) {return (zone : dry_zone) => {return {
     type : identificationType.zone,
     sys : s,
-    zone : zone
+    zone : zone,
+    is(zone) {
+        return this.zone.id === zone.id
+    },
 } as identificationInfo_zone }}
 
 function form_position(s : dry_system) {return (pos : dry_position) => {return {
     type : identificationType.position,
     sys : s,
-    pos : pos
+    pos : pos,
+    is(pos) {
+        return this.pos.equal(pos)
+    },
 } as identificationInfo_pos }}
 
 function form_player(s : dry_system) {return (pid : number) => {return {
     type : identificationType.player,
     sys : s,
-    id : pid
+    id : pid,
+    is(player_owned_obj) {
+        return player_owned_obj.playerIndex === this.id
+    },
 } as identificationInfo_player }}
 
 function form_subtype(s : dry_system) {return (card : dry_card, eff : dry_effect, subtype : dry_effectSubType) => {return {
@@ -411,7 +471,10 @@ function form_subtype(s : dry_system) {return (card : dry_card, eff : dry_effect
     sys : s,
     card : card,
     eff : eff,
-    subtype : subtype
+    subtype : subtype,
+    is(card, eff, subtype) {
+        return this.card.id === card.id && this.eff.id === eff.id && this.subtype.dataID === subtype.dataID
+    },
 } as identificationInfo_subtype }}
 
 function form_none() : identificationInfo_none {return {
@@ -441,17 +504,17 @@ function ActionAssembler_base<
 }
 
 //0
-function ActionAssembler(name : actionName) : (cause : identificationInfo) => Action_class<[identificationInfo_none], never, {}>;
+function ActionAssembler(name : actionName) : (cause : identificationInfo, inputObj? : actionInputObj) => Action_class<[identificationInfo_none], never, {}>;
 //1
 function ActionAssembler<P1 extends any[], R1 extends identificationInfo>
 (name : actionName, f : (s : dry_system) => (...p : P1) => R1) : 
-(s : dry_system, ...p : P1) => (cause : identificationInfo) => Action_class<[R1], never, {}>;
+(s : dry_system, ...p : P1) => (cause : identificationInfo, inputObj? : actionInputObj) => Action_class<[R1], never, {}>;
 //2
 function ActionAssembler<
     P1 extends any[], R1 extends identificationInfo,
     P2 extends any[], R2 extends identificationInfo,
 >(name : actionName, f : (s : dry_system) => (...p : P1) => R1, f2 : (s : dry_system) => (...p : P2) => R2) : 
-(s : dry_system, ...p1 : P1) => (...p2 : P2) => (cause : identificationInfo) => Action_class<[R1, R2], never, {}>
+(s : dry_system, ...p1 : P1) => (...p2 : P2) => (cause : identificationInfo, inputObj? : actionInputObj) => Action_class<[R1, R2], never, {}>
 //3
 function ActionAssembler<
     P1 extends any[], R1 extends identificationInfo,
@@ -463,7 +526,7 @@ function ActionAssembler<
     f2 : (s : dry_system) => (...p : P2) => R2, 
     f3 : (s : dry_system) => (...p : P3) => R3,
 ) : (s : dry_system, ...p1 : P1) => (...p2 : P2) => (...p3 : P3) => 
-    (cause : identificationInfo) => Action_class<[R1, R2, R3], never, {}>
+    (cause : identificationInfo, inputObj? : actionInputObj) => Action_class<[R1, R2, R3], never, {}>
 //4
 function ActionAssembler<
     P1 extends any[], R1 extends identificationInfo,
@@ -477,23 +540,23 @@ function ActionAssembler<
     f3 : (s : dry_system) => (...p : P3) => R3,
     f4 : (s : dry_system) => (...p : P4) => R4,
 ) : (s : dry_system, ...p1 : P1) => (...p2 : P2) => (...p3 : P3) => (...p4 : P4) =>
-    (cause : identificationInfo) => Action_class<[R1, R2, R3, R4], never, {}>
+    (cause : identificationInfo, inputObj? : actionInputObj) => Action_class<[R1, R2, R3, R4], never, {}>
 //end overload-no info section
 
 // 0 with info
 function ActionAssembler<T extends actionConstructionObj_variable<any>>(name : actionName, format : T) : 
-(cause : identificationInfo, infoObj : T) => Action_class<[], ExtractInnerType<T>, T>;
+(cause : identificationInfo, infoObj : T & actionInputObj) => Action_class<[], ExtractInnerType<T>, T & actionInputObj>;
 //1 with info
 function ActionAssembler<P1 extends any[], R1 extends identificationInfo, T extends actionConstructionObj_variable<any>>
 (name : actionName, f : (s : dry_system) => (...p : P1) => R1, format : T) : 
-(s : dry_system, ...p : P1) => (cause : identificationInfo, infoObj : T) => Action_class<[R1], ExtractInnerType<T>, T>;
+(s : dry_system, ...p : P1) => (cause : identificationInfo, infoObj : T & actionInputObj) => Action_class<[R1], ExtractInnerType<T>, T>;
 //2 with info
 function ActionAssembler<
     P1 extends any[], R1 extends identificationInfo,
     P2 extends any[], R2 extends identificationInfo,
     T extends actionConstructionObj_variable<any>
 >(name : actionName, f : (s : dry_system) => (...p : P1) => R1, f2 : (s : dry_system) => (...p : P2) => R2, format : T) : 
-(s : dry_system, ...p1 : P1) => (...p2 : P2) => (cause : identificationInfo, infoObj : T) => Action_class<[R1, R2], ExtractInnerType<T>, T>
+(s : dry_system, ...p1 : P1) => (...p2 : P2) => (cause : identificationInfo, infoObj : T & actionInputObj) => Action_class<[R1, R2], ExtractInnerType<T>, T>
 //3 with info
 function ActionAssembler<
     P1 extends any[], R1 extends identificationInfo,
@@ -503,11 +566,11 @@ function ActionAssembler<
 >(
     name : actionName, 
     f : (s : dry_system) => (...p : P1) => R1, 
-    f2 : (s : dry_system) => (...p : P2) => R2, 
+    f2 : (s : dry_system) => (...p : P2) => R2,
     f3 : (s : dry_system) => (...p : P3) => R3,
     format : T
 ) : (s : dry_system, ...p1 : P1) => (...p2 : P2) => (...p3 : P3) => 
-    (cause : identificationInfo, infoObj : T) => Action_class<[R1, R2, R3], ExtractInnerType<T>, T>
+    (cause : identificationInfo, infoObj : T & actionInputObj) => Action_class<[R1, R2, R3], ExtractInnerType<T>, T>
 //4 with info
 function ActionAssembler<
     P1 extends any[], R1 extends identificationInfo,
@@ -522,7 +585,7 @@ function ActionAssembler<
     f3 : (s : dry_system) => (...p : P3) => R3,
     f4 : (s : dry_system) => (...p : P4) => R4,
 ) : (s : dry_system, ...p1 : P1) => (...p2 : P2) => (...p3 : P3) => (...p4 : P4) =>
-    (cause : identificationInfo, infoObj : T) => Action_class<[R1, R2, R3, R4], ExtractInnerType<T>, T>
+    (cause : identificationInfo, infoObj : T & actionInputObj) => Action_class<[R1, R2, R3, R4], ExtractInnerType<T>, T>
 //end overload-with info section
 
 function ActionAssembler(name : actionName, ...f : any[]){
@@ -531,18 +594,20 @@ function ActionAssembler(name : actionName, ...f : any[]){
     //so the standard calls is (s, ...p) => ...ps
     //we pre-curried the first param, then reuse s for the rest
 
-    if(f.length === 0) return (cause : identificationInfo) => ActionAssembler_base(name, [form_none()], cause, {});
-    const extractLast = (typeof f.at(-1) === "object")
-    if(f.length === 1 && extractLast) return (cause : identificationInfo, infoObj : any) => ActionAssembler_base(name, [form_none()], cause, infoObj);
-    if(extractLast) f.pop(); 
+    if(f.length === 0) return (cause : identificationInfo, infoObj : actionInputObj = {}) => ActionAssembler_base(name, [form_none()], cause, infoObj);
+    const extractLast = (typeof (f[f.length - 1]) === "object")
+    if(f.length === 1 && extractLast) return (cause : identificationInfo, infoObj : any = {}) => ActionAssembler_base(name, [form_none()], cause, infoObj);
+    if(extractLast) f.splice(-1, 1); 
+
+    // console.log("DEBUG1: " + name + " -- " + f.map(i => (typeof i === "object") ? Object.keys(i).join("==") : typeof i).join("_") + extractLast);
 
     return (s : dry_system, ...p : any[]) => {
-        f = f.map(i => i(s))
-        const [first, ...rest] = f
-
+        const [first, ...rest] = f.map(i => i(s))
+        
+        // console.log("DEBUG2: " + name + " -- " + f.map(i => (typeof i === "object") ? Object.keys(i).join("==") : typeof i).join("_") + extractLast);
         return utils.genericCurrier(rest, (resArr : identificationInfo[]) => {
             resArr.unshift(first(...p));
-            return (cause : identificationInfo, infoObj? : any) => ActionAssembler_base(name, resArr, cause, infoObj);
+            return (cause : identificationInfo, infoObj : any = {}) => ActionAssembler_base(name, resArr, cause, infoObj);
         })
     }
 }
@@ -570,6 +635,19 @@ function modifyActionContructor<
 }
 
 
+function addEffectContructor<
+    targetType extends effectName,
+    isStatus_t extends boolean,
+>(type : targetType, isStatus : isStatus_t){
+    return (s : dry_system, card : dry_card) => 
+        (cause : identificationInfo, p : Partial<Omit<effectData_specific<targetType>, "typeID" | "subTypeIDs">>) => 
+        ActionAssembler_base<
+            [identificationInfo_card],
+            Partial<Omit<effectData_specific<targetType>, "typeID" | "subTypeIDs">> & {typeID : string}
+        >((isStatus ? "a_add_status_effect" : "a_add_effect"), [form_card(s)(card)], cause, {...p, typeID : type})
+}
+
+
 //default restriction is the loosest possible restriction
 //card : none (practically)
 //zone : none (practically)
@@ -583,7 +661,7 @@ export function getDefaultObjContructionObj(id : actionID) : actionConstructionO
     switch(id){
         case actionRegistry.a_activate_effect_internal : {
             o.canBeChainTo = false,
-            o.canBeTriggeredTo = false
+            o.canBeTriggeredTo = true
             break;
         }
         case actionRegistry.a_turn_end : {
@@ -597,7 +675,7 @@ export function getDefaultObjContructionObj(id : actionID) : actionConstructionO
         }
         case actionRegistry.a_deal_damage_internal : {
             o.canBeChainTo = false,
-            o.canBeTriggeredTo = false;
+            o.canBeTriggeredTo = true;
             break;
         }
         case actionRegistry.a_deal_damage_card : {
@@ -649,10 +727,10 @@ export function getDefaultObjContructionObj(id : actionID) : actionConstructionO
     return o
 }
 
-
 const actionConstructorRegistry = {
     error: ActionAssembler("error"),
     a_null: ActionAssembler("a_null"),
+    a_negate_action: ActionAssembler("a_negate_action"),
     a_do_threat_burn: ActionAssembler("a_do_threat_burn"),
     a_force_end_game: ActionAssembler("a_force_end_game"),
     a_increase_turn_count: ActionAssembler("a_increase_turn_count"),
@@ -689,24 +767,27 @@ const actionConstructorRegistry = {
     a_execute: ActionAssembler("a_execute", form_card),
     a_pos_change: ActionAssembler("a_pos_change", form_card, form_position),  
     a_pos_change_force : ActionAssembler("a_pos_change_force", form_card, form_position),
-    a_attack: ActionAssembler("a_attack", {
+    a_attack: ActionAssembler("a_attack", form_card, {
         dmg : 0 as number | undefined,
         dmgType : 0 as number | undefined
     }),
     a_reset_card: ActionAssembler("a_reset_card", form_card),
+    a_decompile : ActionAssembler("a_decompile", form_card),
+    a_void : ActionAssembler("a_void", form_card),
 
     a_reset_effect: ActionAssembler("a_reset_effect", form_effect),
     a_activate_effect: ActionAssembler("a_activate_effect", form_effect),
     a_activate_effect_internal: ActionAssembler("a_activate_effect_internal", form_effect),
-    a_add_status_effect: ActionAssembler("a_add_status_effect", form_card, {
-        statusID : "",
-    }),
+    a_add_status_effect: addEffectContructor,
+    a_add_effect : addEffectContructor,
+    a_duplicate_effect : ActionAssembler("a_duplicate_effect", form_card, form_effect),
     a_remove_status_effect: ActionAssembler("a_remove_status_effect", form_effect),
 
-    a_activate_effect_subtype: ActionAssembler("a_activate_effect_subtype", form_subtype),
+    a_activate_effect_subtype: ActionAssembler("a_activate_effect_subtype", form_subtype, {
+        newEffectData : 0 as undefined | Partial<effectData>
+    }),
     
     a_modify_action: modifyActionContructor,
-    a_negate_action: ActionAssembler("a_negate_action", form_action),
     a_replace_action: ActionAssembler("a_replace_action", form_action),
     
     a_zone_interact: ActionAssembler("a_zone_interact", form_zone),
@@ -722,14 +803,17 @@ const actionConstructorRegistry = {
 
 export type ConstructionExtraParamsType<name extends actionName> = 
     name extends "a_modify_action" ? {} :
+    name extends "a_add_effect" | "a_add_status_effect" ? any :
     ExtractReturn_any<typeof actionConstructorRegistry[name]> extends Action_class<any, any, infer T0> ? T0 : {}
 
 export type AttrType<name extends actionName> = 
     name extends "a_modify_action" ? any :
+    name extends "a_add_effect" | "a_add_status_effect" ? {typeID : string, [key : string] : any} :
     ExtractReturn_any<typeof actionConstructorRegistry[name]> extends Action_class<any, infer T0, any> ? T0 : any
 
 export type TargetType<name extends actionName> = 
     name extends "a_modify_action" ? [identificationInfo_action] :
+    name extends "a_add_effect" | "a_add_status_effect" ? [identificationInfo_card] :
     ExtractReturn_any<typeof actionConstructorRegistry[name]> extends Action_class<infer T0, any, any> ? T0 : never
 
 const actionFormRegistry = {
@@ -744,20 +828,43 @@ const actionFormRegistry = {
     system : form_system
 } as const 
 
-export type Action<name extends actionName | undefined = undefined, name2 extends Exclude<actionName, "a_modify_action"> = "a_null"> = 
-    name extends actionName ? (name extends "a_modify_action" ? 
-    Action_class<
-        TargetType<name>, 
-        ExtractInnerType<ConstructionExtraParamsType<name2>> | TargetType<name2> | identificationInfo | boolean, 
-        Partial<ConstructionExtraParamsType<name2>> & Partial<{
-            targets : TargetType<name2>,
-            cause : identificationInfo,
+export type Action<
+    name extends actionName | undefined = undefined, 
+    name2 extends (name extends "a_modify_action" ? Exclude<actionName, "a_modify_action"> : undefined) | 
+                  (name extends "a_add_effect" | "a_add_status_effect" ? effectName : undefined) | 
+                  undefined = undefined
+> = name extends actionName ? (
+    name extends "a_modify_action" ? (
+        name2 extends actionName ?
+        Action_class<
+            TargetType<name>, 
+            ExtractInnerType<ConstructionExtraParamsType<name2>> | TargetType<name2> | identificationInfo | boolean, 
+            Partial<ConstructionExtraParamsType<name2>> & Partial<{
+                targets : TargetType<name2>,
+                cause : identificationInfo,
 
-            canBeChainedTo : boolean,
-            canBeTriggeredTo : boolean
-        }>
-    > : Action_class<TargetType<name>, AttrType<name>, ConstructionExtraParamsType<name>>) : Action_class
+                canBeChainedTo : boolean,
+                canBeTriggeredTo : boolean
+            }>
+        > : Action<"a_modify_action", "a_null">
+    ) : name2 extends effectName ? (
+        Action_class<
+            [identificationInfo_card], 
+            ExtractInnerType<Partial<Omit<effectData_specific<name2>, "typeID" | "subTypeIDs">>> | string, 
+            Partial<Omit<effectData_specific<name2>, "typeID" | "subTypeIDs">> & {typeID : string}
+        >
+    ) : Action_class<TargetType<name>, AttrType<name>, ConstructionExtraParamsType<name>>
+) : Action_class
 
 export type ExtractActionName<A> = A extends Action<infer name> ? name : never
+
+//filtering types
+export type oneTarget<target extends identificationInfo, searchSet extends actionName = actionName> = {
+    [K in searchSet] : TargetType<K> extends [target] ? K : never
+}[searchSet]
+
+export type noExtraParam<searchSet extends actionName = actionName> = {
+    [K in searchSet] : {} extends ConstructionExtraParamsType<K> ? K : never
+}[searchSet]
 
 export {actionConstructorRegistry, actionFormRegistry}

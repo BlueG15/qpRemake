@@ -29,16 +29,17 @@ enum id_style {
 interface Setting {
     //load settings
     languageID : supporttedLanguages
-    mods : string[],
-
+    
     //id generation setting
     dynamic_id_len : number
     id_style : id_style
     id_separator : string
     max_id_count : number
-
+    
     //dynamic load settings
     effectFolder : string
+    effectFiles : string[]
+    mods : string[]
     modFolder : string
     localizationFolder : string
 
@@ -78,6 +79,7 @@ class defaultSetting implements Setting {
     id_separator = '_'
     max_id_count = 65536
     effectFolder = "../../specificEffects"
+    effectFiles = ["e_status", "e_generic_effects", "e_fruit"];
     modFolder = "../../_mods"
     localizationFolder = "../../_localizationFiles"
     ignore_undefined_subtype = true

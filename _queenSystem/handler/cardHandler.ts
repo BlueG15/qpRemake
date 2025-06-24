@@ -27,6 +27,8 @@ import { rarityRegistry } from "../../data/rarityRegistry";
 import rarityDataRegistry from "../../data/rarityRegistry";
 
 import { cardDataRegistry } from "../../data/cardRegistry";
+import subtype_hand_or_fieldLock from "../../types/effects/effectSubtypes/subtype_hand_or_fieldLock";
+import subtype_graveLock from "../../types/effects/effectSubtypes/subtype_graveLock";
 
 export default class cardHandler {
     private cloader : cardLoader
@@ -50,6 +52,8 @@ export default class cardHandler {
         this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_instant], subtype_instant)
         this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_once], subtype_once)
         this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_unique], subtype_unique)
+        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_handOrFieldLock], subtype_hand_or_fieldLock)
+        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_graveLock], subtype_graveLock)
 
         this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_none], EffectType)
         this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_counter], EffectType)

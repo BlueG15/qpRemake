@@ -4,15 +4,19 @@ import type Card from "../../abstract/gameComponents/card";
 import type { dry_system } from "../../../data/systemRegistry";
 import type Effect from "../../abstract/gameComponents/effect";
 // import utils from "../../../utils";
+import { zoneRegistry } from "../../../data/zoneRegistry";
 
-class subtype_hardUnique extends effectSubtype {
+class subtype_graveLock extends effectSubtype {
+
     override onEffectCheckCanActivate(c: Card, e : Effect, system: dry_system, a: Action): -1 | boolean {
-        //hardUnique is once per turn per card
-        if (
-            system.getActivatedCardIDs().includes(c.id)
-        ) return false;
-        return -1;
+        //fieldLock effects can only be activated on field
+        //jkong say this is by default how a trigger works
+        //i dont like it, so i make it a new subtype
+        let zone = system.getZoneWithID(c.pos.zoneID)
+        if(!zone) return false;
+        if(zone.types.includes(zoneRegistry.z_grave)) return -1;
+        return false;
     }
 }
 
-export default subtype_hardUnique
+export default subtype_graveLock

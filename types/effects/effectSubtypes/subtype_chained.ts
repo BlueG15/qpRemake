@@ -1,7 +1,7 @@
 import effectSubtype from "../../abstract/gameComponents/effectSubtype";
 import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "../../abstract/gameComponents/card";
-import type dry_system from "../../../data/dry/dry_system";
+import type { dry_system } from "../../../data/systemRegistry";
 import type Effect from "../../abstract/gameComponents/effect";
 
 class subtype_chained extends effectSubtype {

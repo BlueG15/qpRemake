@@ -7,7 +7,7 @@ async function main(){
     let sys = new queenSystem(s);
     await sys.load();
 
-    testSuite.test4(sys);
+    testSuite.test5(sys);
 }
 
 main()

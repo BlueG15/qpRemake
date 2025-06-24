@@ -8,7 +8,6 @@ import type effectSubtype from "../../types/abstract/gameComponents/effectSubtyp
 
 import system from "../../types/defaultZones/system";
 import res from "../../types/abstract/generics/universalResponse";
-import dry_system from "../../data/dry/dry_system";
 import deck from "../../types/defaultZones/deck";
 import storage from "../../types/defaultZones/storage";
 import grave from "../../types/defaultZones/grave";
@@ -24,7 +23,7 @@ import utils from "../../utils";
 import zoneDataRegistry, { playerTypeID, zoneData } from "../../data/zoneRegistry";
 import { zoneRegistry, zoneName, zoneID } from "../../data/zoneRegistry";
 
-import type StatusEffect_base from "../../specificEffects/_statusEffect_base";
+import type { StatusEffect_base } from "../../specificEffects/e_status";
 
 import { cardNotExist, effectNotExist, incorrectActiontype, zoneAttrConflict, zoneNotExist } from "../../types/errors";
 import type registryHandler from "./registryHandler";
@@ -33,8 +32,8 @@ import { Action, Action_class, actionConstructorRegistry, actionFormRegistry, Ta
 import { type identificationInfo_card, type identificationInfo, type identificationInfo_effect, type identificationInfo_subtype, identificationType } from "../../data/systemRegistry";
 import type error from "../../types/errors/error";
 import actionRegistry from "../../data/actionRegistry";
-import { damageType } from "../../data/misc";
-import type dry_position from "../../data/dry/dry_position";
+import { damageType } from "../../types/misc";
+import type { dry_card, dry_system } from "../../data/systemRegistry";
 
 class zoneHandler {
     readonly zoneArr : ReadonlyArray<Zone> = []
@@ -339,7 +338,7 @@ class zoneHandler {
         return res[2].reset()
     }
 
-    handleEffectActivation(s : dry_system, a : Action<"a_activate_effect">, system : dry_system) : Action[]{
+    handleEffectActivation(s : dry_system, a : Action<"a_activate_effect">) : Action[]{
         let res = this.genericHandler_effect(s, a);
         if(res[0]) return res[1];
         return res[2].activate(res[1], s, a);
@@ -383,21 +382,20 @@ class zoneHandler {
         let attr = a.flatAttr()
 
         //find opposite
-        if(a.cause.type !== identificationType.card) return []
-        let c = a.cause.card
+        if((a.cause as any).card === undefined) return []
+        let c = (a.cause as any).card as dry_card
 
-        let oppositeZone : Zone | undefined = this.zoneArr[c.pos.zoneID]
-        if(!oppositeZone) return []
+        let oppositeZones : Zone | undefined = this.zoneArr[c.pos.zoneID]
+        if(!oppositeZones) return []
         
-        oppositeZone = oppositeZone.getOppositeZone(this.zoneArr)
-        if(!oppositeZone) return []
+        let targetZone = oppositeZones.getOppositeZone(this.zoneArr)
+        if(!targetZone.length) return []
 
-        let targets = oppositeZone.getOppositeCards(c)
-        if(!targets) return []
+        let targets = targetZone[0].getOppositeCards(c)
         
         if(!targets.length){
             return [
-                actionConstructorRegistry.a_deal_heart_damage(s, oppositeZone.playerIndex)(a.cause, {
+                actionConstructorRegistry.a_deal_heart_damage(s, oppositeZones.playerIndex)(a.cause, {
                     dmg : c.attr.get("atk") ?? 0
                 })
             ]
@@ -468,7 +466,7 @@ class zoneHandler {
         ]
 
         return [
-            actionConstructorRegistry.a_attack(a.cause, {
+            actionConstructorRegistry.a_attack(s, a.targets[0].card)(a.cause, {
                 dmg : res[1].atk,
                 dmgType : damageType.physical
             }),
@@ -476,7 +474,7 @@ class zoneHandler {
         ]
     }
 
-    handleDestroy(s : dry_system, a : Action<"a_destroy">){
+    handleSendToTop(s : dry_system, a : Action<"a_destroy"> | Action<"a_decompile">, zid : number){
         let res = this.genericHandler_card(s, a);
         if(res[0]) return res[1];
 
@@ -488,13 +486,13 @@ class zoneHandler {
 
         let pid = z.playerIndex
 
-        let g = this.graves[pid];
-        if(!g) return [
+        let targetZone = this.getPlayerZone(pid, zid);
+        if(!targetZone) return [
             new zoneNotExist(pid)
         ]
 
         return [
-            actionConstructorRegistry.a_pos_change_force(s, res[1].toDry())(g.top.toDry())(actionFormRegistry.system())
+            actionConstructorRegistry.a_pos_change_force(s, res[1].toDry())(targetZone[0].top.toDry())(actionFormRegistry.system())
         ]
     }
 
@@ -523,11 +521,11 @@ class zoneHandler {
         return [arr, Object.entries(infoLog)]
     }
 
-    forEach(depth : 0, callback : ((z : Zone, zid? : number) => void)) : void;
-    forEach(depth : 1, callback : ((c : Card, zid? : number, cid? : number) => void)) : void;
-    forEach(depth : 2, callback : ((e : Effect, zid? : number, cid? : number, eid? : number) => void)) : void;
-    forEach(depth : 3, callback : ((st : effectSubtype, zid? : number, cid? : number, eid? : number, stid? : number) => void)) : void;
-    forEach(depth : number, callback : ((z : any, ...index : (number | undefined)[]) => void)) : void{
+    forEach(depth : 0, callback : ((z : Zone, zid : number) => void)) : void;
+    forEach(depth : 1, callback : ((c : Card, zid : number, cid : number) => void)) : void;
+    forEach(depth : 2, callback : ((e : Effect, zid : number, cid : number, eid : number) => void)) : void;
+    forEach(depth : 3, callback : ((st : effectSubtype, zid : number, cid : number, eid : number, stid : number) => void)) : void;
+    forEach(depth : number, callback : ((z : any, ...index : number[]) => void)) : void{
         switch(depth){
             case 0: 
                 return this.zoneArr.forEach((z : Zone, zid : number) => callback(z, zid));
@@ -560,14 +558,26 @@ class zoneHandler {
         }
     }
 
-    map<T>(depth : 0, callback : ((z : Zone, zid? : number) => T)) : T[];
-    map<T>(depth : 1, callback : ((c : Card, zid? : number, cid? : number) => T)) : T[];
-    map<T>(depth : 2, callback : ((e : Effect, zid? : number, cid? : number, eid? : number) => T)) : T[];
-    map<T>(depth : 3, callback : ((st : effectSubtype, zid? : number, cid? : number, eid? : number, stid? : number) => T)) : T[];
-    map<T>(depth : number, callback : ((z : any, ...index : (number | undefined)[]) => T)) : T[]{
+    map<T>(depth : 0, callback : ((z : Zone, zid : number) => T)) : T[];
+    map<T>(depth : 1, callback : ((c : Card, zid : number, cid : number) => T)) : T[];
+    map<T>(depth : 2, callback : ((e : Effect, zid : number, cid : number, eid : number) => T)) : T[];
+    map<T>(depth : 3, callback : ((st : effectSubtype, zid : number, cid : number, eid : number, stid : number) => T)) : T[];
+    map<T>(depth : number, callback : ((z : any, ...index : number[]) => T)) : T[]{
         let final : T[] = [];
-        this.forEach(depth as any, (c, ...index : (number | undefined)[]) => {
+        this.forEach(depth as any, (c, ...index : number[]) => {
             final.push(callback(c, ...index));
+        })
+        return final;
+    }
+
+    filter(depth : 0, callback : ((z : Zone, zid : number) => boolean)) : Zone[];
+    filter(depth : 1, callback : ((c : Card, zid : number, cid : number) => boolean)) : Card[];
+    filter(depth : 2, callback : ((e : Effect, zid : number, cid : number, eid : number) => boolean)) : Effect[];
+    filter(depth : 3, callback : ((st : effectSubtype, zid : number, cid : number, eid : number, stid : number) => boolean)) : effectSubtype[];
+    filter(depth : number, callback : ((z : any, ...index : number[]) => boolean)) : any[]{
+        let final : any[] = [];
+        this.forEach(depth as any, (c, ...index : number[]) => {
+            if(callback(c, ...index)) final.push(c);
         })
         return final;
     }

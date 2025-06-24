@@ -1,9 +1,9 @@
 import type Card from "./card";
-import type dry_system from "../../../data/dry/dry_system";
+import type { dry_system } from "../../../data/systemRegistry";
 import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Effect from "./effect";
 
-import dry_effectSubType from "../../../data/dry/dry_effectSubType";
+import { dry_effectSubType } from "../../../data/systemRegistry";
 
 type doNothingCode = -1
 type doNothingAndSkipTypeCheckCode = -2
@@ -47,8 +47,8 @@ class effectSubtype {
         return []
     }
 
-    toDry(){
-        return new dry_effectSubType(this)
+    toDry() : dry_effectSubType {
+        return this
     }
 }
 

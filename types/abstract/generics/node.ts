@@ -1,7 +1,7 @@
 import type { Action } from "../../../_queenSystem/handler/actionGenrator"
 
 class _node<Type extends Action = Action> {
-    data : Action
+    data : Type
 
     completed : boolean = false
 
@@ -30,7 +30,7 @@ class _node<Type extends Action = Action> {
     attach(id : number, ...a : Action[]){
         this.childArr.push(...a.map((i, index) => new _node(i, this.depth + 1, id + index)))
     }
-    modifySelf(func : (a : Action) => Action){
+    modifySelf(func : (a : Type) => Type){
         this.data = func(this.data)
     }
     toString() : string{

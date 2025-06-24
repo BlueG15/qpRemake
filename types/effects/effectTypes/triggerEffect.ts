@@ -1,7 +1,6 @@
 import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "../../abstract/gameComponents/card"
-import type dry_system from "../../../data/dry/dry_system"
-
+import type { dry_system } from "../../../data/systemRegistry";
 import EffectType from "../../abstract/gameComponents/effectType"
 
 class triggerEffect extends EffectType {

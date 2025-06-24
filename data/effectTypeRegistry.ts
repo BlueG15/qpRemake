@@ -5,6 +5,7 @@ enum effectTypeRegistry {
     e_trigger,
     e_init,
     e_counter,
+    e_status,
 }
 
 type effectTypeName = keyof typeof effectTypeRegistry

@@ -1,11 +1,14 @@
 //hand, grave, field, deck, etc extends from this, reserve index 0 for system
-import type card from "./card";
+import type Card from "./card";
 import type res from "../generics/universalResponse";
 //import position from "./position";
 //import utils from "./util";
 import Zone from "./zone";
 import Position from "../generics/position";
 import utils from "../../../utils";
+
+import { playerOppositeMap, playerTypeID } from "../../../data/zoneRegistry";
+import { HasTypesArr, Player_specific, Positionable } from "../../misc";
 
 class Zone_stack extends Zone {
     // constructor(dataID: string, data?: zoneData){
@@ -22,7 +25,7 @@ class Zone_stack extends Zone {
 
     //functions for step 2
 
-    override remove(c : card) : res{
+    override remove(c : Card) : res{
         if (!this.canMoveFrom) return this.handleNoMoveFrom(c, "remove_stack", 24)
         
         let index = this.findIndex(c.id);
@@ -46,6 +49,26 @@ class Zone_stack extends Zone {
                 this.shape
             )
         );
+    }
+
+    override isOpposite(c1: Positionable, c2: Positionable): boolean;
+    override isOpposite(z: Player_specific & HasTypesArr): boolean;
+    override isOpposite(p1: Positionable | (HasTypesArr & Player_specific), p2?: Positionable): boolean {
+        if(p2 === undefined){
+            const z = p1 as Zone;
+            const flag1 =  playerOppositeMap[playerTypeID[this.playerType] as keyof typeof playerOppositeMap].some(i => i === z.playerType);
+            const flag2 =  this.types.join() === z.types.join();
+            return flag1 && flag2
+        } else {
+            const c1 = p1 as Card;
+            const c2 = p2 as Card;
+
+            return  c1.pos.valid && 
+                    c2.pos.valid && 
+                    c1.pos.flat().length === 1 &&  
+                    c2.pos.flat().length === 1 &&
+                    c1.pos.x === c2.pos.x
+        }
     }
 }
 

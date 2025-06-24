@@ -2,7 +2,7 @@ import type { cardData_unified, patchData } from "../data/cardRegistry";
 import { Setting, id_style } from "../types/abstract/gameComponents/settings";
 // import { partitionData } from "../types/data/cardRegistry";
 import { partitionSetting } from "../types/abstract/gameComponents/settings";
-import { typeSigatureSimple, typeSignature } from "../data/misc";
+import { typeSigatureSimple, typeSignature } from "../types/misc";
 
 const utils = {
 
@@ -108,7 +108,7 @@ const utils = {
         return position;
     },
 
-    positionToIndex(position : number[], shapeArr :  number[]) {
+    positionToIndex(position : ReadonlyArray<number>, shapeArr :  number[]) {
         if(!shapeArr.length || !position.length) return -1;
         let flatIndex = 0;
         let stride = 1;

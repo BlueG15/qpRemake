@@ -1,11 +1,10 @@
 import Effect from "./effect";
-import StatusEffect_base from "../../../specificEffects/_statusEffect_base";
+import { StatusEffect_base } from "../../../specificEffects/e_status";
 import Position from "../generics/position";
-import dry_card from "../../../data/dry/dry_card";
+import type { dry_card, dry_system } from "../../../data/systemRegistry";
 
 import { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type res from "../generics/universalResponse";
-import type dry_system from "../../../data/dry/dry_system";
 import { cardData_unified, partitionData, partitionActivationBehavior, cardData, type_and_or_subtype_inference_method, statInfo} from "../../../data/cardRegistry";
 
 import { effectNotExist, wrongEffectIdx } from "../../errors";
@@ -64,7 +63,6 @@ class Card {
     //update : changed back into array cause why we shrink/compact to be an array 
     partitionInfo : partitionData_class[] = []
     
-    extensionArr : string[] = []
 
     //status effects are temporary effects
     statusEffects: StatusEffect_base[] = [];
@@ -189,13 +187,32 @@ class Card {
         }
     }
 
-    private loadStat(){
-        this.atk = this.originalData.atk
-        this.hp = this.originalData.hp
-        this.level = this.originalData.level
-        this.maxAtk = this.originalData.atk
-        this.maxHp = this.originalData.hp
-        this.extensionArr = this.originalData.extensionArr.map(i => String(i))
+    private loadStat(fromStart = true){
+
+        let statObj = fromStart ? {
+            atk : this.originalData.atk,
+            hp : this.originalData.hp,
+            maxAtk : this.originalData.atk,
+            maxHp : this.originalData.hp,
+            level : this.originalData.level,
+            extensionArr : this.originalData.extensionArr.map(i => String(i))
+        } : {
+            atk : this.atk,
+            hp : this.hp,
+            maxAtk : this.maxAtk,
+            maxHp : this.maxHp,
+            level : this.level,
+            extensionArr : this.extensionArr
+        }
+
+        this.statusEffects.forEach(i => i.parseStat(statObj))
+
+        this.atk = statObj.atk
+        this.hp = statObj.hp
+        this.level = statObj.level
+        this.maxAtk = statObj.maxAtk
+        this.maxHp = statObj.maxHp
+        this.extensionArr = statObj.extensionArr
     }
 
     //shorthand access
@@ -228,6 +245,12 @@ class Card {
         this.attr.set("maxHp", n);
         if(this.hp > n) this.hp = n;
     }
+
+    get extensionArr() : string[] {
+        let res = (this.attr.get("extensionArr") ?? []) as string[]
+        return res.includes("*") ? ["*"] : res;
+    }
+    set extensionArr(val : string[]) {this.attr.set("extensionArr", val);}
     
     //read only shorthand access
     get effectIDs() : string[] {return this.effects.map(i => i.id)}
@@ -238,7 +261,7 @@ class Card {
 
     get id() : string {return this.originalData.id}
     get dataID() : string {return this.originalData.dataID};
-    get variant() : string[] {return this.originalData.variants};
+    get variants() : string[] {return this.originalData.variants};
 
     //easier attributes to work with
     get real_effectCount() : number {return this.effects.length}
@@ -250,17 +273,17 @@ class Card {
     get display_atk() {return (this.setting.show_negative_stat) ? this.atk : Math.max(this.atk, 0)}
     get display_hp() {return (this.setting.show_negative_stat) ? this.hp : Math.max(this.atk, 0)}
 
-    pushNewExtension(nExtension : string){
-        let a = this.extensionArr
-        a.push(nExtension)
-        this.attr.set("extensionArr", a)
-    }
+    // pushNewExtension(nExtension : string){
+    //     let a = this.extensionArr
+    //     a.push(nExtension)
+    //     this.attr.set("extensionArr", a)
+    // }
 
-    removeExtension(whatToRemove : string){
-        let a = this.extensionArr
-        a = a.filter(n => n !== whatToRemove)
-        this.attr.set("extensionArr", a)
-    }
+    // removeExtension(whatToRemove : string){
+    //     let a = this.extensionArr
+    //     a = a.filter(n => n !== whatToRemove)
+    //     this.attr.set("extensionArr", a)
+    // }
 
     //effect manipulation
     //partition API:
@@ -442,8 +465,8 @@ class Card {
 
     //end partition API
 
-    toDry(){
-        return new dry_card(this)
+    toDry() : dry_card {
+        return this
     }
     
     // Effects API (mostl internal but not private due to the upper system may use this)
@@ -515,7 +538,7 @@ class Card {
         this.getAllGhostEffects().forEach(i => {
             if( map[i] ) res.add(i)
         })
-        return Array.from(res);
+        return Array.from(res.values());
     }; 
 
     activateEffect(idx : number, system : dry_system, a : Action) : res 
@@ -582,7 +605,7 @@ class Card {
 
         //reset stats, keep the effect
         this.statusEffects = []
-        this.loadStat()
+        this.loadStat(true)
     }
 
     addStatusEffect(s : StatusEffect_base){
@@ -590,10 +613,12 @@ class Card {
         //we need the handler
         //maybe we handle this outside or s.th
         this.statusEffects.push(s);
+        this.loadStat(false);
     }
 
     removeStatusEffect(id : string){
         this.statusEffects = this.statusEffects.filter(i => i.id !== id);
+        this.loadStat(true);
     }
 
     mergeStatusEffect(){
@@ -613,6 +638,24 @@ class Card {
             else final.push(...val[0].merge(val.slice(1)));
         })
         this.statusEffects = final;
+        this.loadStat(true);
+    }
+
+    toString(spaces : number = 4, simplify : boolean = false) {
+        if(simplify) return this.id
+        return JSON.stringify({
+            id : this.id,
+            effects : this.effects.map(i => i.toString(spaces)),
+            statusEffects : this.statusEffects,
+            pos : this.pos.toString(),
+            canAct : this.canAct,
+            attr : Array.from(Object.entries(this.attr)),
+            extensionArr : this.extensionArr,
+            variants : this.variants,
+            belongTo : this.belongTo,
+            dataID : this.dataID,
+            imgUrl : this.imgUrl,
+        }, null, spaces)
     }
 }
 

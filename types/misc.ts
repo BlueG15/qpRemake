@@ -1,3 +1,5 @@
+import type { playerTypeID } from "../data/zoneRegistry"
+
 export type hexChars = '0' | '1' | '2' | '3' | '4' | '5' | '6' | '7' | '8' | '9' | 'A' | 'B' | 'C' | 'D' | 'E' | 'F'
 export type hexChars2 = `${hexChars}${hexChars}`
 export type hexString3 = `#${hexChars}${hexChars2}`
@@ -63,3 +65,58 @@ export type IfEquals<X, Y, A = X, B = never> =
   (<T>() => T extends Y ? 1 : 2) ? A : B;
 
 export type OnlyWritableProps<T> = Pick<T, WritableKeys<T>>;
+
+export type Position_like = {
+  readonly x : number 
+  readonly y : number
+  readonly zoneID : number
+  flat() : ReadonlyArray<number>
+}
+
+export type Player_specific = {
+  playerIndex : number
+  playerType : playerTypeID
+}
+
+export type HasTypesArr = {
+  types : ReadonlyArray<number> 
+}
+
+export type id_able = {
+  id : string | number
+}
+
+export type Positionable = {
+  pos : Position_like
+}
+
+export type Readonly_recur<T> =
+  T extends Fn<any, any> ? T :
+  T extends (infer R)[] ? ReadonlyArray<Readonly_recur<R>> :
+  T extends Map<infer K, infer V> ? ReadonlyMap<K, Readonly_recur<V>> :
+  T extends Set<infer K> ? ReadonlySet<Readonly_recur<K>> :
+  T extends ReadonlyArray<any> ? T :
+  T extends ReadonlyMap<any, any> ? T :
+  T extends ReadonlySet<any> ? T :
+  T extends object ? { 
+    readonly [
+      K in keyof T as T[K] extends Fn<any, any> ? never : K
+    ]: Readonly_recur<T[K]>
+  } :
+  T;
+
+export type Transplant<T extends Object, K extends keyof T, newType> = {
+  [K2 in keyof T as newType extends never ? never : K2] : K2 extends K ? newType : T[K2]
+}
+
+export type FilterKeys<T extends Object, ConditionType> = keyof {
+  [K in keyof T as T[K] extends ConditionType ? K : never] : true
+}
+
+export type FunctionalKeys<T extends Object> = FilterKeys<T, Fn<any, any>>
+export type UnFunctionalKeys<T extends Object> = Exclude<keyof T, FunctionalKeys<T>>
+
+export type Readonly_recur_Record<K extends keyof any, V> = Readonly<Record<K, Readonly_recur<V>>>;
+
+export type isUnion<T, U = T> = T extends any ? [U] extends [T] ? false : true : never;
+

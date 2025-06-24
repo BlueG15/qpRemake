@@ -37,10 +37,15 @@ type zoneName = keyof typeof zoneRegistry
 type zoneID = (typeof zoneRegistry)[zoneName] //data id
 
 enum playerTypeID {
-    player = 0,
-    enemy,
+    player = 1,
+    enemy = 2,
 }
 type playerTypeName = keyof typeof playerTypeID
+
+const playerOppositeMap = {
+    player : [playerTypeID.enemy],
+    enemy : [playerTypeID.player],
+} as const
 
 //priority high = act first
 const zoneDataRegistry : Record<zoneName, zoneData> =  {
@@ -167,6 +172,7 @@ export {
     zoneAttributes,
     playerTypeID,
     playerTypeName,
+    playerOppositeMap,
     zoneData, 
     zoneRegistry, 
     zoneName, 

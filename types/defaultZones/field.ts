@@ -3,6 +3,7 @@ import Position from "../abstract/generics/position";
 
 import utils from "../../utils";
 import zone_grid from "../abstract/gameComponents/zone_gridBased";
+import type { dry_card } from "../../data/systemRegistry";
 
 //[0][1][2][3][4]
 //[5][6][7][8][9]
@@ -34,8 +35,9 @@ class field extends zone_grid {
         return posArr[idx]
     }
 
-    isCardExposed(cid : string){
-        let idx = this.findIndex(cid)
+    isCardExposed(c : dry_card){
+        let idx = utils.positionToIndex(c.pos.flat(), this.shape);
+        if(!this.cardArr[idx] || this.cardArr[idx].id !== c.id) return false;
         if(idx < 0) return false
         if(idx < 5) return true
         if(this.cardArr[idx - 5]) return false;

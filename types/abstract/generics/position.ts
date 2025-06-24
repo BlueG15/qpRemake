@@ -1,4 +1,4 @@
-import dry_position from "../../../data/dry/dry_position";
+import type { dry_position } from "../../../data/systemRegistry";
 import utils from "../../../utils";
 
 class Position {
@@ -20,7 +20,7 @@ class Position {
     forEach(func : (value: number, index: number) => void){
         this.arr.forEach(func)
     }
-    flat(){return this.arr}
+    flat() : ReadonlyArray<number> {return this.arr}
     constructor(
         zoneID?: number, //runtime ID, NOT data id, the index of the zone in the zone loader
         zoneName?: string, 
@@ -35,7 +35,7 @@ class Position {
         } else {
             this.zoneID = param1.zoneID
             this.zoneName = param1.zoneName,
-            this.arr = param1.posArr.slice()
+            this.arr = param1.flat().slice()
         }
     }
     get valid(){
@@ -79,7 +79,16 @@ class Position {
         }
     }
     toDry() : dry_position {
-        return new dry_position(this)
+        return this
+    }
+    is(pos : dry_position){
+        if(Object.is(this, pos)) return true;
+        if (pos.zoneID !== this.zoneID) return false;
+        if (this.arr.length !== pos.flat().length) return false;
+        for(let i = 0; i < this.arr.length; i++){
+            if(this.arr[i] !== pos.flat()[i]) return false;
+        }
+        return true;
     }
 }
 

@@ -1,7 +1,7 @@
 import zone from "../abstract/gameComponents/zone";
 import type { player_stat } from "../../data/systemRegistry";
 import type { Action } from "../../_queenSystem/handler/actionGenrator";
-import type dry_system from "../../data/dry/dry_system";
+import type { dry_system } from "../../data/systemRegistry";
 
 import { actionConstructorRegistry, actionFormRegistry } from "../../_queenSystem/handler/actionGenrator";
 

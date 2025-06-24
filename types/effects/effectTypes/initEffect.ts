@@ -1,6 +1,6 @@
 import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "../../abstract/gameComponents/card";
-import type dry_system from "../../../data/dry/dry_system";
+import type { dry_system } from "../../../data/systemRegistry";
 import triggerEffect from "./triggerEffect";
 import actionRegistry from "../../../data/actionRegistry";
 import { zoneRegistry } from "../../../data/zoneRegistry";
@@ -15,7 +15,7 @@ export default class initEffect extends triggerEffect {
         if(!zone) return false;
 
         if(
-            targets[0].card.id === c.id &&
+            targets[0].is(c) &&
             zone.types.includes(zoneRegistry.z_field)
         ) return super.canRespondAndActivate(c, system, a);
 

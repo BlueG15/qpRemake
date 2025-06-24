@@ -1,16 +1,13 @@
 //import zone from "../baseClass/zone";
 import type res from "../abstract/generics/universalResponse";
-import type card from "../abstract/gameComponents/card";
+import type Card from "../abstract/gameComponents/card";
 
-import type Position from "../abstract/generics/position";
 import zone_stack from "../abstract/gameComponents/zone_stackBased";
 
 import { Action, actionConstructorRegistry, actionFormRegistry } from "../../_queenSystem/handler/actionGenrator";
 import { identificationInfo } from "../../data/systemRegistry";
 import type hand from "./hand";
-import { ExtractReturn } from "../../data/misc";
-import type dry_system from "../../data/dry/dry_system";
-
+import type { dry_system } from "../../data/systemRegistry";
 
 class deck extends zone_stack {
     //TODO : add editting ability
@@ -89,7 +86,7 @@ class deck extends zone_stack {
         return res
     }
 
-    override handleOccupied(c: card, index: number, func: string, line?: number): res {
+    override handleOccupied(c: Card, index: number, func: string, line?: number): res {
         //move everything else backwards
         return this.handleOccupiedPush(c, index, func, line)
     }

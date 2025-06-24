@@ -15,12 +15,12 @@ export default interface registryAPI {
     registry_edit_effect_data(key : string, data : effectData) : void;
     registry_edit_effect_class(
         key : string, 
-        constructor : typeof Effect
+        constructors : typeof Effect | Record<string, typeof Effect>
     ) : void;
     registry_edit_effect(
         key : string,
         data : effectData,
-        constructor : typeof Effect
+        constructors : typeof Effect | Record<string, typeof Effect>
     ): void
     registry_edit_effect_subtype(
         key : string, 

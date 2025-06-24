@@ -1,9 +1,10 @@
-import type Effect from "../../types/abstract/gameComponents/effect";
+import Effect from "../../types/abstract/gameComponents/effect";
 import type { cardData_unified, effectData } from "../../data/cardRegistry";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 import type subtypeLoader from "./loader_subtype";
 import type typeLoader from "./loader_type";
 import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
+import type effectDataRegistry from "../../data/effectRegistry";
 import utils from "../../utils";
 
 //Cards have 2 parts
@@ -17,14 +18,14 @@ import utils from "../../utils";
 export default class effectLoader {
 
     private dataCache : Map<string, effectData>
-    private classCache : Map<string, typeof Effect> = new Map()
+    private classCache : Map<string, typeof Effect | Function> = new Map()
     private countCache : Map<string, number> = new Map()
 
     private subtypeLoader : subtypeLoader
     private typeLoader : typeLoader
 
     constructor(
-        dataRegistry : Record<string, effectData>, 
+        dataRegistry : Record<string, effectData> | typeof effectDataRegistry, 
         subtypeLoader : subtypeLoader,
         typeLoader : typeLoader,
     ){
@@ -34,10 +35,19 @@ export default class effectLoader {
     }
 
     private async loadSingle(path : string, eid : string, s : Setting){
-        this.classCache.set(
-            eid,
-            (await import(path + eid)).default
-        )
+        const obj = (await import(path + eid)).default
+
+        if(typeof obj === "function"){
+            this.classCache.set(
+                eid, obj
+            )
+        } else if (typeof obj === "object"){
+            Object.keys(obj).forEach(k => {
+                if(typeof obj[k] === "function") {
+                    this.classCache.set(k, obj[k]);
+                }
+            })
+        }
     }
 
     async load(s : Setting) : Promise<void>{
@@ -45,7 +55,7 @@ export default class effectLoader {
         if(!path.endsWith("/")) path += "/"
         let arr : Promise<void>[] = []
 
-        this.dataCache.forEach((_, eid) => {
+        s.effectFiles.forEach(eid => {
             arr.push(this.loadSingle(path, eid, s));
         })
 
@@ -62,7 +72,23 @@ export default class effectLoader {
         }
     }
 
-    getEffect(eid : string, s : Setting, cdata? : cardData_unified){
+    //most hacky fix ever
+    //ahhhh
+    //TODO : find a better solution
+    private validator(x : Function) : x is typeof Effect {
+        try {
+            x()
+            return false
+        } catch(e : any){
+            try{
+                return (e as Error).message.includes("cannot be invoked without 'new'")
+            } catch(e : any){
+                return false
+            }
+        }
+    }
+
+    getEffect(eid : string, s : Setting, edata? : effectData){
         let data = this.dataCache.get(eid)
         if(!data) return undefined
 
@@ -79,7 +105,7 @@ export default class effectLoader {
 
         let runID = utils.dataIDToUniqueID(eid, c, s, ...data.subTypeIDs)
 
-        if(cdata && cdata.effects[eid]) utils.patchGeneric(data, cdata.effects[eid])
+        if(edata) utils.patchGeneric(data, edata)
             
         //load subtypes
         let k : effectSubtype[] = []
@@ -92,6 +118,11 @@ export default class effectLoader {
             return undefined
         }
 
-        return new eclass(runID, eid, type, k, data);
+
+        if(this.validator(eclass)){
+            const res = new eclass(runID, eid, type, k, data);
+            return (res instanceof Effect) ? res : undefined
+        }
+        return undefined
     }
 }

@@ -1,4 +1,4 @@
-import { hexString3, hexString4, hexString6 } from "./misc"
+import { hexString3, hexString4, hexString6 } from "../types/misc"
 
 enum rarityRegistry {
     r_white = 0,

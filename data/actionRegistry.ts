@@ -34,6 +34,9 @@ enum actionRegistry {
     "a_reprogram_end", //not implemented
 
     "a_add_status_effect", 
+    "a_add_effect",
+    "a_duplicate_effect",
+
     "a_remove_status_effect", 
     "a_clear_all_status_effect",
     
@@ -45,8 +48,9 @@ enum actionRegistry {
     "a_deal_damage_position",
     "a_deal_heart_damage",
     
-
     "a_destroy",
+    "a_decompile",
+    "a_void",
 }
 
 type actionName = keyof typeof actionRegistry

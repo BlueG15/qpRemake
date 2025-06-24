@@ -1,9 +1,7 @@
-import dry_effect from "../../../data/dry/dry_effect";
-import type dry_system from "../../../data/dry/dry_system";
+import type { dry_card, dry_effect, dry_system } from "../../../data/systemRegistry";
 import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "./card";
 import type effectSubtype from "./effectSubtype";
-import { subTypeOverrideConflict } from "../../errors";
 import type { effectData } from "../../../data/cardRegistry";
 import EffectType from "./effectType";
 
@@ -39,8 +37,8 @@ class Effect {
     }
 
     //actual effects override these two
-    canRespondAndActivate_proto(c : Card, system : dry_system, a : Action) : boolean{return false}
-    activate_proto(c : Card, system : dry_system, a : Action) : Action[] {return []};
+    canRespondAndActivate_final(c : dry_card, system : dry_system, a : Action) : boolean{return false}
+    activate_final(c : dry_card, system : dry_system, a : Action) : Action[] {return []};
 
     canRespondAndActivate(c : Card, system : dry_system, a : Action) : boolean {
         let res : -1 | -2 | boolean = -1;
@@ -77,7 +75,7 @@ class Effect {
             res = this.type.canRespondAndActivate(c, system, a);
             if(res !== -1) return res;
         } 
-        return this.canRespondAndActivate_proto(c, system, a);
+        return this.canRespondAndActivate_final(c, system, a);
     }
     activate(c : Card, system : dry_system, a : Action) : Action[]{
         if(this.isDisabled) return []
@@ -92,7 +90,7 @@ class Effect {
             appenddedRes.push(...res);
         }
         
-        let final = this.activate_proto(c, system, a).concat(appenddedRes)
+        let final = this.activate_final(c, system, a).concat(appenddedRes)
         this.type.parseAfterActivate(c, system, final);
         this.subTypes.forEach(st => st.parseAfterActivate(c, this, system, final));
         return final;
@@ -141,7 +139,7 @@ class Effect {
     }
     
     toDry() : dry_effect {
-        return new dry_effect(this)
+        return this
     }
 
     disable(){
@@ -170,12 +168,21 @@ class Effect {
     //^ implemented
 
     //should override
-    getDisplayInput(c : Card, system : dry_system) : (string | number)[] {return []}
+    getDisplayInput(c : dry_card, system : dry_system) : (string | number)[] {return []}
 
     reset() : Action[] {
         let res : Action[] = []
         this.subTypes.forEach(i => res.push(...i.reset()))
         return res;
+    }
+
+    toString(spaces : number = 2){
+        return JSON.stringify({
+            dataID : this.dataID,
+            subTypes : this.subTypes,
+            // desc : this.desc,
+            attr : JSON.stringify(Array.from(Object.entries(this.attr)))
+        }, null, spaces)
     }
 }
 
