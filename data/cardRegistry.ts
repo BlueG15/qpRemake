@@ -114,6 +114,7 @@ function defaultPartition(id : string, num : number[] | number = 0) : partitionD
     }
 }
 
+//TODO : change to const later
 const cardDataRegistry : Record<string, cardData> = {
     c_blank : {
         id : "c_blank", 

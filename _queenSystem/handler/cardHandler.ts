@@ -26,9 +26,11 @@ import triggerEffect from "../../types/effects/effectTypes/triggerEffect";
 import { rarityRegistry } from "../../data/rarityRegistry";
 import rarityDataRegistry from "../../data/rarityRegistry";
 
-import { cardDataRegistry } from "../../data/cardRegistry";
+import { cardData, cardDataRegistry } from "../../data/cardRegistry";
 import subtype_hand_or_fieldLock from "../../types/effects/effectSubtypes/subtype_hand_or_fieldLock";
 import subtype_graveLock from "../../types/effects/effectSubtypes/subtype_graveLock";
+
+import type Card from "../../types/abstract/gameComponents/card";
 
 export default class cardHandler {
     private cloader : cardLoader
@@ -74,7 +76,9 @@ export default class cardHandler {
         })
     }
 
-    getCard(cid : string, variantID? : string[]){
+    getCard(cid : keyof typeof cardDataRegistry, variantID? : string[]) : Card
+    getCard(cid : string, variantID? : string[]) : Card | undefined
+    getCard(cid : string, variantID? : string[]) : Card | undefined{
         return this.cloader.getCard(cid, this.setting, variantID);
     }
 }

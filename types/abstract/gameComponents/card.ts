@@ -11,6 +11,7 @@ import { effectNotExist, wrongEffectIdx } from "../../errors";
 
 import { Setting, partitionSetting } from "./settings";
 import utils from "../../../utils";
+import { id_able } from "../../misc";
 
 
 export class partitionData_class implements partitionData {
@@ -656,6 +657,15 @@ class Card {
             dataID : this.dataID,
             imgUrl : this.imgUrl,
         }, null, spaces)
+    }
+
+    is(c : id_able) : boolean;
+    is(extension : string) : boolean;
+    is(p : id_able | string) {
+        if(typeof p === "object"){
+            return p.id === this.id
+        } 
+        return this.extensionArr.includes(p)
     }
 }
 

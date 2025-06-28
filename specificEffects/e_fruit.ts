@@ -1,11 +1,12 @@
-import type { dry_card, dry_system, dry_position, dry_zone } from "../data/systemRegistry";
-import { actionConstructorRegistry, actionFormRegistry, type Action } from "../_queenSystem/handler/actionGenrator";
+import type { dry_card, dry_system, dry_position, dry_zone, inputData_card, inputData_pos, inputData, identificationInfo_card, identificationInfo_pos, identificationInfo_zone, identificationInfo, dry_effect } from "../data/systemRegistry";
+import { Action_class, actionConstructorRegistry, actionFormRegistry, actionInputObj, type Action } from "../_queenSystem/handler/actionGenrator";
 import actionRegistry from "../data/actionRegistry";
 import Effect from "../types/abstract/gameComponents/effect";
 import { zoneRegistry } from "../data/zoneRegistry";
 import { e_revive } from "./e_generic_effects";
 import { damageType } from "../types/misc";
-import e_generic_poschange_target from "./e_generic_poschange_target";
+import { e_generic_poschange_input, e_generic_singular_input } from "./e_generic_input";
+import { chained_filtered_input_obj, sequenced_independent_input_obj } from "../_queenSystem/handler/actionInputGenerator";
 
 export class e_apple extends Effect {
     //add one card apple from deck to hand, if any
@@ -61,11 +62,15 @@ export class e_banana extends e_revive {
     get doFruitCheck() : 0 | 1 {return this.attr.get("doFruitCheck") === 1 ? 1 : 0}
     set doFruitCheck(val : boolean) {this.attr.set("doFruitCheck", Number(val))}
 
-    protected override check_input_condition(system: dry_system, thisCard : dry_card, c: dry_card, pos: dry_position): boolean {
-        if(!super.check_input_condition(system, thisCard, c, pos)) return false;
-
-        //extra condition the targetted card is a fruit and is not a banana
-        return (!this.doFruitCheck || c.extensionArr.includes("fruit")) && c.dataID !== thisCard.dataID && c.level === 1
+    protected override card_input_condition(thisCard : dry_card) {
+        const res = super.card_input_condition(thisCard);
+        res[1] = (
+            (system: dry_system, c: dry_card): boolean => {
+            //extra condition the targetted card is a fruit and is not a banana
+                return (!this.doFruitCheck || c.extensionArr.includes("fruit")) && c.dataID !== thisCard.dataID && c.level === 1
+            }
+        )
+        return res;
     }
 }
 
@@ -142,19 +147,46 @@ export class e_pomegranate extends Effect {
     }
 } 
 
-export class e_pollinate extends e_generic_poschange_target {
+export class e_pollinate extends e_generic_singular_input<dry_card> {
 
-    protected override check_input_condition(system: dry_system, thisCard: dry_card, c: dry_card, pos: dry_position): boolean {
-        const zone = system.getZoneWithID(c.pos.zoneID);
-        if(!zone) return false;
+    // protected override check_input_condition(system: dry_system, thisCard: dry_card, c: dry_card, pos: dry_position): boolean {
+    //     const zone = system.getZoneWithID(c.pos.zoneID);
+    //     if(!zone) return false;
 
-        return zone.types.includes(zoneRegistry.z_deck) && 
-               c.effects.length >= 1 &&
-               c.level === 1
-    }
+    //     return zone.types.includes(zoneRegistry.z_deck) && 
+    //            c.effects.length >= 1 &&
+    //            c.level === 1
+    // }
 
     override activate_final(c: dry_card, system: dry_system, a: Action): Action[] {
         return []
+    }
+}
+
+export class e_growth extends e_generic_singular_input<dry_card> {
+    get doFruitCheck() : 0 | 1 {return this.attr.get("doFruitCheck") === 1 ? 1 : 0}
+    set doFruitCheck(val : boolean) {this.attr.set("doFruitCheck", Number(val))}
+
+    protected override getApplyFunc(thisCard: dry_card): (s: dry_system, inputs: [inputData_card]) => Action[] {
+        return (s : dry_system, inputs : [inputData_card]) => {
+            const c = inputs[0].data.card
+            const pid = s.getPIDof(c)
+            const deck = s.getAllZonesOfPlayer(pid)[zoneRegistry.z_deck]
+            if(!deck.length || !deck[0].getAction_shuffle) return []
+
+            const cause = actionFormRegistry.card(s, thisCard)
+            return [
+                actionConstructorRegistry.a_pos_change(s, c)(deck[0].top)(cause),
+                deck[0].getAction_shuffle(s, cause),
+            ]
+        }
+    }
+
+    protected override input_condition(thisCard: dry_card): [] | [(s: dry_system, z: dry_zone) => boolean, (s: dry_system, c: dry_card) => boolean] | [(s: dry_system, z: dry_zone) => boolean] {
+        return [
+            (s : dry_system, z : dry_zone) => z.is(zoneRegistry.z_grave),
+            (s : dry_system, c : dry_card) => (!this.doFruitCheck || c.is("fruit"))
+        ]
     }
 }
 
@@ -166,5 +198,6 @@ export default {
     e_pomegranate,
 
     //green
-    e_pollinate
+    // e_pollinate,
+    e_growth,
 }

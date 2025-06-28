@@ -1,5 +1,4 @@
 import { parserModule, moduleInputObject, parseOptions, numberComponent } from '../../types/abstract/parser';
-// type nestedTree<T> = T[] | nestedTree<T>[]
 
 const head_symbol = [
     "<=", ">=", "<", ">", "!=", "==",

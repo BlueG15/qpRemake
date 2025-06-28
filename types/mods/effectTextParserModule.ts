@@ -1,7 +1,7 @@
 import type { parseOptions } from "../abstract/parser/options";
 import { component, componentID, textComponent } from "../abstract/parser/component";
 import moduleInputObject from "../abstract/parser/moduleInputObject";
-type nestedTree<T> = T[] | nestedTree<T>[]
+import type { nestedTree } from "../misc";
 
 //abstract class
 export class parserModule {

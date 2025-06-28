@@ -1,12 +1,12 @@
-import type { Action } from "../_queenSystem/handler/actionGenrator";
-import type { dry_system, dry_card, dry_position } from "../data/systemRegistry";
+import type { Action, Action_class } from "../_queenSystem/handler/actionGenrator";
+import type { dry_system, dry_card, dry_position, inputData_card, inputData_pos, inputData, dry_zone, identificationInfo, inputData_zone } from "../data/systemRegistry";
 import Effect from "../types/abstract/gameComponents/effect";
 import subtype_instant from "../types/effects/effectSubtypes/subtype_instant";
 import subtypeRegistry from "../data/subtypeRegistry";
-import { identificationType } from "../data/systemRegistry";
+import { identificationType, inputType } from "../data/systemRegistry";
 import actionRegistry from "../data/actionRegistry";
-import { actionConstructorRegistry, actionFormRegistry } from "../_queenSystem/handler/actionGenrator";
-import { damageType } from "../types/misc";
+import { actionConstructorRegistry, actionFormRegistry, actionInputObj } from "../_queenSystem/handler/actionGenrator";
+import { damageType, notFull } from "../types/misc";
 import { zoneRegistry } from "../data/zoneRegistry";
 
 import { 
@@ -20,7 +20,7 @@ import {
     e_execute,
     e_reset,
 } from "./e_generic_cardTargetting";
-import e_generic_poschange_target from "./e_generic_poschange_target";
+import { e_generic_singular_input, e_generic_poschange_input } from "./e_generic_input";
 
 
 export class e_quick extends Effect {
@@ -105,20 +105,21 @@ export class e_attack extends Effect {
     }
 }
 
-export class e_addToHand extends Effect {
-    override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-        return true;
+export class e_addToHand extends e_generic_singular_input<dry_zone> {
+    protected override input_condition(thisCard: dry_card): [] | [(s: dry_system, z: dry_zone) => boolean] {
+        return [
+            (s : dry_system, z : dry_zone) => z.is(zoneRegistry.z_hand)
+        ]
     }
 
-    override activate_final(c: dry_card, system: dry_system, a: Action): Action[] {
-        const z = system.getZoneWithID(c.pos.zoneID);
-        if(!z) return [];
-
-        return [
-            actionConstructorRegistry.a_pos_change(system, c)(
-                system.getAllZonesOfPlayer(z.playerIndex)[zoneRegistry.z_hand][0].top
-            )(actionFormRegistry.card(system, c))
-        ]
+    protected override getApplyFunc(thisCard: dry_card): (s: dry_system, inputs: [inputData_zone]) => Action[] {
+        return (s : dry_system, inputs : [inputData_zone]) => {
+            return [
+                actionConstructorRegistry.a_pos_change(s, thisCard)(
+                    inputs[0].data.zone.top
+                )(actionFormRegistry.card(s, thisCard))
+            ]
+        }
     }
 }
 
@@ -171,7 +172,7 @@ export class e_revenge extends e_attack {
 
         if(
             a.targets[0].type === identificationType.position &&
-            !a.targets[0].pos.equal(c.pos)
+            !a.targets[0].pos.is(c.pos)
         ) return false
 
         return super.canRespondAndActivate_final(c, system, a);
@@ -257,18 +258,22 @@ export class e_add_counter extends Effect {
     }
 }
 
-export class e_revive extends e_generic_poschange_target {
-    protected override check_input_condition(system : dry_system, thisCard : dry_card, c: dry_card, pos: dry_position): boolean {
-        //c in grave and pos on field
+export class e_revive extends e_generic_poschange_input {
+    //condition: card in grave, pos on field
 
-        const z1 = system.getZoneWithID(c.pos.zoneID)
-        const z2 = system.getZoneWithID(pos.zoneID)
+    //rivetting code right here
+    //queue explosions
 
-        if(!z1 || !z2) return false
-        return (
-            z1.types.includes(zoneRegistry.z_grave) &&
-            z2.types.includes(zoneRegistry.z_field)
-        )
+    protected override card_input_condition(thisCard: dry_card): notFull<[(s: dry_system, z: dry_zone) => boolean, (s: dry_system, c: dry_card) => boolean]> {
+        return [
+            (s : dry_system, z : dry_zone) => z.is(zoneRegistry.z_grave)
+        ]
+    }
+
+    protected override pos_input_condition(thisCard: dry_card): notFull<[(s: dry_system, z: dry_zone) => boolean, (s: dry_system, z: dry_zone, p: dry_position) => boolean]> {
+        return [
+            (s : dry_system, z : dry_zone) => z.is(zoneRegistry.z_field)
+        ]
     }
 }
 

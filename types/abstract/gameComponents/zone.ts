@@ -7,7 +7,7 @@ import utils from "../../../utils";
 
 import { playerTypeID, zoneAttributes, zoneRegistry, type zoneData } from "../../../data/zoneRegistry";
 
-import type { dry_card, dry_zone, dry_system } from "../../../data/systemRegistry";
+import type { dry_card, dry_zone, dry_system, dry_position } from "../../../data/systemRegistry";
 
 import { Action, actionConstructorRegistry, actionFormRegistry } from "../../../_queenSystem/handler/actionGenrator";
 // import { actionFormRegistry_target } from "../../../data/actionRegistry";
@@ -755,6 +755,10 @@ class Zone {
     }
 
     get cardArr_filtered() : dry_card[] {return this.cardArr.filter(i => i !== undefined) as dry_card[]}
+
+    getAllPos() : dry_position[] {
+        return this.cardArr.map((_, index) => new Position(this.id, this.name, ...utils.indexToPosition(index, this.shape)))
+    }
 }
 
 export default Zone;

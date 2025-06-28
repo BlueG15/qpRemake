@@ -18,6 +18,7 @@ enum actionRegistry {
     "a_reset_effect",
     "a_pos_change_force",
     "a_deal_damage_internal",
+    "a_get_input",
 
     //control flow redirection
     "a_negate_action", //only resolves in the chain phase,  go straight to complete step

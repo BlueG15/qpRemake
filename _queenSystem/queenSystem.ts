@@ -3,14 +3,14 @@ import _tree from "../types/abstract/generics/tree";
 import zoneHandler from "./handler/zoneHandler";
 import actionRegistry, {actionName, actionID} from "../data/actionRegistry";
 
-import { Action, actionConstructorRegistry, actionFormRegistry } from "./handler/actionGenrator";
+import { Action, actionConstructorRegistry, actionFormRegistry, actionInputObj } from "./handler/actionGenrator";
 import type error from "../types/errors/error";
 import { 
     unregisteredAction,
     cannotLoad,
 } from "../types/errors";
 
-import { Setting } from "../types/abstract/gameComponents/settings";
+import { auto_input_option, Setting } from "../types/abstract/gameComponents/settings";
 
 import cardHandler from "./handler/cardHandler";
 import registryHandler from "./handler/registryHandler";
@@ -20,6 +20,11 @@ import Localizer from "./handler/localizationHandler";
 import { operatorRegistry } from "../data/operatorRegistry";
 import { StatusEffect_base } from "../specificEffects/e_status";
 import { playerTypeID, zoneRegistry } from "../data/zoneRegistry";
+
+import Card from "../types/abstract/gameComponents/card";
+import Zone from "../types/abstract/gameComponents/zone";
+import Effect from "../types/abstract/gameComponents/effect";
+import effectSubtype from "../types/abstract/gameComponents/effectSubtype";
 
 import { 
     inputData,
@@ -39,9 +44,15 @@ import {
     logInfoResolve,
     logInfo,
     dry_system,
+    inputType,
+    inputData_bool,
+    inputData_num,
+    inputData_str,
+    inputData_card,
+    inputData_pos,
 } from "../data/systemRegistry";
 
-import { Positionable } from "../types/misc";
+import { id_able, Positionable } from "../types/misc";
 import Position from "../types/abstract/generics/position";
 
 import utils from "../utils";
@@ -79,7 +90,12 @@ class queenSystem {
     //when unsuspended, continue processing this node from phaseIdx 3
     
     private suspensionReason : suspensionReason | false = false
-    takenInput? : inputData[] = undefined
+
+    takenInput? : inputData = undefined
+    takenInputs_arr : inputData[] = []
+
+    validInputSet : inputData[] | undefined = undefined //undefined is literally, undefined, its unbounded
+    validInputType : inputType | undefined = undefined
 
     get isSuspended() {return this.suspensionReason !== false}
 
@@ -145,6 +161,11 @@ class queenSystem {
         this.forEach = this.zoneHandler.forEach
         this.map = this.zoneHandler.map
         this.filter = this.zoneHandler.filter
+
+        const c = this.cardHandler.getCard("c_blank")
+        c.pos = new Position(-1)
+        c.canAct = false;
+        this.NULLCARD = c;
     }
 
     restartTurn(a? : Action){
@@ -407,9 +428,99 @@ class queenSystem {
                     currentAction : n.data
                 })
                 this.phaseIdx = TurnPhase.chain;
-                if(n.data.requireInput) {
-                    this.suspensionReason = suspensionReason.taking_input
-                    this.suspend(n.id);
+                if(n.data.is("a_get_input")) {
+                    console.log("input received")
+
+                    let actuallySuspend = true;
+
+                    const obj = n.data.flatAttr().input;
+
+                    const k = obj.getValid.next({} as any).value; //first next has no input, forcing is fine
+
+                    if(!k) {
+                        console.log("blank input, skipped, logging fullObject: ", obj)
+                        this.phaseIdx = TurnPhase.complete;
+                        return false;
+                    }
+
+
+                    this.validInputSet = k[1];
+                    this.validInputType = k[0];
+
+                    switch(this.setting.auto_input){
+                        case auto_input_option.first : {
+                            actuallySuspend = false;
+                            this.takenInputs_arr = []
+                            let c = 0;
+                            while(true){
+                                let input : inputData = this.validInputSet ? this.validInputSet[0] : this.getAllInputs(this.validInputType)[0]
+                                this.takenInputs_arr.push(input);
+                                let j : [inputType, inputData[]] | void = obj.getValid.next(input).value
+                                if(!j || !j.length) break;
+                                this.validInputSet = j[1];
+                                this.validInputType = j[0];
+                                c++;
+                            }
+                            break;
+                        }
+                        case auto_input_option.last : {
+                            actuallySuspend = false;
+                            this.takenInputs_arr = []
+                            let c = 0;
+                            while(true){
+                                let input : inputData = this.validInputSet ? this.validInputSet.at(-1)! : this.getAllInputs(this.validInputType).at(-1)!
+                                this.takenInputs_arr.push(input);
+                                let j : [inputType, inputData[]] | void = obj.getValid.next(input).value
+                                if(!j || !j.length) break;
+                                this.validInputSet = j[1];
+                                this.validInputType = j[0];
+                                c++;
+                            }
+                            break;
+                        }
+                        case auto_input_option.random : {
+                            actuallySuspend = false;
+                            this.takenInputs_arr = []
+                            let c = 0
+                            while(true){
+                                let input : inputData = this.validInputSet ? utils.getRandomElement(this.validInputSet)! : utils.getRandomElement(this.getAllInputs(this.validInputType))!
+                                this.takenInputs_arr.push(input);
+                                let j : [inputType, inputData[]] | void = obj.getValid.next(input).value
+                                if(!j || !j.length) break;
+                                this.validInputSet = j[1];
+                                this.validInputType = j[0];
+                                c++;
+                            }
+                        }
+                        case auto_input_option.default : {
+                            actuallySuspend = !this.grabInput_default(obj);
+                        }
+                    }
+
+                    if(actuallySuspend){
+                        console.log("suspending waiting for inputs");
+                        this.suspensionReason = suspensionReason.taking_input
+                        this.suspend(n.id);
+                    } else {
+                        console.log("inputs getting skipped, trying to apply")
+
+                        this.suspensionReason = false;
+                        this.takenInput = undefined;
+
+                        this.validInputSet = undefined;
+                        this.validInputType = undefined;
+
+                        const actions = obj.applyInput(this, this.takenInputs_arr);
+                        this.actionTree.attach_node(n, ...actions);
+                        n.markComplete();
+
+                        this.takenInputs_arr = [];
+
+                        this.phaseIdx = TurnPhase.declare //unwind back to declare;
+                        this.suspendID = -1;
+
+                        return true;
+                    }
                 }
                 return false; 
             }
@@ -510,18 +621,194 @@ class queenSystem {
         this.suspendID = nid;
     }
 
+    private grabInput_default(obj : actionInputObj) : boolean{ //finished or not
+        this.takenInputs_arr = []
+        if(this.validInputSet === undefined) return false;
+        while(true){
+            if(this.validInputSet.length > 1) return false;
+            if(this.validInputSet.length === 0) throw new Error("input set empty, somehow?____")
+            this.takenInput = this.validInputSet[0]
+            this.takenInputs_arr.push(this.takenInput)
+            let j : void | [inputType, inputData[]] = obj.getValid.next(this.takenInput).value
+            if(!j || !j.length) return true;
+            this.validInputSet = j[1];
+            this.validInputType = j[0];
+        }
+        return false;
+    }
+
+    private verifyInput(i1 : inputData, i2 : inputData) : boolean {
+        if(i1.type !== i2.type) return false;
+
+        switch(i1.type){
+            case inputType.boolean : return typeof (i2 as inputData_bool).data === "boolean";
+            case inputType.number : return typeof (i2 as inputData_num).data === "number";
+            case inputType.string : return typeof (i2 as inputData_str).data === "string";
+            
+            case inputType.card : return i1.data instanceof Card && i2.data instanceof Card && i2.data.is(i1.data);
+            case inputType.effect : return i1.data instanceof Effect && i2.data instanceof Effect && i2.data.is(i1.data);
+            case inputType.effectSubtype : return i1.data instanceof effectSubtype && i2.data instanceof effectSubtype && i2.data.is(i1.data);
+
+            case inputType.player : return typeof i1.data.id === (i2.data as any).id;
+            case inputType.position : return i2.data instanceof Position && i1.data.is(i2.data);
+            case inputType.zone : return i2.data instanceof Zone && i1.data.is(i2.data);
+        }
+
+        return false
+    }
+
+    private getAllInputs(t : inputType){
+        switch(t){
+                case inputType.boolean: return [{
+                    type : inputType.boolean,
+                    data : utils.rng(1, 0, true) === 1
+                } as const]
+                case inputType.number: return [{
+                    type : inputType.number,
+                    data : utils.rng(100, 0, true)
+                } as const]
+                case inputType.string: return [{
+                    type : inputType.string,
+                    data : utils.generateID()
+                } as const]
+
+                case inputType.zone: return this.map(0, z => {return {
+                    type : inputType.zone,
+                    data : actionFormRegistry.zone(this, z)
+                } as const })
+
+                case inputType.card : return this.map(1, c => {return {
+                    type : inputType.card,
+                    data : actionFormRegistry.card(this, c)
+                } as const })
+
+                case inputType.player : return this.setting.players.map((_, pid) => {return {
+                    type : inputType.player,
+                    data : actionFormRegistry.player(this, pid)
+                } as const })
+
+                case inputType.position : {
+                    const arr1 = this.map(1, (c, zid, cid) => {return {
+                        type : inputType.position,
+                        data : actionFormRegistry.position(this, c.pos)
+                    } as inputData_pos})
+
+                    const arr2 = this.map(0, 
+                        z => (z.cardArr.map((c, i) => [c, i] as [Card | undefined, number])).filter(c => c[0] === undefined).map(c => {return {
+                            type : inputType.position,
+                            data : actionFormRegistry.position(this, new Position(z.id, z.name, ...utils.indexToPosition(c[1], z.shape)))
+                        } as inputData_pos})
+                    ).reduce((c, ele) => c.concat(ele), [])
+
+                    return arr1.concat(...arr2)
+                }
+
+                case inputType.effect : return this.map(2, (e, zid, cid) => {
+                    const zone = this.getZoneWithID(zid)!;
+                    const c = zone.cardArr[cid]!;
+
+                    return {
+                        type : inputType.effect,
+                        data : actionFormRegistry.effect(this, c, e)
+                    } as const
+                })
+
+                case inputType.effectSubtype : return this.map(3, (st, zid, cid, eid) => {
+                    const zone = this.getZoneWithID(zid)!;
+                    const c = zone.cardArr[cid]!;
+                    const e = c.totalEffects[eid]!;
+
+                    return {
+                        type : inputType.effectSubtype,
+                        data : actionFormRegistry.subtype(this, c, e, st)
+                    } as const
+                })
+            }
+            throw new Error(`get all input failed, type = ${t}`)
+    }
+
     continue(){
         let n = this.actionTree.getNode(this.suspendID)
-        if(this.suspensionReason){
-            this.suspensionReason = false;
+        if(this.suspensionReason === suspensionReason.taking_input && n.data.is("a_get_input")){
+            
             if(this.takenInput === undefined){
-                throw new Error("Cannot unsuspend, new input not taken yet")
+                throw new Error("Cannot unsuspend, not enough input taken, next input expected: ")
             }
-            n.data.applyUserInput(this.takenInput)
-            this.takenInput = undefined
-        }
+
+            //check validity of input
+
+            //naive check
+            if(this.validInputSet !== undefined){ //undefined is accept all    
+                const filter_set = this.validInputSet.filter(i => i.type === this.takenInput!.type)
+                if(!filter_set.length) {
+                    throw new Error("input not in valid set, wrong type")
+                }
+
+                const flag = filter_set.some(i => {
+                    this.verifyInput(i, this.takenInput!)
+                })
+
+                if(!flag) {
+                    throw new Error("input not in valid set, correct type but wrong id")
+                }
+            }
+
+            const obj = n.data.flatAttr().input
+            this.validInputSet = obj.getValid.next(this.takenInput).value as any;
+
+            if(!this.validInputSet){
+                //complete
+                this.suspensionReason = false;
+                this.takenInput = undefined;
+
+                this.validInputSet = undefined;
+                this.validInputType = undefined;
+
+                const actions = obj.applyInput(this, this.takenInputs_arr);
+                this.actionTree.attach_node(n, ...actions);
+                n.markComplete();
+
+                this.takenInputs_arr = [];
+
+                this.phaseIdx = TurnPhase.declare //unwind back to declare;
+                this.suspendID = -1;
+
+                const newN = n.childArr[0];
+                return this.processTurn(newN);
+
+            } else {
+                //continue suspending
+                this.takenInputs_arr.push(this.takenInput);
+                this.takenInput = undefined;
+
+                if(this.setting.auto_input === auto_input_option.default){
+                    const isFinishedTakingInput = this.grabInput_default(obj)
+                    if(isFinishedTakingInput){
+                        this.suspensionReason = false;
+                        this.takenInput = undefined;
+
+                        this.validInputSet = undefined;
+                        this.validInputType = undefined;
+
+                        const actions = obj.applyInput(this, this.takenInputs_arr);
+                        this.actionTree.attach_node(n, ...actions);
+                        n.markComplete();
+
+                        this.takenInputs_arr = [];
+
+                        this.phaseIdx = TurnPhase.declare //unwind back to declare;
+                        this.suspendID = -1;
+
+                        const newN = n.childArr[0];
+                        return this.processTurn(newN);
+                    }
+                }
+                return;
+            }
+            
+        } else if(this.suspensionReason !== false) throw new Error(`Cannot unsuspend when reason is not resolved`)
         this.suspendID = -1;
-        this.processTurn(n)
+        return this.processTurn(n)
     }
 
     async load(){
@@ -667,6 +954,12 @@ class queenSystem {
         return res;
     }
 
+    getPIDof(c : Positionable){
+        const z = this.getZoneOf(c);
+        if(!z) return NaN;
+        return z.playerIndex;
+    }
+
     getWouldBeAttackTarget(a : Action<"a_attack">) : dry_card | undefined {
         if((a.cause as any).card === undefined) return undefined
         let c = (a.cause as any).card as dry_card
@@ -683,6 +976,12 @@ class queenSystem {
         return targets[0];
     }
 
+    is(c : Positionable, type : zoneRegistry) : boolean {
+        const z = this.getZoneWithID(c.pos.zoneID);
+        if(!z) return false;
+        return z.is(type);
+    }
+
     get isInTriggerPhase() {return this.phaseIdx === TurnPhase.trigger}
     get isInChainPhase() {return this.phaseIdx === TurnPhase.chain}
     
@@ -693,6 +992,7 @@ class queenSystem {
     
     //const
     readonly NULLPOS: dry_position = new Position(-1).toDry()
+    readonly NULLCARD: dry_card
 }
 
 export default queenSystem

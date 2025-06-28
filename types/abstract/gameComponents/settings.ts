@@ -26,6 +26,16 @@ enum id_style {
     "FULL", //dataID + minimal + additional info (subtypeID, effectID, etc)
 }
 
+enum auto_input_option {
+    none, //no assumtion, prompt input even if valid choices is only one
+    default, //if valid choices is one, skip that input
+
+    //the below skips all input prompting
+    first, //auto chooses the first option available
+    last, //auto chooses the last option
+    random, //randomly pick one
+}
+
 interface Setting {
     //load settings
     languageID : supporttedLanguages
@@ -49,6 +59,9 @@ interface Setting {
 
     //gameplay
     show_negative_stat : boolean
+
+    //input handling
+    auto_input : auto_input_option
 
     //gameplay error handling
     ignore_invalid_partition_mapping : boolean
@@ -96,6 +109,7 @@ class defaultSetting implements Setting {
         playerTypeID.player, //player zone have priority
         playerTypeID.enemy
     ]
+    auto_input = auto_input_option.default
 } 
 
 export default new defaultSetting()
@@ -104,5 +118,6 @@ export {
     Setting,
     defaultSetting,
     supporttedLanguages,
+    auto_input_option,
     id_style,
 }

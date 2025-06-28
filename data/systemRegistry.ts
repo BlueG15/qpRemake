@@ -22,12 +22,15 @@ type replacements = {
     cardArr : ReadonlyArray<dry_card | undefined>,
     cardArr_filtered : dry_card[],
     effects : ReadonlyArray<dry_effect>,
+    totalEffects : ReadonlyArray<dry_effect>,
     lastPos : dry_position,
     firstPos : dry_position,
     top : dry_position,
     bottom : dry_position,
     turnAction? : Action,
-    NULLPOS : dry_position
+    NULLPOS : dry_position,
+    NULLCARD : dry_card,
+    setting : Readonly_recur<Setting>
 }
 
 export type dry_parse<T extends Object, SafeFunctionKeys extends Exclude<FunctionalKeys<T>, universalOmit> = never> = Readonly_recur<
@@ -42,11 +45,11 @@ export type dry_position = dry_parse<Position, "is" | "flat" | "map" | "toString
 export type dry_effectType = dry_parse<EffectType>
 export type dry_effectSubType = dry_parse<effectSubtype>
 export type dry_effect = dry_parse<Effect, "getDisplayInput" | "toString" | "getSubtypeidx">
-export type dry_card = dry_parse<Card>
+export type dry_card = dry_parse<Card, "is">
 export type dry_zone = dry_parse<
     Zone, 
     "count" | "findIndex" | "getAction_add" | "getAction_move" | "getAction_shuffle" | "getAction_remove" | "getOppositeCards" | 
-    "getCardByPosition" | "getOppositeZone" | "toString" | "validatePosition" | "isOpposite" | "isPositionOccupied" | "is"
+    "getCardByPosition" | "getOppositeZone" | "toString" | "validatePosition" | "isOpposite" | "isPositionOccupied" | "is" | "getAllPos"
 > & {
     getEmptyPosArr? : () => dry_position[]
     getRandomEmptyPos? : () => dry_position
@@ -58,7 +61,7 @@ export type dry_system = dry_parse<
     "count" | "filter" | "map" | "forEach" | "filter" | 
     "findSpecificChainOfAction_resolve" | "getActivatedCardIDs" | "getActivatedEffectIDs" |
     "getAllZonesOfPlayer" | "getResolvedActions" | "getWouldBeAttackTarget" | "getCardWithDataID" | "getCardWithID" |
-    "getZoneOf" | "getZoneWithID" | "hasActionCompleted" | "getRootAction"
+    "getZoneOf" | "getZoneWithID" | "hasActionCompleted" | "getRootAction" | "is" | "getPIDof"
 >
 
 export interface logInfoNormal {

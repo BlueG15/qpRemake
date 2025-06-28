@@ -2,7 +2,7 @@ import type { cardData_unified, patchData } from "../data/cardRegistry";
 import { Setting, id_style } from "../types/abstract/gameComponents/settings";
 // import { partitionData } from "../types/data/cardRegistry";
 import { partitionSetting } from "../types/abstract/gameComponents/settings";
-import { typeSigatureSimple, typeSignature } from "../types/misc";
+import { nestedTree, typeSigatureSimple, typeSignature } from "../types/misc";
 
 const utils = {
 
@@ -194,7 +194,48 @@ const utils = {
             res.push(first);
             return this.genericCurrier(rest, callback, res);
         };
-    }
+    },
+
+    clone<T extends Object>(obj : T, recurDepth : number = 0) : T {
+        if(recurDepth >= 1e8){
+            throw new Error("Maximum recursion depth reached when cloning object")
+        }
+
+        const res = {} as any
+
+        Object.entries(obj).forEach(([key, val]) => {
+            if(typeof val === "object") res[key] = this.clone(val, recurDepth + 1);
+            else res[key] = val;
+        })
+
+        return res as T
+    },
+
+    flat<T extends Exclude<any, Array<any> | any[]>>(nested : nestedTree<T> | T) : T[] {
+        if(!Array.isArray(nested)) return [nested];
+        const res : T[] = []
+        nested.forEach(i => res.push(...this.flat(i)));
+        return res;
+    },
+
+    splitArrToShape<T>(arr : T[], shape : number[]) : T[][] {
+        let res : T[][] = new Array(shape.length).fill([])
+        let c = 0;
+        shape.forEach((i, index) => {
+            while(i !== 0){
+                res[index].push(arr[c])
+                i--;
+                c++;
+            }
+        })
+        return res;
+    },
+
+    getRandomElement<T extends any[]>(arr : T) : (T extends Array<infer R> ? R : never) | undefined {
+        if(!arr.length) return undefined;
+        const n = this.rng(arr.length - 1, 0, true);
+        return arr[n];
+    } 
 }
 
 export default utils

@@ -120,3 +120,14 @@ export type Readonly_recur_Record<K extends keyof any, V> = Readonly<Record<K, R
 
 export type isUnion<T, U = T> = T extends any ? [U] extends [T] ? false : true : never;
 
+export type notFull<T extends any[], R extends any[] = []> = T extends [infer Head, ...infer Tail] ? R | notFull<Tail, [...R, Head]> : R;
+
+//Note to dum dum me
+//Y is the yield type, the type the generator spits out after a yield statement
+//R is Y but for return statement, after a return, the done flag is set
+//N is the type received by yield inside the generator, inputted into next()
+export interface StrictGenerator<Y, R, N> extends Generator<Y, R, N> {
+  next(value: N): IteratorResult<Y, R>;
+}
+
+export type nestedTree<T> = T[] | nestedTree<T>[]

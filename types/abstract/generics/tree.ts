@@ -2,7 +2,7 @@ import _node from "./node";
 import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 
 class _tree<RootType extends Action> {
-    protected length : number = 0
+    length : number = 0
     root : _node<RootType>
     constructor(a : RootType){
         this.root = new _node<RootType>(a, 0, this.length)
@@ -32,6 +32,10 @@ class _tree<RootType extends Action> {
         this.handleNode((n : _node) => {
             return n.attach(this.length, ...data)
         }, this.root, ...data)
+        this.length += data.length
+    }
+    attach_node(n : _node, ...data : Action[]){
+        n.attach(this.length, ...data)
         this.length += data.length
     }
     modify(func : (a : Action) => Action){

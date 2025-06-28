@@ -4,6 +4,7 @@ import type Card from "./card";
 import type effectSubtype from "./effectSubtype";
 import type { effectData } from "../../../data/cardRegistry";
 import EffectType from "./effectType";
+import { id_able } from "../../misc";
 
 //some effects can modify event data 
 //so in general, activate takes in an event and spits out an event
@@ -183,6 +184,10 @@ class Effect {
             // desc : this.desc,
             attr : JSON.stringify(Array.from(Object.entries(this.attr)))
         }, null, spaces)
+    }
+
+    is(p : id_able){
+        return p.id === this.id
     }
 }
 

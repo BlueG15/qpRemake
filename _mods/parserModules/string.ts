@@ -1,5 +1,4 @@
 import { component, parserModule, moduleInputObject, parseOptions, mode, textComponent } from '../../types/abstract/parser';
-type nestedTree<T> = T[] | nestedTree<T>[]
 
 const head_symbol = [
     "<<", ">>", "<", ">", 

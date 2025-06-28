@@ -2,6 +2,7 @@ import type queenSystem from "./queenSystem"
 import type Card from "../types/abstract/gameComponents/card"
 import type Zone from "../types/abstract/gameComponents/zone"
 import { actionConstructorRegistry, actionFormRegistry } from "./handler/actionGenrator"
+import utils from "../utils"
 
 const testSuite : Record<string, ((s : queenSystem) => void)> = {
     test1(s : queenSystem){
@@ -103,6 +104,27 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
         console.log("hand after: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
         console.log("field after: ", s.zoneHandler.fields[0].cardArr.map(i => i ? i.dataID : ""))
     },
+
+    test6(s : queenSystem){
+        //test inputs
+
+        let target = s.cardHandler.getCard("c_blank");
+        target.effects = [s.registryFile.effectLoader.getEffect("e_addToHand", s.setting)]
+        s.zoneHandler.graves[0].forceCardArrContent([
+            target
+        ]);
+        s.restartTurn();
+
+        console.log("grave before: ", s.zoneHandler.graves[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("hand before: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+
+        const a = actionConstructorRegistry.a_activate_effect_internal(s, target, target.effects[0])(actionFormRegistry.system());
+        
+        s.processTurn(a)
+
+        console.log("grave after: ", s.zoneHandler.graves[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+        console.log("hand after: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+    }
 }
 
 export default testSuite

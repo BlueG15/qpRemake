@@ -50,6 +50,10 @@ class effectSubtype {
     toDry() : dry_effectSubType {
         return this
     }
+
+    is(p : dry_effectSubType){
+        return p.dataID === this.dataID
+    }
 }
 
 export default effectSubtype

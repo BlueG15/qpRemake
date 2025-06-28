@@ -7,7 +7,7 @@ import {
     numberComponent, 
     componentID 
 } from '../../types/abstract/parser';
-type nestedTree<T> = T[] | nestedTree<T>[]
+import type { nestedTree } from '../../types/misc';
 
 export default class genericIfModule extends parserModule {
 

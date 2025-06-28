@@ -2,7 +2,7 @@ import { parseXml } from '@rgrove/parse-xml';
 import {XmlProcessingInstruction, XmlElement} from '@rgrove/parse-xml'
 
 import { component, textComponent, parserModule, parseOptions, loadOptions, lib_parse_option } from '../types/abstract/parser';
-type nestedTree<T> = T[] | nestedTree<T>[]
+import type { nestedTree } from '../types/misc';
 
 type XMLTree =  XmlProcessingInstruction | XmlElement
 

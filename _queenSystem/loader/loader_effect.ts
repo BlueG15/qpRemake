@@ -88,7 +88,9 @@ export default class effectLoader {
         }
     }
 
-    getEffect(eid : string, s : Setting, edata? : effectData){
+    getEffect(eid : keyof typeof effectDataRegistry, s : Setting, edata? : effectData) : Effect
+    getEffect(eid : string, s : Setting, edata? : effectData) : Effect | undefined
+    getEffect(eid : string, s : Setting, edata? : effectData) : Effect | undefined{
         let data = this.dataCache.get(eid)
         if(!data) return undefined
 

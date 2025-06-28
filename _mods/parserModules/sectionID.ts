@@ -6,7 +6,7 @@ import {
     parseOptions, 
     textComponent, iconComponent, symbolComponent 
 } from '../../types/abstract/parser';
-type nestedTree<T> = T[] | nestedTree<T>[]
+import type { nestedTree } from '../../types/misc';
 
 export default class sectionIDModule extends parserModule {
 
