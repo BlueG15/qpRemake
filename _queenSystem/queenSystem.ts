@@ -1039,5 +1039,6 @@ class queenSystem {
     readonly NULLCARD: dry_card
 }
 
+
 export default queenSystem
 export {logInfo}
