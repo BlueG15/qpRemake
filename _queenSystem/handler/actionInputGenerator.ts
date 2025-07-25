@@ -1,208 +1,363 @@
-import { dry_position, identificationInfo, inputData_pos, inputType, type dry_card, type dry_effect, type dry_effectSubType, type dry_system, type dry_zone, type inputData, type inputData_bool, type inputData_card, type inputData_effect, type inputData_num, type inputData_player, type inputData_subtype, type inputData_zone } from "../../data/systemRegistry";
-import { notFull, StrictGenerator } from "../../types/misc";
-import { Action, actionFormRegistry, actionInputObj } from "./actionGenrator";
-import utils from "../../utils";
+import { dry_position, identificationInfo, inputData_pos, inputData_standard, inputData_str, inputDataSpecific, inputType, type dry_card, type dry_effect, type dry_effectSubType, type dry_system, type dry_zone, type inputData, type inputData_bool, type inputData_card, type inputData_effect, type inputData_num, type inputData_player, type inputData_subtype, type inputData_zone } from "../../data/systemRegistry";
+import { Action, actionFormRegistry  } from "./actionGenrator";
+import { validSetFormat } from "../../data/systemRegistry";
+import { lambda_number, LambdaToNum, NumToLambda, precursor, Tuple_any } from "../../types/misc";
 
 export const inputFormRegistry = {
-    zone(s : dry_system, z : dry_zone){return {type : inputType.zone, data : actionFormRegistry.zone(s, z)} as const},
-    card(s : dry_system, c : dry_card){return {type : inputType.card, data : actionFormRegistry.card(s, c)} as const},
-    effect(s : dry_system, c : dry_card, e : dry_effect){return {type : inputType.effect, data : actionFormRegistry.effect(s, c, e)} as const},
-    subtype(s : dry_system, c : dry_card, e : dry_effect, st : dry_effectSubType){return {type : inputType.effectSubtype, data : actionFormRegistry.subtype(s, c, e, st)} as const},
+    zone(s : dry_system, z : dry_zone){
+        const o = actionFormRegistry.zone(s, z)
+        return {
+            type : inputType.zone, 
+            data : o, 
+            is : o.is,
+            of : o.of,
+        } as inputData_zone
+    },
+    card(s : dry_system, c : dry_card){
+        const o = actionFormRegistry.card(s, c);
+        return {
+            type : inputType.card, 
+            data : o,
+            is : o.is
+        } as inputData_card
+    },
+    effect(s : dry_system, c : dry_card, e : dry_effect){
+        const o = actionFormRegistry.effect(s, c, e)
+        return {
+            type : inputType.effect, 
+            data : o,
+            is : o.is
+        } as inputData_effect
+    },
+    subtype(s : dry_system, c : dry_card, e : dry_effect, st : dry_effectSubType){
+        const o = actionFormRegistry.subtype(s, c, e, st);
+        return {
+            type : inputType.effectSubtype, 
+            data : o,
+            is : o.is
+        } as inputData_subtype
+    },
 
-    player(s : dry_system, pid : number){return {type : inputType.player, data : actionFormRegistry.player(s, pid)} as const},
-    pos(s : dry_system, pos : dry_position){return {type : inputType.position, data : actionFormRegistry.position(s, pos)} as const},
+    player(s : dry_system, pid : number){
+        const o = actionFormRegistry.player(s, pid)
+        return {
+            type : inputType.player, 
+            data : o,
+            is : o.is,
+        } as inputData_player
+    },
+    pos(s : dry_system, pos : dry_position){
+        const o = actionFormRegistry.position(s, pos)
+        return {
+            type : inputType.position, 
+            data : o,
+            is : o.is
+        } as inputData_pos
+    },
 
-    num(num : number){return {type : inputType.number, data : num} as const},
-    str(str : string){return {type : inputType.string, data : str} as const},
-    bool(bool : boolean){return {type : inputType.boolean, data : bool} as const},
-
+    num(num : number){return {type : inputType.number, data : num} as inputData_num},
+    str(str : string){return {type : inputType.string, data : str} as inputData_str},
+    bool(bool : boolean){return {type : inputType.boolean, data : bool} as inputData_bool},
 } as const
 
-export type filter_func_full = [
-        (s : dry_system, z : dry_zone) => boolean,
-        (s : dry_system, c : dry_card) => boolean,
-        (s : dry_system, e : dry_effect) => boolean,
-        (s : dry_system, st : dry_effectSubType) => boolean,
-    ]
+export type inputRequester_finalized<T_accu extends Exclude<inputData[], []>> = Omit<inputRequester<never, [], T_accu>, "apply">
 
-export type filter_func_arr = Exclude<notFull<filter_func_full>, []>
+export class inputRequester<
+    K extends inputType = inputType, //initial type, for inference, useless after constructor is called
+    T extends inputData[] = [inputDataSpecific<K>], //inputs tuple yet to apply, [] means finished
+    T_accumulate extends Exclude<inputData[], []> = T, //inputs tuple as a whole, inference at first
+    T_head extends inputData = T extends [infer head, ...any[]] ? head : inputData, //inference
+    T_tail extends inputData[] = T extends [any, ...infer tail] ? tail : inputData[], //inference
+>{
 
-export type filter_func_specific_arr<T extends dry_zone | dry_card | dry_effect | dry_effectSubType> = 
-T extends dry_zone ? notFull<[filter_func_full[0]]> :
-T extends dry_card ? notFull<[filter_func_full[0], filter_func_full[1]]> : 
-T extends dry_effect ? notFull<[filter_func_full[0], filter_func_full[1], filter_func_full[2]]> :
-T extends dry_effectSubType ? notFull<[filter_func_full[0], filter_func_full[1], filter_func_full[2], filter_func_full[3]]> : filter_func_arr | []
+    protected __inner_res : Map<string, inputData> = new Map()
+    protected __func_arr : ((s : dry_system, prev : inputData[]) => Exclude<inputData[], []> | validSetFormat)[] = []
+    protected __curr : validSetFormat | undefined
+    protected __queue : inputRequester<any, inputData[], inputData[], any, any>[] = []
+    protected __valid_flag : boolean
+    protected __do_pre_fill_when_merge : boolean = false
+    protected __len : number = 1
+    cache : inputRequestCache<T_accumulate>
 
-export type dry_to_inputData_map<T extends dry_zone | dry_card | dry_effect | dry_effectSubType> = 
-T extends dry_zone ? inputData_zone :
-T extends dry_card ? inputData_card :
-T extends dry_effect ? inputData_effect :
-T extends dry_effectSubType ? inputData_subtype : never
-
-export class chained_filtered_input_obj<T extends 
-    inputData_zone | inputData_card | inputData_effect | inputData_subtype,
-    M extends Action[]
-> implements actionInputObj<[T], M> {
-    protected filter_funcs : filter_func_arr
-    protected applyFunc : (system: dry_system, inputs: [T]) => M
-    private s : dry_system
-    constructor(s : dry_system, applyFunc : (system: dry_system, inputs: [T]) => M, ...f : filter_func_arr){
-        this.filter_funcs = f.filter(f => f !== undefined) as filter_func_arr
-        this.s = s
-        this.applyFunc = applyFunc
-    }
-    private *__getValid() : StrictGenerator<[inputType, inputData[]], void, inputData>{
-        const zarr = this.s.filter(0, z => this.filter_funcs[0](this.s, z))
-        if(this.filter_funcs[1]) {
-            const carr = zarr.reduce((c, ele) => c.concat(...ele.cardArr_filtered), [] as dry_card[])
-                             .filter(c => this.filter_funcs[1]!(this.s, c))
-            if(this.filter_funcs[2]){
-                const earr = carr.map(c => [c, c.totalEffects.filter(e => this.filter_funcs[2]!(this.s, e))] as const)
-                if(this.filter_funcs[3]){
-                    yield [inputType.effectSubtype, utils.flat<inputData_subtype>(earr.map(([c, earr]) => earr.map(e => e.subTypes.map(st => inputFormRegistry.subtype(this.s, c, e, st)))))]
-                } else yield [inputType.effect, earr.map(([c, earr]) => earr.map(e => inputFormRegistry.effect(this.s, c, e)))
-                                 .reduce((c, ele) => c.concat(ele), [] as inputData_effect[])]
-            } else yield [inputType.card, carr.map(c => inputFormRegistry.card(this.s, c))];
-        } else yield [inputType.zone, zarr.map(z => inputFormRegistry.zone(this.s, z))];
-    }
-    getValid: StrictGenerator<[inputType, inputData[]], void, inputData> = this.__getValid();
-
-    applyInput(system: dry_system, inputs: [T]){
-        return this.applyFunc(system, inputs)
-    };
-}  
-
-export class chained_filtered_input_obj_pos<M extends Action[]> implements actionInputObj<[inputData_pos], M> {
-    protected filter_funcs : Exclude<notFull<[(s : dry_system, z : dry_zone) => boolean, (s : dry_system, z : dry_zone, pos : dry_position) => boolean]>, []>
-    protected applyFunc : (system: dry_system, inputs: [inputData_pos]) => M
-    private s : dry_system
-    constructor(
-        s : dry_system, 
-        applyFunc : (system: dry_system, inputs: [inputData_pos]) => M, 
-        ...f : Exclude<notFull<[(s : dry_system, z : dry_zone) => boolean, (s : dry_system, z : dry_zone, pos : dry_position) => boolean]>, []>
-    ){
-        this.filter_funcs = f.filter(f => f !== undefined) as Exclude<notFull<[(s : dry_system, z : dry_zone) => boolean, (s : dry_system, z : dry_zone, pos : dry_position) => boolean]>, []>
-        this.s = s
-        this.applyFunc = applyFunc
-    }
-    private *__getValid() : StrictGenerator<[inputType.position, inputData_pos[]], void, inputData>{
-        const zarr = this.s.filter(0, z => this.filter_funcs[0](this.s, z))
-        if(this.filter_funcs[1]) {
-            yield [inputType.position, zarr.map(z => z.getAllPos().filter(p => this.filter_funcs[1]!(this.s, z, p)).map(p => inputFormRegistry.pos(this.s, p))).reduce((c, ele) => c.concat(ele), [] as inputData_pos[])];
-        } else yield [inputType.position, zarr.map(z => z.getAllPos().map(p => inputFormRegistry.pos(this.s, p))).reduce((c, ele) => c.concat(ele), [] as inputData_pos[])];
-    }
-    getValid: StrictGenerator<[inputType, inputData[]], void, inputData> = this.__getValid();
-
-    applyInput(system: dry_system, inputs: [inputData_pos]){
-        return this.applyFunc(system, inputs)
-    };
-}
-
-export class direct_input_obj<T extends inputData, M extends Action[]> implements actionInputObj<[T], M> {
-    protected applyFunc : (system: dry_system, inputs: [T]) => M
-    private __inputData : T
-    constructor(inputData : T, f : (system: dry_system, inputs: [T]) => M){
-        this.__inputData = inputData,
-        this.applyFunc = f
+    get len(){
+        return this.__len
     }
 
-    private *__getValid() : StrictGenerator<[T["type"], [T]], void, T>{
-        yield [this.__inputData.type, [this.__inputData]];
+    constructor(type : K, validSet? : Exclude<inputDataSpecific<K>[], []>){
+        this.__curr = [type, validSet]
+        if (validSet === undefined) this.__valid_flag = true;
+        else this.__valid_flag = (validSet.length !== 0)
+
+        this.cache = new inputRequestCache(validSet)
     }
 
-    getValid = this.__getValid();
-    applyInput(system: dry_system, inputs: [T]){
-        return this.applyFunc(system, inputs);
+    hasInput() : this is inputRequester<K, T, T_accumulate, T_head, T_tail> {
+        return this.__valid_flag
     }
-}
-
-type spreadInputType<T extends actionInputObj<any>[], R extends any[] = []> = T extends [infer Head, ...infer Tail] ? (
-    Head extends actionInputObj<infer X> ? (
-        Tail extends actionInputObj[] ? spreadInputType<Tail, [...R, ...X]> : never
-    ) : never
-) : R
-
-type spreadActionType<T extends actionInputObj<any>[], R extends any[] = []> = T extends [infer Head, ...infer Tail] ? (
-    Head extends actionInputObj<infer X, infer Y> ? (
-        Tail extends actionInputObj[] ? spreadInputType<Tail, [...R, ...Y]> : never
-    ) : never
-) : R
-
-export class sequenced_independent_input_obj<T extends actionInputObj<any>[]> implements actionInputObj<spreadInputType<T>> {
-    final_applicator? : (s : dry_system, inputs : spreadInputType<T>) => Action[];
-    override_applicator? : (s : dry_system, inputs : spreadInputType<T>) => Action[];
-    private inputObjArr : T
-    constructor(...inputObj : T){
-        this.inputObjArr = inputObj
+    
+    private verify(a : any[]) : a is validSetFormat {
+        return a.length === 2 && typeof a[0] === "number" //rough check
     }
 
-    private *__getValid() : StrictGenerator<[inputType, inputData[]], void, inputData>{
-        let input : inputData | undefined = undefined;
-        for(let i = 0; i < this.inputObjArr.length; i++){
-            const cgen = this.inputObjArr[i]
-            const t : void | [inputType, inputData[]] = cgen.getValid.next(input as any).value
-            if(t === undefined) {input = undefined; continue}
-            else input = yield t
-        }
+    private isCurrentInputAllows(s : dry_system, k : inputData | undefined) : k is T_head {
+        if(k === undefined) return false
+        const t : T_accumulate | validSetFormat<inputType> = this.next()
+        const c1 = this.verify(t) 
+        const c2 = t[0] === k.type 
+        const c3 = (t[1] === undefined || (t[1] as Array<inputData>).some(i => i !== undefined && s.generateSignature(i) === s.generateSignature(k)))
+        //console.log("Checking applicavbility of input : ", k, " -- ",  [c1, c2, c3, (t[1] as inputData[]).map(i => s.generateSignature(i))])
+        return c1 && c2 && c3
     }
 
-    getValid = this.__getValid();
-
-    applyInput(s : dry_system, inputs : spreadInputType<T>){
-
-        //I have no idea if this travesty works ngl, preferably dont use this
-        if(this.override_applicator){
-            return this.override_applicator(s, inputs)
+    apply(s : dry_system, input : T_head) 
+    : T_tail extends [] 
+    ? inputRequester_finalized<T_accumulate>
+    : inputRequester<inputType, T_tail, T_accumulate>
+    {
+        let f = this.__func_arr[this.__inner_res.size]
+        this.__inner_res.set(s.generateSignature(input), input)
+        if(f !== undefined){
+            const t : inputData[] | validSetFormat = f(s, Array.from(this.__inner_res.values()))
+            if(this.verify(t)) this.__curr = t;
+            else this.__curr = [t[0].type, t]
+        } else if(this.__queue.length !== 0){
+            const next = this.__queue.shift()!
+            this.__func_arr.push(...next.__func_arr)
+            next.__inner_res.forEach((val, key) => this.__inner_res.set(key, val))
+            this.__curr = next.__curr
+            this.__queue.unshift(...next.__queue)
+            this.__do_pre_fill_when_merge = next.__do_pre_fill_when_merge
+            if(this.__do_pre_fill_when_merge) this.applyMultiple(s, [...Array.from(this.__inner_res.values()), input])
+            else this.apply(s, input)
         } else {
-            let c_global = 0;
-            let res : Action[] = []
-
-            while(true){
-                let c = 0;
-
-                while(true){
-                    const t = this.getValid.next(inputs[c]).value
-                    if(t === undefined) break;
-                    if(!t.length) return []
-                    c++;
-                }
-
-                const input_sliced = inputs.splice(0, c);
-
-                if(input_sliced.length !== c){
-                    throw new Error("not enough input");
-                }
-
-                res.push(...this.inputObjArr[c_global].applyInput(s, input_sliced));
-
-                c_global++;
-
-                if(this.inputObjArr.length <= c_global) break;
-            }
-            if(this.final_applicator) res.push(...this.final_applicator(s, inputs));
-            return res;
+            this.__curr = undefined
         }
+        return this as any
+    }
+
+    applyMultiple(
+        s : dry_system, inputs : inputData[], 
+        preProcess? : (s : dry_system, index : number, input: inputData) => undefined | inputData[]
+    ) : this {
+
+        let mark : boolean[] = new Array(inputs.length).fill(false)
+        //console.log("logging from applyMultiple, trying to apply ", inputs, " to this Object")
+
+        let i = 0
+        while(i < inputs.length && !this.isFinalized()){
+            const x = preProcess ? preProcess(s, i, inputs[i]) : undefined
+            if(x){
+                x.forEach(k => {
+                    if(this.isCurrentInputAllows(s, k)){
+                        this.apply(s, k)
+                    }
+                })
+            }
+            else if(this.isCurrentInputAllows(s, inputs[i])){
+                mark[i] = true;
+                this.apply(s, inputs[i] as T_head)
+            }
+            i++
+        }
+
+        console.log("Applied mask: ", mark)
+        return this
+    }
+
+    next() 
+    : T extends []
+    ? T_accumulate
+    : validSetFormat<T[0]["type"]> 
+    {
+        return (this.__curr === undefined) ? Array.from(this.__inner_res.values()) as any : this.__curr as any
+    }
+
+    isFinalized() : this is inputRequester_finalized<T_accumulate>{
+        return this.__curr === undefined
+    }
+
+    //extend DO check for chained validity
+    extend<T2 extends inputData>(
+        s : dry_system, 
+        f : (s : dry_system, prev : T_accumulate) => T2[] | validSetFormat<T2["type"]>
+    ) 
+    : inputRequester<inputType, [...T, T2], [...T_accumulate, T2]>
+    {
+        this.__func_arr.push(f as any)
+        this.__len++;
+        this.cache.extend<T2>(s, f as any)
+        if(this.cache.tree.length === 0) this.__valid_flag = false;
+        return this as any
+    }
+
+    extendMultiple<T2 extends inputData, Len extends number, X extends inputData[] = Tuple_any<T2, Len>>(
+        s : dry_system, 
+        len : Len,
+        f : (s : dry_system, prev : T_accumulate) => T2[]
+    )
+    : inputRequester<K, [...T, ...X], [...T_accumulate, ...X]>
+    {
+        if(len <= 0) {
+            this.__valid_flag = false;
+            return this as any;
+        }
+        this.__len+=len;
+        this.cache.extend<T2>(s, f as any, (s : any, k : T2[]) => k.length >= len);
+
+        this.__func_arr.push(f as any);
+
+        let k = len - 1
+        while(k !== 0){
+            this.__func_arr.push((s : dry_system, prev : inputData[]) => {
+                return f(s, prev as any).filter(i => s.generateSignature(i) !== s.generateSignature(prev.at(-1)!))
+            })
+            k--
+        }
+
+
+        if(this.cache.tree.length === 0) this.__valid_flag = false;
+        return this as any
+    }
+
+    //merge DO NOT check for chained validity
+    merge<T2 extends inputData[], T_accumulate2 extends Exclude<inputData[], []>>(
+        requester : inputRequester<inputType, T2, T_accumulate2>
+    )
+    : inputRequester<inputType, [...T, ...T2], [...T_accumulate, ...T_accumulate2]>
+    {
+        this.__queue.push(requester)
+        if(requester.__valid_flag === false) this.__valid_flag = false;
+        this.__len += requester.__len
+        this.cache.merge(requester.cache)
+        return this as any
+    }
+
+    merge_with_signature(requester : inputRequester<any, inputData[], inputData[]>) : this {
+        requester.__do_pre_fill_when_merge = true;
+        this.merge(requester)
+        return this
+    }
+
+    fill(s : dry_system, requester : inputRequester<any, inputData[], inputData[]>) : this {
+        this.applyMultiple(s, Array.from(requester.__inner_res.values()));
+        return this
     }
 }
 
-// export class spread_input_action_arr<T extends Array<Action>> extends Array<Action> {
-//     //enforces the first apply_input applies to all actions in this array
-//     applyInput : (s : dry_system, obj : actionInputObj, actionArr : T, inputs : inputData[]) => void
+export class inputRequester_multiple<
+    K extends inputType,
+    Len extends number
+> extends inputRequester<K, Tuple_any<inputDataSpecific<K>, Len>>{
 
-//     constructor(applyInput : (s : dry_system, obj : actionInputObj, actionArr : T, inputs : inputData[]) => void, ...a : T){
-//         super(...a)
-//         this.applyInput = applyInput
-//         if(!a.length) return;
-//         const [first, ...rest] = this;
-//         if(!first.inputs) return;
+    __multiple_len : Len
 
-//         const obj = first.inputs
+    constructor(len : Len, type : K, validSet : Exclude<inputDataSpecific<K>[], []>){
+        super(type, validSet);
+        this.__valid_flag = validSet.length >= len ;
+        this.__len = len
+        this.__multiple_len = len
+    }    
 
-//         first.inputs.applyInput = (s : dry_system, a : Action, inputs : inputData[]) => {
-//             this.applyInput(s, obj, this as any, inputs);
-//         }
+    override apply(s: dry_system, input: Tuple_any<inputDataSpecific<K>, Len> extends [infer head, ...any[]] ? head : inputData_standard){
+        if(this.__multiple_len === 0) return super.apply(s, input);
+        const i : inputData = input as inputData
+        this.__inner_res.set(s.generateSignature(i), i)
+        this.__curr![1]! = this.__curr![1]!.filter(i => s.generateSignature(i) !== s.generateSignature(i))
+        this.__multiple_len--;
+        return this as any;
+    }
+}
 
-//         rest.forEach(i => i.deleteInputObj())
-//     }
-// }
+
+class leaf<T extends inputData>{
+    path : inputData[] = []
+    cache : T[];
+    allIsValid : boolean = false;
+    constructor(data : T[] | undefined, path : inputData[] = []){
+        if(data === undefined) {
+            this.allIsValid = true;
+            data = []
+        }
+        this.cache = data; this.path = path
+    }
+}
+
+class inputRequestCache<
+    T extends Exclude<inputData[], []>
+>{
+    tree : leaf<inputData>[]
+    constructor(initial : T | [] = []){
+        this.tree = initial.map(i => new leaf([i]))
+    }
+
+    private verify(a : any[]) : a is validSetFormat{
+        return a.length === 2 && typeof a[0] === "number"
+    }
+
+    extend<T2 extends inputData>(
+        s : dry_system, 
+        f : (s : dry_system, prev : inputData[]) => T2[] | validSetFormat,
+        extraCond : (s : dry_system, k : T2[]) => boolean = (s : any, k : any[]) => k.length !== 0
+    ){
+        const limit = this.tree.length;
+        for(let i = 0; i < limit; i++){
+            const curr_leaf = this.tree.shift()!;
+            if(curr_leaf instanceof leaf){
+                const datum = curr_leaf.cache;
+                datum.forEach(k => {
+                    const newPath = [...curr_leaf.path, k]
+                    const res = f(s, newPath)
+                    if(this.verify(res)){
+                        if(res[1] === undefined || res[1].length !== 0){
+                            this.tree.push(
+                                new leaf(res[1], newPath)
+                            )
+                        }
+                    } else {
+                        if(extraCond(s, res)){
+                                this.tree.push(
+                                new leaf(res, newPath)
+                            )
+                        }
+                    }
+                })
+            } else {
+                this.tree.push(curr_leaf)
+            }
+        }
+    }
+
+    merge(requester : inputRequestCache<any>){
+        this.tree.push(...requester.tree)
+    }
+
+    get(depth : number){ //1 indexing
+        return this.tree.filter(i => i.path.length === depth)
+    }
+}
+
+
+export class inputApplicator<
+    ParamType extends any[],
+    InputType extends Exclude<inputData[], []>,
+>{
+    private __p : ParamType
+    private __f : (...param : [...ParamType, inputRequester_finalized<InputType>]) => Action[]
+    constructor(
+        f : (...param : [...ParamType, inputRequester_finalized<InputType>]) => Action[],
+        p : ParamType,
+        thisParam? : any,
+    ){
+        this.__p = p
+        this.__f = thisParam ? f.bind(thisParam) : f
+    }
+
+    apply(input : inputRequester_finalized<InputType>) : Action[]{
+        let k = [...this.__p, input] as const
+        return this.__f(...k)
+    }
+}
+
+
+
 

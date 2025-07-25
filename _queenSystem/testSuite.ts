@@ -3,6 +3,7 @@ import type Card from "../types/abstract/gameComponents/card"
 import type Zone from "../types/abstract/gameComponents/zone"
 import { actionConstructorRegistry, actionFormRegistry } from "./handler/actionGenrator"
 import utils from "../utils"
+import { auto_input_option } from "../types/abstract/gameComponents/settings"
 
 const testSuite : Record<string, ((s : queenSystem) => void)> = {
     test1(s : queenSystem){
@@ -17,7 +18,7 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
         console.log("deck before drawing: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
         console.log("hand before drawing: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
 
-        let a = s.zoneHandler.decks[0].getAction_draw(s.toDry(), actionFormRegistry.player(s.toDry(), 0), false)
+        let a = s.zoneHandler.decks[0].getAction_draw(s, s.zoneHandler.hands[0], actionFormRegistry.player(s, 0), false)
         s.processTurn(a);
 
         console.log("deck after drawing: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
@@ -34,7 +35,7 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
             s.cardHandler.getCard("c_apple") as Card,
         ])
         s.restartTurn()
-        const ds = s.toDry()
+        const ds = s
 
         console.log("deck before: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
         console.log("hand before: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
@@ -42,9 +43,9 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
 
         let a = actionConstructorRegistry.a_pos_change(
             ds, 
-            target.toDry()
+            target
         )(
-            s.zoneHandler.fields[0].getRandomEmptyPos().toDry()
+            s.zoneHandler.fields[0].getRandomEmptyPos()
         )(
             actionFormRegistry.player(ds, 0)
         )
@@ -56,7 +57,7 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
     },
 
     test3(s : queenSystem){
-        let a = s.zoneHandler.decks[0].getAction_draw(s.toDry(), actionFormRegistry.system(), true)
+        let a = s.zoneHandler.decks[0].getAction_draw(s, s.zoneHandler.hands[0], actionFormRegistry.system(), true)
         console.dir(a, {depth : 2})
     },
 
@@ -84,7 +85,7 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
             target
         ])
         s.restartTurn()
-        const ds = s.toDry()
+        const ds = s
 
         console.log("deck before: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
         console.log("hand before: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
@@ -92,9 +93,9 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
 
         let a = actionConstructorRegistry.a_pos_change(
             ds, 
-            target.toDry()
+            target
         )(
-            s.zoneHandler.fields[0].getRandomEmptyPos().toDry()
+            s.zoneHandler.fields[0].getRandomEmptyPos()
         )(
             actionFormRegistry.player(ds, 0)
         )
@@ -124,6 +125,31 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
 
         console.log("grave after: ", s.zoneHandler.graves[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
         console.log("hand after: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
+    },
+
+    test7(s : queenSystem){
+        //test prefilling inputs of a partition
+        const k = s.setting.auto_input
+        s.setting.auto_input = auto_input_option.random
+
+        const c = s.cardHandler.getCard("c_test");
+        s.zoneHandler.hands[0].forceCardArrContent([
+            c
+        ])
+
+        console.log("Playing c_test to field\n")
+
+        const a = actionConstructorRegistry.a_pos_change(
+            s, c
+        )(
+            s.zoneHandler.fields[0].getRandomEmptyPos()
+        )(
+            actionFormRegistry.player(s, 0)
+        )
+        
+        s.processTurn(a)
+
+        s.setting.auto_input = k
     }
 }
 

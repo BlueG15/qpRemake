@@ -4,6 +4,7 @@ enum effectTypeRegistry {
     e_passive,
     e_trigger,
     e_init,
+    e_lock,
     e_counter,
     e_status,
 }

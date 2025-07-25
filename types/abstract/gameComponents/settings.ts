@@ -92,7 +92,12 @@ class defaultSetting implements Setting {
     id_separator = '_'
     max_id_count = 65536
     effectFolder = "../../specificEffects"
-    effectFiles = ["e_status", "e_generic_effects", "e_fruit"];
+    effectFiles = [
+        "e_test",
+        "e_status", 
+        "e_generic_effects", 
+        //"e_fruit", 
+    ];
     modFolder = "../../_mods"
     localizationFolder = "../../_localizationFiles"
     ignore_undefined_subtype = true

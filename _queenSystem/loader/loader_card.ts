@@ -65,10 +65,39 @@ export default class cardLoader {
         
         let effArr : Effect[] = []
         Object.keys(d.effects).forEach(i => {
-            const eObj : effectData | undefined = (d.effects as any)[i]
-            let e = this.effectHandler.getEffect(i, s, eObj);
-            if(e) effArr.push(e);
-            else console.log(`Effect id not found: ${i}\n`)
+            const eObj : effectData & {
+                __loadOptions? : {
+                    ___internalMultipleLoadCount? : number,
+                    __additionalPatches?: Partial<effectData>[]
+                }
+            } | undefined = (d.effects as any)[i]
+
+            function Load(t : cardLoader, eObj : Partial<effectData> | undefined){
+                console.log("Trying to load eff: ", JSON.stringify(eObj))
+                let e = t.effectHandler.getEffect(i, s, eObj);
+                if(e) effArr.push(e);
+                else console.log(`Effect id not found: ${i}\n`)
+            }
+
+            if(eObj && typeof eObj.__loadOptions === "object"){
+                if(eObj.__loadOptions.___internalMultipleLoadCount || eObj.__loadOptions.__additionalPatches){
+                    let t1 = eObj.__loadOptions.___internalMultipleLoadCount ?? 0
+                    let t2 = (eObj.__loadOptions.__additionalPatches ?? []).length
+
+                    let t = Math.max(t1, t2);
+                    
+                    if(!Number.isFinite(t)) console.log(
+                        "Trying to load an infinite ammounnt of effects: ", cid, eObj
+                    ); else if(t > 0) {
+                        for(let z = 0; z < t; z++){
+                            Load(this, eObj.__loadOptions.__additionalPatches ? eObj.__loadOptions.__additionalPatches[z] : eObj)
+                        }
+                    }
+                }
+            } else {
+                Load(this, eObj)
+            }
+            
         })
         
         if(effArr.length != Object.keys(d.effects).length && !s.ignore_undefined_effect){

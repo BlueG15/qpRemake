@@ -1,5 +1,6 @@
 enum subtypeRegistry {
     e_chained = 0,
+    e_delayed,
     e_fieldLock,
     e_handOrFieldLock,
     e_graveLock,

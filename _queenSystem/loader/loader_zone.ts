@@ -1,6 +1,7 @@
 import type Zone from "../../types/abstract/gameComponents/zone";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 import type { zoneData } from "../../data/zoneRegistry";
+import type { inputData } from "../../data/systemRegistry";
 import utils from "../../utils";
 
 export default class zoneLoader {

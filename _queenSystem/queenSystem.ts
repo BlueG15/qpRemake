@@ -3,7 +3,7 @@ import _tree from "../types/abstract/generics/tree";
 import zoneHandler from "./handler/zoneHandler";
 import actionRegistry, {actionName, actionID} from "../data/actionRegistry";
 
-import { Action, actionConstructorRegistry, actionFormRegistry, actionInputObj } from "./handler/actionGenrator";
+import { Action, actionConstructionObj_variable, actionConstructorRegistry, actionFormRegistry, Action_class} from "./handler/actionGenrator";
 import type error from "../types/errors/error";
 import { 
     unregisteredAction,
@@ -50,12 +50,18 @@ import {
     inputData_str,
     inputData_card,
     inputData_pos,
+    inputDataSpecific,
+    inputData_zone,
+    inputData_effect,
+    inputData_subtype,
+    inputData_standard,
 } from "../data/systemRegistry";
 
-import { id_able, Positionable } from "../types/misc";
+import { id_able, notFull, Player_specific, Positionable, StrictGenerator } from "../types/misc";
 import Position from "../types/abstract/generics/position";
 
 import utils from "../utils";
+import { inputFormRegistry, inputRequester } from "./handler/actionInputGenerator";
 
 // import type dry_card from "../dryData/dry_card";
 // import position from "../baseClass/position";
@@ -91,11 +97,8 @@ class queenSystem {
     
     private suspensionReason : suspensionReason | false = false
 
-    takenInput? : inputData = undefined
-    takenInputs_arr : inputData[] = []
-
-    validInputSet : inputData[] | undefined = undefined //undefined is literally, undefined, its unbounded
-    validInputType : inputType | undefined = undefined
+    private curr_input_obj : ReturnType<Action<"a_get_input">["flatAttr"]> | undefined = undefined
+    input_cache : Map<string, inputRequester<any, inputData[], inputData[]>> = new Map() //key is cid_partitionid
 
     get isSuspended() {return this.suspensionReason !== false}
 
@@ -217,7 +220,7 @@ class queenSystem {
             }; 
 
             case actionRegistry.a_turn_reset : 
-                return this.zoneHandler.handleTurnReset(this.toDry(), a as Action<"a_turn_reset">)
+                return this.zoneHandler.handleTurnReset(this, a as Action<"a_turn_reset">)
 
             //note : may move the resolution of 6, 7, 8 to zone/system
             case actionRegistry.a_increase_turn_count : {
@@ -237,7 +240,7 @@ class queenSystem {
             }
 
             case actionRegistry.a_do_threat_burn : {
-                return this.zoneHandler.system.map((i, index) => i.doThreatBurn(this.toDry(), this.player_stat[index])).reduce((res, ele) => res.concat(ele))
+                return this.zoneHandler.system.map((i, index) => i.doThreatBurn(this, this.player_stat[index])).reduce((res, ele) => res.concat(ele))
             }
 
             case actionRegistry.a_force_end_game : {
@@ -254,20 +257,20 @@ class queenSystem {
             case actionRegistry.a_activate_effect_internal : 
             case actionRegistry.a_activate_effect : 
                 // 5 and 101 resolves the same, just has different control flow
-                return this.zoneHandler.handleEffectActivation(this.toDry(), a as Action<"a_activate_effect">)
+                return this.zoneHandler.handleEffectActivation(this, a as Action<"a_activate_effect">)
 
             case actionRegistry.a_pos_change_force:
             case actionRegistry.a_pos_change : 
-                return this.zoneHandler.handlePosChange(this.toDry(), a as Action<"a_pos_change">)
+                return this.zoneHandler.handlePosChange(this, a as Action<"a_pos_change">)
 
             case actionRegistry.a_draw : 
-                return this.zoneHandler.handleDraw(this.toDry(), a as Action<"a_draw">)
+                return this.zoneHandler.handleDraw(this, a as Action<"a_draw">)
 
             case actionRegistry.a_shuffle : 
-                return this.zoneHandler.handleShuffle(this.toDry(), a as Action<"a_shuffle">)
+                return this.zoneHandler.handleShuffle(this, a as Action<"a_shuffle">)
 
             case actionRegistry.a_execute : 
-                return this.zoneHandler.handleExecute(this.toDry(), a as Action<"a_execute">)
+                return this.zoneHandler.handleExecute(this, a as Action<"a_execute">)
 
             case actionRegistry.a_reprogram_start : {
                 //to be implemented                
@@ -290,15 +293,15 @@ class queenSystem {
                 if(!eff || !(eff instanceof StatusEffect_base)) return [
                     new cannotLoad(s, "statusEffect")
                 ];
-                return this.zoneHandler.handleAddStatusEffect(this.toDry(), (a as Action<"a_add_status_effect">), eff)               
+                return this.zoneHandler.handleAddStatusEffect(this, (a as Action<"a_add_status_effect">), eff)               
             }
 
             case actionRegistry.a_remove_status_effect : 
-                return this.zoneHandler.handleRemoveStatusEffect(this.toDry(), a as Action<"a_remove_status_effect">)
+                return this.zoneHandler.handleRemoveStatusEffect(this, a as Action<"a_remove_status_effect">)
             
 
             case actionRegistry.a_activate_effect_subtype : 
-                return this.zoneHandler.handleActivateEffectSubtypeFunc(this.toDry(), a as Action<"a_activate_effect_subtype">);               
+                return this.zoneHandler.handleActivateEffectSubtypeFunc(this, a as Action<"a_activate_effect_subtype">);               
             
             case actionRegistry.a_modify_action : {
                 let target = (a as Action<"a_modify_action">).targets[0].action
@@ -310,32 +313,32 @@ class queenSystem {
                 return;
             }
             case actionRegistry.a_reset_card : 
-                return this.zoneHandler.handleCardReset(this.toDry(), a as Action<"a_reset_card">);
+                return this.zoneHandler.handleCardReset(this, a as Action<"a_reset_card">);
             
             case actionRegistry.a_replace_action:
             case actionRegistry.a_negate_action : return; //tecnically not possible
                 
             case actionRegistry.a_clear_all_status_effect : 
-                return this.zoneHandler.handleClearAllStatusEffect(this.toDry(), a as Action<"a_clear_all_status_effect">)
+                return this.zoneHandler.handleClearAllStatusEffect(this, a as Action<"a_clear_all_status_effect">)
             
             case actionRegistry.a_reset_effect: 
-                return this.zoneHandler.handleEffectReset(this.toDry(), a as Action<"a_reset_effect">)
+                return this.zoneHandler.handleEffectReset(this, a as Action<"a_reset_effect">)
 
             case actionRegistry.a_enable_card: 
-                return this.zoneHandler.handleCardStatus(this.toDry(), a as Action<"a_enable_card">)
+                return this.zoneHandler.handleCardStatus(this, a as Action<"a_enable_card">)
 
             case actionRegistry.a_disable_card:
-                return this.zoneHandler.handleCardStatus(this.toDry(), a as Action<"a_disable_card">)
+                return this.zoneHandler.handleCardStatus(this, a as Action<"a_disable_card">)
 
             case actionRegistry.a_attack :
-                return this.zoneHandler.handleAttack(this.toDry(), a as Action<"a_attack">)
+                return this.zoneHandler.handleAttack(this, a as Action<"a_attack">)
 
             case actionRegistry.a_deal_damage_internal:
             case actionRegistry.a_deal_damage_card :
-                return this.zoneHandler.handleDealDamage_1(this.toDry(), a as Action<"a_deal_damage_card">)
+                return this.zoneHandler.handleDealDamage_1(this, a as Action<"a_deal_damage_card">)
 
             case actionRegistry.a_deal_damage_position:
-                return this.zoneHandler.handleDealDamage_2(this.toDry(), a as Action<"a_deal_damage_position">)
+                return this.zoneHandler.handleDealDamage_2(this, a as Action<"a_deal_damage_position">)
 
             case actionRegistry.a_deal_heart_damage: 
                 let pid = (a as Action<"a_deal_heart_damage">).targets[0].id
@@ -346,14 +349,13 @@ class queenSystem {
 
             case actionRegistry.a_decompile:
             case actionRegistry.a_destroy: 
-                return this.zoneHandler.handleSendToTop(this.toDry(), a as Action<"a_destroy"> | Action<"a_decompile">, zoneRegistry.z_grave)
+                return this.zoneHandler.handleSendToTop(this, a as Action<"a_destroy"> | Action<"a_decompile">, zoneRegistry.z_grave)
             
             case actionRegistry.a_void:
-                return this.zoneHandler.handleSendToTop(this.toDry(), a as Action<"a_void">, zoneRegistry.z_void)
+                return this.zoneHandler.handleSendToTop(this, a as Action<"a_void">, zoneRegistry.z_void)
 
             case actionRegistry.a_zone_interact:
-                let zid = (a as Action<"a_zone_interact">).targets[0].zone.id
-                return this.zoneHandler.zoneArr[zid].interact(this.toDry(), a.cause);
+                return this.zoneHandler.handleZoneInteract((a as Action<"a_zone_interact">).targets[0].zone as Zone, this, a)
 
             default : {
                 //only should reach here iff effect is unregistered
@@ -428,105 +430,14 @@ class queenSystem {
                     currentAction : n.data
                 })
                 this.phaseIdx = TurnPhase.chain;
-                if(n.data.is("a_get_input")) {
-                    console.log("input received")
-
-                    let actuallySuspend = true;
-
-                    const obj = n.data.flatAttr().input;
-
-                    const k = obj.getValid.next({} as any).value; //first next has no input, forcing is fine
-
-                    if(!k) {
-                        console.log("blank input, skipped, logging fullObject: ", obj)
-                        this.phaseIdx = TurnPhase.complete;
-                        return false;
-                    }
-
-
-                    this.validInputSet = k[1];
-                    this.validInputType = k[0];
-
-                    switch(this.setting.auto_input){
-                        case auto_input_option.first : {
-                            actuallySuspend = false;
-                            this.takenInputs_arr = []
-                            let c = 0;
-                            while(true){
-                                let input : inputData = this.validInputSet ? this.validInputSet[0] : this.getAllInputs(this.validInputType)[0]
-                                this.takenInputs_arr.push(input);
-                                let j : [inputType, inputData[]] | void = obj.getValid.next(input).value
-                                if(!j || !j.length) break;
-                                this.validInputSet = j[1];
-                                this.validInputType = j[0];
-                                c++;
-                            }
-                            break;
-                        }
-                        case auto_input_option.last : {
-                            actuallySuspend = false;
-                            this.takenInputs_arr = []
-                            let c = 0;
-                            while(true){
-                                let input : inputData = this.validInputSet ? this.validInputSet.at(-1)! : this.getAllInputs(this.validInputType).at(-1)!
-                                this.takenInputs_arr.push(input);
-                                let j : [inputType, inputData[]] | void = obj.getValid.next(input).value
-                                if(!j || !j.length) break;
-                                this.validInputSet = j[1];
-                                this.validInputType = j[0];
-                                c++;
-                            }
-                            break;
-                        }
-                        case auto_input_option.random : {
-                            actuallySuspend = false;
-                            this.takenInputs_arr = []
-                            let c = 0
-                            while(true){
-                                let input : inputData = this.validInputSet ? utils.getRandomElement(this.validInputSet)! : utils.getRandomElement(this.getAllInputs(this.validInputType))!
-                                this.takenInputs_arr.push(input);
-                                let j : [inputType, inputData[]] | void = obj.getValid.next(input).value
-                                if(!j || !j.length) break;
-                                this.validInputSet = j[1];
-                                this.validInputType = j[0];
-                                c++;
-                            }
-                        }
-                        case auto_input_option.default : {
-                            actuallySuspend = !this.grabInput_default(obj);
-                        }
-                    }
-
-                    if(actuallySuspend){
-                        console.log("suspending waiting for inputs");
-                        this.suspensionReason = suspensionReason.taking_input
-                        this.suspend(n.id);
-                    } else {
-                        console.log("inputs getting skipped, trying to apply")
-
-                        this.suspensionReason = false;
-                        this.takenInput = undefined;
-
-                        this.validInputSet = undefined;
-                        this.validInputType = undefined;
-
-                        const actions = obj.applyInput(this, this.takenInputs_arr);
-                        this.actionTree.attach_node(n, ...actions);
-                        n.markComplete();
-
-                        this.takenInputs_arr = [];
-
-                        this.phaseIdx = TurnPhase.declare //unwind back to declare;
-                        this.suspendID = -1;
-
-                        return true;
-                    }
+                if(n.data.is("a_get_input")){
+                    return this.inputHandler(n.data, n)
                 }
                 return false; 
             }
             case TurnPhase.chain: {
                 //chain step
-                let [actionArr, logInfo] = this.zoneHandler.respond(this.toDry(), n.data, !n.data.canBeChainedTo)
+                let [actionArr, logInfo] = this.zoneHandler.respond(this, n.data, !n.data.canBeChainedTo)
                 this.fullLog.push({
                     currentPhase : 3,
                     currentAction : n.data,
@@ -541,18 +452,18 @@ class queenSystem {
                     return false;
                 }
 
+                let gotoComplete = false
                 let replacements = actionArr.filter(i => i.id === actionRegistry.a_replace_action).map(i => (i as Action<"a_replace_action">).targets[0].action)
                 if(replacements.length){
-                    this.actionTree.attach(...replacements);
-                    this.phaseIdx = TurnPhase.complete;
-                    return false;
+                    gotoComplete = true;
+                    actionArr = replacements
                 }
 
                 actionArr.forEach(i => {
-                    if(i.isChain) this.actionTree.attachArbitrary(n.id, i);
-                    else this.actionTree.attachArbitrary(this.actionTree.root.id, i);
+                    if(i.isChain) this.actionTree.attach_node(n, i);
+                    else this.actionTree.attach_node(this.actionTree.root, i);
                 })
-                this.phaseIdx = TurnPhase.recur;
+                this.phaseIdx = (gotoComplete) ? TurnPhase.complete : TurnPhase.recur;
                 return false
             }
             case TurnPhase.recur: {
@@ -589,15 +500,16 @@ class queenSystem {
             }
             case TurnPhase.trigger: {
                 //trigger
-                let [actionArr, logInfo] = this.zoneHandler.respond(this.toDry(), n.data)
+                let [actionArr, logInfo] = this.zoneHandler.respond(this, n.data)
                 this.fullLog.push({
                     currentPhase : 6,
                     currentAction : n.data,
                     responses : Object.fromEntries(logInfo)
                 })
+                //if(actionArr.length) console.log(actionArr.map(a => a.type + "_" + (a as Action<"a_activate_effect_internal">).targets[0].eff.id))
                 actionArr.forEach(i => {
-                    if(i.isChain) this.actionTree.attachArbitrary(n.id, i);
-                    else this.actionTree.attachArbitrary(this.actionTree.root.id, i);
+                    if(i.isChain) this.actionTree.attach_node(n, i);
+                    else this.actionTree.attach_node(this.actionTree.root, i);
                 })
                 this.phaseIdx = TurnPhase.complete;
                 return false;  
@@ -621,29 +533,13 @@ class queenSystem {
         this.suspendID = nid;
     }
 
-    private grabInput_default(obj : actionInputObj) : boolean{ //finished or not
-        this.takenInputs_arr = []
-        if(this.validInputSet === undefined) return false;
-        while(true){
-            if(this.validInputSet.length > 1) return false;
-            if(this.validInputSet.length === 0) throw new Error("input set empty, somehow?____")
-            this.takenInput = this.validInputSet[0]
-            this.takenInputs_arr.push(this.takenInput)
-            let j : void | [inputType, inputData[]] = obj.getValid.next(this.takenInput).value
-            if(!j || !j.length) return true;
-            this.validInputSet = j[1];
-            this.validInputType = j[0];
-        }
-        return false;
-    }
-
     private verifyInput(i1 : inputData, i2 : inputData) : boolean {
         if(i1.type !== i2.type) return false;
 
         switch(i1.type){
-            case inputType.boolean : return typeof (i2 as inputData_bool).data === "boolean";
-            case inputType.number : return typeof (i2 as inputData_num).data === "number";
-            case inputType.string : return typeof (i2 as inputData_str).data === "string";
+            case inputType.boolean : return (i2 as inputData_bool).data === i1.data;
+            case inputType.number : return (i2 as inputData_num).data === i1.data;
+            case inputType.string : return (i2 as inputData_str).data === i1.data;
             
             case inputType.card : return i1.data instanceof Card && i2.data instanceof Card && i2.data.is(i1.data);
             case inputType.effect : return i1.data instanceof Effect && i2.data instanceof Effect && i2.data.is(i1.data);
@@ -657,153 +553,219 @@ class queenSystem {
         return false
     }
 
-    private getAllInputs(t : inputType){
+    private inputHandler(a : Action<"a_get_input">, n : _node) : boolean {
+        console.log("processing input")
+
+        this.curr_input_obj = a.flatAttr();
+        const requester = this.curr_input_obj.requester;
+        const applicator = this.curr_input_obj.applicator;
+
+        if(!requester.hasInput()) {
+            console.log("blank input, skipped, logging fullObject: ", this.curr_input_obj)
+            this.phaseIdx = TurnPhase.complete;
+            return false;
+        }
+
+        let final : Action[] | undefined = undefined //assign to this to NOT suspend
+        
+        if(requester.isFinalized()){
+            final = applicator.apply(requester)
+        } else {
+            let [i_type, i_set] = requester.next();
+            //returns if break of not
+            function proceed(t : queenSystem, input : inputData) : Action[] | undefined {
+                requester.apply(t, input)
+                if(requester.isFinalized()) {
+                    return applicator.apply(requester);
+                }
+                //fail safe check
+                if(!requester.hasInput()) {
+                    t.curr_input_obj = undefined;
+                    return []
+                };
+
+                [i_type, i_set] = requester.next();
+            }
+            
+            switch(this.setting.auto_input){
+                case auto_input_option.first : {
+                    while(true){
+                        let input : inputData = i_set ? i_set[0] : this.getAllInputs(i_type, true)[0]
+                        const k = proceed(this, input)
+                        if(k !== undefined){
+                            final = k;
+                            break;
+                        };
+                    }
+                    break;
+                }
+                case auto_input_option.last : {
+                    while(true){
+                        let input : inputData = i_set ? i_set.at(-1)! : this.getAllInputs(i_type, true).at(-1)!
+                        const k = proceed(this, input)
+                        if(k !== undefined){
+                            final = k;
+                            break;
+                        };
+                    }
+                    break;
+                }
+                case auto_input_option.random : {
+                    while(true){
+                        let input : inputData = i_set ? utils.getRandomElement(i_set)! : utils.getRandomElement(this.getAllInputs(i_type, true))!
+                        const k = proceed(this, input)
+                        if(k !== undefined){
+                            final = k;
+                            break;
+                        };
+                    }
+                }
+                case auto_input_option.default : {
+                    while(true){
+                        if(!i_set || i_set.length !== 1) break;
+                        let input = i_set[0]
+                        const k = proceed(this, input)
+                        if(k !== undefined){
+                            final = k;
+                            break;
+                        };
+                    }
+                }
+            }
+        }
+
+        if(final === undefined){
+            console.log("suspending waiting for inputs");
+            this.suspensionReason = suspensionReason.taking_input
+            this.suspend(a.id);
+            return false;
+        } else {
+            console.log("inputs getting skipped, trying to apply")
+
+            this.suspensionReason = false;
+            this.curr_input_obj = undefined;
+
+            this.actionTree.attach_node(n, ...final);
+            n.markComplete();
+
+            this.phaseIdx = TurnPhase.declare //unwind back to declare;
+            this.suspendID = -1;
+
+            return true;
+        }
+    }
+
+    getAllInputs<T extends inputType>(t : T) : inputDataSpecific<T>[] | undefined;
+    getAllInputs<T extends inputType>(t : T, force : true) : inputDataSpecific<T>[];
+    getAllInputs(t : inputType, force? : boolean | number, count? : number) : inputData[] | undefined {
+        force = Number(force);
         switch(t){
-                case inputType.boolean: return [{
+                case inputType.boolean: return force ? [{
                     type : inputType.boolean,
                     data : utils.rng(1, 0, true) === 1
-                } as const]
-                case inputType.number: return [{
+                }] as inputData_standard[] : undefined
+                case inputType.number: return force ? [{
                     type : inputType.number,
                     data : utils.rng(100, 0, true)
-                } as const]
-                case inputType.string: return [{
+                }] as inputData_standard[] : undefined
+                case inputType.string: return force ? [{
                     type : inputType.string,
                     data : utils.generateID()
-                } as const]
+                } as const] as inputData_standard[] : undefined
 
-                case inputType.zone: return this.map(0, z => {return {
-                    type : inputType.zone,
-                    data : actionFormRegistry.zone(this, z)
-                } as const })
+                case inputType.zone: return this.map(0, z => inputFormRegistry.zone(this, z))
 
-                case inputType.card : return this.map(1, c => {return {
-                    type : inputType.card,
-                    data : actionFormRegistry.card(this, c)
-                } as const })
+                case inputType.card : return this.map(1, c => inputFormRegistry.card(this, c))
 
-                case inputType.player : return this.setting.players.map((_, pid) => {return {
-                    type : inputType.player,
-                    data : actionFormRegistry.player(this, pid)
-                } as const })
+                case inputType.player : return this.setting.players.map((_, pid) => inputFormRegistry.player(this, pid))
 
                 case inputType.position : {
-                    const arr1 = this.map(1, (c, zid, cid) => {return {
-                        type : inputType.position,
-                        data : actionFormRegistry.position(this, c.pos)
-                    } as inputData_pos})
-
-                    const arr2 = this.map(0, 
-                        z => (z.cardArr.map((c, i) => [c, i] as [Card | undefined, number])).filter(c => c[0] === undefined).map(c => {return {
-                            type : inputType.position,
-                            data : actionFormRegistry.position(this, new Position(z.id, z.name, ...utils.indexToPosition(c[1], z.shape)))
-                        } as inputData_pos})
-                    ).reduce((c, ele) => c.concat(ele), [])
-
-                    return arr1.concat(...arr2)
+                    let res : dry_position[] = []
+                    this.forEach(0, z => res.push(...z.getAllPos()))
+                    return res.map(pos => inputFormRegistry.pos(this, pos))
                 }
 
                 case inputType.effect : return this.map(2, (e, zid, cid) => {
-                    const zone = this.getZoneWithID(zid)!;
+                    const zone = this.zoneArr[zid];
                     const c = zone.cardArr[cid]!;
 
-                    return {
-                        type : inputType.effect,
-                        data : actionFormRegistry.effect(this, c, e)
-                    } as const
+                    return inputFormRegistry.effect(this, c, e)
                 })
 
                 case inputType.effectSubtype : return this.map(3, (st, zid, cid, eid) => {
-                    const zone = this.getZoneWithID(zid)!;
+                    const zone = this.zoneArr[zid];
                     const c = zone.cardArr[cid]!;
                     const e = c.totalEffects[eid]!;
 
-                    return {
-                        type : inputType.effectSubtype,
-                        data : actionFormRegistry.subtype(this, c, e, st)
-                    } as const
+                    return inputFormRegistry.subtype(this, c, e, st)
                 })
             }
             throw new Error(`get all input failed, type = ${t}`)
     }
 
-    continue(){
-        let n = this.actionTree.getNode(this.suspendID)
-        if(this.suspensionReason === suspensionReason.taking_input && n.data.is("a_get_input")){
+    generateSignature(a : inputData | undefined) : string {
+        if(a == undefined) return utils.generateID()
+        switch(a.type){
+
+            case inputType.number:
+            case inputType.string:
+            case inputType.boolean: return String(a.data)
+
+            case inputType.zone: return String(a.data.zone.id)
+            case inputType.card: return a.data.card.id
+            case inputType.effect: return a.data.eff.id
+            case inputType.effectSubtype: return a.data.eff.id + a.data.subtype.dataID
+            case inputType.player: return String(a.data.id)
+            case inputType.position: return a.data.pos.toString()
             
-            if(this.takenInput === undefined){
-                throw new Error("Cannot unsuspend, not enough input taken, next input expected: ")
+        }
+    }    
+
+    continue(input? : inputData){
+        let n = this.actionTree.getNode(this.suspendID)
+        if(
+            this.suspensionReason === suspensionReason.taking_input && n.data.is("a_get_input")
+        ){
+            if(this.curr_input_obj === undefined || input === undefined){
+                throw new Error("Cannot unsuspend, not enough input taken")
             }
+
+            const requester = this.curr_input_obj.requester;
+            const applicator = this.curr_input_obj.applicator;
+            
+            if(!requester.hasInput()){
+                throw new Error("Cannot unsuspend, invalid input object")
+            }
+
+            let [i_type, i_set] = requester.next();
 
             //check validity of input
 
-            //naive check
-            if(this.validInputSet !== undefined){ //undefined is accept all    
-                const filter_set = this.validInputSet.filter(i => i.type === this.takenInput!.type)
+            //naive? check
+            if(i_set !== undefined){ //undefined is accept all    
+                const filter_set = i_set.filter(i => i.type === input.type)
                 if(!filter_set.length) {
                     throw new Error("input not in valid set, wrong type")
                 }
 
                 const flag = filter_set.some(i => {
-                    this.verifyInput(i, this.takenInput!)
+                    this.verifyInput(i, input)
                 })
 
                 if(!flag) {
                     throw new Error("input not in valid set, correct type but wrong id")
                 }
+            } else if (input.type !== i_type) {
+                throw new Error(`input type is incorrect, received : ${input.type}, wanted : ${i_type}`)
             }
 
-            const obj = n.data.flatAttr().input
-            this.validInputSet = obj.getValid.next(this.takenInput).value as any;
+            let res = this.inputHandler(n.data, n);
 
-            if(!this.validInputSet){
-                //complete
-                this.suspensionReason = false;
-                this.takenInput = undefined;
-
-                this.validInputSet = undefined;
-                this.validInputType = undefined;
-
-                const actions = obj.applyInput(this, this.takenInputs_arr);
-                this.actionTree.attach_node(n, ...actions);
-                n.markComplete();
-
-                this.takenInputs_arr = [];
-
-                this.phaseIdx = TurnPhase.declare //unwind back to declare;
-                this.suspendID = -1;
-
-                const newN = n.childArr[0];
-                return this.processTurn(newN);
-
-            } else {
-                //continue suspending
-                this.takenInputs_arr.push(this.takenInput);
-                this.takenInput = undefined;
-
-                if(this.setting.auto_input === auto_input_option.default){
-                    const isFinishedTakingInput = this.grabInput_default(obj)
-                    if(isFinishedTakingInput){
-                        this.suspensionReason = false;
-                        this.takenInput = undefined;
-
-                        this.validInputSet = undefined;
-                        this.validInputType = undefined;
-
-                        const actions = obj.applyInput(this, this.takenInputs_arr);
-                        this.actionTree.attach_node(n, ...actions);
-                        n.markComplete();
-
-                        this.takenInputs_arr = [];
-
-                        this.phaseIdx = TurnPhase.declare //unwind back to declare;
-                        this.suspendID = -1;
-
-                        const newN = n.childArr[0];
-                        return this.processTurn(newN);
-                    }
-                }
-                return;
+            //complete
+            if(res) return this.processTurn();
+            else {
+                console.log("Input taken, but unfinished, please continue")
+                return false;
             }
             
         } else if(this.suspensionReason !== false) throw new Error(`Cannot unsuspend when reason is not resolved`)
@@ -820,11 +782,6 @@ class queenSystem {
         ]
         await Promise.all(arr);
     }
-
-    toDry() : dry_system{
-        return this
-    }
-
 
     //Parsing log API
 
@@ -866,7 +823,7 @@ class queenSystem {
         return this.zoneHandler.getZoneWithID(obj.pos.zoneID)
     }
 
-    get zoneArr() : ReadonlyArray<dry_zone> {return this.zoneHandler.zoneArr}
+    get zoneArr(){return this.zoneHandler.zoneArr}
 
     get resolutionLog() : logInfoResolve[]{
         return this.fullLog.filter(i => i.currentPhase === TurnPhase.resolve) as logInfoResolve[]
@@ -984,6 +941,93 @@ class queenSystem {
 
     get isInTriggerPhase() {return this.phaseIdx === TurnPhase.trigger}
     get isInChainPhase() {return this.phaseIdx === TurnPhase.chain}
+
+    requestInput_zone_default(c : Positionable | Player_specific, zType : zoneRegistry, fz? : (s : dry_system, z : dry_zone) => boolean){
+        return this.posCheck(c) ? new inputRequester(inputType.zone, this.getAllInputs(inputType.zone, true).filter(i => i.is(zType) && i.of(this.getZoneOf(c)) && (!fz || fz(this, i.data.zone)))) :
+        new inputRequester(inputType.zone, this.getAllInputs(inputType.zone, true).filter(i => i.is(zType) && i.of(c) && (!fz || fz(this, i.data.zone))))
+    }
+
+    requestInput_card_default(c : Positionable, zType : zoneRegistry, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean){
+        return this.requestInput_zone_default(c, zType, fz).extend(this, (s : dry_system, prev : [inputData_zone]) => {
+            const z = prev[0].data.zone
+            return z.cardArr_filtered.filter(c => (!fc || fc(s, c, z))).map(c => inputFormRegistry.card(s, c))
+        })
+    }
+
+    requestInput_effect_default(c : Positionable, zType : zoneRegistry, getRealEffects : boolean, getStatusEffects : boolean, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean, feff? : (s : dry_system, eff : dry_effect, c : dry_card, z : dry_zone) => boolean){
+        return this.requestInput_card_default(c, zType, fz, fc).extend(this, (s : dry_system, prev : [inputData_zone, inputData_card]) => {
+            const z = prev[0].data.zone
+            const c = prev[1].data.card
+            let eArr = (getRealEffects ? c.effects : []).map(i => i)
+            if(getStatusEffects) eArr.push(...c.statusEffects);
+            return eArr.filter(e => (!feff || feff(s, e, c, z))).map(e => inputFormRegistry.effect(s, c, e))
+        })
+    }
+
+    requestInput_effectSubtype_default(c : Positionable, zType : zoneRegistry, getRealEffects : boolean, getStatusEffects : boolean, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean, feff? : (s : dry_system, eff : dry_effect, c : dry_card, z : dry_zone) => boolean, fst? : (s : dry_system, st : dry_effectSubType, eff : dry_effect, c : dry_card, z : dry_zone) => boolean){
+        return this.requestInput_effect_default(c, zType, getRealEffects, getStatusEffects, fz, fc, feff).extend(this, (s : dry_system, prev : [inputData_zone, inputData_card, inputData_effect]) => {
+            const z = prev[0].data.zone
+            const c = prev[2].data.card
+            const e = prev[2].data.eff
+            return e.subTypes.filter(st => (!fst || fst(s, st, e, c, z))).map(st => inputFormRegistry.subtype(s, c, e, st))
+        })
+    }
+
+    requestInput_pos_default(c : Positionable, zType : zoneRegistry, getFreeOnly : boolean, fz? : (s : dry_system, z : dry_zone) => boolean, fpos? : (s : dry_system, p : dry_position, z : dry_zone) => boolean){
+        return this.requestInput_zone_default(c, zType, fz).extend(this, (s : dry_system, prev : [inputData_zone]) => {
+            const z = prev[0].data.zone
+            const pArr = getFreeOnly ? (
+                z.getEmptyPosArr ? z.getEmptyPosArr() : [z.lastPos]
+            ) : z.getAllPos()
+            return pArr.filter(pos => (!fpos || fpos(s, pos, z))).map(pos => inputFormRegistry.pos(s, pos))
+        })
+    }
+
+    // hasValidInput(depth : 0, fz? : (s : dry_system, z : dry_zone) => boolean) : boolean;
+    // hasValidInput(depth : 1, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean) : boolean;
+    // hasValidInput(depth : 2, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean, fe? : (s : dry_system, e : dry_effect, c : dry_card, z : dry_zone) => boolean) : boolean;
+    // hasValidInput(depth : 3, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean, fe? : (s : dry_system, e : dry_effect, c : dry_card, z : dry_zone) => boolean, fst? : (s : dry_system, st : dry_effectSubType, e : dry_effect, c : dry_card, z : dry_zone) => boolean) : boolean;
+    // hasValidInput(depth : 4, fz? : (s : dry_system, z : dry_zone) => boolean, fpos? : (s : dry_system, p : dry_position, z : dry_zone) => boolean) : boolean;
+    // hasValidInput(
+    //     depth : 0 | 1 | 2 | 3 | 4, 
+    //     fz? : (s : dry_system, z : dry_zone) => boolean, 
+    //     fc? : ((s : dry_system, c : dry_card, z : dry_zone) => boolean) | ((s : dry_system, p : dry_position, z : dry_zone) => boolean), 
+    //     fe? : (s : dry_system, e : dry_effect, c : dry_card, z : dry_zone) => boolean, 
+    //     fst? : (s : dry_system, st : dry_effectSubType, e : dry_effect, c : dry_card, z : dry_zone) => boolean
+    // ) : boolean {
+    //     const k = this.requestInput(depth as 3, fz, fc as any, fe, fst);
+    //     return k[0][1] === undefined || k[0][1].length !== 0
+    // }
+
+    // hasValidInput_zone_default(c : Positionable | Player_specific, zType : zoneRegistry, f? : (s : dry_system, z : dry_zone) => boolean){
+    //     return this.posCheck(c) ? this.hasValidInput(0, (s : dry_system, z : dry_zone) => z.is(zType) && z.of(s.getZoneOf(c)) && (f === undefined || f(s, z))) 
+    //     : this.hasValidInput(0, (s : dry_system, z : dry_zone) => z.is(zType) && z.playerIndex === c.playerIndex && (f === undefined || f(s, z)))
+    // }
+
+    // hasValidInput_card_default(c : Positionable, zType : zoneRegistry, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean){
+    //     return this.hasValidInput(1, (s : dry_system, z : dry_zone) => z.is(zType) && z.of(s.getZoneOf(c)), fc)
+    // }
+
+    // hasValidInput_pos_default(c : Positionable, zType : zoneRegistry, getFreeOnly : boolean, fpos? : (s : dry_system, p : dry_position, z : dry_zone) => boolean){
+    //     return this.hasValidInput(
+    //         4, 
+    //         (s : dry_system, z : dry_zone) => z.is(zType) && z.of(s.getZoneOf(c)), 
+    //         (!getFreeOnly && fpos === undefined) ? undefined : (s : dry_system, p : dry_position, z : dry_zone) => {
+    //             const p1 = (!getFreeOnly || !z.isOccupied(p))
+    //             const p2 = fpos ? fpos(this, p, z) : true
+    //             return p1 && p2
+    //         }
+    //     )
+    //}
+
+    private posCheck(a : any) : a is Positionable {
+        return a.pos instanceof Position
+    }
+
+    isNotActionArr<T>(gen : T | Action[]) : gen is T {
+        if(!Array.isArray(gen)) return false;
+        return gen.some(i => !(i instanceof Action_class))
+    }
     
     //APIs ported over from zoneHandlers
     forEach : zoneHandler["forEach"]
@@ -991,7 +1035,7 @@ class queenSystem {
     filter : zoneHandler["filter"]
     
     //const
-    readonly NULLPOS: dry_position = new Position(-1).toDry()
+    readonly NULLPOS: dry_position = new Position(-1)
     readonly NULLCARD: dry_card
 }
 

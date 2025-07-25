@@ -1,8 +1,10 @@
 import type { cardData_unified, patchData } from "../data/cardRegistry";
-import { Setting, id_style } from "../types/abstract/gameComponents/settings";
+import { type Setting, id_style } from "../types/abstract/gameComponents/settings";
 // import { partitionData } from "../types/data/cardRegistry";
 import { partitionSetting } from "../types/abstract/gameComponents/settings";
-import { nestedTree, typeSigatureSimple, typeSignature } from "../types/misc";
+import type { nestedTree, typeSignature } from "../types/misc";
+
+type recursiveGenerator<T> = Generator<any, T | recursiveGenerator<T>, any>
 
 const utils = {
 
@@ -141,8 +143,14 @@ const utils = {
     },
 
     //apply a partial onto an original
-    patchGeneric<T extends Object>(original : T, patch : Partial<T>){
-        Object.keys(patch).forEach(i => {
+    patchGeneric<T extends Object>(original : T, patch : Partial<T>, merge = false){
+        let k = Object.keys(patch)
+        if(merge) {
+            const temp = new Set(k.concat(...Object.keys(patch)));
+            k = Array.from(temp)
+        }
+
+        k.forEach(i => {
             if(
                 original[i as keyof T] !== undefined &&
                 patch[i as keyof T] !== undefined
@@ -233,9 +241,75 @@ const utils = {
 
     getRandomElement<T extends any[]>(arr : T) : (T extends Array<infer R> ? R : never) | undefined {
         if(!arr.length) return undefined;
+        if(arr.length === 1) return arr[0]
         const n = this.rng(arr.length - 1, 0, true);
         return arr[n];
-    } 
+    }, 
+
+    //generators API
+    *mergeGeneratorReturn<T>(gen1 : recursiveGenerator<T[]>, gen2 : recursiveGenerator<T[]>) : Generator<any, T[], any>{
+        let input1 : any = undefined
+        let input2 : any = undefined
+
+        while(true){
+            let n = gen1.next(input1);
+            if(n.done) {
+                if(Array.isArray(n.value)){
+                    input1 = n.value; break;
+                } else {
+                    gen1 = n.value;
+                    input1 = undefined;
+                }
+            }
+            else input1 = yield n.value;
+        }
+
+        while(true){
+            let n = gen2.next(input2);
+            if(n.done) {
+                if(Array.isArray(n.value)){
+                    input2 = n.value; break;
+                } else {
+                    gen2 = n.value;
+                    input2 = undefined;
+                }
+            }
+            else input2 = yield n.value;
+        }
+
+        return [...input1, ...input2]
+    },
+
+    *addFinalToGenerator<T>(gen : recursiveGenerator<T[]>, f : (arr : T[]) => T[] | void) : Generator<any, T[], any>{
+        let input : any = undefined
+
+        while(true){
+            let n = gen.next(input);
+            if(n.done) {
+                if(Array.isArray(n.value)){
+                    input = n.value; break;
+                } else {
+                    gen = n.value;
+                    input = undefined;
+                }
+            }
+            else input = yield n.value;
+        }
+
+        const res = f(input);
+        if(res === undefined) return input;
+        return res;
+    },
+
+    getRandomNumberArr(len : number) : number[]{
+        const res : number[] = []
+        if(!isNaN(len) && Number.isFinite(len) && len > 0){
+            for(let i = 0; i < len; i++){
+                res.push(this.rng(100, 0, true))
+            }
+        }
+        return res;
+    }
 }
 
 export default utils

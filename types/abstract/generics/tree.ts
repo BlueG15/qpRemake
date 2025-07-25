@@ -19,8 +19,9 @@ class _tree<RootType extends Action> {
     // }
     protected handleNode(func: (node: _node) => void, node: _node = this.root, ...data : any[]): boolean {
         if (!node) return false;
-        for (let child of node.childArr) {
-            if (this.handleNode(func, child, data)) return true;
+        for(let i = 0; i < node.childArr.length; i++) {
+            let child = node.childArr[i]
+            if (this.handleNode(func, child, ...data)) return true;
         }
         if (node.isNormal) {
             func(node);
@@ -77,7 +78,7 @@ class _tree<RootType extends Action> {
         if(!this.IDValid(nodeID)) return false
         if (!node) return false;
         for (let child of node.childArr) {
-            if (this.handleNodeWithID(nodeID, func, child, data)) return true;
+            if (this.handleNodeWithID(nodeID, func, child, ...data)) return true;
         }
         if (node.id == nodeID) {
             func(node);

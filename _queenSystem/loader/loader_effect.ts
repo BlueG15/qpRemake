@@ -88,14 +88,16 @@ export default class effectLoader {
         }
     }
 
-    getEffect(eid : keyof typeof effectDataRegistry, s : Setting, edata? : effectData) : Effect
-    getEffect(eid : string, s : Setting, edata? : effectData) : Effect | undefined
-    getEffect(eid : string, s : Setting, edata? : effectData) : Effect | undefined{
+    getEffect(eid : keyof typeof effectDataRegistry, s : Setting, edata? : Partial<effectData>) : Effect
+    getEffect(eid : string, s : Setting, edata? : Partial<effectData>) : Effect | undefined
+    getEffect(eid : string, s : Setting, edata? : Partial<effectData>) : Effect | undefined{
         let data = this.dataCache.get(eid)
         if(!data) return undefined
 
         let eclass = this.classCache.get(eid)
         if(!eclass) return undefined
+
+        console.log("class entry found for eid: ", eid)
 
         let c = this.countCache.get(eid);
         c = (c) ? (c + 1) % s.max_id_count : 0;

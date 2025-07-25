@@ -1,15 +1,16 @@
-import type { dry_card, dry_effect, dry_system } from "../../../data/systemRegistry";
-import type { Action } from "../../../_queenSystem/handler/actionGenrator";
+import type { dry_card, dry_system, inputDataSpecific, inputType, inputData } from "../../../data/systemRegistry";
+import { Action_class, type Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "./card";
 import type effectSubtype from "./effectSubtype";
 import type { effectData } from "../../../data/cardRegistry";
 import EffectType from "./effectType";
-import { id_able } from "../../misc";
+import { id_able, StrictGenerator } from "../../misc";
 
 //some effects can modify event data 
 //so in general, activate takes in an event and spits out an event
+import type { inputRequester, inputRequester_finalized } from "../../../_queenSystem/handler/actionInputGenerator";
 
-class Effect {
+class Effect<inputTupleType extends inputData[] = inputData[]> {
     id: string;
     dataID : string;
     type: EffectType;
@@ -39,7 +40,8 @@ class Effect {
 
     //actual effects override these two
     canRespondAndActivate_final(c : dry_card, system : dry_system, a : Action) : boolean{return false}
-    activate_final(c : dry_card, system : dry_system, a : Action) : Action[] {return []};
+    getInputObj(c : dry_card, s : dry_system, a : Action) : inputTupleType extends [] ? undefined : inputRequester<any, inputTupleType> { return undefined as any }
+    activate_final(c : dry_card, s : dry_system, a : Action, input : inputTupleType extends [] ? undefined : inputRequester_finalized<inputTupleType>) : Action[] {return []};
 
     canRespondAndActivate(c : Card, system : dry_system, a : Action) : boolean {
         let res : -1 | -2 | boolean = -1;
@@ -73,12 +75,17 @@ class Effect {
         if(falseForceFlag) return false;
 
         if(!skipTypeCheck){
-            res = this.type.canRespondAndActivate(c, system, a);
+            res = this.type.canRespondAndActivate(this, c, system, a);
             if(res !== -1) return res;
         } 
+
+        //has input check
+        const gen = this.getInputObj(c, system, a)
+        if(gen !== undefined && !gen.hasInput()) return false;
+
         return this.canRespondAndActivate_final(c, system, a);
     }
-    activate(c : Card, system : dry_system, a : Action) : Action[]{
+    activate(c : Card, system : dry_system, a : Action, input : inputTupleType extends [] ? undefined : inputRequester_finalized<inputTupleType>) : Action[] {
         if(this.isDisabled) return []
         if(!c.canAct) return []
         let res : -1 | Action[] = -1;
@@ -90,9 +97,9 @@ class Effect {
             if(res === -1) continue;
             appenddedRes.push(...res);
         }
-        
-        let final = this.activate_final(c, system, a).concat(appenddedRes)
-        this.type.parseAfterActivate(c, system, final);
+
+        let final = this.activate_final(c, system, a, input)
+        this.type.parseAfterActivate(this, c, system, final);
         this.subTypes.forEach(st => st.parseAfterActivate(c, this, system, final));
         return final;
     };
@@ -138,13 +145,13 @@ class Effect {
     removeSubType(stid : string){
         this.subTypes = this.subTypes.filter(i => i.dataID !== stid)
     }
-    
-    toDry() : dry_effect {
-        return this
-    }
 
     disable(){
         this.isDisabled = true
+    }
+
+    toDry(){
+        return this
     }
 
     enable() {

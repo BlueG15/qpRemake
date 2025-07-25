@@ -1,11 +1,11 @@
 export enum partitionActivationBehavior {
     "strict" = 0, //one reject, all reject
-    "loose", //only reject if all reject, otherwise activates those that returns, fills the rejects with nullAction()
+    "loose", //only reject if all reject, otherwise activates those that returns
     "first", //returns the first (in partition ordering) that accepts
     "last", //returns the last (in partition ordering) that accepts,
 }
 
-//unless otherwise state, all properties that are string are displaTokenID, NOT actual XML
+//unless otherwise state, all properties that are string are displayTokenID, NOT actual XML
 
 /*
 every effect has a default displayID, as well as every partition
@@ -27,7 +27,7 @@ but the oportunity to mash every effect of a card into one huge ass one is very 
 
 
 type effectData_fixxed = {
-    typeID : string,
+    typeID : keyof typeof effectTypeRegistry,
     subTypeIDs : subtypeName[],
     displayID_default? : string //undefined means use effectID
 }
@@ -50,16 +50,21 @@ export type statInfo = {
 export type displayInfo = {
     //display stuff
     imgURL : string
-    partition : partitionData[]
 }
 
 import type { effectData_specific, effectName } from "./effectRegistry"
+import effectTypeRegistry from "./effectTypeRegistry"
 
 export type effectInfo = {
     effects : Partial<{
-        [K in effectName] : Partial<effectData_specific<K>>
-        //once done, change this part back to string -> Partial<effectData>
+        [K in effectName] : Partial<effectData_specific<K>> & {
+            __loadOptions? : {
+                ___internalMultipleLoadCount? : number,
+                __additionalPatches?: Partial<effectData_specific<K>>[]
+            }
+        }
     }>;
+    partition : partitionData[],
 }
 
 export type patchData_full = statInfo & effectInfo & displayInfo
@@ -95,6 +100,7 @@ export interface partitionData {
     mapping : number[]
 
     //override behavior:
+    //for display only
     displayID : string
     typeID : string | type_and_or_subtype_inference_method.first | type_and_or_subtype_inference_method.most
     subTypeID : string | type_and_or_subtype_inference_method
@@ -114,10 +120,14 @@ function defaultPartition(id : string, num : number[] | number = 0) : partitionD
     }
 }
 
+function oldImgURL(oldID : string){
+    return `https://raw.githubusercontent.com/qpProject/qpProject.github.io/refs/heads/main/cards/${oldID}.png`
+}
+
 //TODO : change to const later
-const cardDataRegistry : Record<string, cardData> = {
+const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
+= {
     c_blank : {
-        id : "c_blank", 
         variantData : {
             base : {
                 level : 0,
@@ -127,13 +137,54 @@ const cardDataRegistry : Record<string, cardData> = {
                 atk : 0,
                 hp : 1,
                 effects : {},
-                imgURL : "",
+                imgURL : oldImgURL("puzzleBlank"),
                 partition : [],
             },
         }
     },
+
+    c_test : {
+        variantData : {
+            base : {
+                level : 0, 
+                rarityID : rarityRegistry.r_white,
+                extensionArr : [],
+                belongTo : ["other"],
+                atk : 0,
+                hp : 1,
+                effects : {
+                    e_test_input_num : {
+                        __loadOptions : {
+                            __additionalPatches : [{
+                                count : 2
+                            }, {
+                                count : 1
+                            }]
+                        }
+                    },
+                },
+                imgURL : oldImgURL("puzzleBlank"),
+                partition : [{
+                    behaviorID : partitionActivationBehavior.strict,
+                    mapping : [0, 1],
+                    displayID : "c_test",
+                    typeID : type_and_or_subtype_inference_method.first,
+                    subTypeID : type_and_or_subtype_inference_method.all
+                }]
+            }
+        }
+
+    },
+
+    //generics
+
+    //white
+
+    //fruits 
+
+    //white
     c_apple : {
-        id : "c_apple",
+        
         variantData : {
             base : {
                 level : 1,
@@ -145,7 +196,7 @@ const cardDataRegistry : Record<string, cardData> = {
                 effects : {
                     e_apple : {}
                 },
-                imgURL : "",
+                imgURL : oldImgURL("naturalApple"),
                 partition : [defaultPartition("c_apple")],
             },
             upgrade_1 : {
@@ -160,7 +211,7 @@ const cardDataRegistry : Record<string, cardData> = {
         }
     },
     c_banana : {
-        id : "c_banana",
+        
         variantData : {
             base : {
                 level : 1,
@@ -172,7 +223,7 @@ const cardDataRegistry : Record<string, cardData> = {
                 effects : {
                     e_banana : {}
                 },
-                imgURL : "",
+                imgURL : oldImgURL("naturalBanana"),
                 partition : [defaultPartition("c_banana")]
             },
             upgrade_1 : {
@@ -185,7 +236,7 @@ const cardDataRegistry : Record<string, cardData> = {
         }
     },
     c_cherry : {
-        id : "c_cherry",
+        
         variantData : {
             base : {
                 level : 1,
@@ -199,7 +250,7 @@ const cardDataRegistry : Record<string, cardData> = {
                         times : 1
                     }
                 },
-                imgURL : "",
+                imgURL : oldImgURL("naturalCherry"),
                 partition : [defaultPartition("c_cherry")]
             },
             upgrade_1 : {
@@ -212,7 +263,7 @@ const cardDataRegistry : Record<string, cardData> = {
         }
     },
     c_lemon : {
-        id : "c_lemon",
+        
         variantData : {
             base : {
                 level : 1,
@@ -224,7 +275,7 @@ const cardDataRegistry : Record<string, cardData> = {
                 effects : {
                     e_lemon : {}
                 },
-                imgURL : "",
+                imgURL : oldImgURL("naturalLemon"),
                 partition : [defaultPartition("c_lemon")]
             },
             upgrade_1 : {
@@ -233,7 +284,7 @@ const cardDataRegistry : Record<string, cardData> = {
         }
     },
     c_pomegranate : {
-        id : "c_pomegranate",
+        
         variantData : {
             base : {
                 level : 1,
@@ -248,7 +299,7 @@ const cardDataRegistry : Record<string, cardData> = {
                         coveredDmg : 1,
                     }
                 },
-                imgURL : "",
+                imgURL : oldImgURL("naturalPomegranate"),
                 partition : [defaultPartition("c_pomegranate")]
             },
             upgrade_1 : {
@@ -262,7 +313,7 @@ const cardDataRegistry : Record<string, cardData> = {
         }
     },
     c_pumpkin : {
-        id : "c_pumpkin",
+        
         variantData : {
             base : {
                 level : 1,
@@ -271,14 +322,13 @@ const cardDataRegistry : Record<string, cardData> = {
                 belongTo : ["fruit"],
                 atk : 3,
                 hp : 2,
-                imgURL : "",
+                imgURL : oldImgURL("naturalPumpkin"),
                 partition : [
                     defaultPartition("c_pumpkin"),
                     defaultPartition("c_pumpkin", 1)
                 ],
                 effects : {
                     e_add_stat_change_diff : {
-                        hp : 1,
                         maxHp : 1,
                     },
                     e_fragile : {}
@@ -287,15 +337,280 @@ const cardDataRegistry : Record<string, cardData> = {
             upgrade_1 : {
                 effects : {
                     e_add_stat_change_diff : {
-                        hp : 2,
                         maxHp : 2,
                     },
                     e_fragile : {}
                 }
             }
         }
-    }
+    },
 
-}
+    //green
+    c_pollinate : {
+        
+        variantData : {
+            base : {
+                level : 1,
+                rarityID : rarityRegistry.r_green,
+                extensionArr : ["fruit"],
+                belongTo : ["fruit"],
+                atk : 0,
+                hp : 1,
+                imgURL : oldImgURL("naturalPollination"),
+                partition : [
+                    defaultPartition("c_pollinate")
+                ],
+                effects : {
+                    e_pollinate : {
+                        doFruitCheck : 1
+                    },
+                }
+            },
+            upgrade_1 : {
+                effects : {
+                    e_pollinate : {
+                        doFruitCheck : 0
+                    }
+                }
+            }
+        }
+    },
+    c_greenhouse : {
+        
+        variantData : {
+            base : {
+                level : 2,
+                rarityID : rarityRegistry.r_green,
+                extensionArr : ["fruit"],
+                belongTo : ["fruit"],
+                atk : 0,
+                hp : 2,
+                imgURL : oldImgURL("naturalGreenhouse"),
+                partition : [
+                    defaultPartition("c_greenhouse")
+                ],
+                effects : {
+                    e_greenhouse : {
+                        checkLevel : 1
+                    }
+                }
+            },
+            upgrade_1 : {
+                effects : {
+                    e_greenhouse : {
+                        checkLevel : 2
+                    }
+                }
+            }
+        }
+    },
+
+    //blue
+    c_growth : {
+        
+        variantData : {
+            base : {
+                level : 1,
+                rarityID : rarityRegistry.r_blue,
+                extensionArr : ["fruit"],
+                belongTo : ["fruit"],
+                atk : 0,
+                hp : 1,
+                imgURL : oldImgURL("naturalGrowth"),
+                partition : [
+                    defaultPartition("c_growth")
+                ],
+                effects : {
+                    e_growth : {
+                        doFruitCheck : 1
+                    }
+                }
+            },
+            upgrade_1 : {
+                effects : {
+                    e_growth : {
+                        doFruitCheck : 0
+                    }
+                }
+            }
+        }
+    },
+    
+    c_spring : {
+        
+        variantData : {
+            base : {
+                level : 2,
+                rarityID : rarityRegistry.r_blue,
+                extensionArr : ["fruit"],
+                belongTo : ["fruit"],
+                atk : 1,
+                hp : 2,
+                imgURL : oldImgURL("naturalSpring"),
+                partition : [
+                    defaultPartition("c_spring")
+                ],
+                effects : {
+                    e_spring : {
+                        checkLevel : 1
+                    }
+                }
+            },
+            upgrade_1 : {
+                effects : {
+                    e_spring : {
+                        checkLevel : 2
+                    }
+                }
+            }
+        }
+    },
+    c_summer : {
+        
+        variantData : {
+            base : {
+                level : 2,
+                rarityID : rarityRegistry.r_blue,
+                extensionArr : ["fruit"],
+                belongTo : ["fruit"],
+                atk : 1,
+                hp : 2,
+                imgURL : oldImgURL("naturalSummer"),
+                partition : [
+                    defaultPartition("c_summer")
+                ],
+                effects : {
+                    e_summer : {
+                        checkLevel : 1
+                    }
+                }
+            },
+            upgrade_1 : {
+                effects : {
+                    e_summer : {
+                        checkLevel : 3
+                    }
+                }
+            }
+        }
+    },
+    c_autumn : {
+        
+        variantData : {
+            base : {
+                level : 2,
+                rarityID : rarityRegistry.r_blue,
+                extensionArr : ["fruit"],
+                belongTo : ["fruit"],
+                atk : 1,
+                hp : 2,
+                imgURL : oldImgURL("naturalFall"),
+                partition : [
+                    defaultPartition("c_autumn")
+                ],
+                effects : {
+                    e_autumn : {
+                        doIncAtk : 0
+                    }
+                }
+            },
+            upgrade_1 : {
+                effects : {
+                    e_autumn : {
+                        doIncAtk : 1
+                    }
+                }
+            } 
+        }
+    },
+    c_winter : {
+        
+        variantData : {
+            base : {
+                level : 2,
+                rarityID : rarityRegistry.r_blue,
+                extensionArr : ["fruit"],
+                belongTo : ["fruit"],
+                atk : 1,
+                hp : 2,
+                imgURL : oldImgURL("naturalWinter"),
+                partition : [
+                    defaultPartition("c_winter"),
+                    defaultPartition("c_winter", 1)
+                ],
+                effects : {
+                    e_winter : {
+                        HPinc : 1
+                    },
+                    e_dmg_reduction : {
+                        reductionAmmount : Infinity,
+                        minDmg : 1,
+                    }
+                }
+            },
+            upgrade_1 : {
+                effects : {
+                    e_winter : {
+                        HPinc : 2
+                    },
+                    e_dmg_reduction : {
+                        reductionAmmount : Infinity,
+                        minDmg : 1,
+                    }
+                }
+            } 
+        }
+    },
+    
+    //red
+    c_persephone : {
+        
+        variantData : {
+            base : {
+                level : 3,
+                rarityID : rarityRegistry.r_red,
+                extensionArr : ["fruit"],
+                belongTo : ["fruit"],
+                atk : 0,
+                hp : 5,
+                imgURL : oldImgURL("naturalPersephone"),
+                partition : [
+                    defaultPartition("c_persephone"),
+                    defaultPartition("c_persephone", 1),
+                    defaultPartition("c_persephone", 2),
+                ],
+                effects : {
+                    e_persephone_1 : {},
+                    e_persephone_2 : {},
+                    e_persephone_3 : {},
+                }
+            }
+        }
+    },
+    c_demeter : {
+        
+        variantData : {
+            base : {
+                level : 3,
+                rarityID : rarityRegistry.r_red,
+                extensionArr : ["fruit"],
+                belongTo : ["fruit"],
+                atk : 2,
+                hp : 8,
+                imgURL : oldImgURL("naturalDemeter"),
+                partition : [
+                    defaultPartition("c_demeter"),
+                    defaultPartition("c_demeter", 1),
+                    defaultPartition("c_demeter", 2),
+                ],
+                effects : {
+                    e_demeter_1 : {},
+                    e_demeter_2 : {},
+                    e_demeter_3 : {},
+                }
+            }
+        }
+    },
+} as const
 
 export { cardDataRegistry }

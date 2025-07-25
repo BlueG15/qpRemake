@@ -78,9 +78,6 @@ class Position {
             this.zoneID = param1[i].zoneID
         }
     }
-    toDry() : dry_position {
-        return this
-    }
     is(pos : dry_position){
         if(Object.is(this, pos)) return true;
         if (pos.zoneID !== this.zoneID) return false;

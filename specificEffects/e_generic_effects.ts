@@ -5,7 +5,7 @@ import subtype_instant from "../types/effects/effectSubtypes/subtype_instant";
 import subtypeRegistry from "../data/subtypeRegistry";
 import { identificationType, inputType } from "../data/systemRegistry";
 import actionRegistry from "../data/actionRegistry";
-import { actionConstructorRegistry, actionFormRegistry, actionInputObj } from "../_queenSystem/handler/actionGenrator";
+import { actionConstructorRegistry, actionFormRegistry} from "../_queenSystem/handler/actionGenrator";
 import { damageType, notFull } from "../types/misc";
 import { zoneRegistry } from "../data/zoneRegistry";
 
@@ -20,8 +20,8 @@ import {
     e_execute,
     e_reset,
 } from "./e_generic_cardTargetting";
-import { e_generic_singular_input, e_generic_poschange_input } from "./e_generic_input";
-
+import { inputFormRegistry, inputRequester_finalized, inputRequester } from "../_queenSystem/handler/actionInputGenerator";
+import utils from "../utils";
 
 export class e_quick extends Effect {
     protected instant_subtype = new subtype_instant(subtypeRegistry[subtypeRegistry.e_instant])
@@ -30,7 +30,7 @@ export class e_quick extends Effect {
         return true;
     }
 
-    override activate_final(c: dry_card, system: dry_system, a: Action): Action[] {
+    override activate_final(c: dry_card, system: dry_system, a: Action){
         if(!system.turnAction) return [];
         const res = this.instant_subtype.onEffectActivate(c, this, system, system.turnAction!);
         return (res === -1) ? [] : res;
@@ -56,7 +56,6 @@ export class e_reactivate_on_attack_destroy extends e_reactivate {
         let destroyTarget = actionChain[2].targets[0].card
 
         return (
-
             dmgTarget.id === destroyTarget.id &&
 
             actionChain[0].cause.type === identificationType.card && 
@@ -69,7 +68,6 @@ export class e_reactivate_on_attack_destroy extends e_reactivate {
 }
 
 export class e_attack extends Effect {
-
     get times() {return this.attr.get("times") ?? 0}
     set times(val : number) {this.attr.set("times", val)}
 
@@ -83,14 +81,14 @@ export class e_attack extends Effect {
         return this.times !== 0
     }
 
-    override activate_final(c: dry_card, system: dry_system, a: Action): Action[] {
+    override activate_final(c: dry_card, system: dry_system, a: Action) {
         let t = this.times
         if(!t || isNaN(t) || !isFinite(t)) return []
 
         let res : Action[] = []
         while(t !== 0){
             res.push(
-                actionConstructorRegistry.a_attack(system, c)(actionFormRegistry.card(system, c), {
+                actionConstructorRegistry.a_attack(system, c)(actionFormRegistry.effect(system, c, this), {
                     dmg : (this.dmg === undefined) ? c.atk : this.dmg,
                     dmgType : this.dmgType
                 })
@@ -105,33 +103,37 @@ export class e_attack extends Effect {
     }
 }
 
-export class e_addToHand extends e_generic_singular_input<dry_zone> {
-    protected override input_condition(thisCard: dry_card): [] | [(s: dry_system, z: dry_zone) => boolean] {
+export class e_addToHand extends Effect<[inputData_zone]> {
+    protected input_condition(thisCard: dry_card): [] | [(s: dry_system, z: dry_zone) => boolean] {
         return [
             (s : dry_system, z : dry_zone) => z.is(zoneRegistry.z_hand)
         ]
     }
 
-    protected override getApplyFunc(thisCard: dry_card): (s: dry_system, inputs: [inputData_zone]) => Action[] {
-        return (s : dry_system, inputs : [inputData_zone]) => {
-            return [
-                actionConstructorRegistry.a_pos_change(s, thisCard)(
-                    inputs[0].data.zone.top
-                )(actionFormRegistry.card(s, thisCard))
-            ]
-        }
+    override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
+        return true;
+    }
+
+    override getInputObj(c: dry_card, s: dry_system, a: Action){
+        return s.requestInput_zone_default(c, zoneRegistry.z_hand);
+    }
+
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone]>): Action[] {
+        const z = input.next()[0].data.zone 
+
+        return [
+            actionConstructorRegistry.a_pos_change(s, c)(
+                z.top
+            )(actionFormRegistry.effect(s, c, this))
+        ]
     }
 }
 
 export class e_add_stat_change_diff extends Effect {
-    get atk() {return this.attr.get("atk") ?? 0}
-    get hp() {return this.attr.get("hp") ?? 0}
-    get maxAtk() {return this.attr.get("maxAtk") ?? this.atk}
-    get maxHp() {return this.attr.get("maxHp") ?? this.hp}
+    get maxAtk() {return this.attr.get("maxAtk") ?? 0}
+    get maxHp() {return this.attr.get("maxHp") ?? 0}
     get level() {return this.attr.get("level") ?? 0}
 
-    set atk(val : number) {this.attr.set("atk", val)}
-    set hp(val : number) {this.attr.set("hp", val)}
     set maxAtk(val : number) {this.attr.set("maxAtk", val)}
     set maxHp(val : number) {this.attr.set("maxHp", val)}
     set level(val : number) {this.attr.set("level", val)}
@@ -140,11 +142,9 @@ export class e_add_stat_change_diff extends Effect {
         return true
     }
 
-    override activate_final(c: dry_card, system: dry_system, a: Action): Action[] {
+    override activate_final(c: dry_card, system: dry_system, a: Action) {
         return [
-            actionConstructorRegistry.a_add_status_effect("generic_stat_change_diff", true)(system, c)(actionFormRegistry.card(system, c), {
-                atk : this.atk,
-                hp : this.hp,
+            actionConstructorRegistry.a_add_status_effect("generic_stat_change_diff", true)(system, c)(actionFormRegistry.effect(system, c, this), {
                 maxAtk : this.maxAtk,
                 maxHp : this.maxHp,
                 level : this.level
@@ -153,7 +153,35 @@ export class e_add_stat_change_diff extends Effect {
     }
 
     override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
-        return [this.atk, this.hp, this.maxAtk, this.maxHp, this.level]
+        return [this.maxAtk, this.maxHp, this.level]
+    }
+}
+
+export class e_add_stat_change_override extends Effect {
+    get maxAtk() {return this.attr.get("maxAtk") ?? 0}
+    get maxHp() {return this.attr.get("maxHp") ?? 0}
+    get level() {return this.attr.get("level") ?? 0}
+
+    set maxAtk(val : number) {this.attr.set("maxAtk", val)}
+    set maxHp(val : number) {this.attr.set("maxHp", val)}
+    set level(val : number) {this.attr.set("level", val)}
+    
+    override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
+        return true
+    }
+
+    override activate_final(c: dry_card, system: dry_system, a: Action) {
+        return [
+            actionConstructorRegistry.a_add_status_effect("generic_stat_change_override", true)(system, c)(actionFormRegistry.effect(system, c, this), {
+                maxAtk : this.maxAtk,
+                maxHp : this.maxHp,
+                level : this.level
+            })
+        ]
+    }
+
+    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+        return [this.maxAtk, this.maxHp, this.level]
     }
 }
 
@@ -180,7 +208,7 @@ export class e_revenge extends e_attack {
 }
 
 export class e_reflect extends e_revenge {
-    override activate_final(c: dry_card, system: dry_system, a: Action): Action[] {
+    override activate_final(c: dry_card, system: dry_system, a: Action){
         const attr = (a as Action<"a_deal_damage_internal">).flatAttr()
         this.dmg = attr.dmg
         return super.activate_final(c, system, a);
@@ -214,13 +242,13 @@ export class e_dmg_reduction extends Effect {
         return false;
     }
 
-    override activate_final(c: dry_card, system: dry_system, a: Action<"a_deal_damage_card"> | Action<"a_deal_damage_internal"> | Action<"a_deal_damage_position">): Action[] {
+    override activate_final(c: dry_card, system: dry_system, a: Action<"a_deal_damage_card"> | Action<"a_deal_damage_internal"> | Action<"a_deal_damage_position">) {
         const attr = a.flatAttr()
         let oldDmg = attr.dmg ?? 0;
         let newDmg = oldDmg - this.reductionAmmount;
-        if(newDmg < this.minDmg) newDmg = 0
+        if(newDmg < this.minDmg) newDmg = this.minDmg
         return [
-            actionConstructorRegistry.a_modify_action("a_deal_damage_card")(system, a as any)(actionFormRegistry.card(system, c))({
+            actionConstructorRegistry.a_modify_action("a_deal_damage_card")(system, a as any)(actionFormRegistry.effect(system, c, this))({
                 dmg : newDmg
             })
         ]
@@ -239,14 +267,14 @@ export class e_add_counter extends Effect {
         return this.times !== 0
     }
 
-    override activate_final(c: dry_card, system: dry_system, a: Action): Action[] {
+    override activate_final(c: dry_card, system: dry_system, a: Action) {
         let t = this.times
         if(!t || isNaN(t) || !isFinite(t)) return []
 
         let res : Action[] = []
         while(t !== 0){
             res.push(
-                actionConstructorRegistry.a_add_status_effect("generic_counter", true)(system, c)(actionFormRegistry.card(system, c), {})
+                actionConstructorRegistry.a_add_status_effect("generic_counter", true)(system, c)(actionFormRegistry.effect(system, c, this), {})
             )
             t--;
         }
@@ -258,26 +286,45 @@ export class e_add_counter extends Effect {
     }
 }
 
-export class e_revive extends e_generic_poschange_input {
+export class e_revive extends Effect<[inputData_zone, inputData_card, inputData_zone, inputData_pos]> {
     //condition: card in grave, pos on field
 
-    //rivetting code right here
-    //queue explosions
-
-    protected override card_input_condition(thisCard: dry_card): notFull<[(s: dry_system, z: dry_zone) => boolean, (s: dry_system, c: dry_card) => boolean]> {
-        return [
-            (s : dry_system, z : dry_zone) => z.is(zoneRegistry.z_grave)
-        ]
+    override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
+        return true;
     }
 
-    protected override pos_input_condition(thisCard: dry_card): notFull<[(s: dry_system, z: dry_zone) => boolean, (s: dry_system, z: dry_zone, p: dry_position) => boolean]> {
+    protected card_input_condition(thisCard : dry_card) : Partial<[
+        (s : dry_system, z : dry_zone) => boolean,
+        (s : dry_system, c : dry_card, z : dry_zone) => boolean
+    ]>{
+        return []
+    }
+
+    protected pos_input_condition(thisCard : dry_card) : Partial<[
+        (s : dry_system, z : dry_zone) => boolean,
+        (s : dry_system, p : dry_position, z : dry_zone) => boolean,
+    ]>{
+        return []
+    }
+
+    override getInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_card, inputData_zone, inputData_pos], [inputData_zone, inputData_card, inputData_zone, inputData_pos], inputData_zone, [inputData_card, inputData_zone, inputData_pos]> {
+        const g1 = s.requestInput_card_default(c, zoneRegistry.z_grave, ...this.card_input_condition(c))
+        const g2 = s.requestInput_pos_default(c, zoneRegistry.z_field, true, ...this.pos_input_condition(c))
+        return g1.merge(g2)
+    }
+
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone, inputData_card, inputData_zone, inputData_pos]>): Action[] {
+        const tc = input.next()[1].data.card
+        const tp = input.next()[3].data.pos
+        const cause = actionFormRegistry.effect(s, c, this)
+
         return [
-            (s : dry_system, z : dry_zone) => z.is(zoneRegistry.z_field)
+            actionConstructorRegistry.a_pos_change(s, tc)(tp)(cause)
         ]
     }
 }
 
-export class e_volatile extends e_void {
+export class e_volatile extends Effect {
     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
         //activate cond : when this card is removed from field
         if(
@@ -298,10 +345,12 @@ export class e_volatile extends e_void {
         return false
     }
 
-    override activate_final(c: dry_card, system: dry_system, a: Action): Action[] {
-        let res = super.activate_final(c, system, a)[0];
+    override activate_final(c: dry_card, s: dry_system, a: Action){
+        const cause = actionFormRegistry.effect(s, c, this)
         return [
-            actionConstructorRegistry.a_replace_action(system, res)(res.cause)
+            actionConstructorRegistry.a_replace_action(s, 
+                actionConstructorRegistry.a_void(s, c)(cause)
+            )(cause)
         ]
     }
 }
@@ -317,44 +366,126 @@ export class e_fragile extends e_destroy {
     }
 }
 
-export class e_draw extends Effect {
+export class e_draw extends Effect<[inputData_zone, inputData_zone]> {
     get times() {return this.attr.get("times") ?? 0}
     set times(val : number) {this.attr.set("times", val)}
 
     get cooldown() {return this.attr.get("cooldown") ?? NaN}
     set cooldown(val : number) {this.attr.set("cooldown", val)}
 
+    get doTurnDraw() : boolean {return this.attr.get("doTurnDraw") ? true : false}
+    set doTurnDraw(val : boolean) {this.attr.set("doTurnDraw", Number(val))}
+
     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-        return this.times !== 0
+        return this.times !== 0 && !isNaN(this.times) && isFinite(this.times)
     }
 
-    override activate_final(c: dry_card, system: dry_system, a: Action): Action[] {
-        let t = this.times
-        if(!t || isNaN(t) || !isFinite(t)) return []
+    override getInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_zone], [inputData_zone, inputData_zone], inputData_zone, [inputData_zone]> {
+        const g1 = s.requestInput_zone_default(c, zoneRegistry.z_deck);
+        const g2 = s.requestInput_zone_default(c, zoneRegistry.z_hand);
+        return g1.merge(g2)
+    }
 
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone, inputData_zone]>): Action[] {
+        let t = this.times
         let res : Action[] = []
 
-        const z = system.getZoneWithID(c.pos.zoneID)
-        if(!z) return []
+        const i = input.next()
+        const hand = i[0].data.zone
+        const deck = i[1].data.zone
 
-        const deck = system.getAllZonesOfPlayer(z.playerIndex)[zoneRegistry.z_deck]
-        if(!deck || !deck.length) return []
+        const cause = actionFormRegistry.effect(s, c, this)
 
         while(t !== 0){
             res.push(
-                actionConstructorRegistry.a_draw(system, deck[0])(actionFormRegistry.card(system, c), {
-                    cooldown : this.cooldown,
-                    doTurnReset : false,
-                    actuallyDraw : true,
-                })
+                deck.getAction_draw!(s, hand, cause, this.doTurnDraw)
             )
             t--;
         }
+
+        res.unshift(
+            deck.getAction_shuffle(s, cause)
+        )
+
         return res;
     }
 
     override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
         return [this.times, this.cooldown]
+    }
+}
+
+export class e_draw_until extends e_draw {
+    get count() {return this.attr.get("count") ?? 0}
+
+    override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
+        return this.count > 0;
+    }
+
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone, inputData_zone]>): Action[] {
+        const i = input.next()
+        const hand = i[0].data.zone
+
+        let diff = 2 - hand.cardArr_filtered.length
+
+        if(diff > 0){
+            this.times = diff;
+            return super.activate_final(c, s, a, input);
+        }
+
+        return []
+    }
+
+    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+        return [this.count, this.cooldown]
+    }
+}
+
+export class e_generic_lock extends Effect {
+    //delegates the actual condition to a sensible function rather than the inverses
+
+    //return true to unlock
+    protected key_condition(c : dry_card, s : dry_system, a : Action){
+        return true;
+    }
+
+    override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
+        return !this.key_condition(c, system, a);
+    }
+}
+
+export class e_bounce extends Effect<[inputData_zone, ...inputData_card[], inputData_zone]>{
+    //target zone, cards, deck
+    get target_zone() : zoneRegistry {return this.attr.get("target_zone") ?? zoneRegistry.z_field}
+    get count() : number {return this.attr.get("count") ?? 1}
+
+    override getInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, ...inputData_card[], inputData_zone], [inputData_zone, ...inputData_card[], inputData_zone], inputData_zone, [...inputData_card[], inputData_zone]> {
+        const g1 = s.requestInput_zone_default(c, this.target_zone).extendMultiple(s, this.count, (s : dry_system, prev : [inputData_zone, ...inputData_card[]]) => {
+            const z = prev[0].data.zone
+            if(z.cardArr_filtered.length < this.count) return []
+            return z.cardArr_filtered.map(c => inputFormRegistry.card(s, c))
+        })
+        const g2 = s.requestInput_zone_default(c, zoneRegistry.z_deck)
+        return g1.merge(g2)
+    }
+
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone, ...inputData_card[], inputData_zone]>): Action[] {
+        const i = input.next();
+        const deck = (i.pop() as inputData_zone).data.zone;
+        i.shift()
+        const cards = i as inputData_card[];
+
+        const cause = actionFormRegistry.effect(s, c, this)
+
+        const res :Action[] = cards.map(c_i => {
+            return actionConstructorRegistry.a_add_top(s, c_i.data.card)(deck)(cause)
+        })
+
+        res.push(
+            deck.getAction_shuffle(s, cause)
+        )
+
+        return res;
     }
 }
 
@@ -371,6 +502,7 @@ export default {
     e_attack,
     e_add_counter,
     e_add_stat_change_diff,
+    e_add_stat_change_override,
     e_dmg_reduction,
     e_revenge,
     e_reflect,

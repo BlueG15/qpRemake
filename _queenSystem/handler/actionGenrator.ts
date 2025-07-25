@@ -16,7 +16,7 @@ import type {
 } from "../../data/systemRegistry";
 
 import type { effectName, effectData_specific } from "../../data/effectRegistry";
-import type { effectData } from "../../data/cardRegistry";
+import type { cardData, effectData, patchData } from "../../data/cardRegistry";
 
 import {
     safeSimpleTypes,
@@ -45,6 +45,8 @@ import utils from "../../utils";
 import { zoneRegistry } from "../../data/zoneRegistry";
 import Position from "../../types/abstract/generics/position";
 import type Card from "../../types/abstract/gameComponents/card";
+import type Effect from "../../types/abstract/gameComponents/effect";
+import { inputApplicator, inputRequester } from "./actionInputGenerator";
 
 export class Action_class<
     TargetType extends identificationInfo[] = identificationInfo[], 
@@ -349,7 +351,7 @@ export class Action_class<
         return (
                 input.length === this.targets.length && 
                 input.every((i, index) => (
-                    typeof i.data === "object" && i.data.type === this.targets[index].type
+                    typeof i.data === "object" && (!Array.isArray(i.data)) && i.data.type === this.targets[index].type
                 ))
             )
     }
@@ -462,11 +464,6 @@ export type actionConstructionObj_variable<T> = {
 
 export type actionConstructionObj<T> = actionConstructionObj_fixxed  | (actionConstructionObj_fixxed & actionConstructionObj_variable<T>)
 
-export interface actionInputObj<T extends inputData[] = inputData[], M extends Action[] = Action[]> {
-    getValid : StrictGenerator<[inputType, inputData[]], void, inputData>
-    applyInput : (system : dry_system, inputs : T) => M
-}
-
 function form_card(s : dry_system) {return (card : dry_card) => {return {
     type : identificationType.card,
     sys : s,
@@ -491,7 +488,7 @@ function form_effect(s : dry_system){return (card : dry_card, eff : dry_effect) 
     card : card,
     eff : eff,
     is(card, eff) {
-        return card.id === this.card.id && eff.id === this.eff.id
+        return this.card.is(card) && this.eff.is(eff)
     },
 } as identificationInfo_effect }}
 
@@ -499,9 +496,12 @@ function form_zone(s : dry_system) {return (zone : dry_zone) => {return {
     type : identificationType.zone,
     sys : s,
     zone : zone,
-    is(zone) {
-        return this.zone.id === zone.id
+    is(p : any) {
+        return this.zone.is(p)
     },
+    of(p : any){
+        return this.zone.of(p)
+    }
 } as identificationInfo_zone }}
 
 function form_position(s : dry_system) {return (pos : dry_position) => {return {
@@ -529,7 +529,7 @@ function form_subtype(s : dry_system) {return (card : dry_card, eff : dry_effect
     eff : eff,
     subtype : subtype,
     is(card, eff, subtype) {
-        return this.card.id === card.id && this.eff.id === eff.id && this.subtype.dataID === subtype.dataID
+        return this.card.is(card) && this.eff.is(eff) && this.subtype.dataID === subtype.dataID
     },
 } as identificationInfo_subtype }}
 
@@ -823,21 +823,38 @@ const actionConstructorRegistry = {
     a_execute: ActionAssembler("a_execute", form_card),
     a_pos_change: ActionAssembler("a_pos_change", form_card, form_position),  
     a_pos_change_force : ActionAssembler("a_pos_change_force", form_card, form_position),
-    a_attack: ActionAssembler("a_attack", form_card, {
-        dmg : 0 as number | undefined,
-        dmgType : 0 as number | undefined
+    a_attack: ActionAssembler("a_attack", form_card, {} as {
+        target? : dry_card
+        dmg : number | undefined,
+        dmgType : number | undefined
+    }),
+    a_deal_damage_ahead: ActionAssembler("a_deal_damage_ahead", form_card, {} as {
+        target? : dry_card
+        dmg : number | undefined,
+        dmgType : number | undefined
     }),
     a_reset_card: ActionAssembler("a_reset_card", form_card),
     a_decompile : ActionAssembler("a_decompile", form_card),
     a_void : ActionAssembler("a_void", form_card),
 
+    a_declare_activation: ActionAssembler("a_declare_activation", form_effect),
     a_reset_effect: ActionAssembler("a_reset_effect", form_effect),
     a_activate_effect: ActionAssembler("a_activate_effect", form_effect),
     a_activate_effect_internal: ActionAssembler("a_activate_effect_internal", form_effect),
     a_add_status_effect: addEffectContructor,
     a_add_effect : addEffectContructor,
-    a_duplicate_effect : ActionAssembler("a_duplicate_effect", form_card, form_effect),
+    a_duplicate_effect : ActionAssembler("a_duplicate_effect", form_card, form_effect, {} as {
+        overrideData? : Partial<effectData>
+        followUp? : Action_class<[identificationInfo_effect, ...identificationInfo[]]>[]
+    }), //duplicate effect into card
+    a_duplicate_card : ActionAssembler("a_duplicate_card", form_position, form_card, {} as {
+        variantIDs? : string[]
+        overrideData? : patchData
+        followUp? : Action_class<[identificationInfo_card, ...identificationInfo[]]>[]
+    }), //duplicate card onto position
     a_remove_status_effect: ActionAssembler("a_remove_status_effect", form_effect),
+    a_remove_effect : ActionAssembler("a_remove_effect", form_effect),
+    a_remove_all_effects : ActionAssembler("a_remove_all_effects", form_card),
 
     a_activate_effect_subtype: ActionAssembler("a_activate_effect_subtype", form_subtype, {
         newEffectData : 0 as undefined | Partial<effectData>
@@ -850,15 +867,18 @@ const actionConstructorRegistry = {
     a_shuffle: ActionAssembler("a_shuffle", form_zone, {
         shuffleMap : {} as Map<number, number>
     }),
-    a_draw: ActionAssembler("a_draw", form_zone, {
+    a_draw: ActionAssembler("a_draw", form_zone, form_zone, { //the deck, then the hand
         cooldown : 0,
         doTurnReset : true,
         actuallyDraw : true,
     }),
+    a_add_top : ActionAssembler("a_add_top", form_card, form_zone),
 
-    a_get_input : ActionAssembler("a_get_input", {
-        input : {} as actionInputObj
+    a_get_input : ActionAssembler("a_get_input", {} as {
+        requester : inputRequester<any, inputData[]>
+        applicator : inputApplicator<any, inputData[]>
     }),
+
 } as const;
 
 export type ConstructionExtraParamsType<name extends actionName> = 
@@ -925,6 +945,10 @@ export type oneTarget<target extends identificationInfo, searchSet extends actio
 
 export type noExtraParam<searchSet extends actionName = actionName> = {
     [K in searchSet] : {} extends ConstructionExtraParamsType<K> ? K : never
+}[searchSet]
+
+export type hasTarget<target extends identificationInfo, searchSet extends actionName = actionName> = {
+    [K in searchSet] : TargetType<K> extends [target] ? K : TargetType<K> extends [target, ...any[]] ? K : never
 }[searchSet]
 
 export {actionConstructorRegistry, actionFormRegistry}

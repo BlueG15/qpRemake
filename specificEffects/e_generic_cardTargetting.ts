@@ -1,4 +1,4 @@
-import type { dry_card, dry_system } from "../data/systemRegistry";
+import type { dry_card, dry_system, inputType } from "../data/systemRegistry";
 import type { Action, noExtraParam } from "../_queenSystem/handler/actionGenrator";
 import Effect from "../types/abstract/gameComponents/effect";
 import { actionConstructorRegistry, actionFormRegistry, oneTarget} from "../_queenSystem/handler/actionGenrator";
@@ -14,14 +14,14 @@ export class e_generic_cardTargetting extends Effect {
     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
         return this.resolutionAID !== undefined
     }
-    override activate_final(c: dry_card, system: dry_system, a: Action): Action[] {
+    override activate_final(c: dry_card, system: dry_system, a: Action){
         let r = this.resolutionAID
         if(r === undefined) return []
 
         this.target = this.target ? this.target : c
         
         return [
-            actionConstructorRegistry[r](system, this.target)(actionFormRegistry.card(system, c))
+            actionConstructorRegistry[r](system, this.target)(actionFormRegistry.effect(system, c, this))
         ]
     }
 }

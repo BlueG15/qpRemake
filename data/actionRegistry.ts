@@ -37,6 +37,8 @@ enum actionRegistry {
     "a_add_status_effect", 
     "a_add_effect",
     "a_duplicate_effect",
+    "a_remove_effect",
+    "a_remove_all_effects",
 
     "a_remove_status_effect", 
     "a_clear_all_status_effect",
@@ -45,6 +47,7 @@ enum actionRegistry {
     "a_modify_action",
 
     "a_attack",
+    "a_deal_damage_ahead",
     "a_deal_damage_card",
     "a_deal_damage_position",
     "a_deal_heart_damage",
@@ -52,6 +55,11 @@ enum actionRegistry {
     "a_destroy",
     "a_decompile",
     "a_void",
+
+    "a_add_top",
+    "a_duplicate_card",
+
+    "a_declare_activation",
 }
 
 type actionName = keyof typeof actionRegistry

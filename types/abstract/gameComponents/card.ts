@@ -12,6 +12,7 @@ import { effectNotExist, wrongEffectIdx } from "../../errors";
 import { Setting, partitionSetting } from "./settings";
 import utils from "../../../utils";
 import { id_able } from "../../misc";
+import error from "../../errors/error";
 
 
 export class partitionData_class implements partitionData {
@@ -76,7 +77,7 @@ class Card {
         effectArr : Effect[],
     ){
         this.originalData = cardData
-        this.loadStat()
+        this.loadStat(true)
         this.repartitioning(s);
         this.setting = s
         this.effects = effectArr
@@ -190,29 +191,27 @@ class Card {
 
     private loadStat(fromStart = true){
 
-        let statObj = fromStart ? {
-            atk : this.originalData.atk,
-            hp : this.originalData.hp,
+        let statObj = {
             maxAtk : this.originalData.atk,
             maxHp : this.originalData.hp,
             level : this.originalData.level,
             extensionArr : this.originalData.extensionArr.map(i => String(i))
-        } : {
-            atk : this.atk,
-            hp : this.hp,
-            maxAtk : this.maxAtk,
-            maxHp : this.maxHp,
-            level : this.level,
-            extensionArr : this.extensionArr
         }
 
         this.statusEffects.forEach(i => i.parseStat(statObj))
 
-        this.atk = statObj.atk
-        this.hp = statObj.hp
+        if(fromStart){
+            this.attr.set("atk", this.originalData.atk);
+            this.attr.set("hp", this.originalData.hp);
+
+            this.attr.set("maxAtk", statObj.maxAtk);
+            this.attr.set("maxHp", statObj.maxHp);
+        } else {
+            this.maxAtk = statObj.maxAtk
+            this.maxHp = statObj.maxHp
+        }
+
         this.level = statObj.level
-        this.maxAtk = statObj.maxAtk
-        this.maxHp = statObj.maxHp
         this.extensionArr = statObj.extensionArr
     }
 
@@ -237,14 +236,18 @@ class Card {
 
     get maxAtk() : number {return this.attr.get("maxAtk")}
     set maxAtk(n : number){
+        //maintains the diff between 
+        const diff = this.maxAtk - this.atk
         this.attr.set("maxAtk", n);
-        if(this.atk > n) this.atk = n;
+        this.hp = n - diff
     }
     
     get maxHp() : number {return this.attr.get("maxHp")}
     set maxHp(n : number){
+        //maintains the diff between maxHp and hp
+        const diff = this.maxHp - this.hp;
         this.attr.set("maxHp", n);
-        if(this.hp > n) this.hp = n;
+        this.hp = n - diff;
     }
 
     get extensionArr() : string[] {
@@ -462,7 +465,24 @@ class Card {
         }
     }
 
-    
+    isInSamePartition(eindex1 : number, eindex2 : number) : boolean {
+        const e1 = this.effects[eindex1]
+        const e2 = this.effects[eindex2]
+        if(!e1 || !e2) return false;
+        return this.partitionInfo.some(p => {
+            p.mapping.length >= 2 && p.mapping.includes(eindex1) && p.mapping.includes(eindex2)
+        })
+    }
+
+    getAllPartitions(eindex : number) : number[]{
+        const e = this.effects[eindex]
+        if(!e) return []
+        let res : number[] = []
+        this.partitionInfo.forEach((p, i) => {
+            if(p.mapping.length >= 2 && p.mapping.includes(eindex)) res.push(i)
+        })
+        return res;
+    }
 
     //end partition API
 
@@ -539,46 +559,46 @@ class Card {
         this.getAllGhostEffects().forEach(i => {
             if( map[i] ) res.add(i)
         })
-        return Array.from(res.values());
+        return Array.from(res).sort();
     }; 
 
-    activateEffect(idx : number, system : dry_system, a : Action) : res 
-    activateEffect(eid : string, system : dry_system, a : Action) : res
-    activateEffect(id : number | string, system : dry_system, a : Action) : res {
-        let idx : number
-        if(typeof id === "number"){
-            idx = id;
-        } else {
-            idx = this.findEffectIndex(id);
-            if(idx < 0) return [new effectNotExist(id, this.id), undefined]
-        }
-        if(!this.totalEffects[idx]){
-            let err = new wrongEffectIdx(idx, this.id)
-            err.add("card.ts", "activateEffect", 25)
-            return [err, undefined]
-        }
-        //assumes can activate
-        //fix later
-        return [undefined, this.totalEffects[idx].activate(this, system, a)]
-    }
+    // activateEffect(idx : number, system : dry_system, a : Action) : [error, undefined] | [undefined, ReturnType<Effect["activate"]>]
+    // activateEffect(eid : string, system : dry_system, a : Action) : [error, undefined] | [undefined, ReturnType<Effect["activate"]>]
+    // activateEffect(id : number | string, system : dry_system, a : Action) : [error, undefined] | [undefined, ReturnType<Effect["activate"]>]{
+    //     let idx : number
+    //     if(typeof id === "number"){
+    //         idx = id;
+    //     } else {
+    //         idx = this.findEffectIndex(id);
+    //         if(idx < 0) return [new effectNotExist(id, this.id), undefined]
+    //     }
+    //     if(!this.totalEffects[idx]){
+    //         let err = new wrongEffectIdx(idx, this.id)
+    //         err.add("card.ts", "activateEffect", 25)
+    //         return [err, undefined]
+    //     }
+    //     //assumes can activate
+    //     //fix later
+    //     return [undefined, this.totalEffects[idx].activate(this, system, a)]
+    // }
 
-    activateEffectSubtypeSpecificFunc(eidx : number, subTypeidx : number, system : dry_system, a : Action) : res;
-    activateEffectSubtypeSpecificFunc(eidx : number, subTypeID  : string, system : dry_system, a : Action) : res;
-    activateEffectSubtypeSpecificFunc(eID  : string, subTypeID  : string, system : dry_system, a : Action) : res;
-    activateEffectSubtypeSpecificFunc(eID  : string, subTypeidx : number, system : dry_system, a : Action) : res;
-    activateEffectSubtypeSpecificFunc(effectIdentifier : string | number, subtypeIdentifier : string | number, system : dry_system, a : Action) : res{
-        let idx : number
-        if(typeof effectIdentifier === "string"){
-            idx = this.findEffectIndex(effectIdentifier)
-            if(idx < 0) return [new effectNotExist(effectIdentifier, this.id), undefined]
-        } else idx = effectIdentifier;
-        if(!this.totalEffects[idx]){
-            let err = new wrongEffectIdx(idx, this.id)
-            err.add("card.ts", "activateEffect", 25)
-            return [err, undefined]
-        }
-        return [undefined, this.totalEffects[idx].activateSubtypeSpecificFunc(subtypeIdentifier, this, system, a)];
-    }
+    // activateEffectSubtypeSpecificFunc(eidx : number, subTypeidx : number, system : dry_system, a : Action) : res;
+    // activateEffectSubtypeSpecificFunc(eidx : number, subTypeID  : string, system : dry_system, a : Action) : res;
+    // activateEffectSubtypeSpecificFunc(eID  : string, subTypeID  : string, system : dry_system, a : Action) : res;
+    // activateEffectSubtypeSpecificFunc(eID  : string, subTypeidx : number, system : dry_system, a : Action) : res;
+    // activateEffectSubtypeSpecificFunc(effectIdentifier : string | number, subtypeIdentifier : string | number, system : dry_system, a : Action) : res{
+    //     let idx : number
+    //     if(typeof effectIdentifier === "string"){
+    //         idx = this.findEffectIndex(effectIdentifier)
+    //         if(idx < 0) return [new effectNotExist(effectIdentifier, this.id), undefined]
+    //     } else idx = effectIdentifier;
+    //     if(!this.totalEffects[idx]){
+    //         let err = new wrongEffectIdx(idx, this.id)
+    //         err.add("card.ts", "activateEffect", 25)
+    //         return [err, undefined]
+    //     }
+    //     return [undefined, this.totalEffects[idx].activateSubtypeSpecificFunc(subtypeIdentifier, this, system, a)];
+    // }
 
     //misc APIs
     //this is specicfically for step2 - resolution of effects
@@ -665,7 +685,7 @@ class Card {
         if(typeof p === "object"){
             return p.id === this.id
         } 
-        return this.extensionArr.includes(p)
+        return this.extensionArr.includes("*") || this.extensionArr.includes(p)
     }
 }
 

@@ -33,7 +33,9 @@ import { type identificationInfo_card, type identificationInfo, type identificat
 import type error from "../../types/errors/error";
 import actionRegistry from "../../data/actionRegistry";
 import { damageType } from "../../types/misc";
-import type { dry_card, dry_system } from "../../data/systemRegistry";
+import type { dry_system, dry_card, dry_zone, inputData } from "../../data/systemRegistry";
+import { inputApplicator, inputRequester } from "./actionInputGenerator";
+import queenSystem from "../queenSystem";
 
 class zoneHandler {
     readonly zoneArr : ReadonlyArray<Zone> = []
@@ -172,7 +174,7 @@ class zoneHandler {
             c = this.getCardWithID(target.card.id);
             if (!c) return [true, [new cardNotExist()]];
         }
-        if(!a.resolvable(s, z.toDry(), c.toDry())) return [true, []]
+        if(!a.resolvable(s, z, c)) return [true, []]
         return [false, c];
     }
 
@@ -196,7 +198,7 @@ class zoneHandler {
             eff = c.totalEffects[eindex]
         }
 
-        if(!a.resolvable(s, z.toDry(), c.toDry(), eff.toDry())) return [true, []]
+        if(!a.resolvable(s, z, c, eff)) return [true, []]
         return [false, c, eff]
     }
 
@@ -223,7 +225,7 @@ class zoneHandler {
         let st = eff.getSubtypeidx(target.subtype.dataID)
         if(st < 0) return [true, [new effectNotExist(target.eff.id, c.id).add("zoneHandler", "handleActivateEffectSubtypeFunc", 326)]]
 
-        if(!a.resolvable(s, z.toDry(), c.toDry(), eff.toDry(), eff.subTypes[st].toDry())) return [true, []]
+        if(!a.resolvable(s, z, c, eff, eff.subTypes[st])) return [true, []]
 
         return [false, c, eff, st]
 
@@ -258,7 +260,7 @@ class zoneHandler {
             ];
         }
 
-        if(!a.resolvable(s, z.toDry(), c.toDry())) return [];
+        if(!a.resolvable(s, z, c)) return [];
 
         let temp : res
 
@@ -291,9 +293,9 @@ class zoneHandler {
             new zoneNotExist(a.targets[0].zone.id).add("zoneHandler", "handleDraw", 213)
         ]
 
-        if(!a.resolvable(s, zone.toDry())) return []
+        if(!a.resolvable(s, zone)) return []
 
-        let deck = zone as deck;
+        let deck = zone as any as deck;
 
         let playerindex = deck.playerIndex
         let hand = this.hands.filter(i => i.playerIndex === playerindex);
@@ -313,7 +315,7 @@ class zoneHandler {
         if(!z || !(z as any).draw) return [
             new zoneNotExist(a.targets[0].zone.id).add("zoneHandler", "handleDraw", 213)
         ]
-        if(!a.resolvable(s, z.toDry())) return [];
+        if(!a.resolvable(s, z)) return [];
         let temp = z.shuffle(a.flatAttr().shuffleMap)
         if(temp[0]) return [temp[0]]
         return temp[1]
@@ -338,10 +340,37 @@ class zoneHandler {
         return res[2].reset()
     }
 
-    handleEffectActivation(s : dry_system, a : Action<"a_activate_effect">) : Action[]{
+    handleEffectActivation(s : queenSystem, a : Action<"a_activate_effect">) : Action[]{
         let res = this.genericHandler_effect(s, a);
         if(res[0]) return res[1];
-        return res[2].activate(res[1], s, a);
+        let gen = res[2].getInputObj(res[1], s, a);
+        if(gen === undefined) return res[2].activate(res[1], s, a, undefined as any);
+
+        const allp = res[1].getAllPartitions(res[1].findEffectIndex(res[2].id))
+        const cached_index = allp.findIndex(pid => s.input_cache.has(`${res[1].id}${pid}`))
+        if(cached_index !== -1){
+            let previousGen = s.input_cache.get(`${res[1].id}${allp[cached_index]}`)!
+            gen.fill(s, previousGen)
+
+            //temporary solution
+            //calling gen.apply automatically carries into this merge
+            s.input_cache.get(`${res[1].id}${allp[cached_index]}`)!.merge(gen)
+        } else {
+            allp.forEach(pid => {
+                s.input_cache.set(`${res[1].id}${pid}`, gen)
+            })
+        }
+
+        if(gen.isFinalized()){
+            return res[2].activate(res[1], s, a, gen)
+        }
+
+        return [
+            actionConstructorRegistry.a_get_input(a.cause, {
+                requester : gen,
+                applicator : new inputApplicator(res[2].activate, [res[1], s, a], res[2])
+            })
+        ];
     }
 
     handleActivateEffectSubtypeFunc(s : dry_system, a : Action<"a_activate_effect_subtype">) : Action[]{
@@ -403,8 +432,10 @@ class zoneHandler {
 
         targets = targets.sort((a, b) => a.pos.x - b.pos.x)
 
+        a.modifyAttr("target", targets[0])
+
         return [
-            actionConstructorRegistry.a_deal_damage_internal(s, targets[0].toDry())(a.cause, {
+            actionConstructorRegistry.a_deal_damage_internal(s, targets[0])(a.cause, {
                 dmg : (attr.dmg === undefined) ? c.attr.get("atk") ?? 0 : attr.dmg,
                 dmgType : (attr.dmgType === undefined) ? damageType.physical : attr.dmgType
             })
@@ -420,7 +451,7 @@ class zoneHandler {
 
         if(res[1].hp === 0){
             return [
-                actionConstructorRegistry.a_destroy(s, res[1].toDry())(actionFormRegistry.system())
+                actionConstructorRegistry.a_destroy(s, res[1])(actionFormRegistry.system())
             ]
         }
         return []
@@ -439,7 +470,7 @@ class zoneHandler {
 
         if(c.hp === 0){
             return [
-                actionConstructorRegistry.a_destroy(s, c.toDry())(actionFormRegistry.system())
+                actionConstructorRegistry.a_destroy(s, c)(actionFormRegistry.system())
             ]
         }
 
@@ -470,7 +501,7 @@ class zoneHandler {
                 dmg : res[1].atk,
                 dmgType : damageType.physical
             }),
-            actionConstructorRegistry.a_pos_change_force(s, res[1].toDry())(g[0].top.toDry())(actionFormRegistry.system()).dontchain()
+            actionConstructorRegistry.a_pos_change_force(s, res[1])(g[0].top)(actionFormRegistry.system()).dontchain()
         ]
     }
 
@@ -492,7 +523,31 @@ class zoneHandler {
         ]
 
         return [
-            actionConstructorRegistry.a_pos_change_force(s, res[1].toDry())(targetZone[0].top.toDry())(actionFormRegistry.system())
+            actionConstructorRegistry.a_pos_change_force(s, res[1])(targetZone[0].top)(actionFormRegistry.system())
+        ]
+    }
+
+    getZoneRespond(z : Zone, s : dry_system, a : Action) : Action[] {
+        const gen = z.getInput_ZoneRespond(a, s);
+        if(gen === undefined) return z.getZoneRespond(a, s, undefined);
+
+        return [
+            actionConstructorRegistry.a_get_input(actionFormRegistry.system(), {
+                requester : gen as any,
+                applicator : new inputApplicator(z.getZoneRespond, [a, s], z)
+            })
+        ]
+    }
+
+    handleZoneInteract(z : Zone, s : dry_system, a : Action) : Action[] {
+        const gen = z.getInput_interact(s, a.cause);
+        if(gen === undefined) return z.interact(s, a.cause, undefined);
+
+        return [
+            actionConstructorRegistry.a_get_input(actionFormRegistry.system(), {
+                requester : gen as any,
+                applicator : new inputApplicator(z.interact, [s, a.cause], z)
+            })
         ]
     }
 
@@ -500,7 +555,7 @@ class zoneHandler {
         let arr : Action[] = []
         let infoLog : Map<string, string[]> = new Map() //cardID, effectIDs[]
         this.zoneArr.forEach(i => {
-            arr.push(...i.getZoneRespond(a, system))
+            arr.push(...this.getZoneRespond(i, system, a))
         })
         if(zoneResponsesOnly) return [arr, []];
         this.zoneArr.forEach(i => {
