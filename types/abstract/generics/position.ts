@@ -1,5 +1,4 @@
 import type { dry_position } from "../../../data/systemRegistry";
-import utils from "../../../utils";
 
 class Position {
     arr : number[] = []
@@ -66,13 +65,13 @@ class Position {
             let max = param1;
             let min = param2;
             for(let i = 0; i < this.length; i++){
-                this.arr[i] = utils.rng(max, min, true);
+                this.arr[i] = Utils.rng(max, min, true);
             }
         } else {
             //overload 1
             let max = param1.length;
             let min = 0;
-            let i = utils.rng(max, min, true);
+            let i = Utils.rng(max, min, true);
 
             this.arr = param1[i].arr
             this.zoneID = param1[i].zoneID

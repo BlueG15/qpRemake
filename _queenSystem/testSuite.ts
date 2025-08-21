@@ -2,7 +2,6 @@ import type queenSystem from "./queenSystem"
 import type Card from "../types/abstract/gameComponents/card"
 import type Zone from "../types/abstract/gameComponents/zone"
 import { actionConstructorRegistry, actionFormRegistry } from "./handler/actionGenrator"
-import utils from "../utils"
 import { auto_input_option } from "../types/abstract/gameComponents/settings"
 
 const testSuite : Record<string, ((s : queenSystem) => void)> = {

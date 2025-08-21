@@ -1,6 +1,5 @@
 import type EffectType from "../../types/abstract/gameComponents/effectType";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
-// import utils from "../../utils";
 
 export default class typeLoader {
 

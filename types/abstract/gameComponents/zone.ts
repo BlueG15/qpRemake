@@ -3,7 +3,6 @@ import type Card from "./card";
 import type res from "../generics/universalResponse";
 
 import Position from "../generics/position";
-import utils from "../../../utils";
 
 import { playerTypeID, zoneAttributes, zoneRegistry, type zoneData } from "../../../data/zoneRegistry";
 
@@ -118,14 +117,14 @@ class Zone_base<
         return new Position(
             this.id,
             this.name,
-            ...utils.indexToPosition(
+            ...Utils.indexToPosition(
                 this.isFull ? this.capacity - 1 : this.cardArr.length,
                 this.shape
             )
         );
     }
     get firstPos(): Position {
-        return new Position(this.id, this.name, ...utils.indexToPosition(0, this.shape));
+        return new Position(this.id, this.name, ...Utils.indexToPosition(0, this.shape));
     }
 
     get top() {return this.lastPos}
@@ -133,7 +132,7 @@ class Zone_base<
 
     getCardByPosition(p : Position) : Card | undefined {
         if(!this.validatePosition(p)) return undefined;
-        let index = utils.positionToIndex(p.flat(), this.shape);
+        let index = Utils.positionToIndex(p.flat(), this.shape);
         return this.cardArr[index]
     }
 
@@ -244,7 +243,7 @@ class Zone_base<
         if (!this.validatePosition(p)) return -1;
         p = p as Position;
         if (this.posLength == 1) return p.x;
-        return utils.positionToIndex(p.flat(), this.shape);
+        return Utils.positionToIndex(p.flat(), this.shape);
     }
     isPositionOccupied(p?: Position): [number, boolean] {
         if (!this.validatePosition(p)) return [-1, false];
@@ -278,7 +277,7 @@ class Zone_base<
             );
         }
         if (!p) p = this.lastPos;
-        let idx = utils.positionToIndex(p.flat(), this.shape);
+        let idx = Utils.positionToIndex(p.flat(), this.shape);
         if (idx < 0 || !this.validatePosition(p)) {
             return new invalidPosition(c.id, p).add("zone.Dts", "getAction_add", 138);
         }
@@ -326,7 +325,7 @@ class Zone_base<
                 158
             );
 
-        let toIndex = utils.positionToIndex(newPos.flat(), this.shape);
+        let toIndex = Utils.positionToIndex(newPos.flat(), this.shape);
         if (toIndex < 0 || !this.validatePosition(newPos))
             return new invalidPosition(c.id, newPos).add(
                 "zone.ts",
@@ -347,7 +346,7 @@ class Zone_base<
     protected generateShuffleMap() { 
         let a: number[] = [];
         for (let i = 0; i < this.capacity; i++) a.push(i);
-        a = a.sort((a, b) => utils.rng(1, 0, false) - 0.5);
+        a = a.sort((a, b) => Utils.rng(1, 0, false) - 0.5);
 
         let k = new Map<number, number>();
         a.forEach((i, index) => k.set(index, i));
@@ -385,7 +384,7 @@ class Zone_base<
         c.pos = new Position(
             this.id,
             this.name,
-            ...utils.indexToPosition(toIndex, this.shape)
+            ...Utils.indexToPosition(toIndex, this.shape)
         );
         this.cardArr[toIndex] = c;
 
@@ -394,7 +393,7 @@ class Zone_base<
 
     add(c: Card, p1: Position): res {
         if (this.moveToNeedPosition) {
-            let toIndex = utils.positionToIndex(p1.flat(), this.shape);
+            let toIndex = Utils.positionToIndex(p1.flat(), this.shape);
             if (toIndex < 0 || !this.validatePosition(p1))
                 return this.handleInvalidPos(c ? c.id : undefined, p1, "add", 204);
             let res = this.addToIndex(c, toIndex);
@@ -428,7 +427,7 @@ class Zone_base<
         if (index < 0 || !this.cardArr[index] || !this.validatePosition(c.pos))
             return this.handleCardNotInApplicableZone(c, "remove", 233);
 
-        let toIndex = utils.positionToIndex(p.flat(), this.shape);
+        let toIndex = Utils.positionToIndex(p.flat(), this.shape);
         if (toIndex < 0 || !this.validatePosition(p))
             return this.handleInvalidPos(c.id, p, "move", 237);
 
@@ -634,7 +633,7 @@ class Zone_base<
         }
 
         //swap the two indexes
-        let cIndex = utils.positionToIndex(c.pos.flat(), this.shape);
+        let cIndex = Utils.positionToIndex(c.pos.flat(), this.shape);
         //let swapTargetID = this.cardArr[index].id
 
         let oldPos = c.pos;
@@ -672,7 +671,7 @@ class Zone_base<
         this.cardArr = [...temp, c, ...temp2];
         this.cardArr.forEach((i, index) => {
             if (i) {
-                i.pos.arr = utils.indexToPosition(index, this.shape);
+                i.pos.arr = Utils.indexToPosition(index, this.shape);
                 i.pos.zoneID = this.id;
             }
         });
@@ -690,7 +689,7 @@ class Zone_base<
             let p: Position = new Position(
                 this.id,
                 this.name,
-                ...utils.indexToPosition(index, this.shape)
+                ...Utils.indexToPosition(index, this.shape)
             );
             (i as Card).pos = p;
             console.log(
@@ -751,7 +750,7 @@ class Zone_base<
     get cardArr_filtered() : dry_card[] {return this.cardArr.filter(i => i !== undefined) as dry_card[]}
 
     getAllPos() : dry_position[] {
-        return this.cardArr.map((_, index) => new Position(this.id, this.name, ...utils.indexToPosition(index, this.shape)))
+        return this.cardArr.map((_, index) => new Position(this.id, this.name, ...Utils.indexToPosition(index, this.shape)))
     }
 
     //Position check API
@@ -777,7 +776,7 @@ class Zone_base<
     }
 
     isOccupied(pos : Position_like){
-        const n = utils.positionToIndex(pos.flat(), this.shape);
+        const n = Utils.positionToIndex(pos.flat(), this.shape);
         if(isNaN(n) || n < 0) return false;
         return this.cardArr[n] !== undefined
     }

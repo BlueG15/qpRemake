@@ -4,9 +4,8 @@ import Effect from "../types/abstract/gameComponents/effect";
 import { actionConstructorRegistry, actionFormRegistry, oneTarget} from "../_queenSystem/handler/actionGenrator";
 import type { identificationInfo_card } from "../data/systemRegistry";
 import { inputFormRegistry, inputRequester, inputRequester_finalized, inputRequester_multiple } from "../_queenSystem/handler/actionInputGenerator";
-import utils from "../utils";
 
-const randomNumArr = utils.getRandomNumberArr(5)
+const randomNumArr = Utils.getRandomNumberArr(5)
 
 class e_test_input_num extends Effect<inputData_num[]> {
     get count() {return this.attr.get("count") ?? 0}

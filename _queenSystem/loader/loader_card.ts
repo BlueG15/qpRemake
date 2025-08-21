@@ -3,7 +3,6 @@ import type { cardData, cardData_unified, effectData } from "../../data/cardRegi
 import type effectLoader from "./loader_effect";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 import type Effect from "../../types/abstract/gameComponents/effect";
-import utils from "../../utils";
 
 //Cards have 2 parts
 
@@ -47,7 +46,7 @@ export default class cardLoader {
         c = (c) ? (c + 1) % s.max_id_count : 0;
         this.countCache.set(cid, c); 
 
-        let runID = variantid ? utils.dataIDToUniqueID(cid, c, s, ...variantid) : utils.dataIDToUniqueID(cid, c, s);
+        let runID = variantid ? Utils.dataIDToUniqueID(cid, c, s, ...variantid) : Utils.dataIDToUniqueID(cid, c, s);
         let baseData = data.variantData.base
 
         let d : cardData_unified = {
@@ -59,7 +58,7 @@ export default class cardLoader {
 
         if(variantid){
             variantid.forEach(i => {
-                utils.patchCardData(d, data.variantData[i])
+                Utils.patchCardData(d, data.variantData[i])
             })
         }
         

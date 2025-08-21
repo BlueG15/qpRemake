@@ -3,7 +3,6 @@ import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "../../abstract/gameComponents/card";
 import type { dry_system } from "../../../data/systemRegistry";
 import type Effect from "../../abstract/gameComponents/effect";
-// import utils from "../../../utils";
 import { zoneRegistry } from "../../../data/zoneRegistry";
 
 class subtype_graveLock extends effectSubtype {

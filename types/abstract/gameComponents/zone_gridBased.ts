@@ -1,6 +1,5 @@
 //hand, grave, field, deck, etc extends from this, reserve index 0 for system
 import Position from "../generics/position";
-import utils from "../../../utils";
 import { Zone_base } from "./zone";
 import type Card from "./card";
 
@@ -30,7 +29,7 @@ class Zone_grid<
     }
 
     override get lastPos() : Position {
-        return new Position(this.id, this.name, ...utils.indexToPosition(
+        return new Position(this.id, this.name, ...Utils.indexToPosition(
             (this.isFull) ? this.capacity-1 : this.lastEmptyIndex, 
             this.shape
         ))
@@ -40,7 +39,7 @@ class Zone_grid<
         return new Position(
             this.id, 
             this.name,
-            ...utils.indexToPosition(this.firstEmptyIndex, this.shape)
+            ...Utils.indexToPosition(this.firstEmptyIndex, this.shape)
         )
     }
 

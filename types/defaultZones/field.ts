@@ -1,7 +1,6 @@
 //import zone from "../baseClass/zone";
 import Position from "../abstract/generics/position";
 
-import utils from "../../utils";
 import zone_grid from "../abstract/gameComponents/zone_gridBased";
 import type { dry_card, dry_position } from "../../data/systemRegistry";
 import { Positionable } from "../misc";
@@ -16,7 +15,7 @@ class field extends zone_grid {
         let res : Position[] = [];
         for(let i = 0; i < this.capacity; i++){
             if(this.cardArr[i]) continue;
-            let p = new Position(this.id, this.name, ...utils.indexToPosition(i, this.shape))
+            let p = new Position(this.id, this.name, ...Utils.indexToPosition(i, this.shape))
             res.push(p);
         }
         return res;
@@ -24,7 +23,7 @@ class field extends zone_grid {
 
     getRandomEmptyPos(){
         let posArr = this.getEmptyPosArr()
-        let idx = utils.rng(posArr.length - 1, 0, true)
+        let idx = Utils.rng(posArr.length - 1, 0, true)
         return posArr[idx]
     }
 

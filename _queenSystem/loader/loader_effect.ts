@@ -5,7 +5,6 @@ import type subtypeLoader from "./loader_subtype";
 import type typeLoader from "./loader_type";
 import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
 import type effectDataRegistry from "../../data/effectRegistry";
-import utils from "../../utils";
 
 //Cards have 2 parts
 
@@ -107,9 +106,9 @@ export default class effectLoader {
         let type = this.typeLoader.getType(data.typeID, s, eid)
         if(!type) return undefined
 
-        let runID = utils.dataIDToUniqueID(eid, c, s, ...data.subTypeIDs)
+        let runID = Utils.dataIDToUniqueID(eid, c, s, ...data.subTypeIDs)
 
-        if(edata) utils.patchGeneric(data, edata)
+        if(edata) Utils.patchGeneric(data, edata)
             
         //load subtypes
         let k : effectSubtype[] = []

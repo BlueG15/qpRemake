@@ -41,7 +41,6 @@ import {
     identificationInfo_system,
 } from "../../data/systemRegistry";
 
-import utils from "../../utils";
 import { zoneRegistry } from "../../data/zoneRegistry";
 import Position from "../../types/abstract/generics/position";
 import type Card from "../../types/abstract/gameComponents/card";
@@ -69,7 +68,7 @@ export class Action_class<
     }
 
     clone(){
-        return utils.clone(this)
+        return Utils.clone(this)
     }
 
     copy(a : Action){
@@ -214,7 +213,7 @@ export class Action_class<
         this.checkers = defaultChecker
 
         if(o.checkers) {
-            utils.patchGeneric(this.checkers, o.checkers);
+            Utils.patchGeneric(this.checkers, o.checkers);
         }
 
         Object.entries(o).forEach(([key, val]) => {
@@ -271,7 +270,7 @@ export class Action_class<
         if(key === "canBeChainedTo" && typeof newVal === "boolean") return true
         if(key === "canBeTriggeredTo" && typeof newVal === "boolean") return true
         let oldVal = this.attr.get(key as any);
-        if(utils.getTypeSigature(oldVal) === utils.getTypeSigature(newVal)) return true;
+        if(Utils.getTypeSigature(oldVal) === Utils.getTypeSigature(newVal)) return true;
         return false;
     }
 
@@ -661,7 +660,7 @@ function ActionAssembler(name : actionName, ...f : any[]){
         const [first, ...rest] = f.map(i => i(s))
         
         // console.log("DEBUG2: " + name + " -- " + f.map(i => (typeof i === "object") ? Object.keys(i).join("==") : typeof i).join("_") + extractLast);
-        return utils.genericCurrier(rest, (resArr : identificationInfo[]) => {
+        return Utils.genericCurrier(rest, (resArr : identificationInfo[]) => {
             resArr.unshift(first(...p));
             return (cause : identificationInfo, infoObj : any = {}) => ActionAssembler_base(name, resArr, cause, infoObj);
         })

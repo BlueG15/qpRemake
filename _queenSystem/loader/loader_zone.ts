@@ -2,7 +2,6 @@ import type Zone from "../../types/abstract/gameComponents/zone";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 import type { zoneData } from "../../data/zoneRegistry";
 import type { inputData } from "../../data/systemRegistry";
-import utils from "../../utils";
 
 export default class zoneLoader {
 
@@ -31,7 +30,7 @@ export default class zoneLoader {
         if(!data) return undefined
         
         // commented out, may need later
-        let runID = utils.dataIDToUniqueID(zclassID, this.counter, s, zDataID, ptype.toString(), pid.toString())
+        let runID = Utils.dataIDToUniqueID(zclassID, this.counter, s, zDataID, ptype.toString(), pid.toString())
         
         this.counter++;
         return new zclass(-1, runID, zDataID, zclassID, ptype, pid, data)

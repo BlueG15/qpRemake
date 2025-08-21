@@ -2,10 +2,8 @@
 import type Card from "./card";
 import type res from "../generics/universalResponse";
 //import position from "./position";
-//import utils from "./util";
 import { Zone_base } from "./zone";
 import Position from "../generics/position";
-import utils from "../../../utils";
 
 import { playerOppositeMap, playerTypeID } from "../../../data/zoneRegistry";
 import { HasTypesArr, Player_specific, Positionable } from "../../misc";
@@ -53,7 +51,7 @@ class Zone_stack<
         return new Position(
             this.id,
             this.name,
-            ...utils.indexToPosition(
+            ...Utils.indexToPosition(
                 (this.cardArr.length === 0) ? 0 : this.cardArr.length - 1,
                 this.shape
             )

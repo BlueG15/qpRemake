@@ -1,6 +1,7 @@
 import queenSystem from "./_queenSystem/queenSystem";
 import { defaultSetting } from "./types/abstract/gameComponents/settings";
 import testSuite from "./_queenSystem/testSuite";
+import {} from "./global";
 
 async function main(){
     let s = new defaultSetting();

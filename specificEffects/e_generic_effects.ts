@@ -21,7 +21,6 @@ import {
     e_reset,
 } from "./e_generic_cardTargetting";
 import { inputFormRegistry, inputRequester_finalized, inputRequester } from "../_queenSystem/handler/actionInputGenerator";
-import utils from "../utils";
 
 export class e_quick extends Effect {
     protected instant_subtype = new subtype_instant(subtypeRegistry[subtypeRegistry.e_instant])

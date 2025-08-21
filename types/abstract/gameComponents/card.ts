@@ -10,9 +10,8 @@ import { cardData_unified, partitionData, partitionActivationBehavior, cardData,
 import { effectNotExist, wrongEffectIdx } from "../../errors";
 
 import { Setting, partitionSetting } from "./settings";
-import utils from "../../../utils";
 import { id_able } from "../../misc";
-import error from "../../errors/error";
+// import error from "../../errors/error";
 
 
 export class partitionData_class implements partitionData {
@@ -137,7 +136,7 @@ class Card {
             }
             case partitionSetting.auto_mapping_ygo: {
                 this.partitionInfo = [
-                    new partitionData_class(newSetting.default_partition_behavior, ...utils.range(this.effects.length))
+                    new partitionData_class(newSetting.default_partition_behavior, ...Utils.range(this.effects.length))
                 ]
                 return;
             }
@@ -440,7 +439,7 @@ class Card {
             patchData.mapping = k
         }
 
-        utils.patchGeneric(this.partitionInfo[targetPartitionID], patchData);
+        Utils.patchGeneric(this.partitionInfo[targetPartitionID], patchData);
     }
 
     getPartitionDisplayInputs(sys : dry_system, partitionIndex : number) : (string | number)[]; //input array

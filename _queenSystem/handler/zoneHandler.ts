@@ -19,7 +19,6 @@ import _void from "../../types/defaultZones/void";
 import zoneLoader from "../loader/loader_zone";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 
-import utils from "../../utils";
 import zoneDataRegistry, { playerTypeID, zoneData } from "../../data/zoneRegistry";
 import { zoneRegistry, zoneName, zoneID } from "../../data/zoneRegistry";
 
@@ -76,7 +75,7 @@ class zoneHandler {
         Object.entries(zoneDataRegistry).forEach(([zkey, zdata], index) => {
             if(!zdata.instancedFor.length){
                 let  zinstance = (this.loader.getZone(zkey, s) as Zone)
-                utils.insertionSort(
+                Utils.insertionSort(
                     this.zoneArr as Zone[], 
                     zinstance,
                     this.sortFunc
@@ -85,7 +84,7 @@ class zoneHandler {
                 s.players.forEach((ptype, pindex) => {
                     let zinstance = (this.loader.getZone(zkey, s, ptype, pindex) as Zone)
                     if(zdata.instancedFor.includes(ptype)){
-                        utils.insertionSort(
+                        Utils.insertionSort(
                             this.zoneArr as Zone[],
                             zinstance,
                             this.sortFunc
@@ -117,7 +116,7 @@ class zoneHandler {
     add(zclassID : string, s : Setting, ptype? : playerTypeID | -1, pid? : number, zDataID? : string){
         let instance = this.loader.getZone(zclassID, s, ptype, pid, zDataID);
         if(!instance) throw new Error(`Fail to create instance of zone ${zclassID}`);
-        utils.insertionSort(this.zoneArr as Zone[], instance, this.sortFunc);
+        Utils.insertionSort(this.zoneArr as Zone[], instance, this.sortFunc);
         this.correctID()
     }
 
@@ -158,7 +157,7 @@ class zoneHandler {
             }
         })
 
-        insertNew.forEach(i => utils.insertionSort(this.zoneArr as Zone[], i, this.sortFunc))
+        insertNew.forEach(i => Utils.insertionSort(this.zoneArr as Zone[], i, this.sortFunc))
         this.correctID()
     }
 

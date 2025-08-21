@@ -60,7 +60,6 @@ import {
 import { id_able, notFull, Player_specific, Positionable, StrictGenerator } from "../types/misc";
 import Position from "../types/abstract/generics/position";
 
-import utils from "../utils";
 import { inputFormRegistry, inputRequester } from "./handler/actionInputGenerator";
 
 // import type dry_card from "../dryData/dry_card";
@@ -612,7 +611,7 @@ class queenSystem {
                 }
                 case auto_input_option.random : {
                     while(true){
-                        let input : inputData = i_set ? utils.getRandomElement(i_set)! : utils.getRandomElement(this.getAllInputs(i_type, true))!
+                        let input : inputData = i_set ? Utils.getRandomElement(i_set)! : Utils.getRandomElement(this.getAllInputs(i_type, true))!
                         const k = proceed(this, input)
                         if(k !== undefined){
                             final = k;
@@ -662,15 +661,15 @@ class queenSystem {
         switch(t){
                 case inputType.boolean: return force ? [{
                     type : inputType.boolean,
-                    data : utils.rng(1, 0, true) === 1
+                    data : Utils.rng(1, 0, true) === 1
                 }] as inputData_standard[] : undefined
                 case inputType.number: return force ? [{
                     type : inputType.number,
-                    data : utils.rng(100, 0, true)
+                    data : Utils.rng(100, 0, true)
                 }] as inputData_standard[] : undefined
                 case inputType.string: return force ? [{
                     type : inputType.string,
-                    data : utils.generateID()
+                    data : Utils.generateID()
                 } as const] as inputData_standard[] : undefined
 
                 case inputType.zone: return this.map(0, z => inputFormRegistry.zone(this, z))
@@ -704,7 +703,7 @@ class queenSystem {
     }
 
     generateSignature(a : inputData | undefined) : string {
-        if(a == undefined) return utils.generateID()
+        if(a == undefined) return Utils.generateID()
         switch(a.type){
 
             case inputType.number:
@@ -894,7 +893,7 @@ class queenSystem {
         let c = 0;
         if(stopEarlyCount === undefined) stopEarlyCount = Infinity
         for(let i = 0; i < this.fullLog.length; i++){
-            c += utils.toSafeNumber( condition(this.fullLog[i]), true )
+            c += Utils.toSafeNumber( condition(this.fullLog[i]), true )
             if(c >= stopEarlyCount) return c;
         }
         return c
