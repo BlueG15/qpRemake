@@ -113,7 +113,7 @@ export class e_addToHand extends Effect<[inputData_zone]> {
         return true;
     }
 
-    override getInputObj(c: dry_card, s: dry_system, a: Action){
+    override createInputObj(c: dry_card, s: dry_system, a: Action){
         return s.requestInput_zone_default(c, zoneRegistry.z_hand);
     }
 
@@ -306,7 +306,7 @@ export class e_revive extends Effect<[inputData_zone, inputData_card, inputData_
         return []
     }
 
-    override getInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_card, inputData_zone, inputData_pos], [inputData_zone, inputData_card, inputData_zone, inputData_pos], inputData_zone, [inputData_card, inputData_zone, inputData_pos]> {
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_card, inputData_zone, inputData_pos], [inputData_zone, inputData_card, inputData_zone, inputData_pos], inputData_zone, [inputData_card, inputData_zone, inputData_pos]> {
         const g1 = s.requestInput_card_default(c, zoneRegistry.z_grave, ...this.card_input_condition(c))
         const g2 = s.requestInput_pos_default(c, zoneRegistry.z_field, true, ...this.pos_input_condition(c))
         return g1.merge(g2)
@@ -379,7 +379,7 @@ export class e_draw extends Effect<[inputData_zone, inputData_zone]> {
         return this.times !== 0 && !isNaN(this.times) && isFinite(this.times)
     }
 
-    override getInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_zone], [inputData_zone, inputData_zone], inputData_zone, [inputData_zone]> {
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_zone], [inputData_zone, inputData_zone], inputData_zone, [inputData_zone]> {
         const g1 = s.requestInput_zone_default(c, zoneRegistry.z_deck);
         const g2 = s.requestInput_zone_default(c, zoneRegistry.z_hand);
         return g1.merge(g2)
@@ -458,7 +458,7 @@ export class e_bounce extends Effect<[inputData_zone, ...inputData_card[], input
     get target_zone() : zoneRegistry {return this.attr.get("target_zone") ?? zoneRegistry.z_field}
     get count() : number {return this.attr.get("count") ?? 1}
 
-    override getInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, ...inputData_card[], inputData_zone], [inputData_zone, ...inputData_card[], inputData_zone], inputData_zone, [...inputData_card[], inputData_zone]> {
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, ...inputData_card[], inputData_zone], [inputData_zone, ...inputData_card[], inputData_zone], inputData_zone, [...inputData_card[], inputData_zone]> {
         const g1 = s.requestInput_zone_default(c, this.target_zone).extendMultiple(s, this.count, (s : dry_system, prev : [inputData_zone, ...inputData_card[]]) => {
             const z = prev[0].data.zone
             if(z.cardArr_filtered.length < this.count) return []

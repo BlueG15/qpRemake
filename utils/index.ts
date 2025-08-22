@@ -6,23 +6,27 @@ import type { nestedTree, typeSignature } from "../types/misc";
 
 type recursiveGenerator<T> = Generator<any, T | recursiveGenerator<T>, any>
 
-const utils = {
+class utils {
 
-    toProper(str : string){
+    static toProper(str : string){
         return str.toLowerCase().replace(/(?:^|\s)\w/g, function(match) {
             return match.toUpperCase();
         });
-    },
+    }
 
-    rng(max : number, min : number, round : boolean){
+    static rng(max : number, min : number, round : boolean){
         return (round) ? Math.round(Math.random() * (max - min) + min) : Math.random() * (max - min) + min
-    },
+    }
 
-    round(num : number, precision : number){ 
+    static round(num : number, precision : number){ 
         return Math.round((num + Number.EPSILON) * Math.pow(10, precision)) / Math.pow(10, precision)
-    },
+    }
 
-    toSafeNumber(n? : number | boolean | string, doTruncation = false) : number{
+    static clamp(num : number, max : number, min : number = num){
+        return Math.min( Math.max(num, min), max)
+    }
+
+    static toSafeNumber(n? : number | boolean | string, doTruncation = false) : number{
         if(!n) return 0;
         if(n === true){
             return 1;
@@ -34,9 +38,9 @@ const utils = {
         if( isNaN(n) ) return 0;
         if( isFinite(n) ) return n;
         return doTruncation ? Math.trunc(n) : n;
-    },
+    }
 
-    generateID(length = 10){
+    static generateID(length = 10){
         if (length <= 0) return "";
     
         const valid = "01234566789ABCDEF"; //stops at F to guaranteed hex
@@ -48,9 +52,9 @@ const utils = {
         }
     
         return s.join("");
-    },
+    }
 
-    dataIDToUniqueID(
+    static dataIDToUniqueID(
         id : string, 
         num : number, 
         s : Setting,
@@ -70,13 +74,13 @@ const utils = {
                 return arr.join(s.id_separator);
             }
         }
-    },
+    }
 
-    removeDuplicates(...arr : any[][]){
+    static removeDuplicates(...arr : any[][]){
         return [...new Set(([] as any[]).concat(...arr))];
-    },
+    }
 
-    pushReadOnlyReference(arr : any[], b : Record<string, any>, prop : string){
+    static pushReadOnlyReference(arr : any[], b : Record<string, any>, prop : string){
         Object.defineProperty(arr, arr.length, {
             get() {
                 return b[prop];
@@ -84,9 +88,9 @@ const utils = {
             set(value : any){},
             enumerable : true
         })
-    },
+    }
 
-    pushReference(arr : any[], b : Record<string, any>, prop : string){
+    static pushReference(arr : any[], b : Record<string, any>, prop : string){
         Object.defineProperty(arr, arr.length, {
             get() {
                 return b[prop];
@@ -96,9 +100,9 @@ const utils = {
             },
             enumerable : true
         })
-    },
+    }
 
-    indexToPosition(index : number, shapeArr : number[]) {
+    static indexToPosition(index : number, shapeArr : number[]) {
         const position : number[] = new Array(shapeArr.length);
         let remainingIndex = index;
     
@@ -108,9 +112,9 @@ const utils = {
         }
     
         return position;
-    },
+    }
 
-    positionToIndex(position : ReadonlyArray<number>, shapeArr :  number[]) {
+    static positionToIndex(position : ReadonlyArray<number>, shapeArr :  number[]) {
         if(!shapeArr.length || !position.length) return -1;
         let flatIndex = 0;
         let stride = 1;
@@ -121,17 +125,17 @@ const utils = {
         }
     
         return flatIndex;
-    },
+    }
 
-    isPartitioningManual(ps : partitionSetting){
+    static isPartitioningManual(ps : partitionSetting){
         return ps === partitionSetting.manual_mapping_no_ghost || ps === partitionSetting.manual_mapping_with_ghost || ps === partitionSetting.manual_mapping_with_ghost_spread
-    },
+    }
 
-    isPartitioningAuto(ps : partitionSetting){
+    static isPartitioningAuto(ps : partitionSetting){
         return ps === partitionSetting.auto_mapping_one_to_one || ps === partitionSetting.auto_mapping_types || ps === partitionSetting.auto_mapping_subtypes || ps === partitionSetting.auto_mapping_ygo
-    },
+    }
 
-    patchCardData(cData : cardData_unified, patchData : patchData){
+    static patchCardData(cData : cardData_unified, patchData : patchData){
         Object.keys(patchData).forEach(i => {
             if(
                 patchData[i as keyof patchData] !== undefined &&
@@ -140,10 +144,10 @@ const utils = {
                 (cData as any)[i] = patchData[i as keyof patchData]
             }
         })
-    },
+    }
 
     //apply a partial onto an original
-    patchGeneric<T extends Object>(original : T, patch : Partial<T>, merge = false){
+    static patchGeneric<T extends Object>(original : T, patch : Partial<T>, merge = false){
         let k = Object.keys(patch)
         if(merge) {
             const temp = new Set(k.concat(...Object.keys(patch)));
@@ -158,21 +162,21 @@ const utils = {
                 original[i as keyof T] = patch[i as keyof T] as any //as any here cause even though i checked b4, ts still says undefine is possible here, kinda dum
             }
         })
-    },
+    }
 
-    range(len : number, min : number = 0){
+    static range(len : number, min : number = 0){
         return Array.from({length : len}, (_, index) => index + min)
-    },
+    }
 
     //assumes arr is sorted
-    insertionSort<T extends any>(arr : T[], insertElement : T, comparator : ((a : T, b : T) => number)){
+    static insertionSort<T extends any>(arr : T[], insertElement : T, comparator : ((a : T, b : T) => number)){
         let indexToBeInserted = arr.findIndex((a) => {let x = comparator(a, insertElement); return isNaN(x) ? false : x > 0});
         //changed x >= 0 to x > 0 for new equal elements be inserted last
         if(indexToBeInserted < 0) arr.push(insertElement);
         else arr.splice(indexToBeInserted, 0, insertElement);
-    },
+    }
 
-    getTypeSigature(val : any, simpleParse = false) : typeSignature {
+    static getTypeSigature(val : any, simpleParse = false) : typeSignature {
         let k = typeof val;
         if(k !== "object") return k;
         if(Array.isArray(val)) {
@@ -187,9 +191,9 @@ const utils = {
             return `${t}[]`
         }
         return k
-    },
+    }
 
-    genericCurrier(f : any[], callback : (p : any[]) => any, res : any[] = []) : any{
+    static genericCurrier(f : any[], callback : (p : any[]) => any, res : any[] = []) : any{
         if(!f.length) return callback([]);
         const [first, ...rest] = f;
         if(typeof first === "function"){
@@ -202,9 +206,9 @@ const utils = {
             res.push(first);
             return this.genericCurrier(rest, callback, res);
         };
-    },
+    }
 
-    clone<T extends Object>(obj : T, recurDepth : number = 0) : T {
+    static clone<T extends Object>(obj : T, recurDepth : number = 0) : T {
         if(recurDepth >= 1e8){
             throw new Error("Maximum recursion depth reached when cloning object")
         }
@@ -217,16 +221,16 @@ const utils = {
         })
 
         return res as T
-    },
+    }
 
-    flat<T extends Exclude<any, Array<any> | any[]>>(nested : nestedTree<T> | T) : T[] {
+    static flat<T extends Exclude<any, Array<any> | any[]>>(nested : nestedTree<T> | T) : T[] {
         if(!Array.isArray(nested)) return [nested];
         const res : T[] = []
         nested.forEach(i => res.push(...this.flat(i)));
         return res;
-    },
+    }
 
-    splitArrToShape<T>(arr : T[], shape : number[]) : T[][] {
+    static splitArrToShape<T>(arr : T[], shape : number[]) : T[][] {
         let res : T[][] = new Array(shape.length).fill([])
         let c = 0;
         shape.forEach((i, index) => {
@@ -237,17 +241,17 @@ const utils = {
             }
         })
         return res;
-    },
+    }
 
-    getRandomElement<T extends any[]>(arr : T) : (T extends Array<infer R> ? R : never) | undefined {
+    static getRandomElement<T extends any[]>(arr : T) : (T extends Array<infer R> ? R : never) | undefined {
         if(!arr.length) return undefined;
         if(arr.length === 1) return arr[0]
         const n = this.rng(arr.length - 1, 0, true);
         return arr[n];
-    }, 
+    }
 
     //generators API
-    *mergeGeneratorReturn<T>(gen1 : recursiveGenerator<T[]>, gen2 : recursiveGenerator<T[]>) : Generator<any, T[], any>{
+    static *mergeGeneratorReturn<T>(gen1 : recursiveGenerator<T[]>, gen2 : recursiveGenerator<T[]>) : Generator<any, T[], any>{
         let input1 : any = undefined
         let input2 : any = undefined
 
@@ -278,9 +282,9 @@ const utils = {
         }
 
         return [...input1, ...input2]
-    },
+    }
 
-    *addFinalToGenerator<T>(gen : recursiveGenerator<T[]>, f : (arr : T[]) => T[] | void) : Generator<any, T[], any>{
+    static *addFinalToGenerator<T>(gen : recursiveGenerator<T[]>, f : (arr : T[]) => T[] | void) : Generator<any, T[], any>{
         let input : any = undefined
 
         while(true){
@@ -299,9 +303,9 @@ const utils = {
         const res = f(input);
         if(res === undefined) return input;
         return res;
-    },
+    }
 
-    getRandomNumberArr(len : number) : number[]{
+    static getRandomNumberArr(len : number) : number[]{
         const res : number[] = []
         if(!isNaN(len) && Number.isFinite(len) && len > 0){
             for(let i = 0; i < len; i++){

@@ -6,12 +6,22 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "type": "module",
   "author": "Blu",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^22.13.1"
+    "@types/node": "^22.13.1",
+    "@typescript-eslint/eslint-plugin": "^8.40.0",
+    "@typescript-eslint/parser": "^8.40.0",
+    "eslint": "^9.33.0",
+    "eslint-plugin-jsdoc": "^54.1.1"
   },
   "dependencies": {
     "@rgrove/parse-xml": "^4.2.0"
+  },
+  "eslintConfig": {
+    "plugins": [
+      "local"
+    ]
   }
 }

@@ -34,22 +34,46 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
     }
 
     get signature_type_subtype() : string {
-        let sep = "==="
+        const sep = "==="
         return this.signature_type + sep + this.subTypes.map(i => i.dataID).join(sep) 
     }
 
     //actual effects override these two
     canRespondAndActivate_final(c : dry_card, system : dry_system, a : Action) : boolean{return false}
-    getInputObj(c : dry_card, s : dry_system, a : Action) : inputTupleType extends [] ? undefined : inputRequester<any, inputTupleType> { return undefined as any }
     activate_final(c : dry_card, s : dry_system, a : Action, input : inputTupleType extends [] ? undefined : inputRequester_finalized<inputTupleType>) : Action[] {return []};
+    
+    private __cached_input : {
+        hasValue : false
+    } | {
+        hasValue : true
+        value : inputTupleType extends [] ? undefined : inputRequester<any, inputTupleType>
+    } = {
+        hasValue : false
+    }
 
-    canRespondAndActivate(c : Card, system : dry_system, a : Action) : boolean {
+    //createInputObj should be deterministic
+    //activate once per activate call
+
+    //@final
+    private getInputObj(c : dry_card, s : dry_system, a : Action) : inputTupleType extends [] ? undefined : inputRequester<any, inputTupleType> {
+        return  undefined as any
+    }
+    createInputObj(c : dry_card, s : dry_system, a : Action) : inputTupleType extends [] ? undefined : inputRequester<any, inputTupleType> { 
+        return undefined as any 
+    }
+
+    //Update 1.2.6 : Move the condition closer to the activate, i.e inside it
+    //to avoid condition conflicts
+
+    //can repond -> 2 functions, canRespond_prelim and canRespond_final
+    //@final
+    canRespondAndActivate_prelim(c : Card, system : dry_system, a : Action) : boolean {
         let res : -1 | -2 | boolean = -1;
         
         let trueForceFlag = false
         let falseForceFlag = false
 
-        let overrideIndexes : number[] = []
+        const overrideIndexes : number[] = []
         let skipTypeCheck = false
 
         if(this.isDisabled) return false
@@ -80,16 +104,33 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         } 
 
         //has input check
-        const gen = this.getInputObj(c, system, a)
+        if(!this.__cached_input.hasValue){
+            this.__cached_input = {
+                hasValue : true,
+                value : this.createInputObj(c, system, a)
+            }
+        }
+        const gen = this.__cached_input.value
         if(gen !== undefined && !gen.hasInput()) return false;
 
-        return this.canRespondAndActivate_final(c, system, a);
+        // return this.canRespondAndActivate_final(c, system, a);
+        return true
     }
+
+    //@final
     activate(c : Card, system : dry_system, a : Action, input : inputTupleType extends [] ? undefined : inputRequester_finalized<inputTupleType>) : Action[] {
+        this.__cached_input = {
+            hasValue : false
+        }
+        
+        if(!this.canRespondAndActivate_final(c, system, a)){
+            return [] 
+        }
+        
         if(this.isDisabled) return []
         if(!c.canAct) return []
         let res : -1 | Action[] = -1;
-        let appenddedRes : Action[] = [] 
+        const appenddedRes : Action[] = [] 
         
         for(let i = 0; i < this.subTypes.length; i++){
             if(this.subTypes[i].isDisabled) continue
@@ -98,13 +139,13 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
             appenddedRes.push(...res);
         }
 
-        let final = this.activate_final(c, system, a, input)
+        const final = this.activate_final(c, system, a, input)
         this.type.parseAfterActivate(this, c, system, final);
         this.subTypes.forEach(st => st.parseAfterActivate(c, this, system, final));
         return final;
     };
 
-    //DO NOT OVERRIDE THESE
+    //@final
     getSubtypeidx(subtypeID : string){
         for(let i = 0; i > this.subTypes.length; i++){
             if(this.subTypes[i].dataID === subtypeID) return i;
@@ -112,8 +153,6 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         return -1
     }
 
-    //activateSubtypeSpecificFunc(subtypeID : string, c : card, system : dry_system, a : action) : action[] 
-    //activateSubtypeSpecificFunc(subtypeidx : number, c : card, system : dry_system, a : action) : action[]
     activateSubtypeSpecificFunc(subtypeIdentifier : string | number, c : Card, system : dry_system, a : Action) : Action[]{
         if(typeof subtypeIdentifier === "string"){
             subtypeIdentifier = this.getSubtypeidx(subtypeIdentifier);
@@ -146,16 +185,24 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         this.subTypes = this.subTypes.filter(i => i.dataID !== stid)
     }
 
+    //@final
     disable(){
         this.isDisabled = true
     }
 
+    //@final
     toDry(){
         return this
     }
 
+    //@final
     enable() {
         this.isDisabled = false
+    }
+
+    //@final
+    is(p : id_able){
+        return p.id === this.id
     }
 
     //effect types:
@@ -175,11 +222,10 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
 
     //^ implemented
 
-    //should override
     getDisplayInput(c : dry_card, system : dry_system) : (string | number)[] {return []}
 
     reset() : Action[] {
-        let res : Action[] = []
+        const res : Action[] = []
         this.subTypes.forEach(i => res.push(...i.reset()))
         return res;
     }
@@ -191,10 +237,6 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
             // desc : this.desc,
             attr : JSON.stringify(Array.from(Object.entries(this.attr)))
         }, null, spaces)
-    }
-
-    is(p : id_able){
-        return p.id === this.id
     }
 }
 

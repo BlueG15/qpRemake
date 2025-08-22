@@ -342,7 +342,7 @@ class zoneHandler {
     handleEffectActivation(s : queenSystem, a : Action<"a_activate_effect">) : Action[]{
         let res = this.genericHandler_effect(s, a);
         if(res[0]) return res[1];
-        let gen = res[2].getInputObj(res[1], s, a);
+        let gen = res[2].createInputObj(res[1], s, a);
         if(gen === undefined) return res[2].activate(res[1], s, a, undefined as any);
 
         const allp = res[1].getAllPartitions(res[1].findEffectIndex(res[2].id))

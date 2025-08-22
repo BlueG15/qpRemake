@@ -10,7 +10,7 @@ const randomNumArr = Utils.getRandomNumberArr(5)
 class e_test_input_num extends Effect<inputData_num[]> {
     get count() {return this.attr.get("count") ?? 0}
 
-    override getInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, inputData_num[], inputData_num[], inputData_standard, inputData_standard[]> {
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, inputData_num[], inputData_num[], inputData_standard, inputData_standard[]> {
         const input = new inputRequester(inputType.number, randomNumArr.map(i => inputFormRegistry.num(i)));
         let x = this.count - 1;
         while(x > 0) {

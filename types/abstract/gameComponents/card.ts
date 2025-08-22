@@ -485,6 +485,7 @@ class Card {
 
     //end partition API
 
+    //@final
     toDry() : dry_card {
         return this
     }
@@ -514,7 +515,10 @@ class Card {
     getResponseIndexArr(system : dry_system, a : Action) : number[]{
         //returns the effect indexes that respond
         let res = new Set<number>()
-        let map = this.effects.map(i => i.canRespondAndActivate(this, system, a));
+
+        //update 1.2.6
+        //assume map is all 1s
+        let map = this.effects.map(i => i.canRespondAndActivate_prelim(this, system, a));
 
         this.partitionInfo.forEach(i => {
             switch(i.behaviorID){
@@ -553,7 +557,7 @@ class Card {
         })
         let l = this.effects.length
         this.statusEffects.forEach((i, index) => {
-            if(i.canRespondAndActivate(this, system, a)) res.add(index + l)
+            if(i.canRespondAndActivate_prelim(this, system, a)) res.add(index + l)
         })
         this.getAllGhostEffects().forEach(i => {
             if( map[i] ) res.add(i)
