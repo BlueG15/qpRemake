@@ -184,3 +184,10 @@ export interface StrictGenerator<Y, R, N> extends Generator<Y, R, N> {
 
 export type nestedTree<T> = T[] | nestedTree<T>[]
 
+export type Last<
+  T extends any[], 
+  K extends any[] = []
+> = T extends K ? T[ sliceHead<K, [any]>["length"] ] : Last<T, [any, ...K]>
+
+type k = Last<[1, 2, 3]>
+

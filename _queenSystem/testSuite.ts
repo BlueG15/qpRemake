@@ -3,8 +3,49 @@ import type Card from "../types/abstract/gameComponents/card"
 import type Zone from "../types/abstract/gameComponents/zone"
 import { actionConstructorRegistry, actionFormRegistry } from "./handler/actionGenrator"
 import { auto_input_option } from "../types/abstract/gameComponents/settings"
+import { inputFormRegistry, inputRequester, inputRequester_multiple } from "./handler/actionInputGenerator"
+import { inputType } from "../data/systemRegistry"
 
 const testSuite : Record<string, ((s : queenSystem) => void)> = {
+
+    testInput(s : queenSystem){
+        console.log("Test overriding")
+        const requester = new inputRequester(inputType.number, [1, 2, 3].map(n => inputFormRegistry.num(n)));
+        console.log("Intial: ", requester.next())
+        requester.extend(s, (s, prev) => {
+            return [100, 101, 102, 501].map(n => inputFormRegistry.num(n))
+        })
+        requester.extendOverride(s, (s, n) => n.data % 2 === 1)
+        const k = requester.next()
+
+        requester.apply(s, k[1]![0])
+
+        console.log("After extending and applying once: ", requester.next())
+        //expected: [101, 501]
+
+        console.log("Test overridding inputRequest_multiple")
+        const requester2 = new inputRequester_multiple(2, inputType.number, [1, 2, 3].map(n => inputFormRegistry.num(n)));
+        console.log("Intial: ", requester2.next(), requester2.__multiple_len)
+        requester2.extend(s, (s, prev) => {
+            // console.log("prev called: ", prev)
+            return [100, 101, 102, 501].map(n => inputFormRegistry.num(n))
+        })
+
+        console.log("After extending once: ", requester2.next(), requester2.__multiple_len)
+
+        requester2.extendOverride(s, (s, n) => n.data % 2 === 1)
+        const k2 = requester2.next()
+
+        console.log("After extending and applying none: ", k2, requester2.__multiple_len)
+
+        requester2.apply(s, k2[1]![0])
+        console.log("After extending and applying once: ", requester2.next(), requester2.__multiple_len)
+        
+        requester2.apply(s, k2[1]![0])
+        console.log("After extending and applying twice: ", requester2.next(), requester2.__multiple_len)
+        //expected: [101, 501]
+    },
+
     test1(s : queenSystem){
         //draw 1 card to hand
         s.zoneHandler.decks[0].forceCardArrContent([

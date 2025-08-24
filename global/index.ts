@@ -4,6 +4,10 @@ declare global {
     var Utils : typeof utils
 }
 
-globalThis.Utils = utils
+const globalLoader = {
+    load(){
+        globalThis.Utils = utils
+    }
+}
 
-export {}
+export default globalLoader

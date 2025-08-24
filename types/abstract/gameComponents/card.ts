@@ -684,7 +684,11 @@ class Card {
 
     is(c : id_able) : boolean;
     is(extension : string) : boolean;
-    is(p : id_able | string) {
+    is(extensionArr : ReadonlyArray<string>) : boolean;
+    is(p : id_able | string | (readonly string[] & {id? : undefined})) {
+        if(Array.isArray(p)){
+            return p.some(ex => this.is(ex))
+        }
         if(typeof p === "object"){
             return p.id === this.id
         } 

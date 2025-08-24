@@ -1,5 +1,5 @@
 import type { Action, Action_class } from "../_queenSystem/handler/actionGenrator";
-import type { dry_system, dry_card, dry_position, inputData_card, inputData_pos, inputData, dry_zone, identificationInfo, inputData_zone } from "../data/systemRegistry";
+import type { dry_system, dry_card, dry_position, inputData_card, inputData_pos, inputData, dry_zone, identificationInfo, inputData_zone, inputData_standard } from "../data/systemRegistry";
 import Effect from "../types/abstract/gameComponents/effect";
 import subtype_instant from "../types/effects/effectSubtypes/subtype_instant";
 import subtypeRegistry from "../data/subtypeRegistry";
@@ -21,6 +21,8 @@ import {
     e_reset,
 } from "./e_generic_cardTargetting";
 import { inputFormRegistry, inputRequester_finalized, inputRequester } from "../_queenSystem/handler/actionInputGenerator";
+import { e_automate_base } from "./e_status";
+import Request from "../_queenSystem/handler/actionInputRequesterGenerator";
 
 export class e_quick extends Effect {
     protected instant_subtype = new subtype_instant(subtypeRegistry[subtypeRegistry.e_instant])
@@ -114,7 +116,7 @@ export class e_addToHand extends Effect<[inputData_zone]> {
     }
 
     override createInputObj(c: dry_card, s: dry_system, a: Action){
-        return s.requestInput_zone_default(c, zoneRegistry.z_hand);
+        return Request.hand(s, c);
     }
 
     override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone]>): Action[] {
@@ -306,11 +308,11 @@ export class e_revive extends Effect<[inputData_zone, inputData_card, inputData_
         return []
     }
 
-    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_card, inputData_zone, inputData_pos], [inputData_zone, inputData_card, inputData_zone, inputData_pos], inputData_zone, [inputData_card, inputData_zone, inputData_pos]> {
-        const g1 = s.requestInput_card_default(c, zoneRegistry.z_grave, ...this.card_input_condition(c))
-        const g2 = s.requestInput_pos_default(c, zoneRegistry.z_field, true, ...this.pos_input_condition(c))
-        return g1.merge(g2)
-    }
+    // override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_card, inputData_zone, inputData_pos], [inputData_zone, inputData_card, inputData_zone, inputData_pos], inputData_zone, [inputData_card, inputData_zone, inputData_pos]> {
+    //     const g1 = s.requestInput_card_default(c, zoneRegistry.z_grave, ...this.card_input_condition(c))
+    //     const g2 = s.requestInput_pos_default(c, zoneRegistry.z_field, true, ...this.pos_input_condition(c))
+    //     return g1.merge(g2)
+    // }
 
     override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone, inputData_card, inputData_zone, inputData_pos]>): Action[] {
         const tc = input.next()[1].data.card
@@ -379,11 +381,11 @@ export class e_draw extends Effect<[inputData_zone, inputData_zone]> {
         return this.times !== 0 && !isNaN(this.times) && isFinite(this.times)
     }
 
-    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_zone], [inputData_zone, inputData_zone], inputData_zone, [inputData_zone]> {
-        const g1 = s.requestInput_zone_default(c, zoneRegistry.z_deck);
-        const g2 = s.requestInput_zone_default(c, zoneRegistry.z_hand);
-        return g1.merge(g2)
-    }
+    // override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_zone], [inputData_zone, inputData_zone], inputData_zone, [inputData_zone]> {
+    //     const g1 = s.requestInput_zone_default(c, zoneRegistry.z_deck);
+    //     const g2 = s.requestInput_zone_default(c, zoneRegistry.z_hand);
+    //     return g1.merge(g2)
+    // }
 
     override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone, inputData_zone]>): Action[] {
         let t = this.times
@@ -458,15 +460,15 @@ export class e_bounce extends Effect<[inputData_zone, ...inputData_card[], input
     get target_zone() : zoneRegistry {return this.attr.get("target_zone") ?? zoneRegistry.z_field}
     get count() : number {return this.attr.get("count") ?? 1}
 
-    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, ...inputData_card[], inputData_zone], [inputData_zone, ...inputData_card[], inputData_zone], inputData_zone, [...inputData_card[], inputData_zone]> {
-        const g1 = s.requestInput_zone_default(c, this.target_zone).extendMultiple(s, this.count, (s : dry_system, prev : [inputData_zone, ...inputData_card[]]) => {
-            const z = prev[0].data.zone
-            if(z.cardArr_filtered.length < this.count) return []
-            return z.cardArr_filtered.map(c => inputFormRegistry.card(s, c))
-        })
-        const g2 = s.requestInput_zone_default(c, zoneRegistry.z_deck)
-        return g1.merge(g2)
-    }
+    // override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, ...inputData_card[], inputData_zone], [inputData_zone, ...inputData_card[], inputData_zone], inputData_zone, [...inputData_card[], inputData_zone]> {
+    //     const g1 = s.requestInput_zone_default(c, this.target_zone).extendMultiple(s, this.count, (s : dry_system, prev : [inputData_zone, ...inputData_card[]]) => {
+    //         const z = prev[0].data.zone
+    //         if(z.cardArr_filtered.length < this.count) return []
+    //         return z.cardArr_filtered.map(c => inputFormRegistry.card(s, c))
+    //     })
+    //     const g2 = s.requestInput_zone_default(c, zoneRegistry.z_deck)
+    //     return g1.merge(g2)
+    // }
 
     override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone, ...inputData_card[], inputData_zone]>): Action[] {
         const i = input.next();
@@ -488,11 +490,24 @@ export class e_bounce extends Effect<[inputData_zone, ...inputData_card[], input
     }
 }
 
-export class e_do_nothing extends Effect {
-    override canRespondAndActivate_final(c: any, system: any, a: any): boolean {
-        return true //type check is done in init (as a type)
-    }
-}
+// export class e_delay extends Effect<inputData_card[]>{
+//     get count() : number {return this.attr.get("count") ?? 0};
+//     get delayCount() : number {return this.attr.get("delayCount") ?? 0}
+
+//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
+//         return this.count !== 0 && this.delayCount !== 0
+//     }
+
+//     override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, inputData_card[], inputData_card[], inputData_standard, inputData_standard[]> {
+//         return s.requestInput_card_default(c, zoneRegistry.z_field, undefined, (s, c) => c.statusEffects.some(e => e.is(e_automate_base))).extendMultiple(s, this.count, (s, prev) => {
+//             return prev[0].data.zone.cardArr_filtered.filter(c => c.statusEffects.some(e => e.is(e_automate_base))).map(c => inputFormRegistry.card(s, c))
+//         })
+//     }
+
+//     override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<inputData_card[]>): Action[] {
+        
+//     }
+// }
 
 export default {
     e_addToHand, 

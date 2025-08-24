@@ -97,7 +97,7 @@ class queenSystem {
     private suspensionReason : suspensionReason | false = false
 
     private curr_input_obj : ReturnType<Action<"a_get_input">["flatAttr"]> | undefined = undefined
-    input_cache : Map<string, inputRequester<any, inputData[], inputData[]>> = new Map() //key is cid_partitionid
+    input_cache : Map<string, inputRequester<any, inputData[], inputData[], inputData>> = new Map() //key is cid_partitionid
 
     get isSuspended() {return this.suspensionReason !== false}
 
@@ -621,6 +621,11 @@ class queenSystem {
                 }
                 case auto_input_option.default : {
                     while(true){
+                        //Because of this condition, inputRequester_multiple is NOT applied automatically
+                        //i.e input wants 2 zones, we have 2 zones, but we aint apply any cause its not 1
+                        //this is...technically intended
+                        //for now, since idk how to fix this
+                        //inputs can merge afterall
                         if(!i_set || i_set.length !== 1) break;
                         let input = i_set[0]
                         const k = proceed(this, input)
@@ -916,22 +921,6 @@ class queenSystem {
         return z.playerIndex;
     }
 
-    getWouldBeAttackTarget(a : Action<"a_attack">) : dry_card | undefined {
-        if((a.cause as any).card === undefined) return undefined
-        let c = (a.cause as any).card as dry_card
-
-        let oppositeZones : dry_zone | undefined = this.zoneArr[c.pos.zoneID]
-        if(!oppositeZones) return undefined
-        
-        let targetZone = oppositeZones.getOppositeZone(this.zoneArr)
-        if(!targetZone.length) return undefined
-
-        let targets = targetZone[0].getOppositeCards(c)
-        if(!targets) return undefined
-
-        return targets[0];
-    }
-
     is(c : Positionable, type : zoneRegistry) : boolean {
         const z = this.getZoneWithID(c.pos.zoneID);
         if(!z) return false;
@@ -980,6 +969,10 @@ class queenSystem {
             ) : z.getAllPos()
             return pArr.filter(pos => (!fpos || fpos(s, pos, z))).map(pos => inputFormRegistry.pos(s, pos))
         })
+    }
+
+    getWouldBeAttackTarget(a : Action<"a_attack"> | Action<"a_deal_damage_ahead">){
+        return this.zoneHandler.getWouldBeAttackTarget(this, a)
     }
 
     // hasValidInput(depth : 0, fz? : (s : dry_system, z : dry_zone) => boolean) : boolean;

@@ -69,7 +69,7 @@ export type dry_system = dry_parse<
     "getZoneOf" | "getZoneWithID" | "hasActionCompleted" | "getRootAction" | "is" | "getPIDof" | 
     "generateSignature" |
     "isNotActionArr" |
-    "requestInput_card_default" | "requestInput_zone_default" | "requestInput_pos_default" | "requestInput_effect_default" | "requestInput_effectSubtype_default"
+    "getAllInputs"
 >
 
 export interface logInfoNormal {

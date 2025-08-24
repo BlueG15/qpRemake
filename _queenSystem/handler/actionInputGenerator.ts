@@ -1,7 +1,7 @@
 import { dry_position, identificationInfo, inputData_pos, inputData_standard, inputData_str, inputDataSpecific, inputType, type dry_card, type dry_effect, type dry_effectSubType, type dry_system, type dry_zone, type inputData, type inputData_bool, type inputData_card, type inputData_effect, type inputData_num, type inputData_player, type inputData_subtype, type inputData_zone } from "../../data/systemRegistry";
 import { Action, actionFormRegistry  } from "./actionGenrator";
 import { validSetFormat } from "../../data/systemRegistry";
-import { lambda_number, LambdaToNum, NumToLambda, precursor, Tuple_any } from "../../types/misc";
+import { Last, Tuple_any } from "../../types/misc";
 
 export const inputFormRegistry = {
     zone(s : dry_system, z : dry_zone){
@@ -60,12 +60,13 @@ export const inputFormRegistry = {
     bool(bool : boolean){return {type : inputType.boolean, data : bool} as inputData_bool},
 } as const
 
-export type inputRequester_finalized<T_accu extends Exclude<inputData[], []>> = Omit<inputRequester<never, [], T_accu>, "apply">
+export type inputRequester_finalized<T_accu extends Exclude<inputData[], []>> = Omit<inputRequester<never, [], T_accu>, "apply" | "skip">
 
 export class inputRequester<
     K extends inputType = inputType, //initial type, for inference, useless after constructor is called
     T extends inputData[] = [inputDataSpecific<K>], //inputs tuple yet to apply, [] means finished
     T_accumulate extends Exclude<inputData[], []> = T, //inputs tuple as a whole, inference at first
+    T_data_last extends inputData = inputDataSpecific<K>,
     T_head extends inputData = T extends [infer head, ...any[]] ? head : inputData, //inference
     T_tail extends inputData[] = T extends [any, ...infer tail] ? tail : inputData[], //inference
 >{
@@ -77,7 +78,13 @@ export class inputRequester<
     protected __valid_flag : boolean
     protected __do_pre_fill_when_merge : boolean = false
     protected __len : number = 1
+    protected __cursor : number = 0
     cache : inputRequestCache<T_accumulate>
+
+    updateValidFlag(set : inputData[]){
+        if (set === undefined) this.__valid_flag = true;
+        else this.__valid_flag = (set.length !== 0)
+    }
 
     get len(){
         return this.__len
@@ -91,7 +98,7 @@ export class inputRequester<
         this.cache = new inputRequestCache(validSet)
     }
 
-    hasInput() : this is inputRequester<K, T, T_accumulate, T_head, T_tail> {
+    hasInput() : this is inputRequester<K, T, T_accumulate, T_data_last, T_head, T_tail> {
         return this.__valid_flag
     }
     
@@ -109,12 +116,34 @@ export class inputRequester<
         return c1 && c2 && c3
     }
 
+    protected apply_dry(s : dry_system){
+        let f = this.__func_arr[this.__cursor]
+        this.__cursor++
+        if(f !== undefined){
+            const t : inputData[] | validSetFormat = f(s, Array.from(this.__inner_res.values()))
+            if(this.verify(t)) this.__curr = t;
+            else this.__curr = [t[0].type, t]
+        } else if(this.__queue.length !== 0){
+            const next = this.__queue.shift()!
+            this.__func_arr = next.__func_arr
+            next.__inner_res.forEach((val, key) => this.__inner_res.set(key, val))
+            this.__curr = next.__curr
+            this.__queue.unshift(...next.__queue)
+            this.__do_pre_fill_when_merge = next.__do_pre_fill_when_merge
+            this.__cursor = next.__cursor
+        } else {
+            this.__curr = undefined
+        }
+        return this as any
+    }
+
     apply(s : dry_system, input : T_head) 
     : T_tail extends [] 
     ? inputRequester_finalized<T_accumulate>
-    : inputRequester<inputType, T_tail, T_accumulate>
+    : inputRequester<inputType, T_tail, T_accumulate, T_data_last>
     {
-        let f = this.__func_arr[this.__inner_res.size]
+        let f = this.__func_arr[this.__cursor]
+        this.__cursor++
         this.__inner_res.set(s.generateSignature(input), input)
         if(f !== undefined){
             const t : inputData[] | validSetFormat = f(s, Array.from(this.__inner_res.values()))
@@ -122,11 +151,12 @@ export class inputRequester<
             else this.__curr = [t[0].type, t]
         } else if(this.__queue.length !== 0){
             const next = this.__queue.shift()!
-            this.__func_arr.push(...next.__func_arr)
+            this.__func_arr = next.__func_arr
             next.__inner_res.forEach((val, key) => this.__inner_res.set(key, val))
             this.__curr = next.__curr
             this.__queue.unshift(...next.__queue)
             this.__do_pre_fill_when_merge = next.__do_pre_fill_when_merge
+            this.__cursor = next.__cursor
             if(this.__do_pre_fill_when_merge) this.applyMultiple(s, [...Array.from(this.__inner_res.values()), input])
             else this.apply(s, input)
         } else {
@@ -181,7 +211,7 @@ export class inputRequester<
         s : dry_system, 
         f : (s : dry_system, prev : T_accumulate) => T2[] | validSetFormat<T2["type"]>
     ) 
-    : inputRequester<inputType, [...T, T2], [...T_accumulate, T2]>
+    : inputRequester<inputType, [...T, T2], [...T_accumulate, T2], T2>
     {
         this.__func_arr.push(f as any)
         this.__len++;
@@ -195,7 +225,7 @@ export class inputRequester<
         len : Len,
         f : (s : dry_system, prev : T_accumulate) => T2[]
     )
-    : inputRequester<K, [...T, ...X], [...T_accumulate, ...X]>
+    : inputRequester<K, [...T, ...X], [...T_accumulate, ...X], T2>
     {
         if(len <= 0) {
             this.__valid_flag = false;
@@ -220,10 +250,10 @@ export class inputRequester<
     }
 
     //merge DO NOT check for chained validity
-    merge<T2 extends inputData[], T_accumulate2 extends Exclude<inputData[], []>>(
-        requester : inputRequester<inputType, T2, T_accumulate2>
+    merge<T2 extends inputData[], T_accumulate2 extends Exclude<inputData[], []>, T_data_last_2 extends inputData>(
+        requester : inputRequester<inputType, T2, T_accumulate2, T_data_last_2>
     )
-    : inputRequester<inputType, [...T, ...T2], [...T_accumulate, ...T_accumulate2]>
+    : inputRequester<inputType, [...T, ...T2], [...T_accumulate, ...T_accumulate2], T_data_last_2>
     {
         this.__queue.push(requester)
         if(requester.__valid_flag === false) this.__valid_flag = false;
@@ -242,6 +272,42 @@ export class inputRequester<
         this.applyMultiple(s, Array.from(requester.__inner_res.values()));
         return this
     }
+
+    //adds a new condition on top of the old condition of the last input required
+    extendOverride(
+        s : dry_system, 
+        cond : (s : dry_system, prev : T_data_last) => boolean
+    ) 
+    : this
+    {
+        if(this.__func_arr.length === 0) {
+            if(this.__queue.length === 0) {
+                if(!this.__curr) return this;
+                if(!this.__curr[1]) return this;
+                this.__curr[1] = this.__curr[1].filter(i => cond(s, i as any));
+                return this;
+            };
+            return this.__queue.at(-1)!.extendOverride(s, cond) as any
+        };
+
+        const oldCond = this.__func_arr.pop()!
+        
+        const newCond = function(f : typeof oldCond, f2 : typeof cond, thisParam : inputRequester<any, any>){
+            return function(s : dry_system, prev : T_accumulate){
+                const res = f(s, prev);
+                const res2 = thisParam.verify(res) ? res[1] : res
+                if(!res2) return res;
+                return res2.filter(k => f2(s, k as any))
+            }
+        }
+
+        const k = newCond(oldCond, cond, this) as any
+
+        this.__func_arr.push(k as any)
+        this.cache.extend(s, k as any)
+        if(this.cache.tree.length === 0) this.__valid_flag = false;
+        return this
+    }
 }
 
 export class inputRequester_multiple<
@@ -256,14 +322,22 @@ export class inputRequester_multiple<
         this.__valid_flag = validSet.length >= len ;
         this.__len = len
         this.__multiple_len = len
-    }    
+    }  
+
+    override updateValidFlag(set: inputData[]): void {
+        this.__valid_flag = set.length >= this.__multiple_len
+    }
 
     override apply(s: dry_system, input: Tuple_any<inputDataSpecific<K>, Len> extends [infer head, ...any[]] ? head : inputData_standard){
+        // console.log("From inside requester: ", this.__multiple_len)
         if(this.__multiple_len === 0) return super.apply(s, input);
         const i : inputData = input as inputData
         this.__inner_res.set(s.generateSignature(i), i)
-        this.__curr![1]! = this.__curr![1]!.filter(i => s.generateSignature(i) !== s.generateSignature(i))
+        this.__curr![1]! = this.__curr![1]!.filter(i => s.generateSignature(i) !== s.generateSignature(input as any))
         this.__multiple_len--;
+
+        if(this.__multiple_len === 0) this.apply_dry(s)
+
         return this as any;
     }
 }

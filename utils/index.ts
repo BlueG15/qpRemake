@@ -2,7 +2,8 @@ import type { cardData_unified, patchData } from "../data/cardRegistry";
 import { type Setting, id_style } from "../types/abstract/gameComponents/settings";
 // import { partitionData } from "../types/data/cardRegistry";
 import { partitionSetting } from "../types/abstract/gameComponents/settings";
-import type { nestedTree, typeSignature } from "../types/misc";
+import Position from "../types/abstract/generics/position";
+import type { nestedTree, Player_specific, Positionable, safeSimpleTypes, typeSignature } from "../types/misc";
 
 type recursiveGenerator<T> = Generator<any, T | recursiveGenerator<T>, any>
 
@@ -313,6 +314,25 @@ class utils {
             }
         }
         return res;
+    }
+
+    static isPositionable(o : any) : o is Positionable {
+        return typeof o === "object" && o.pos instanceof Position
+    }
+
+    static isPlayerSpecific(o : any) : o is Player_specific {
+        return typeof o === "object" && typeof o.playerIndex === "number" && typeof o.playerType === "number"
+    }
+
+    /**
+     * 
+     * @param arr1 
+     * @param arr2 
+     * Returns the intersection of the two array
+     */
+    static intersect<T extends safeSimpleTypes>(arr1 : T[], arr2 : T[]) : T[] {
+        const hasMap = new Set(arr2);
+        return arr1.filter(i => hasMap.has(i))
     }
 }
 

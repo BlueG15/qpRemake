@@ -823,12 +823,10 @@ const actionConstructorRegistry = {
     a_pos_change: ActionAssembler("a_pos_change", form_card, form_position),  
     a_pos_change_force : ActionAssembler("a_pos_change_force", form_card, form_position),
     a_attack: ActionAssembler("a_attack", form_card, {} as {
-        target? : dry_card
         dmg : number | undefined,
         dmgType : number | undefined
     }),
     a_deal_damage_ahead: ActionAssembler("a_deal_damage_ahead", form_card, {} as {
-        target? : dry_card
         dmg : number | undefined,
         dmgType : number | undefined
     }),

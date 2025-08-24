@@ -51,13 +51,19 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         hasValue : false
     }
 
+    
+    //@final
+    getInputObj(c : dry_card, s : dry_system, a : Action) : inputTupleType extends [] ? undefined : inputRequester<any, inputTupleType> {
+        if(this.__cached_input.hasValue) return this.__cached_input.value;
+        this.__cached_input = {
+            hasValue : true,
+            value : this.createInputObj(c, s, a)
+        }
+        return this.__cached_input.value
+    }
+
     //createInputObj should be deterministic
     //activate once per activate call
-
-    //@final
-    private getInputObj(c : dry_card, s : dry_system, a : Action) : inputTupleType extends [] ? undefined : inputRequester<any, inputTupleType> {
-        return  undefined as any
-    }
     createInputObj(c : dry_card, s : dry_system, a : Action) : inputTupleType extends [] ? undefined : inputRequester<any, inputTupleType> { 
         return undefined as any 
     }
@@ -104,13 +110,7 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         } 
 
         //has input check
-        if(!this.__cached_input.hasValue){
-            this.__cached_input = {
-                hasValue : true,
-                value : this.createInputObj(c, system, a)
-            }
-        }
-        const gen = this.__cached_input.value
+        const gen = this.getInputObj(c, system, a)
         if(gen !== undefined && !gen.hasInput()) return false;
 
         // return this.canRespondAndActivate_final(c, system, a);
@@ -201,8 +201,10 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
     }
 
     //@final
-    is(p : id_able){
-        return p.id === this.id
+    is(p : Function) : this is boolean;
+    is(p : id_able) : boolean;
+    is(p : id_able | Function ){
+        return typeof p === "function" ? this instanceof p : this.id === p.id
     }
 
     //effect types:

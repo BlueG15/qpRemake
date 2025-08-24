@@ -10,6 +10,7 @@ import type hand from "./hand";
 import type { dry_system, dry_zone, inputData, inputData_zone, inputType } from "../../data/systemRegistry";
 import { zoneRegistry } from "../../data/zoneRegistry";
 import { inputRequester, inputRequester_finalized } from "../../_queenSystem/handler/actionInputGenerator";
+import Request from "../../_queenSystem/handler/actionInputRequesterGenerator";
 
 class deck extends zone_stack<undefined, [inputData_zone]> {
     //TODO : add editting ability
@@ -61,8 +62,8 @@ class deck extends zone_stack<undefined, [inputData_zone]> {
         })
     }
 
-    override getInput_interact(s: dry_system, cause: identificationInfo): inputRequester<inputType.zone, [inputData_zone], [inputData_zone], inputData_zone, []> | undefined {
-        return s.requestInput_zone_default(this, zoneRegistry.z_hand)
+    override getInput_interact(s: dry_system, cause: identificationInfo) {
+        return Request.hand(s, this)
     }
 
     override interact(s: dry_system, cause: identificationInfo, input: inputRequester_finalized<[inputData_zone]>): Action[] {

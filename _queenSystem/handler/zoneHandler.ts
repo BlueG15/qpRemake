@@ -342,7 +342,7 @@ class zoneHandler {
     handleEffectActivation(s : queenSystem, a : Action<"a_activate_effect">) : Action[]{
         let res = this.genericHandler_effect(s, a);
         if(res[0]) return res[1];
-        let gen = res[2].createInputObj(res[1], s, a);
+        let gen = res[2].getInputObj(res[1], s, a);
         if(gen === undefined) return res[2].activate(res[1], s, a, undefined as any);
 
         const allp = res[1].getAllPartitions(res[1].findEffectIndex(res[2].id))
@@ -406,9 +406,7 @@ class zoneHandler {
         return []
     }
 
-    handleAttack(s : dry_system, a : Action<"a_attack">) : Action[] {
-        let attr = a.flatAttr()
-
+    getWouldBeAttackTarget(s : dry_system, a : Action) : [Zone, Card[]] | [] {
         //find opposite
         if((a.cause as any).card === undefined) return []
         let c = (a.cause as any).card as dry_card
@@ -419,22 +417,27 @@ class zoneHandler {
         let targetZone = oppositeZones.getOppositeZone(this.zoneArr)
         if(!targetZone.length) return []
 
-        let targets = targetZone[0].getOppositeCards(c)
+        return [oppositeZones, targetZone[0].getOppositeCards(c).sort((a, b) => a.pos.y - b.pos.y)]
+    }
+
+    handleAttack(s : dry_system, a : Action<"a_attack">) : Action[] {
+        let attr = a.flatAttr()
+        let c = (a.cause as any).card as dry_card
+        if(!c) return []
+
+        let targets = this.getWouldBeAttackTarget(s, a);
+        if(!targets.length) return []
         
-        if(!targets.length){
+        if(!targets[1].length){
             return [
-                actionConstructorRegistry.a_deal_heart_damage(s, oppositeZones.playerIndex)(a.cause, {
+                actionConstructorRegistry.a_deal_heart_damage(s, targets[0].playerIndex)(a.cause, {
                     dmg : c.attr.get("atk") ?? 0
                 })
             ]
         }
 
-        targets = targets.sort((a, b) => a.pos.x - b.pos.x)
-
-        a.modifyAttr("target", targets[0])
-
         return [
-            actionConstructorRegistry.a_deal_damage_internal(s, targets[0])(a.cause, {
+            actionConstructorRegistry.a_deal_damage_internal(s, targets[1][0])(a.cause, {
                 dmg : (attr.dmg === undefined) ? c.attr.get("atk") ?? 0 : attr.dmg,
                 dmgType : (attr.dmgType === undefined) ? damageType.physical : attr.dmgType
             })

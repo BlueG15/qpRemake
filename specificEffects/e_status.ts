@@ -172,6 +172,22 @@ export class generic_stat_change_override extends StatusEffect_base {
     }
 }
 
+export class e_automate_base extends StatusEffect_base {
+    get countdown() : number {return this.attr.get("countdown") ?? 0};
+    set countdown(a : number){this.attr.set("countdown", a)};
+
+    private act(c: dry_card, system: dry_system, a: Action<"a_turn_end">): Action[] {return []}
+
+    override activateOnTurnEnd(c: dry_card, system: dry_system, a: Action<"a_turn_end">): Action[] {
+        this.countdown--;
+        if(this.countdown === 0) {
+            //act
+            return this.act(c, system, a)
+        }
+        return []
+    }
+}
+
 export default {
     e_any_extension,
     genericCounter,
