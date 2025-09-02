@@ -63,7 +63,7 @@ class deck extends zone_stack<undefined, [inputData_zone]> {
     }
 
     override getInput_interact(s: dry_system, cause: identificationInfo) {
-        return Request.hand(s, this)
+        return Request.hand(s, this).once()
     }
 
     override interact(s: dry_system, cause: identificationInfo, input: inputRequester_finalized<[inputData_zone]>): Action[] {

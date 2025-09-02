@@ -1,5 +1,5 @@
 import type { Action, Action_class } from "../_queenSystem/handler/actionGenrator";
-import type { dry_system, dry_card, dry_position, inputData_card, inputData_pos, inputData, dry_zone, identificationInfo, inputData_zone, inputData_standard } from "../data/systemRegistry";
+import type { dry_system, dry_card, dry_position, inputData_card, inputData_pos, inputData, dry_zone, identificationInfo, inputData_zone, inputData_standard, inputData_effect } from "../data/systemRegistry";
 import Effect from "../types/abstract/gameComponents/effect";
 import subtype_instant from "../types/effects/effectSubtypes/subtype_instant";
 import subtypeRegistry from "../data/subtypeRegistry";
@@ -35,36 +35,6 @@ export class e_quick extends Effect {
         if(!system.turnAction) return [];
         const res = this.instant_subtype.onEffectActivate(c, this, system, system.turnAction!);
         return (res === -1) ? [] : res;
-    }
-}
-
-export class e_reactivate_on_attack_destroy extends e_reactivate {
-    override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-        //so logically, it is
-        //whenever the action resolved an us attacking, deals damage, then destroy that attacked card
-        //we activate, reactivating this card
-
-        //hopefully this works?
-        let actionChain = system.findSpecificChainOfAction_resolve([
-            "a_attack",
-            "a_deal_damage_internal",
-            "a_destroy",
-        ]) as [Action<"a_attack">, Action<"a_deal_damage_internal">, Action<"a_destroy">]
-
-        if(!actionChain) return false;
-
-        let dmgTarget = actionChain[1].targets[0].card
-        let destroyTarget = actionChain[2].targets[0].card
-
-        return (
-            dmgTarget.id === destroyTarget.id &&
-
-            actionChain[0].cause.type === identificationType.card && 
-            actionChain[0].cause.card.id === c.id &&
-
-            actionChain[1].cause.type === identificationType.card &&
-            actionChain[1].cause.card.id === c.id
-        )
     }
 }
 
@@ -116,7 +86,7 @@ export class e_addToHand extends Effect<[inputData_zone]> {
     }
 
     override createInputObj(c: dry_card, s: dry_system, a: Action){
-        return Request.hand(s, c);
+        return Request.hand(s, c).once();
     }
 
     override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone]>): Action[] {
@@ -145,7 +115,7 @@ export class e_add_stat_change_diff extends Effect {
 
     override activate_final(c: dry_card, system: dry_system, a: Action) {
         return [
-            actionConstructorRegistry.a_add_status_effect("generic_stat_change_diff", true)(system, c)(actionFormRegistry.effect(system, c, this), {
+            actionConstructorRegistry.a_add_status_effect("e_generic_stat_change_diff", true)(system, c)(actionFormRegistry.effect(system, c, this), {
                 maxAtk : this.maxAtk,
                 maxHp : this.maxHp,
                 level : this.level
@@ -173,7 +143,7 @@ export class e_add_stat_change_override extends Effect {
 
     override activate_final(c: dry_card, system: dry_system, a: Action) {
         return [
-            actionConstructorRegistry.a_add_status_effect("generic_stat_change_override", true)(system, c)(actionFormRegistry.effect(system, c, this), {
+            actionConstructorRegistry.a_add_status_effect("e_generic_stat_change_override", true)(system, c)(actionFormRegistry.effect(system, c, this), {
                 maxAtk : this.maxAtk,
                 maxHp : this.maxHp,
                 level : this.level
@@ -275,7 +245,7 @@ export class e_add_counter extends Effect {
         let res : Action[] = []
         while(t !== 0){
             res.push(
-                actionConstructorRegistry.a_add_status_effect("generic_counter", true)(system, c)(actionFormRegistry.effect(system, c, this), {})
+                actionConstructorRegistry.a_add_status_effect("e_generic_counter", true)(system, c)(actionFormRegistry.effect(system, c, this), {})
             )
             t--;
         }
@@ -287,7 +257,7 @@ export class e_add_counter extends Effect {
     }
 }
 
-export class e_revive extends Effect<[inputData_zone, inputData_card, inputData_zone, inputData_pos]> {
+export class e_revive extends Effect<[inputData_card, inputData_pos]> {
     //condition: card in grave, pos on field
 
     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
@@ -308,15 +278,16 @@ export class e_revive extends Effect<[inputData_zone, inputData_card, inputData_
         return []
     }
 
-    // override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_card, inputData_zone, inputData_pos], [inputData_zone, inputData_card, inputData_zone, inputData_pos], inputData_zone, [inputData_card, inputData_zone, inputData_pos]> {
-    //     const g1 = s.requestInput_card_default(c, zoneRegistry.z_grave, ...this.card_input_condition(c))
-    //     const g2 = s.requestInput_pos_default(c, zoneRegistry.z_field, true, ...this.pos_input_condition(c))
-    //     return g1.merge(g2)
-    // }
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_card, inputData_pos], [inputData_card, inputData_pos], inputData_standard, inputData_card, [inputData_pos]> {
+        const z = s.getZoneOf(c)!
+        const s1 = Request.grave(s, c).ofSamePlayerType(z).cards().once()
+        const s2 = Request.field(s, c).ofSamePlayerType(z).pos().isEmpty().once()
+        return s1.merge(s2)
+    }
 
-    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone, inputData_card, inputData_zone, inputData_pos]>): Action[] {
-        const tc = input.next()[1].data.card
-        const tp = input.next()[3].data.pos
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_card, inputData_pos]>): Action[] {
+        const tc = input.next()[0].data.card
+        const tp = input.next()[1].data.pos
         const cause = actionFormRegistry.effect(s, c, this)
 
         return [
@@ -368,6 +339,7 @@ export class e_fragile extends e_destroy {
 }
 
 export class e_draw extends Effect<[inputData_zone, inputData_zone]> {
+    //deck, hand
     get times() {return this.attr.get("times") ?? 0}
     set times(val : number) {this.attr.set("times", val)}
 
@@ -381,11 +353,12 @@ export class e_draw extends Effect<[inputData_zone, inputData_zone]> {
         return this.times !== 0 && !isNaN(this.times) && isFinite(this.times)
     }
 
-    // override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_zone], [inputData_zone, inputData_zone], inputData_zone, [inputData_zone]> {
-    //     const g1 = s.requestInput_zone_default(c, zoneRegistry.z_deck);
-    //     const g2 = s.requestInput_zone_default(c, zoneRegistry.z_hand);
-    //     return g1.merge(g2)
-    // }
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, inputData_zone], [inputData_zone, inputData_zone], inputData_standard, inputData_zone, [inputData_zone]> {
+        const z = s.getZoneOf(c)!
+        const g1 = Request.deck(s, c).ofSamePlayerType(z).once();
+        const g2 = Request.hand(s, c).ofSamePlayerType(z).once();
+        return g1.merge(g2)
+    }
 
     override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone, inputData_zone]>): Action[] {
         let t = this.times
@@ -442,6 +415,10 @@ export class e_draw_until extends e_draw {
     }
 }
 
+//Lock actually has 2 forms : 
+// This implements the condition form
+// There is another form as a forced negative effect, like decompiling X cards on your side of the field
+// That...can just be added to the beginning of the Action arr tho
 export class e_generic_lock extends Effect {
     //delegates the actual condition to a sensible function rather than the inverses
 
@@ -455,25 +432,21 @@ export class e_generic_lock extends Effect {
     }
 }
 
-export class e_bounce extends Effect<[inputData_zone, ...inputData_card[], inputData_zone]>{
-    //target zone, cards, deck
+export class e_bounce extends Effect<[...inputData_card[], inputData_zone]>{
+    //target cards, deck
     get target_zone() : zoneRegistry {return this.attr.get("target_zone") ?? zoneRegistry.z_field}
     get count() : number {return this.attr.get("count") ?? 1}
 
-    // override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone, ...inputData_card[], inputData_zone], [inputData_zone, ...inputData_card[], inputData_zone], inputData_zone, [...inputData_card[], inputData_zone]> {
-    //     const g1 = s.requestInput_zone_default(c, this.target_zone).extendMultiple(s, this.count, (s : dry_system, prev : [inputData_zone, ...inputData_card[]]) => {
-    //         const z = prev[0].data.zone
-    //         if(z.cardArr_filtered.length < this.count) return []
-    //         return z.cardArr_filtered.map(c => inputFormRegistry.card(s, c))
-    //     })
-    //     const g2 = s.requestInput_zone_default(c, zoneRegistry.z_deck)
-    //     return g1.merge(g2)
-    // }
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [...inputData_card[], inputData_zone], [...inputData_card[], inputData_zone], inputData_standard, inputData_standard, inputData_standard[]> {
+        const z = s.getZoneOf(c)!
+        const s1 = Request.specificType(s, c, this.target_zone).ofSamePlayerType(z).cards().many(this.count);
+        const s2 = Request.deck(s, c).once()
+        return s1.merge(s2)
+    }
 
-    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone, ...inputData_card[], inputData_zone]>): Action[] {
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[...inputData_card[], inputData_zone]>): Action[] {
         const i = input.next();
         const deck = (i.pop() as inputData_zone).data.zone;
-        i.shift()
         const cards = i as inputData_card[];
 
         const cause = actionFormRegistry.effect(s, c, this)
@@ -488,31 +461,80 @@ export class e_bounce extends Effect<[inputData_zone, ...inputData_card[], input
 
         return res;
     }
+
+    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+        return [this.target_zone, this.count]
+    }
 }
 
-// export class e_delay extends Effect<inputData_card[]>{
-//     get count() : number {return this.attr.get("count") ?? 0};
-//     get delayCount() : number {return this.attr.get("delayCount") ?? 0}
+export class e_delay extends Effect<inputData_card[]>{
+    get count() : number {return this.attr.get("count") ?? 0};
+    get delayCount() : number {return this.attr.get("delayCount") ?? 0}
 
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         return this.count !== 0 && this.delayCount !== 0
-//     }
+    override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
+        return this.count !== 0 && this.delayCount !== 0
+    }
 
-//     override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, inputData_card[], inputData_card[], inputData_standard, inputData_standard[]> {
-//         return s.requestInput_card_default(c, zoneRegistry.z_field, undefined, (s, c) => c.statusEffects.some(e => e.is(e_automate_base))).extendMultiple(s, this.count, (s, prev) => {
-//             return prev[0].data.zone.cardArr_filtered.filter(c => c.statusEffects.some(e => e.is(e_automate_base))).map(c => inputFormRegistry.card(s, c))
-//         })
-//     }
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, inputData_card[], inputData_card[], inputData_standard, inputData_standard, inputData_standard[]> {
+        return Request.field(s, c).cards().hasAutomate().many(this.count)
+    }
 
-//     override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<inputData_card[]>): Action[] {
-        
-//     }
-// }
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<inputData_card[]>): Action[] {
+        const cards = input.next().map(c => c.data.card);
+        const res : Action[] = []
+        const cause = actionFormRegistry.effect(s, c, this)
+        cards.forEach(c => {
+            const automateEff = c.statusEffects.filter(e => e instanceof e_automate_base)
+            automateEff.forEach(eff => {
+                res.push(actionConstructorRegistry.a_delay(cause, {
+                    delayAmmount : this.delayCount,
+                    delayCID : c.id,
+                    delayEID : eff.id
+                }))
+            })
+        })
+        return res;
+    }
+
+    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+        return [this.count, this.delayCount]
+    }
+}
+
+export class e_delay_all extends Effect<[]>{
+    get delayCount() : number {return this.attr.get("delayCount") ?? 0}
+
+    override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
+        return this.delayCount !== 0
+    }
+
+    override activate_final(c: dry_card, s: dry_system, a: Action): Action[] {
+        const cards = Request.field(s, c).cards().hasAutomate().clean();
+        const res : Action[] = []
+        const cause = actionFormRegistry.effect(s, c, this)
+        cards.forEach(c => {
+            const automateEff = c.statusEffects.filter(e => e instanceof e_automate_base)
+            automateEff.forEach(eff => {
+                res.push(actionConstructorRegistry.a_delay(cause, {
+                    delayAmmount : this.delayCount,
+                    delayCID : c.id,
+                    delayEID : eff.id
+                }))
+            })
+        })
+        return res;
+    }
+
+    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+        return [this.delayCount]
+    }
+}
+
+
 
 export default {
     e_addToHand, 
     e_quick,
-    e_reactivate_on_attack_destroy,
     e_attack,
     e_add_counter,
     e_add_stat_change_diff,
@@ -524,6 +546,8 @@ export default {
     e_volatile,
     e_fragile,
     e_draw,
+    e_draw_until,
+
     e_clear_all_status_self : e_clear_all_status,
     e_deactivate_self : e_deactivate,
     e_decompile_self : e_decompile,
@@ -532,4 +556,9 @@ export default {
     e_reactivate_self : e_reactivate,
     e_reset_self : e_reset,
     e_void_self : e_void,
+    
+    e_delay, 
+    e_delay_all,
+    e_bounce,
+    e_generic_lock,
 }

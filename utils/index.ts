@@ -103,7 +103,7 @@ class utils {
         })
     }
 
-    static indexToPosition(index : number, shapeArr : number[]) {
+    static indexToPosition(index : number, shapeArr : ReadonlyArray<number>) {
         const position : number[] = new Array(shapeArr.length);
         let remainingIndex = index;
     
@@ -115,8 +115,21 @@ class utils {
         return position;
     }
 
-    static positionToIndex(position : ReadonlyArray<number>, shapeArr :  number[]) {
+    /**
+     * 
+     * @param position 
+     * @param shapeArr the base
+     * @returns 
+     * Imagine counting up in the base [2, 2]
+     * That would go: [0, 0], [0, 1], [1, 0], [1, 1]
+     * Once the previous index hits the limit, the next count up and this index is back to 0
+     * so Pos -> index of [1, 0] is 2 (0 indexing)
+     * 
+     * Invalid indexes like [0, 3] in base [2, 2] would be disallow but i didnt code this part in
+     */
+    static positionToIndex(position : ReadonlyArray<number>, shapeArr :  ReadonlyArray<number>) {
         if(!shapeArr.length || !position.length) return -1;
+
         let flatIndex = 0;
         let stride = 1;
     
@@ -126,6 +139,10 @@ class utils {
         }
     
         return flatIndex;
+    }
+
+    static isPositionOutOfBounds(position : ReadonlyArray<number>, shapeArr : ReadonlyArray<number>){
+        return position.some((i, index) => i >= shapeArr[index] || i < 0)
     }
 
     static isPartitioningManual(ps : partitionSetting){

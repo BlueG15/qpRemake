@@ -1,4 +1,4 @@
-import type { dry_card, dry_system, inputDataSpecific, inputType, inputData } from "../../../data/systemRegistry";
+import type { dry_card, dry_system, inputDataSpecific, inputType, inputData, inputData_standard, inputData_bool, inputData_num } from "../../../data/systemRegistry";
 import { Action_class, type Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "./card";
 import type effectSubtype from "./effectSubtype";
@@ -8,7 +8,7 @@ import { id_able, StrictGenerator } from "../../misc";
 
 //some effects can modify event data 
 //so in general, activate takes in an event and spits out an event
-import type { inputRequester, inputRequester_finalized } from "../../../_queenSystem/handler/actionInputGenerator";
+import { inputRequester, inputRequester_finalized } from "../../../_queenSystem/handler/actionInputGenerator";
 
 class Effect<inputTupleType extends inputData[] = inputData[]> {
     id: string;
@@ -52,7 +52,7 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
     }
 
     
-    //@final
+    /** @final */
     getInputObj(c : dry_card, s : dry_system, a : Action) : inputTupleType extends [] ? undefined : inputRequester<any, inputTupleType> {
         if(this.__cached_input.hasValue) return this.__cached_input.value;
         this.__cached_input = {
@@ -72,7 +72,7 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
     //to avoid condition conflicts
 
     //can repond -> 2 functions, canRespond_prelim and canRespond_final
-    //@final
+    /** @final */
     canRespondAndActivate_prelim(c : Card, system : dry_system, a : Action) : boolean {
         let res : -1 | -2 | boolean = -1;
         
@@ -117,7 +117,7 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         return true
     }
 
-    //@final
+    /** @final */
     activate(c : Card, system : dry_system, a : Action, input : inputTupleType extends [] ? undefined : inputRequester_finalized<inputTupleType>) : Action[] {
         this.__cached_input = {
             hasValue : false
@@ -145,7 +145,7 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         return final;
     };
 
-    //@final
+    /** @final */
     getSubtypeidx(subtypeID : string){
         for(let i = 0; i > this.subTypes.length; i++){
             if(this.subTypes[i].dataID === subtypeID) return i;
@@ -185,22 +185,22 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         this.subTypes = this.subTypes.filter(i => i.dataID !== stid)
     }
 
-    //@final
+    /** @final */
     disable(){
         this.isDisabled = true
     }
 
-    //@final
+    /** @final */
     toDry(){
         return this
     }
 
-    //@final
+    /** @final */
     enable() {
         this.isDisabled = false
     }
 
-    //@final
+    /** @final */
     is(p : Function) : this is boolean;
     is(p : id_able) : boolean;
     is(p : id_able | Function ){
@@ -241,5 +241,4 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         }, null, spaces)
     }
 }
-
 export default Effect

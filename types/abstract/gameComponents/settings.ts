@@ -96,6 +96,7 @@ class defaultSetting implements Setting {
         "e_test",
         "e_status", 
         "e_generic_effects", 
+        "e_cond"
         //"e_fruit", 
     ];
     modFolder = "../../_mods"

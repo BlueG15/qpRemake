@@ -23,6 +23,14 @@ export default class cardLoader {
         this.effectHandler = effectHandler
     }
 
+    get classkeys() {
+        return Array.from(this.customClassCache.keys())
+    }
+
+    get datakeys() {
+        return Array.from(this.dataCache.keys())
+    }
+
     load(key : string, data : cardData, c? : typeof Card | Record<string, typeof Card>){
         this.dataCache.set(key, data)
         if(c) {

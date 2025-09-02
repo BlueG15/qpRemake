@@ -56,6 +56,13 @@ export class Action_class<
     id: number = NaN;
     typeID: actionID;
     isDisabled : boolean = false;
+    isCost : boolean = false;
+
+    cost(){
+        this.isCost = true;
+        this.attr.set("canBeChainedTo", false);
+        this.attr.set("canBeTriggeredTo", false);
+    }
 
     targets : TargetType
     cause : identificationInfo
@@ -875,6 +882,12 @@ const actionConstructorRegistry = {
         requester : inputRequester<any, inputData[]>
         applicator : inputApplicator<any, inputData[]>
     }),
+
+    a_delay : ActionAssembler("a_delay", {} as {
+        delayAmmount : number,
+        delayCID : string, //cid
+        delayEID : string, //eid
+    })
 
 } as const;
 

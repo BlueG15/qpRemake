@@ -1,4 +1,4 @@
-const serverOrigin = window.origin;
+const serverOrigin = ""//window.origin;
 
 const cardData = {
   syncMarker: {
@@ -17197,7 +17197,7 @@ const cardData = {
       backUrl: serverOrigin + "/cardbg/1/green.png",
     },
   },
-};
+} as const;
 
 const raritiyType: string[] = [];
 const levelType: string[] = [];
@@ -17216,7 +17216,7 @@ for (let i = 0; i < cards.length; i++) {
     levelType.push(lvl);
   }
 
-  const effArr: string[][] = ffs.map((e): string[] => e.effectType);
+  const effArr: string[][] = ffs.map((e): string[] => e.effectType as any);
   const empt: string[] = [];
   const effs: string[] = empt.concat(...effArr);
 
@@ -17300,16 +17300,19 @@ export interface StorageItem {
   upgraded: boolean;
 }
 
-export function getCard(id: keyof typeof cardData | string) {
-  return cardData[id as keyof typeof cardData] as CardData;
-}
+// export function getCard(id: keyof typeof cardData | string) {
+//   return cardData[id as oldCardNames] as CardData;
+// }
 
 export function getAllCardsID() {
   return Object.keys(cardData);
 }
 
+export function getCard(id : string) : CardData | undefined {return undefined}
+
 export default cardData;
 
 export type { CardData };
+export type oldCardNames = keyof typeof cardData
 
 export { effectType, levelType, raritiyType };

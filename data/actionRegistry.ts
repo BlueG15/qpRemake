@@ -60,6 +60,7 @@ enum actionRegistry {
     "a_duplicate_card",
 
     "a_declare_activation",
+    "a_delay",
 }
 
 type actionName = keyof typeof actionRegistry

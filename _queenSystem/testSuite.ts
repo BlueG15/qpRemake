@@ -8,6 +8,42 @@ import { inputType } from "../data/systemRegistry"
 
 const testSuite : Record<string, ((s : queenSystem) => void)> = {
 
+    progressCheck(s : queenSystem){
+        console.log("Effects check:")
+
+        const dataArr = s.registryFile.effectLoader.datakeys
+        const classArr = s.registryFile.effectLoader.classkeys
+
+        console.log(`Loaded ${dataArr.length} data entries`)
+        console.log(`Loaded ${classArr.length} class entries`)
+
+        const set1 = new Set(classArr)
+        dataArr.forEach(i => {
+            set1.delete(i)
+        })
+
+        const set2 = new Set(dataArr)
+        classArr.forEach(i => {
+            set2.delete(i)
+        })
+
+        if(set1.size !== 0){
+            const k = Array.from(set1)
+            console.warn(`There are classes NOT in the data `, k)
+        }
+
+        if(set2.size !== 0){
+            const k = Array.from(set2)
+            console.warn(`There are data NOT a class `, k)
+        }
+
+        console.log("Cards check:")
+        
+        const dataArr2 = s.registryFile.cardLoader.datakeys
+
+        console.log(`Loaded ${dataArr2.length} data entries`)
+    },
+
     testInput(s : queenSystem){
         console.log("Test overriding")
         const requester = new inputRequester(inputType.number, [1, 2, 3].map(n => inputFormRegistry.num(n)));

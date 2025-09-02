@@ -109,7 +109,7 @@ export interface partitionData {
 import { rarityRegistry } from "./rarityRegistry";
 import { subtypeName } from "./subtypeRegistry"
 
-function defaultPartition(id : string, num : number[] | number = 0) : partitionData{
+export function defaultPartition(id : string, num : number[] | number = 0) : partitionData{
     num = Array.isArray(num) ? num : [num];
     return {
         behaviorID : partitionActivationBehavior.first,
@@ -120,13 +120,194 @@ function defaultPartition(id : string, num : number[] | number = 0) : partitionD
     }
 }
 
-function oldImgURL(oldID : string){
+type oldDataURL = "https://raw.githubusercontent.com/qpProject/qpProject.github.io/refs/heads/main/cards/"
+export function oldImgURL(oldID : string){
     return `https://raw.githubusercontent.com/qpProject/qpProject.github.io/refs/heads/main/cards/${oldID}.png`
+}
+
+import { Transplant } from "../types/misc"
+type k = Transplant<cardData["variantData"]["base"], "atk", 5>
+
+import type { oldCardNames } from "./old/oldData/cards"
+
+//Welp am creating another system for this stuff
+class quickCardData<K extends Omit<cardData, "id"> = {
+        variantData : {
+            base : {
+                level : 1,
+                rarityID : rarityRegistry.r_white,
+                extensionArr : [],
+                belongTo : [],
+                atk : 0,
+                hp : 1,
+                effects : {},
+                imgURL : "",
+                partition : [],
+            }
+        }
+    }>{
+
+    data : Omit<cardData, "id"> = {
+        variantData : {
+            base : {
+                level : 1,
+                rarityID : rarityRegistry.r_white,
+                extensionArr : [],
+                belongTo : [],
+                atk : 0,
+                hp : 1,
+                effects : {},
+                imgURL : "",
+                partition : [],
+            }
+        }
+    }
+
+    //Adding belong to others if belongTo is empty
+    fin() : K["variantData"]["base"]["belongTo"] extends [] ? {
+        variantData : {
+            [key in keyof K["variantData"]] : key extends "base" ? {
+                [key2 in keyof K["variantData"]["base"]] : 
+                    key2 extends "belongTo"
+                    ? ["other"]
+                    : K["variantData"]["base"][key2]
+            } : K["variantData"][key]
+        }
+    } : K 
+    {
+        if(this.data.variantData.base.belongTo.length === 0) 
+            this.data.variantData.base.belongTo = ["other"] 
+        return this.data as any
+    }
+
+    //effects are added to the last partition
+
+    rarity<T extends rarityRegistry>(rarity : T) : quickCardData<{
+        variantData : {
+            [key in keyof K["variantData"]] : key extends "base" ? {
+                [key2 in keyof K["variantData"]["base"]] : 
+                    key2 extends "rarityID"
+                    ? T
+                    : K["variantData"]["base"][key2]
+            } : K["variantData"][key]
+        }
+    }>{
+        this.data.variantData.base.rarityID = rarity
+        return this as any
+    }
+
+    img<T extends oldCardNames>(oldCardName : T) : quickCardData<{
+        variantData : {
+            [key in keyof K["variantData"]] : key extends "base" ? {
+                [key2 in keyof K["variantData"]["base"]] : 
+                    key2 extends "imgURL"
+                    ? `${oldDataURL}${T}.png`
+                    : K["variantData"]["base"][key2]
+            } : K["variantData"][key]
+        }
+    }>{
+        this.data.variantData.base.imgURL = oldImgURL(oldCardName)
+        return this as any
+    }
+
+    archtype<T extends string>(archtype : T) : quickCardData<{
+        variantData : {
+            [key in keyof K["variantData"]] : key extends "base" ? {
+                [key2 in keyof K["variantData"]["base"]] : 
+                    key2 extends "extensionArr" | "belongTo" 
+                    ? [...K["variantData"]["base"][key2], T]
+                    : K["variantData"]["base"][key2]
+            } : K["variantData"][key]
+        }
+    }>{
+        this.data.variantData.base.belongTo.push(archtype);
+        this.data.variantData.base.extensionArr.push(archtype);
+        return this as any
+    }
+
+    atk<T extends number>(atk : T) : quickCardData<{
+        variantData : {
+            [key in keyof K["variantData"]] : key extends "base" ? {
+                [key2 in keyof K["variantData"]["base"]] : 
+                    key2 extends "atk"
+                    ? T
+                    : K["variantData"]["base"][key2]
+            } : K["variantData"][key]
+        }
+    }>{
+        this.data.variantData.base.atk = atk
+        return this as any
+    }
+
+    hp<T extends number>(hp : T) : quickCardData<{
+        variantData : {
+            [key in keyof K["variantData"]] : key extends "base" ? {
+                [key2 in keyof K["variantData"]["base"]] : 
+                    key2 extends "hp"
+                    ? T
+                    : K["variantData"]["base"][key2]
+            } : K["variantData"][key]
+        }
+    }>{
+        this.data.variantData.base.hp = hp
+        return this as any
+    }
+
+    level<T extends number>(level : T) : quickCardData<{
+        variantData : {
+            [key in keyof K["variantData"]] : key extends "base" ? {
+                [key2 in keyof K["variantData"]["base"]] : 
+                    key2 extends "level"
+                    ? T
+                    : K["variantData"]["base"][key2]
+            } : K["variantData"][key]
+        }
+    }>{
+        this.data.variantData.base.level = level
+        return this as any
+    }
+
+    //quickhand stat, tailwind inspired
+
+    get green(){return this.rarity(rarityRegistry.r_green)}
+    get blue(){return this.rarity(rarityRegistry.r_blue)}
+    get red(){return this.rarity(rarityRegistry.r_red)}
+    get algo(){return this.rarity(rarityRegistry.r_algo)}
+    get ability(){return this.rarity(rarityRegistry.r_ability)}
+
+    get l1(){return this.level(1)}
+    get l2(){return this.level(2)}
+    get l3(){return this.level(3)}
+
+    get atk1(){return this.atk(1)}
+    get atk2(){return this.atk(2)}
+    get atk3(){return this.atk(3)}
+    get atk4(){return this.atk(4)}
+    get atk5(){return this.atk(5)}
+
+    get hp2(){return this.hp(2)}
+    get hp3(){return this.hp(3)}
+    get hp4(){return this.hp(4)}
+    get hp5(){return this.hp(5)}
+    get hp6(){return this.hp(6)}
+    get hp7(){return this.hp(7)}
+    get hp8(){return this.hp(8)}
+    get hp9(){return this.hp(9)}
+    get hp10(){return this.hp(10)}
+
+    stat<ATK extends number, HP extends number>(stat0 : ATK, stat1 : HP){
+        return this.atk(stat0).hp(stat1)
+    }
 }
 
 //TODO : change to const later
 const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
 = {
+
+    //zero eff stuff
+    //Code generated, hand cleaned
+    //removed the 2 unused nova card that wont work anyway
+
     c_blank : {
         variantData : {
             base : {
@@ -140,6 +321,503 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 imgURL : oldImgURL("puzzleBlank"),
                 partition : [],
             },
+        }
+    },
+    "c_knife": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [
+                    ".hck"
+                ],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 3,
+                "hp": 5,
+                "effects": {},
+                "imgURL": oldImgURL("quantumKnifeTutorial"),
+                "partition": []
+            }
+        }
+    },
+    "c_quantum_sigil": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("quantumSigil"),
+                "partition": []
+            }
+        }
+    },
+    "c_sentry": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [
+                    ".sc"
+                ],
+                "belongTo": [
+                    "enemy"
+                ],
+                "atk": 1,
+                "hp": 2,
+                "effects": {},
+                "imgURL": oldImgURL("enemySentry"),
+                "partition": []
+            }
+        }
+    },
+    "c_stagemarker": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("stageMarker"),
+                "partition": []
+            }
+        }
+    },
+    "c_security": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 1,
+                "extensionArr": [
+                    ".x"
+                ],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("securityLock"),
+                "partition": []
+            }
+        }
+    },
+    "c_objective_data": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [
+                    ".txt"
+                ],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("objectiveData1"),
+                "partition": []
+            }
+        }
+    },
+    "c_active": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 2,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("openingDungeonMark"),
+                "partition": []
+            }
+        }
+    },
+    "c_dummy": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("puzzleDummy"),
+                "partition": []
+            }
+        }
+    },
+    "c_loot_dummy": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("lootDummy"),
+                "partition": []
+            }
+        }
+    },
+    "c_lock_core": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 3,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("queenLockCore"),
+                "partition": []
+            }
+        }
+    },
+    "c_machine_block": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 2,
+                "effects": {},
+                "imgURL": oldImgURL("machineBlock"),
+                "partition": []
+            },
+            "2" : {
+                "atk": 0,
+                "hp": 3,
+                "imgURL": oldImgURL("machineBlock2")
+            }
+        }
+    },
+    "c_machine_coin": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("machineCoin"),
+                "partition": []
+            }
+        }
+    },
+    "c_brain_queen": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("brainQueen"),
+                "partition": []
+            }
+        }
+    },
+    "c_story_oxygen": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("storyOxygen"),
+                "partition": []
+            }
+        }
+    },
+    "c_story_hydrogen": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("storyHydrogen"),
+                "partition": []
+            }
+        }
+    },
+    "c_story_backdoor": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("storyBackdoor"),
+                "partition": []
+            }
+        }
+    },
+    "c_flower_hologram": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "other"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("flowerHologram"),
+                "partition": []
+            }
+        }
+    },
+    "c_dark_power": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "boss"
+                ],
+                "atk": 2,
+                "hp": 2,
+                "effects": {},
+                "imgURL": oldImgURL("bossB10MinionSpawn"),
+                "partition": []
+            }
+        }
+    },
+    "c_zira_defeat": {
+        "variantData": {
+            "base": {
+                "level": 3,
+                "rarityID": 3,
+                "extensionArr": [
+                    ".z"
+                ],
+                "belongTo": [
+                    "boss"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("bossCometDefeat"),
+                "partition": []
+            }
+        }
+    },
+    "c_bug_passive": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [
+                    ".mw"
+                ],
+                "belongTo": [
+                    "enemy"
+                ],
+                "atk": 0,
+                "hp": 4,
+                "effects": {},
+                "imgURL": oldImgURL("enemyPassiveBug"),
+                "partition": []
+            }
+        }
+    },
+    "c_stagemark": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "enemy"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("enemyStageTarget"),
+                "partition": []
+            }
+        }
+    },
+    "c_strong_bug": {
+        "variantData": {
+            "base": {
+                "level": 2,
+                "rarityID": 1,
+                "extensionArr": [
+                    ".mw"
+                ],
+                "belongTo": [
+                    "enemy"
+                ],
+                "atk": 2,
+                "hp": 3,
+                "effects": {},
+                "imgURL": oldImgURL("enemyStrongBug"),
+                "partition": []
+            },
+            "upgrade_1": {
+                "atk": 3,
+                "hp": 5
+            }
+        }
+    },
+    "c_firewall": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [
+                    ".sc"
+                ],
+                "belongTo": [
+                    "enemy"
+                ],
+                "atk": 0,
+                "hp": 3,
+                "effects": {},
+                "imgURL": oldImgURL("enemyWeakWall"),
+                "partition": []
+            }
+        }
+    },
+    "c_target": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [],
+                "belongTo": [
+                    "enemy"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("enemyWeakTarget"),
+                "partition": []
+            }
+        }
+    },
+    "c_curse": {
+        "variantData": {
+            "base": {
+                "level": 0,
+                "rarityID": 0,
+                "extensionArr": [
+                    ".x"
+                ],
+                "belongTo": [
+                    "boss"
+                ],
+                "atk": 0,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("miniboss1"),
+                "partition": []
+            }
+        }
+    },
+    "c_legion_token": {
+        "variantData": {
+            "base": {
+                "level": 0,
+                "rarityID": 0,
+                "extensionArr": [
+                    ".legion"
+                ],
+                "belongTo": [
+                    "omegaDungeon1"
+                ],
+                "atk": 1,
+                "hp": 1,
+                "effects": {},
+                "imgURL": oldImgURL("vampGen2_minion"),
+                "partition": []
+            },
+            "upgrade_1": {
+                "atk": 2
+            }
+        }
+    },
+    "c_nova_protean": {
+        "variantData": {
+            "base": {
+                "level": 1,
+                "rarityID": 0,
+                "extensionArr": [
+                    ".nova"
+                ],
+                "belongTo": [
+                    "collabNova"
+                ],
+                "atk": 2,
+                "hp": 2,
+                "effects": {},
+                "imgURL": oldImgURL("novaStandard"),
+                "partition": []
+            },
+            "upgrade_1": {
+                "atk": 3,
+                "hp": 3
+            }
         }
     },
 
@@ -179,6 +857,9 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
     //generics
 
     //white
+    // c_avarice : {
+
+    // },
 
     //fruits 
 
@@ -229,7 +910,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
             upgrade_1 : {
                 effects : {
                     e_banana : {
-                        doFruitCheck : 0
+                        doArchtypeCheck : 0
                     }
                 }
             },
@@ -247,7 +928,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 hp : 1,
                 effects : {
                     e_draw : {
-                        times : 1
+                        count : 1
                     }
                 },
                 imgURL : oldImgURL("naturalCherry"),
@@ -256,7 +937,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
             upgrade_1 : {
                 effects : {
                     e_draw : {
-                        times : 2
+                        count : 2
                     }
                 }
             },
@@ -362,14 +1043,14 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 ],
                 effects : {
                     e_pollinate : {
-                        doFruitCheck : 1
+                        doArchtypeCheck : 1
                     },
                 }
             },
             upgrade_1 : {
                 effects : {
                     e_pollinate : {
-                        doFruitCheck : 0
+                        doArchtypeCheck : 0
                     }
                 }
             }
@@ -422,14 +1103,14 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 ],
                 effects : {
                     e_growth : {
-                        doFruitCheck : 1
+                        doArchtypeCheck : 1
                     }
                 }
             },
             upgrade_1 : {
                 effects : {
                     e_growth : {
-                        doFruitCheck : 0
+                        doArchtypeCheck : 0
                     }
                 }
             }
@@ -510,14 +1191,14 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 ],
                 effects : {
                     e_autumn : {
-                        doIncAtk : 0
+                        // doIncAtk : 0
                     }
                 }
             },
             upgrade_1 : {
                 effects : {
                     e_autumn : {
-                        doIncAtk : 1
+                        // doIncAtk : 1
                     }
                 }
             } 
@@ -540,7 +1221,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 ],
                 effects : {
                     e_winter : {
-                        HPinc : 1
+                        // HPinc : 1
                     },
                     e_dmg_reduction : {
                         reductionAmmount : Infinity,
@@ -551,7 +1232,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
             upgrade_1 : {
                 effects : {
                     e_winter : {
-                        HPinc : 2
+                        // HPinc : 2
                     },
                     e_dmg_reduction : {
                         reductionAmmount : Infinity,

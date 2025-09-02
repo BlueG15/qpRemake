@@ -443,19 +443,17 @@ class queenSystem {
                     responses : Object.fromEntries(logInfo)
                 })
 
-                //special handled
-                if(actionArr.some(
-                    i => i.id === actionRegistry.a_negate_action
-                )){
-                    this.phaseIdx = TurnPhase.complete;
-                    return false;
-                }
+                const forcedActions = actionArr.filter(a => a.isCost)
 
-                let gotoComplete = false
+                //special handled
+                const isNegated = actionArr.some(
+                    i => i.id === actionRegistry.a_negate_action
+                )
+                let gotoComplete = isNegated
                 let replacements = actionArr.filter(i => i.id === actionRegistry.a_replace_action).map(i => (i as Action<"a_replace_action">).targets[0].action)
                 if(replacements.length){
                     gotoComplete = true;
-                    actionArr = replacements
+                    actionArr = isNegated ? forcedActions : forcedActions.concat(replacements)
                 }
 
                 actionArr.forEach(i => {
@@ -499,19 +497,24 @@ class queenSystem {
             }
             case TurnPhase.trigger: {
                 //trigger
-                let [actionArr, logInfo] = this.zoneHandler.respond(this, n.data)
+                let [actionArr, logInfo] = this.zoneHandler.respond(this, n.data, !n.data.canBeTriggeredTo)
                 this.fullLog.push({
                     currentPhase : 6,
                     currentAction : n.data,
                     responses : Object.fromEntries(logInfo)
                 })
-                //if(actionArr.length) console.log(actionArr.map(a => a.type + "_" + (a as Action<"a_activate_effect_internal">).targets[0].eff.id))
+                
+                actionArr = actionArr.map(i => {
+                    if(i.is("a_replace_action")) return i.targets[0].action;
+                    return i;
+                })
+
                 actionArr.forEach(i => {
                     if(i.isChain) this.actionTree.attach_node(n, i);
                     else this.actionTree.attach_node(this.actionTree.root, i);
                 })
                 this.phaseIdx = TurnPhase.complete;
-                return false;  
+                return false 
             }
             case TurnPhase.complete: {
                 //complete 
@@ -865,14 +868,14 @@ class queenSystem {
      */
     findSpecificChainOfAction_resolve<
         T extends actionName[]
-    >(typeArr : T) : Action[] | undefined{
-        if(!typeArr.length) return [];
+    >(typeArr : T) : Action[] | undefined {
+        if(!typeArr.length) return [] as any;
         let res : Action[] = [];
 
         let candidateResolveLog : logInfoResolve | undefined = this.resolutionLog.find(k => k.currentAction.type === typeArr[0]);
         if(!candidateResolveLog) return undefined
         res.push(candidateResolveLog.currentAction)
-        if(typeArr.length === 1) return res;
+        if(typeArr.length === 1) return res as any;
 
         for(let i = 1; i < typeArr.length; i++){
             let matchedNext : Action | undefined = candidateResolveLog.resolvedResult.find(k => k.type === typeArr[i]);
@@ -883,7 +886,7 @@ class queenSystem {
             res.push(candidateResolveLog.currentAction)
         }
 
-        return res;
+        return res as any;
     }
 
     /**
@@ -1030,7 +1033,6 @@ class queenSystem {
     readonly NULLPOS: dry_position = new Position(-1)
     readonly NULLCARD: dry_card
 }
-
 
 export default queenSystem
 export {logInfo}

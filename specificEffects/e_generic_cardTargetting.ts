@@ -7,18 +7,24 @@ import type { identificationInfo_card } from "../data/systemRegistry";
 type targettableActionName = Exclude<oneTarget<identificationInfo_card, noExtraParam>, "a_add_effect" | "a_add_status_effect">
 
 export class e_generic_cardTargetting extends Effect {
-    protected target? : dry_card
+    protected target? : dry_card | dry_card[]
 
     protected resolutionAID? : targettableActionName = undefined
 
     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
         return this.resolutionAID !== undefined
     }
-    override activate_final(c: dry_card, system: dry_system, a: Action){
+    override activate_final(c: dry_card, system: dry_system, a: Action) : Action[] {
         let r = this.resolutionAID
         if(r === undefined) return []
 
         this.target = this.target ? this.target : c
+
+        if(Array.isArray(this.target)){
+            return this.target.map(c => 
+                actionConstructorRegistry[r](system, c)(actionFormRegistry.effect(system, c, this))
+            )
+        }
         
         return [
             actionConstructorRegistry[r](system, this.target)(actionFormRegistry.effect(system, c, this))

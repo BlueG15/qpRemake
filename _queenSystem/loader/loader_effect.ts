@@ -33,6 +33,14 @@ export default class effectLoader {
         this.typeLoader = typeLoader
     }
 
+    get classkeys() {
+        return Array.from(this.classCache.keys())
+    }
+
+    get datakeys() {
+        return Array.from(this.dataCache.keys())
+    }
+
     private async loadSingle(path : string, eid : string, s : Setting){
         const obj = (await import(path + eid)).default
 

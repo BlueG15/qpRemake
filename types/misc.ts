@@ -53,6 +53,7 @@ export type WritableKeys<T> = {
 }[keyof T];
 
 export type Tuple_any<T, len extends number = lambda_number_monster_num, cull extends T[] = [], len_lambda extends lambda_number = NumToLambda<len>> = 
+  number extends len ? T[] :
   len_lambda extends [] ? cull : Tuple_any<T, len, [T, ...cull], precursor<len_lambda>>
 
 export type LenInLambda<T extends any[]> = NumToLambda<T["length"]>

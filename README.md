@@ -8,6 +8,13 @@ Alpha branch is finally ended!!, only task rn is the loop
 4. update the card registry
 5. update defaultSetting to include new files (if needed)
 
+## Current progress:
+
+|                | Cards | Effects | Archtypes | Actions |
+|:--------------:|:-----:|:-------:|:---------:|:-------:|
+|<span style="color:green">Current</span> | <span style="color:green">0</span> | <span style="color:green">0</span> | <span style="color:green">0</span> | <span style="color:green">30</span> |
+| <span style="color:orange">Total</span> | <span style="color:orange">200</span> | <span style="color:orange">600?</span> | <span style="color:orange">12</span> |  |
+
 
 ## Game components
 system have zones, zones have cards, cards have effects, effects have types and subtypes
@@ -49,7 +56,7 @@ these steps go in a loop until ever action is resolved
 
 This process involves making a class extending from either ```Effect``` or an existing class that does (something else in the ```SpecificEffects``` folder)
 
-This child class has 3 jobs : 
+This child class has 5 jobs : 
 1. Overriding ```canRespondAndActivate_final``` to check the activation condition of the card (ignoring any types or subtypes conditions). If the effect does not have an condition, just return true.
    
    > This function takes in a readonly version of the ```Card``` the effect is housed, the current ```system``` object and the current ```Action```. Returns a boolean.
@@ -58,9 +65,20 @@ This child class has 3 jobs :
    
    > This function takes in a readonly version of the ```Card``` the effect is housed, the current ```system``` object and the current ```Action```. Returns an ```Action[]```.
 
-3. If the effect has a parameter (most do, since x and upgraded x may behave the exact same just with different number so its convenient to write it once), you can make a quick getter and setter to access a ```Map<string, number>``` within the effect named ```attr```, this map will be loaded with data upon effect creation. (This getter and setter is optional as no outside system uses this, only this effect and maybe others extending from it)
+3. Overriding ```createInputObj``` to inform the system of what type of input to take in, return ```undefined``` means no input. One can invoke the ```Request``` object to create an input object quickly, or just create one manually.
+
+   > This whole system is not...great imo, but hopefully its "servicable"
+
+4. If the effect has a parameter (most do, since x and upgraded x may behave the exact same just with different number so its convenient to write it once), you can make a quick getter and setter to access a ```Map<string, number>``` within the effect named ```attr```, this map will be loaded with data upon effect creation. (This getter and setter is optional as no outside system uses this, only this effect and maybe others extending from it)
+   
+5. Return some parameters to inject into the effect text by overriding the ```getDisplayInput``` function.
 
 Going over how to make an action, you need to invoke the const ```actionConstructorRegistry```, hopefully ts takes over the rest of the guiding process if i do my magic correctly
+
+
+Update 1.2.9:
+I added a custom eslint rule to prevent overriding @final methods and classes, it seems to...not work very well..idk why,
+If anyone knows how to write a better version of this rule, pls help
 
 ### Add more actions (if needed)
 

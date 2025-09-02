@@ -485,7 +485,7 @@ class Card {
 
     //end partition API
 
-    //@final
+    /** @final */
     toDry() : dry_card {
         return this
     }
@@ -496,6 +496,14 @@ class Card {
         let index = this.findEffectIndex(eid);
         if(index < 0) return
         this.effects[index].disable()
+    }
+
+    disable(){
+        this.effects.forEach(e => e.disable())
+    }
+
+    enable(){
+        this.effects.forEach(e => e.enable())
     }
 
     findEffectIndex(eid?: string) : number{

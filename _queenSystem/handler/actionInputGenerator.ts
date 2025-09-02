@@ -60,13 +60,15 @@ export const inputFormRegistry = {
     bool(bool : boolean){return {type : inputType.boolean, data : bool} as inputData_bool},
 } as const
 
-export type inputRequester_finalized<T_accu extends Exclude<inputData[], []>> = Omit<inputRequester<never, [], T_accu>, "apply" | "skip">
+export type inputRequester_finalized<T_accu extends Exclude<inputData[], []>> = {
+    next : inputRequester<never, [], T_accu>["next"]
+}
 
 export class inputRequester<
     K extends inputType = inputType, //initial type, for inference, useless after constructor is called
     T extends inputData[] = [inputDataSpecific<K>], //inputs tuple yet to apply, [] means finished
     T_accumulate extends Exclude<inputData[], []> = T, //inputs tuple as a whole, inference at first
-    T_data_last extends inputData = inputDataSpecific<K>,
+    T_data_last extends inputData = inputDataSpecific<K>, //last entry of the array, deprecated
     T_head extends inputData = T extends [infer head, ...any[]] ? head : inputData, //inference
     T_tail extends inputData[] = T extends [any, ...infer tail] ? tail : inputData[], //inference
 >{
@@ -98,8 +100,8 @@ export class inputRequester<
         this.cache = new inputRequestCache(validSet)
     }
 
-    hasInput() : this is inputRequester<K, T, T_accumulate, T_data_last, T_head, T_tail> {
-        return this.__valid_flag
+    hasInput() : this is this {
+        return this.__valid_flag && (this.__curr === undefined || this.__curr[1] === undefined || this.__curr[1].length !== 0)
     }
     
     private verify(a : any[]) : a is validSetFormat {
@@ -274,6 +276,7 @@ export class inputRequester<
     }
 
     //adds a new condition on top of the old condition of the last input required
+    /**@deprecated */
     extendOverride(
         s : dry_system, 
         cond : (s : dry_system, prev : T_data_last) => boolean
@@ -341,7 +344,6 @@ export class inputRequester_multiple<
         return this as any;
     }
 }
-
 
 class leaf<T extends inputData>{
     path : inputData[] = []

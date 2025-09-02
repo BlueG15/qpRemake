@@ -190,7 +190,7 @@ export class e_automate_base extends StatusEffect_base {
 
 export default {
     e_any_extension,
-    genericCounter,
-    generic_stat_change_diff,
-    generic_stat_change_override,
+    e_generic_counter : genericCounter,
+    e_generic_stat_change_diff : generic_stat_change_diff,
+    e_generic_stat_change_override : generic_stat_change_override,
 }
