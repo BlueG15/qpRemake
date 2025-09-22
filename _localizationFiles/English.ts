@@ -31,9 +31,15 @@ export default {
     r_ability : "<yellow> ability </>",
     r_algo : "<purple> algo </>",
 
-    //archtype names
-    //TODO : insert all, just have fruit for now
+    //archtype full names
+    //TODO : insert all
     a_fruit : "All Natural",
+    a_Legion : "Legion's Commanđ",
+    a_nova : "Supernova's Wake",
+    a_generic : "Generic",
+    a_other : "No archtype",
+    a_enemy : "Enemy",
+    a_boss : "Boss",
 
     //UI element names
     ui_catalog : "catalog",
@@ -94,20 +100,20 @@ export default {
     
     //effect type/subtype name
     //TODO : add more later once coded
-    e_manual : "MANUAL",
-    e_desc_manual : "Click to activate. This card cannot attack afterwards.",
+    e_t_manual : "MANUAL",
+    e_t_desc_manual : "Click to activate. This card cannot attack afterwards.",
 
-    e_trigger : "TRIGGER",
-    e_desc_trigger : "Activates automatically when something specific happens. Does not take a turn.",
+    e_t_trigger : "TRIGGER",
+    e_t_desc_trigger : "Activates automatically when something specific happens. Does not take a turn.",
 
-    e_passive : "PASSIVE",
-    e_desc_passive : "Happens automatically, does not activate.",
+    e_t_passive : "PASSIVE",
+    e_t_desc_passive : "Happens automatically, does not activate.",
 
-    e_status : "STATUS EFFECT",
-    e_desc_status : "Status effects are temporary effects.",
+    e_t_status : "STATUS EFFECT",
+    e_t_desc_status : "Status effects are temporary effects.",
 
-    e_init : "INITIALIZE",
-    e_desc_init : "Activates when this card is played to the field.",
+    e_t_init : "INITIALIZE",
+    e_t_desc_init : "Activates when this card is played to the field.",
 
     // effectTypeCondition,"CONDITION"
     // effectTypeCondition_desc,"You must do something in order to play this card from your hand manually."
@@ -148,12 +154,70 @@ export default {
     //card extension
     //TODO : fill this in, only fruit for now
     ex_fruit : "fruit",
+    ex_legion : "legion",
+    ex_nova : "nova",
+    ex_generic : "generic",
+    
 
     //cardID -> cardName, except the extension part
     //TODO : fill this in, only simple fruits for now
+    c_blank : "Blank",
+
+    c_knife : "Knife",
+    c_quantum_sigil : "QuantumSigil",
+    c_sentry : "Sentry",
+    c_stagemarker : "StageMarker",
+    c_security : "Security",
+    c_objective_data : "Data",
+    c_active : "ACTIVE",
+    c_dummy : "Dummy",
+    c_loot_dummy : "Dummy",
+    c_lock_core : "Core",
+    c_machine_block : "MachineBlock",
+    c_machine_coin : "MachineCoin",
+    c_brain_queen : "Brain",
+    c_story_oxygen : "O",
+    c_story_hydrogen : "H",
+    c_story_backdoor : "Backdoor",
+    c_flower_hologram : "Hologram",
+    c_stagemark : "Stagemark",
+    c_firewall : "Firewall",
+    c_target : "Target",
+    c_curse : "Curse", 
+
+    c_dark_power : "DarkPower",
+    c_zira_defeat : "Zira",
+    c_legion_token : "Clone",
+
+    c_bug_passive : "Bug",
+    c_strong_bug : "Bug",
+
+    c_nova_protean : "Protean",
+    c_test : "Debug",
+
+    c_after_burner : "Afterburner",
+    c_battery : "Battery",
+    c_flash_bang : "Flashbang",
+    c_cinder : "Cinder",
+    c_ember : "Ember",
+    c_capacitor : "DamageCapacitor",
+
     c_apple : "Apple",
     c_banana : "Banana",
     c_cherry : "Cherry",
+    c_lemon : "Lemon",
+    c_pomegranate : "Pomegranate",
+    c_pumpkin : "Pumpkin",
+    c_pollinate : "Pollinate",
+    c_greenhouse : "Greenhouse",
+    c_growth : "Growth",
+    c_spring : "Spring",
+    c_summer : "Summer",
+    c_autumn : "Autumn",
+    c_winter : "Winter",
+    c_demeter : "Demeter",
+    c_persephone : "Persephone",
+
 
     //effectID -> display XML
 

@@ -102,10 +102,14 @@ export default class effectLoader {
         if(!data) return undefined
 
         let eclass = this.classCache.get(eid)
-        if(!eclass) return undefined
+        if(!eclass) {console.log("No class Data for key ", eid); return undefined}
 
-        console.log("class entry found for eid: ", eid)
+        if(edata) Utils.patchGeneric(data, edata)
 
+        return this.getDirect(eid, s, eclass, data)
+    }
+
+    getDirect(eid : string, s : Setting, eclass : typeof Effect | Function, data : effectData){
         let c = this.countCache.get(eid);
         c = (c) ? (c + 1) % s.max_id_count : 0;
         this.countCache.set(eid, c); 
@@ -115,8 +119,6 @@ export default class effectLoader {
         if(!type) return undefined
 
         let runID = Utils.dataIDToUniqueID(eid, c, s, ...data.subTypeIDs)
-
-        if(edata) Utils.patchGeneric(data, edata)
             
         //load subtypes
         let k : effectSubtype[] = []

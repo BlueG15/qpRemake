@@ -55,6 +55,12 @@ export default class cardLoader {
         this.countCache.set(cid, c); 
 
         let runID = variantid ? Utils.dataIDToUniqueID(cid, c, s, ...variantid) : Utils.dataIDToUniqueID(cid, c, s);
+
+        if(!data.variantData) {
+            console.log("invalid data somehow", JSON.stringify(data))
+            return undefined
+        }
+
         let baseData = data.variantData.base
 
         let d : cardData_unified = {
@@ -80,7 +86,7 @@ export default class cardLoader {
             } | undefined = (d.effects as any)[i]
 
             function Load(t : cardLoader, eObj : Partial<effectData> | undefined){
-                console.log("Trying to load eff: ", JSON.stringify(eObj))
+                // console.log("Trying to load eff: ", JSON.stringify(eObj))
                 let e = t.effectHandler.getEffect(i, s, eObj);
                 if(e) effArr.push(e);
                 else console.log(`Effect id not found: ${i}\n`)
@@ -115,6 +121,33 @@ export default class cardLoader {
         //     debug log: loading card ${cid}, loaded ${effArr.length} effects\n`)
     
         return new cclass(s, d, effArr)
+    }
+
+    getDirect(cid : string, s : Setting, ...eff : Effect<any>[]){
+        //default partiton scheme: all eff into one partiton
+
+        let data = this.dataCache.get("c_test")
+        if(!data) return undefined
+
+        let c = this.countCache.get(cid);
+        c = (c) ? (c + 1) % s.max_id_count : 0;
+        this.countCache.set(cid, c); 
+
+        let runID = Utils.dataIDToUniqueID(cid, c, s);
+        let baseData = data.variantData.base
+
+        let d : cardData_unified = {
+            id : runID, 
+            dataID : cid,
+            variants : ["base"],
+            ...baseData
+        }
+
+        d.effects = Object.fromEntries( eff.map(e => [e.dataID, e.originalData]) )
+        d.partition[0].mapping = Utils.range(eff.length)
+        d.partition[0].displayID = cid
+
+        return new Card(s, d, eff)
     }
 }
 

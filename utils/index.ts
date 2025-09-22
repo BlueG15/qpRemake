@@ -351,6 +351,71 @@ class utils {
         const hasMap = new Set(arr2);
         return arr1.filter(i => hasMap.has(i))
     }
+
+    static assert(a : any, b : any) : void;
+    static assert(a : any, b : any, returns : true) : boolean;
+    static assert(a : any, b : any, returns? : boolean) : void;
+    static assert(a : any, b : any, returns = false, depth = 0) : boolean | void {
+
+        if(depth >= 20) {
+            throw new Error(`Assertion error, stack overflowed`)
+        }
+        
+        const t1 = typeof a
+        const t2 = typeof b
+        
+        if(t1 !== t2) {
+            if(returns) return false;
+            throw new Error(`Assertion error: ${a} is not ${b}, type check fails ${t1} is not ${t2}.`)
+        }
+        
+        const equallableTypes : (typeof t1)[] = ["bigint", "boolean", "number", "string", "symbol", "undefined"]
+        if(equallableTypes.includes(t1)) return returns ? true : undefined
+        
+        if(a === b) return returns ? true : undefined //reference checking
+
+        const c1 = Array.isArray(a)
+        const c2 = Array.isArray(b)
+
+        if(c1 !== c2) {
+            if(returns) return false;
+            throw new Error(`Assertion error: ${a} is not ${b}, array check fails ${c1} is not ${c2}.`)
+        }
+
+        //recursive section
+        if(c1){
+            //both are arrays
+            if(a.length !== b.length){
+                if(returns) return false;
+                throw new Error(`Assertion error: ${a} is not ${b}, not same len arrays.`)
+            }
+
+            const c3 = a.every((k, i) => this.assert(k, b[i], true))
+            if(c3) return returns ? true : undefined
+            if(returns) return false;
+            throw new Error(`Assertion error: ${a} is not ${b}, arrays have not the same elements.`)
+        }
+
+        //both are objects
+        const k1 = Object.keys(a)
+        const k2 = Object.keys(b)
+
+        if(k1.length !== k2.length){
+            if(returns) return false;
+            throw new Error(`Assertion error: ${a} is not ${b}, not same len objects.`)
+        }
+
+        const c4 = k1.every((k, i) => k === k2[i])
+        if(!c4) {
+            if(returns) return false;
+            throw new Error(`Assertion error: ${a} is not ${b}, not same key-ed objects.`)
+        }
+
+        const c5 = k1.every((k, i) => this.assert(a[k], b[k2[i]], true))
+        if(c5) return returns ? true : undefined
+        if(returns) return false;
+        throw new Error(`Assertion error: ${a} is not ${b}, objects not have the same values.`)
+    }
 }
 
 export default utils

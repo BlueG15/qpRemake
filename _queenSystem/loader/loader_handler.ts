@@ -5,12 +5,20 @@ type handlerFunc = ((a: Action, system: queenSystem) => undefined | Action[])
 export default class customHandlerLoader {
     private funcCache = new Map<number, handlerFunc>()
 
-    load(actionID : number, handlerFunc : handlerFunc){
-        this.funcCache.set(actionID, handlerFunc)
+    ___ObtainFunc(actionTypeID : number){
+        return this.funcCache.get(actionTypeID)
     }
 
-    handle(actionID : number, a : Action, s : queenSystem){
-        let func = this.funcCache.get(actionID);
+    delete(actionTypeID : number){
+        this.funcCache.delete(actionTypeID)
+    }
+
+    load(actionTypeID : number, handlerFunc : handlerFunc){
+        this.funcCache.set(actionTypeID, handlerFunc)
+    }
+
+    handle(actionTypeID : number, a : Action, s : queenSystem){
+        let func = this.funcCache.get(actionTypeID);
         if(!func) return;
         else return func(a, s);
     }

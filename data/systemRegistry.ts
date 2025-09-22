@@ -46,16 +46,21 @@ export type dry_parse<T extends Object, SafeFunctionKeys extends Exclude<Functio
 export type dry_position = dry_parse<Position, "is" | "flat" | "map" | "toString">
 export type dry_effectType = dry_parse<EffectType>
 export type dry_effectSubType = dry_parse<effectSubtype>
-export type dry_effect = dry_parse<
-    Effect, 
-    "getDisplayInput" | "toString" | "getSubtypeidx" | "is"
->
-export type dry_card = dry_parse<Card, "is" | "getAllPartitions" | "isInSamePartition">
+export type dry_effect = {
+    [K in keyof Omit<Effect, universalOmit> as Effect[K] extends Function ? never : K] : Readonly_recur<Effect[K]>
+} & {
+    "getDisplayInput" : Effect["getDisplayInput"],
+    "toString" : Effect["toString"],
+    "getSubtypeidx" : Effect["getSubtypeidx"],
+    "is" : Effect["is"]
+}
+
+export type dry_card = dry_parse<Card, "is" | "getAllPartitions" | "isInSamePartition" | "isFrom" | "addShareMemory" | "getFirstActualPartitionIndex">
 export type dry_zone = dry_parse<
     Zone, 
     "count" | "findIndex" | "getAction_add" | "getAction_move" | "getAction_shuffle" | "getAction_remove" | "getOppositeCards" | 
     "getCardByPosition" | "getOppositeZone" | "toString" | "validatePosition" | "isOpposite" | "isPositionOccupied" | 
-    "is" | "getAllPos" | "of" |"getBackPos" | "getFrontPos" | "isBehind" | "isInfront" | "isOccupied" | "isExposed"
+    "is" | "getAllPos" | "of" |"getBackPos" | "getFrontPos" | "isC2Behind" | "isC2Infront" | "isOccupied" | "isExposed"
 > & {
     getEmptyPosArr? : () => dry_position[]
     getRandomEmptyPos? : () => dry_position
@@ -69,7 +74,8 @@ export type dry_system = dry_parse<
     "getZoneOf" | "getZoneWithID" | "hasActionCompleted" | "getRootAction" | "is" | "getPIDof" | 
     "generateSignature" |
     "isNotActionArr" |
-    "getAllInputs"
+    "getAllInputs" |
+    "isPlayAction"
 >
 
 export interface logInfoNormal {
@@ -142,6 +148,7 @@ export enum suspensionReason {
 export enum identificationType {
     "zone",
     "card",
+    "partition",
     "effect",
     "effectSubtype",
     "position",
@@ -149,6 +156,13 @@ export enum identificationType {
     "player",
     "none",
     "system",
+}
+
+export interface identificationInfo_partition {
+    type : identificationType.partition,
+    sys : dry_system,
+    pid : number,
+    is(pid : number) : boolean
 }
 
 export interface identificationInfo_action {
@@ -206,13 +220,14 @@ export type identificationInfo_system = {
 export type identificationInfo = 
             identificationInfo_action | 
             identificationInfo_card | 
+            identificationInfo_partition | 
             identificationInfo_effect | 
             identificationInfo_none |
             identificationInfo_player |
             identificationInfo_pos |
             identificationInfo_subtype |
             identificationInfo_zone | 
-            identificationInfo_system
+            identificationInfo_system 
 
 export enum inputType {
     "zone",

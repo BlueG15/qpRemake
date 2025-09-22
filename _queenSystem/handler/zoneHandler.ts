@@ -340,34 +340,18 @@ class zoneHandler {
     }
 
     handleEffectActivation(s : queenSystem, a : Action<"a_activate_effect">) : Action[]{
-        let res = this.genericHandler_effect(s, a);
-        if(res[0]) return res[1];
-        let gen = res[2].getInputObj(res[1], s, a);
-        if(gen === undefined) return res[2].activate(res[1], s, a, undefined as any);
+        
+        const card = a.targets[0].card as Card
+        const pid = a.targets[1].pid
 
-        const allp = res[1].getAllPartitions(res[1].findEffectIndex(res[2].id))
-        const cached_index = allp.findIndex(pid => s.input_cache.has(`${res[1].id}${pid}`))
-        if(cached_index !== -1){
-            let previousGen = s.input_cache.get(`${res[1].id}${allp[cached_index]}`)!
-            gen.fill(s, previousGen)
+        const gen = card.getParititonInputObj(pid, s, a)
 
-            //temporary solution
-            //calling gen.apply automatically carries into this merge
-            s.input_cache.get(`${res[1].id}${allp[cached_index]}`)!.merge(gen)
-        } else {
-            allp.forEach(pid => {
-                s.input_cache.set(`${res[1].id}${pid}`, gen)
-            })
-        }
-
-        if(gen.isFinalized()){
-            return res[2].activate(res[1], s, a, gen)
-        }
+        if(!gen) return card.activatePartition(pid, s, a)
 
         return [
             actionConstructorRegistry.a_get_input(a.cause, {
                 requester : gen,
-                applicator : new inputApplicator(res[2].activate, [res[1], s, a], res[2])
+                applicator : new inputApplicator(card.activatePartition, [pid, s, a], card)
             })
         ];
     }
@@ -562,15 +546,15 @@ class zoneHandler {
         if(zoneResponsesOnly) return [arr, []];
         this.zoneArr.forEach(i => {
             let respondMap = i.getCanRespondMap(a, system)
-            respondMap.forEach((eidxArr, cardInfo) => {
-                eidxArr.forEach(eidx => {
+            respondMap.forEach((pidxArr, cardInfo) => {
+                pidxArr.forEach(pidx => {
                     arr.push(
-                        actionConstructorRegistry.a_activate_effect_internal(system, cardInfo, cardInfo.effects[eidx])(a.cause)
+                        actionConstructorRegistry.a_activate_effect_internal(system, cardInfo)(pidx)(a.cause)
                     )
                     if(infoLog.has(cardInfo.id)) {
-                        (infoLog.get(cardInfo.id) as string[]).push(cardInfo.effects[eidx].id);
+                        (infoLog.get(cardInfo.id) as string[]).push(cardInfo.effects[pidx].id);
                     } else {
-                        infoLog.set(cardInfo.id, [cardInfo.effects[eidx].id])
+                        infoLog.set(cardInfo.id, [cardInfo.effects[pidx].id])
                     } 
                 })
             })

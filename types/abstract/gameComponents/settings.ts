@@ -95,9 +95,8 @@ class defaultSetting implements Setting {
     effectFiles = [
         "e_test",
         "e_status", 
-        "e_generic_effects", 
-        "e_cond"
-        //"e_fruit", 
+        "e_generic", 
+        "e_fruit", 
     ];
     modFolder = "../../_mods"
     localizationFolder = "../../_localizationFiles"

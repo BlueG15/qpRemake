@@ -1,5 +1,5 @@
-import type { dry_card, dry_system, inputDataSpecific, inputType, inputData, inputData_standard, inputData_bool, inputData_num } from "../../../data/systemRegistry";
-import { Action_class, type Action } from "../../../_queenSystem/handler/actionGenrator";
+import type { dry_card, dry_system, inputDataSpecific, inputType, inputData, inputData_standard, inputData_bool, inputData_num, dry_effect, dry_zone, dry_position, inputData_card, inputData_zone } from "../../../data/systemRegistry";
+import { Action_class, actionFormRegistry, type Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "./card";
 import type effectSubtype from "./effectSubtype";
 import type { effectData } from "../../../data/cardRegistry";
@@ -8,7 +8,9 @@ import { id_able, StrictGenerator } from "../../misc";
 
 //some effects can modify event data 
 //so in general, activate takes in an event and spits out an event
-import { inputRequester, inputRequester_finalized } from "../../../_queenSystem/handler/actionInputGenerator";
+import { inputFormRegistry, inputRequester, inputRequester_finalized } from "../../../_queenSystem/handler/actionInputGenerator";
+import Request from "../../../_queenSystem/handler/actionInputRequesterGenerator";
+import { zoneRegistry } from "../../../data/zoneRegistry";
 
 class Effect<inputTupleType extends inputData[] = inputData[]> {
     id: string;
@@ -27,7 +29,7 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
     //but we need to keep track of what sub-types we have for display / checking purposes
     //^ done, status effect and subType is a thing
     
-    attr: Map<string, number> = new Map(); //position and stuff is in here
+    attr: Map<string, number>; //position and stuff is in here
 
     get signature_type() : string {
         return this.type.dataID
@@ -39,9 +41,9 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
     }
 
     //actual effects override these two
-    canRespondAndActivate_final(c : dry_card, system : dry_system, a : Action) : boolean{return false}
+    canRespondAndActivate_final(c : dry_card, system : dry_system, a : Action) : boolean{return this.constructor.name !== "Effect"}
     activate_final(c : dry_card, s : dry_system, a : Action, input : inputTupleType extends [] ? undefined : inputRequester_finalized<inputTupleType>) : Action[] {return []};
-    
+
     private __cached_input : {
         hasValue : false
     } | {
@@ -50,6 +52,16 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
     } = {
         hasValue : false
     }
+
+    //@unmodifiable
+    addedInputConditionMap : Partial<{
+        c(c : dry_card) : boolean,
+        e(e : dry_effect) : boolean,
+        z(z : dry_zone) : boolean,
+        p(p : dry_position) : boolean,
+        n(n : number) : boolean,
+        //TODO : add more if needed
+    }> = {}
 
     
     /** @final */
@@ -61,10 +73,12 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         }
         return this.__cached_input.value
     }
-
+ 
     //createInputObj should be deterministic
     //activate once per activate call
-    createInputObj(c : dry_card, s : dry_system, a : Action) : inputTupleType extends [] ? undefined : inputRequester<any, inputTupleType> { 
+    createInputObj(c : dry_card, s : dry_system, a : Action) 
+    : inputTupleType extends [] ? undefined : inputRequester<any, inputTupleType> 
+    { 
         return undefined as any 
     }
 
@@ -122,6 +136,10 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         this.__cached_input = {
             hasValue : false
         }
+
+        if(this.overrideActivationCondition && !this.overrideActivationCondition.bind(this)(c, system, a)){
+            return []
+        }
         
         if(!this.canRespondAndActivate_final(c, system, a)){
             return [] 
@@ -168,11 +186,9 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         this.dataID = dataID;
         this.originalData = data;
 
-        Object.entries(data).forEach(([key, val]) => {
-            if(typeof val === "number"){
-                this.attr.set(key, val)
-            }
-        })
+        const k = Object.entries(data).filter(([_, val]) => typeof val === "number") as [string, number][]
+
+        this.attr = new Map<string, number>(k)
     }
 
     get displayID() : string {return this.originalData.displayID_default ?? this.dataID}
@@ -207,6 +223,12 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         return typeof p === "function" ? this instanceof p : this.id === p.id
     }
 
+    //common variables
+    get count() {return this.attr.get("count") ?? 0}
+    get doArchtypeCheck() {return this.attr.get("doArchtypeCheck") != 0} //!= is intentional to allow undefine = 0
+    get checkLevel() {return this.attr.get("checkLevel") ?? 0}
+    get mult() {return this.attr.get("mult") ?? 1}
+
     //effect types:
 
     // + trigger : 
@@ -224,7 +246,9 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
 
     //^ implemented
 
-    getDisplayInput(c : dry_card, system : dry_system) : (string | number)[] {return []}
+    getDisplayInput(c : dry_card, system : dry_system) : (string | number)[] {
+        return Object.keys(this.originalData).sort().map(k => this.attr.get(k) ?? 0)
+    }
 
     reset() : Action[] {
         const res : Action[] = []
@@ -240,5 +264,228 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
             attr : JSON.stringify(Array.from(Object.entries(this.attr)))
         }, null, spaces)
     }
+
+    cause(s : dry_system, c : dry_card){
+        return actionFormRegistry.effect(s, c, this)
+    }
+
+    //static section
+    //an effect derived from Effect has 4 jobs
+    // 1. overriding createInputObj
+    // 2. overriding canRespondAndActivate_final
+    // 3. overriding activate_final
+    // 4. overriding getDisplayInput
+
+    //a static quick class creation solution solves 1, 2 or 3
+    private overrideActivationCondition? : (this : Effect<any>, ...p : [dry_card, dry_system, Action]) => boolean
+    static listen(
+        f : Exclude<Effect<any>["overrideActivationCondition"], undefined>
+    ){
+        return class ExtendedEff extends this {
+            constructor(...p : [any, any, any, any, any]){
+                super(...p);
+                this.overrideActivationCondition = f.bind(this)
+            }
+        }
+    }
+
+    static beforeActivate<T extends new (...p : any[]) => Effect<any>>(
+        this : T, 
+        f : (this : Effect<any>, ...p : Parameters<ObjAfterConstructor<T>["activate_final"]>) => void
+    ){
+        return class ExtendedEff extends this {
+            override activate_final(...p : Parameters<ObjAfterConstructor<T>["activate_final"]>): Action[] {
+                const k = p as [any, any, any, any]
+                (f.bind(this))(...k as any)
+                return super.activate_final(...k);
+            }
+        }
+    }  
+
+    /**then 
+     * Allows the quick creation of a new effect class
+     * overriding the original action[] result
+     * Does NOT asks for more input
+     * */
+    static then<T extends new (...p : any[]) => Effect<any>>(
+        this : T, 
+        f : (this : Effect<any>, res : Action[], ...p : Parameters<ObjAfterConstructor<T>["activate_final"]>) => Action[]
+    ){
+        return class ExtendedEff extends this {
+            override activate_final(...p : Parameters<ObjAfterConstructor<T>["activate_final"]>): Action[] {
+                const k = p as [any, any, any, any]
+                const res = super.activate_final(...k);
+                return (f.bind(this))(res, ...k as any)
+            }
+        }
+    }  
+    
+    static thenShares<T extends new (...p : any[]) => Effect<any>>(
+        this : T,
+        f : (this : Effect<any>, res : Action[], ...p : [...Parameters<ObjAfterConstructor<T>["activate_final"]>, Effect<any>]) => [string, number]
+    ){
+        return class ExtendedEff extends this {
+            override activate_final(...p : Parameters<ObjAfterConstructor<T>["activate_final"]>): Action[] {
+                const k = p as [any, any, any, any]
+                const res = super.activate_final(...k);
+                const [key, val] = f.bind(this)(res, ...p, this);
+                p[0].addShareMemory(this, key, val);
+                return res
+            }
+        }
+    }
+
+    static implyCondition<
+        T extends new (...p : any[]) => Effect<any>, 
+        K extends keyof Effect["addedInputConditionMap"]
+    >(
+        this : T,
+        type : K, 
+        cond : (
+            this : Effect<any>,
+            p : Parameters<Exclude<Effect["addedInputConditionMap"][K], undefined>>[0], 
+            ...p2 : Parameters<Exclude<Effect["overrideActivationCondition"], undefined>>
+        ) => boolean){
+        return class ExtendedEff extends this {
+            override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, inputData_standard[], inputData_standard[], inputData_standard, inputData_standard, inputData_standard[]> {
+                this.addedInputConditionMap[type] = 
+                    ((c : dry_card, s : dry_system, a : Action) => 
+                        (target : any) => 
+                            cond.bind(this)(target, c, s, a))
+                    (c, s, a);
+                const res = super.createInputObj(c, s, a);
+                delete this.addedInputConditionMap[type]
+                return res as any;
+            }
+        } as T
+    }
+
+    static removeInput<
+        T extends new (...p : any[]) => Effect<any>,
+        oldInputType extends inputData[] = T extends new (...p : any[]) => Effect<infer X> ? (X extends [] ? never : X) : never
+    >(
+        this : T,
+        converter : (this : Effect<any>, ...p : [dry_card, dry_system, Action]) => oldInputType | oldInputType[],
+    ){
+        const originalClass = this as unknown as new (...p : any[]) => Effect<[]> //type dance to convert old -> new
+        return class ExtendedEff extends originalClass {
+            override createInputObj(c: dry_card, s: dry_system, a: Action){
+                return undefined
+            }
+
+            override activate_final(c: dry_card, s: dry_system, a: Action): Action[] {
+                const oldInput = converter.bind(this)(c, s, a)
+                const testObj = oldInput[0]
+                if(!testObj || !Array.isArray(testObj)) return super.activate_final(c, s, a, {next : () => oldInput} as any);
+                return testObj.flatMap(o => super.activate_final(c, s, a, {next : () => o} as any))
+            }
+        } as unknown as typeof Effect<[]>
+    }
+
+    static retarget<
+        newInputType extends inputData[],
+        T extends new (...p : any[]) => Effect<any>,
+        oldInputType extends inputData[] = T extends new (...p : any[]) => Effect<infer X> ? (X extends [] ? never : X) : never
+    >(
+        this : T,
+        newInputFunc : (this : Effect<any>, ...p : [dry_card, dry_system, Action]) => inputRequester<any, newInputType>,
+        converter : (this : Effect<any>, newInput : newInputType, ...p : [dry_card, dry_system, Action]) => oldInputType | oldInputType[],
+    ){
+        const originalClass = this as unknown as new (...p : any[]) => Effect<newInputType> //type dance to convert old -> new
+        return class ExtendedEff extends originalClass {
+            override createInputObj(c: dry_card, s: dry_system, a: Action) : any {
+                return newInputFunc.bind(this)(c, s, a) as any
+            }
+
+            override activate_final(c: dry_card, s: dry_system, a: Action, input: undefined | inputRequester_finalized<newInputType>): Action[] {
+                const r = input?.next()
+                if(!r) return []
+                const oldInput = converter.bind(this)(r, c, s, a)
+                
+                const testObj = oldInput[0]
+                if(!testObj || !Array.isArray(testObj)) return super.activate_final(c, s, a, {next : () => oldInput} as any);
+                return testObj.flatMap(o => super.activate_final(c, s, a, {next : () => o} as any))
+            }
+        } as typeof Effect<newInputType>
+    }
+
+    static toOthersOfSameField(
+        this : typeof Effect<inputData_card[]>,
+        filter? : (c : dry_card, thisCard : dry_card, s : dry_system, a : Action) => boolean
+    ){
+        return this.removeInput(
+            (c, s, a) => 
+                s.getZoneOf(c)!.cardArr_filtered.filter(
+                    c1 => c1.id !== c.id && (!filter || filter(c1, c, s, a))
+                ).map(c1 => inputFormRegistry.card(s, c1))
+        )
+    }
+
+    static toAllEnemies(
+        this : typeof Effect<inputData_card[]>,
+        filter? : (c : dry_card, thisCard : dry_card, s : dry_system, a : Action) => boolean
+    ){
+        return this.toAllOfZone(
+            (c, s, a) => Request.oppositeZoneTo(s, c).once(),
+            filter
+        )
+    }
+
+    static toAllOfZone(
+        this : typeof Effect<inputData_card[]>, 
+        newInputFunc : Effect<[inputData_zone]>["createInputObj"],
+        filter? : (c : dry_card, thisCard : dry_card, s : dry_system, a : Action) => boolean
+    ){
+        return this.retarget(
+            newInputFunc, 
+            (z, c, s, a) => 
+                filter ? 
+                z[0].data.zone.cardArr_filtered.filter(c1 => filter(c1, c, s, a)).map(c => inputFormRegistry.card(s, c)) :
+                z[0].data.zone.cardArr_filtered.map(c => inputFormRegistry.card(s, c))
+        )
+    }
+
+    static toAllOfSpecificZone(
+        this : typeof Effect<inputData_card[]>, 
+        type : zoneRegistry,
+        filter? : (c : dry_card, thisCard : dry_card, s : dry_system, a : Action) => boolean
+        
+    ){
+        return this.toAllOfZone(
+            (c, s, a) => Request.specificType(s, c, type).once(),
+            filter
+        )
+    }
+
+    static toThisCard(
+        this : typeof Effect<inputData_card[]>
+    ){
+        return this.removeInput(
+            (c, s, a) => [inputFormRegistry.card(s, c)]
+        )
+    }
+
+    static moreInput<originalInput extends Exclude<inputData[], []>, extraInput extends Exclude<inputData[], []>>(
+        this : typeof Effect<originalInput>,
+        moreInputFunc : (this : Effect<any>, c : dry_card, s : dry_system, a : Action) => inputRequester<any, extraInput>,
+        handler? : (this : Effect<any>, c : dry_card, s : dry_system, a : Action, input : [...originalInput, ...extraInput]) => Action[]
+    ){
+        const originalClass = this as unknown as typeof Effect<[...originalInput, ...extraInput]>
+        return class ExtendedEff extends originalClass {
+            ___input_original? : inputRequester<any, originalInput>
+            override createInputObj(c: dry_card, s: dry_system, a: Action) : any {
+                this.___input_original = super.createInputObj(c, s, a) as any
+                return this.___input_original!.merge(moreInputFunc.bind(this)(c, s, a)) as any
+            }
+
+            override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[...originalInput, ...extraInput]> | undefined): Action[] {
+                const a1 = super.activate_final(c, s, a, this.___input_original as any);
+                if(!handler) return a1;
+                return a1.concat(handler.bind(this)(c, s, a, input!.next()))
+            }
+        }
+    }
+
 }
+type ObjAfterConstructor<T> = T extends new (...p : any[]) => infer K ? K : never
 export default Effect

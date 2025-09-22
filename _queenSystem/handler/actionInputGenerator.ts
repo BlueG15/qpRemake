@@ -3,6 +3,20 @@ import { Action, actionFormRegistry  } from "./actionGenrator";
 import { validSetFormat } from "../../data/systemRegistry";
 import { Last, Tuple_any } from "../../types/misc";
 
+/**
+ * Merge with signature example:
+ * A has input [X, Y, Z, K]
+ * B has input [X, Y, K, L, Z]
+ * 
+ * Merging these will yield C having input [...A, ...exclude B from A, stop at first not match in B]
+ * the previous example will results to [X, Y, Z, K, L, Z] 
+ * [X, Y, Z, K] from A
+ * and [L, Z] from B after filling A's input into B as best as we can
+ * well..not rlly but I do not want to recur try to apply every input every time we apply new inputs
+ * 
+ * oh also apply returns, please make sure to overwrite the val after apply
+ */
+
 export const inputFormRegistry = {
     zone(s : dry_system, z : dry_zone){
         const o = actionFormRegistry.zone(s, z)
@@ -61,7 +75,7 @@ export const inputFormRegistry = {
 } as const
 
 export type inputRequester_finalized<T_accu extends Exclude<inputData[], []>> = {
-    next : inputRequester<never, [], T_accu>["next"]
+    next : () => T_accu
 }
 
 export class inputRequester<
@@ -73,14 +87,21 @@ export class inputRequester<
     T_tail extends inputData[] = T extends [any, ...infer tail] ? tail : inputData[], //inference
 >{
 
-    protected __inner_res : Map<string, inputData> = new Map()
+    protected __inner_res : inputData[] = []
     protected __func_arr : ((s : dry_system, prev : inputData[]) => Exclude<inputData[], []> | validSetFormat)[] = []
     protected __curr : validSetFormat | undefined
     protected __queue : inputRequester<any, inputData[], inputData[], any, any>[] = []
     protected __valid_flag : boolean
     protected __do_pre_fill_when_merge : boolean = false
     protected __len : number = 1
-    protected __cursor : number = 0
+    protected __cursor_f_arr : number = 0
+ 
+    protected reserved_inner_res : inputData[] = []
+    emplaceReserve(){
+        this.__curr = undefined
+        this.__inner_res = this.reserved_inner_res
+    }
+
     cache : inputRequestCache<T_accumulate>
 
     updateValidFlag(set : inputData[]){
@@ -113,54 +134,60 @@ export class inputRequester<
         const t : T_accumulate | validSetFormat<inputType> = this.next()
         const c1 = this.verify(t) 
         const c2 = t[0] === k.type 
-        const c3 = (t[1] === undefined || (t[1] as Array<inputData>).some(i => i !== undefined && s.generateSignature(i) === s.generateSignature(k)))
+        const c3 = (
+            t[1] === undefined || 
+            (t[1] as Array<inputData>).some(i => i !== undefined && s.generateSignature(i) === s.generateSignature(k))
+        )
         //console.log("Checking applicavbility of input : ", k, " -- ",  [c1, c2, c3, (t[1] as inputData[]).map(i => s.generateSignature(i))])
         return c1 && c2 && c3
     }
 
-    protected apply_dry(s : dry_system){
-        let f = this.__func_arr[this.__cursor]
-        this.__cursor++
-        if(f !== undefined){
-            const t : inputData[] | validSetFormat = f(s, Array.from(this.__inner_res.values()))
-            if(this.verify(t)) this.__curr = t;
-            else this.__curr = [t[0].type, t]
-        } else if(this.__queue.length !== 0){
-            const next = this.__queue.shift()!
-            this.__func_arr = next.__func_arr
-            next.__inner_res.forEach((val, key) => this.__inner_res.set(key, val))
-            this.__curr = next.__curr
-            this.__queue.unshift(...next.__queue)
-            this.__do_pre_fill_when_merge = next.__do_pre_fill_when_merge
-            this.__cursor = next.__cursor
-        } else {
-            this.__curr = undefined
-        }
-        return this as any
+    protected copyToNext(next : inputRequester<any, inputData[], inputData[], any, any>){
+        next.__queue.unshift(...this.__queue)
+        next.__inner_res = this.__inner_res
     }
+
+    // protected apply_dry(s : dry_system){
+    //     let f = this.__func_arr[this.__cursor_f_arr]
+    //     this.__cursor_f_arr++
+    //     if(f !== undefined){
+    //         const t : inputData[] | validSetFormat = f(s, Array.from(this.__inner_res.values()))
+    //         if(this.verify(t)) this.__curr = t;
+    //         else this.__curr = [t[0].type, t]
+    //     } else if(this.__queue.length !== 0){
+    //         const next = this.__queue.shift()!
+    //         this.copyToNext(next)
+    //         return next as any
+    //     } else {
+    //         this.__curr = undefined
+    //     }
+    //     return this as any
+    // }
 
     apply(s : dry_system, input : T_head) 
     : T_tail extends [] 
     ? inputRequester_finalized<T_accumulate>
     : inputRequester<inputType, T_tail, T_accumulate, T_data_last>
     {
-        let f = this.__func_arr[this.__cursor]
-        this.__cursor++
-        this.__inner_res.set(s.generateSignature(input), input)
+        let f = this.__func_arr[this.__cursor_f_arr]
+        this.__cursor_f_arr++
+
+        const sig = s.generateSignature(input)
+        this.__inner_res.push(input)
+        this.reserved_inner_res.push(input)
+
         if(f !== undefined){
             const t : inputData[] | validSetFormat = f(s, Array.from(this.__inner_res.values()))
             if(this.verify(t)) this.__curr = t;
             else this.__curr = [t[0].type, t]
         } else if(this.__queue.length !== 0){
             const next = this.__queue.shift()!
-            this.__func_arr = next.__func_arr
-            next.__inner_res.forEach((val, key) => this.__inner_res.set(key, val))
-            this.__curr = next.__curr
-            this.__queue.unshift(...next.__queue)
-            this.__do_pre_fill_when_merge = next.__do_pre_fill_when_merge
-            this.__cursor = next.__cursor
-            if(this.__do_pre_fill_when_merge) this.applyMultiple(s, [...Array.from(this.__inner_res.values()), input])
-            else this.apply(s, input)
+            this.copyToNext(next)
+
+            if(next.__do_pre_fill_when_merge) next.applyMultiple(s, [...Array.from(next.__inner_res.values()), input])
+            else next.apply(s, input)
+
+            return next as any
         } else {
             this.__curr = undefined
         }
@@ -201,7 +228,7 @@ export class inputRequester<
     ? T_accumulate
     : validSetFormat<T[0]["type"]> 
     {
-        return (this.__curr === undefined) ? Array.from(this.__inner_res.values()) as any : this.__curr as any
+        return (this.__curr === undefined) ? this.__inner_res as any : this.__curr as any
     }
 
     isFinalized() : this is inputRequester_finalized<T_accumulate>{
@@ -321,6 +348,10 @@ export class inputRequester_multiple<
     __multiple_len : Len
 
     constructor(len : Len, type : K, validSet : Exclude<inputDataSpecific<K>[], []>){
+        if(len < 0 || !Number.isFinite(len)) {
+            console.warn(`Something tried to create multiple inputs with len invalid (len = ${len})`)
+            len = 0 as any
+        }
         super(type, validSet);
         this.__valid_flag = validSet.length >= len ;
         this.__len = len
@@ -332,16 +363,28 @@ export class inputRequester_multiple<
     }
 
     override apply(s: dry_system, input: Tuple_any<inputDataSpecific<K>, Len> extends [infer head, ...any[]] ? head : inputData_standard){
-        // console.log("From inside requester: ", this.__multiple_len)
-        if(this.__multiple_len === 0) return super.apply(s, input);
-        const i : inputData = input as inputData
-        this.__inner_res.set(s.generateSignature(i), i)
-        this.__curr![1]! = this.__curr![1]!.filter(i => s.generateSignature(i) !== s.generateSignature(input as any))
+        // console.log("From inside requester: ", this.__multiple_len, "Applying : ", input)
         this.__multiple_len--;
+        if(this.__multiple_len === 0) {
+            // console.log("Len reaches 0, switching to super's apply")
+            return super.apply(s, input);
+        }
+        const i : inputData = input as inputData
 
-        if(this.__multiple_len === 0) this.apply_dry(s)
+        const sig = s.generateSignature(i)
+        this.__inner_res.push(i)
+        this.reserved_inner_res.push(i)
+
+        this.__curr![1]! = this.__curr![1]!.filter(i => s.generateSignature(i) !== s.generateSignature(input as any))
+        // if(this.__multiple_len === 0) this.apply_dry(s)
 
         return this as any;
+    }
+
+    override applyMultiple(s: dry_system, inputs: inputData[], preProcess?: (s: dry_system, index: number, input: inputData) => undefined | inputData[]): this {
+        super.applyMultiple(s, inputs, preProcess);
+        // console.log("From apply Multiple, afterwards: ", this.__multiple_len)
+        return this as any
     }
 }
 

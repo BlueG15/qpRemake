@@ -1,622 +1,247 @@
-// import type { dry_card, dry_system, dry_position, dry_zone, inputData_card, inputData_pos, inputData, identificationInfo_card, identificationInfo_pos, identificationInfo_zone, identificationInfo, dry_effect, inputData_zone, inputType } from "../data/systemRegistry";
-// import { Action_class, actionConstructorRegistry, actionFormRegistry, type Action } from "../_queenSystem/handler/actionGenrator";
-// import actionRegistry from "../data/actionRegistry";
-// import Effect from "../types/abstract/gameComponents/effect";
-// import { Action_final_generatorType, Action_final_generatorType_recur } from "../data/systemRegistry";
-// import { zoneRegistry } from "../data/zoneRegistry";
-// import { e_draw, e_generic_lock, e_revive } from "./e_generic_effects";
-// import { damageType } from "../types/misc";
+import { Action, actionConstructorRegistry } from "../_queenSystem/handler/actionGenrator"
+import type { inputRequester, inputRequester_finalized } from "../_queenSystem/handler/actionInputGenerator"
+import Request from "../_queenSystem/handler/actionInputRequesterGenerator"
+import { inputType, type dry_card, type dry_system, type inputData_card, type inputData_pos, type inputData_standard, type inputData_zone } from "../data/systemRegistry"
+import { zoneRegistry } from "../data/zoneRegistry"
+import { actionFormRegistry } from "../_queenSystem/handler/actionGenrator"
+import Effect from "../types/abstract/gameComponents/effect"
+import { e_add_all_to_grave, e_add_all_to_hand, e_add_stat_change_diff, e_add_to_hand, e_deal_dmg_card, e_deal_dmg_ahead, e_draw, e_lock, e_remove_all_effects, e_revive } from "./e_generic"
+import { damageType } from "../types/misc"
+import { e_void } from "./e_generic_cardTargetting"
 
-// export class e_apple extends Effect {
-//     //add one card apple from deck to hand, if any
+class e_autumn extends Effect {
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<inputData_standard[]>): Action[] {
+        const cards = Request.field(s, c).ofSamePlayer(s.getZoneOf(c)!).cards().ofArchtype("fruit").ofLevel(1).clean()
+        const cause = actionFormRegistry.effect(s, c, this)
+        c.addShareMemory(this, "count", cards.length)
 
-//     get count() {return this.attr.get("count") ?? 0};
-//     set count(val : number) {this.attr.set("count", val)};
+        return cards.map(c => 
+            actionConstructorRegistry.a_remove_all_effects(s, c)(cause)
+        )
+    }
+}
 
-//     override *activate_final(c: dry_card, system: dry_system, a: Action) : Action_final_generatorType_recur<inputType.zone>{
-        
-//         const target_hand = yield system.requestInput_zone_default(c, zoneRegistry.z_hand)
+class e_greenhouse extends e_add_to_hand {
+    ___target_data_id : string = ""
 
-//         //get the card with the same dataID as C in the deck
-//         const z = system.getZoneWithID(c.pos.zoneID);
-//         if(!z) return [];
+    override canRespondAndActivate_final(c: dry_card, s: dry_system, a: Action): boolean {
+        if(
+            s.isPlayAction(a) && //a card is played
+            a.targets[0].card.level <= (this.attr.get("checkLevel") ?? 1) && //that card level is this eff's checkLevel attr
+            a.targets[0].card.dataID !== c.dataID && //that card is not "GreenHouse"
+            a.targets[1].pos.zoneID === c.pos.zoneID && //the target pos is in the same zone as this card
+            s.getZoneOf(c)!.isC2Behind(c, a.targets[1])//the target pos is behind this card
+        ){
+            this.___target_data_id = a.targets[0].card.dataID
+            return true
+        }
+        return false;
+    }
 
-//         const data = system.getAllZonesOfPlayer(z.playerIndex);
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_card, inputData_zone], [...inputData_card[], inputData_zone], inputData_standard, inputData_standard, inputData_standard[]> {
+        //one card from grave with the same name as the saved name
+        const r1 = Request.grave(s, c).ofSamePlayer(s.getZoneOf(c)!).cards().ofDataID(this.___target_data_id).once()
+        const r2 = Request.hand(s, c).once()
+        return r1.merge(r2)
+    }
+}
 
-//         const decks = data[zoneRegistry.z_deck];
-//         //const hands = data[zoneRegistry.z_hand];
+class e_lemon extends Effect {
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<inputData_standard[]>): Action[] {
+        const cards = Request.field(s, c).ofSamePlayer(s.getZoneOf(c)!).cards().ofSameDataID(c).clean()
+        const cause = actionFormRegistry.effect(s, c, this)
+        return cards.map(c => 
+            actionConstructorRegistry.a_attack(s, c)(cause, {
+                dmg : c.atk,
+                dmgType : damageType.physical
+            })
+        )
+    }
+}
 
-//         if(!decks || !decks.length) return []
+class e_pomegranate extends Effect<[inputData_zone]> {
+    get exposedDmg() {return this.attr.get("exposedDmg") ?? 0}
+    get coveredDmg() {return this.attr.get("coveredDmg") ?? 0}
 
-//         let target : dry_card[] = []
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_zone], [inputData_zone], inputData_standard, inputData_zone, []> {
+        return Request.oppositeZoneTo(s, c).once()
+    }
 
-//         for(let i = 0; i < decks.length; i++){
-//             target = decks[i].cardArr_filtered.filter(i =>i.dataID === c.dataID)
-//             if(!target.length) continue;
-//             break;
-//         }
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_zone]>): Action[] {
+        const zone = input.next()
+        const cards = zone[0].data.zone.cardArr_filtered
+        const cause = actionFormRegistry.card(s, c)
 
-//         if(!target.length) return []
+        return cards.map(c => actionConstructorRegistry.a_deal_damage_card(s, c)(cause, {
+            dmg : s.getZoneOf(c)!.isExposed(c) ? this.exposedDmg : this.coveredDmg,
+            dmgType : damageType.magic
+        }))
+    }
 
-//         let res : Action[] = []
-//         for(let i = 0; i < this.count; i++){
-//             res.push(actionConstructorRegistry.a_pos_change(system, target[i])(target_hand.data.zone.top)(actionFormRegistry.effect(system, c, this)))
-//         }
-//         return res
-//     }
+    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+        return [this.exposedDmg, this.coveredDmg]
+    }
+}
 
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         return this.count !== 0;
-//     }
+class e_pollinate extends Effect<[inputData_card]> {
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_card], [inputData_card], inputData_standard, inputData_card, []> {
+        return Request.deck(s, c).cards().ofLevel(1).ofArchtype("fruit").filter(c => c.getFirstActualPartitionIndex() >= 0).once()
+    }
 
-//     override getDisplayInput(c : dry_card, system : dry_system): (string | number)[] {
-//         //how many targets there are in the deck
-//         const z = system.getZoneWithID(c.pos.zoneID);
-//         if(!z) return [];
-//         return system.getAllZonesOfPlayer(z.playerIndex)[
-//             zoneRegistry.z_deck
-//         ].map(z => z.count(i => i.dataID === c.dataID))
-//     }
-// }
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_card]>): Action[] {
+        const card = input.next()[0].data.card
+        const cards = 
+            this.doArchtypeCheck ? 
+            Request.hand(s, c).ofSamePlayer(s.getZoneOf(c)!).cards().ofLevel(1).ofArchtype("fruit").clean() :
+            Request.hand(s, c).ofSamePlayer(s.getZoneOf(c)!).cards().ofLevel(1).clean()
+        const cause = actionFormRegistry.effect(s, c, this)
 
-// export class e_banana extends e_revive {
-//     get doFruitCheck() : 0 | 1 {return this.attr.get("doFruitCheck") === 1 ? 1 : 0}
-//     set doFruitCheck(val : boolean) {this.attr.set("doFruitCheck", Number(val))}
+        const pid = card.getFirstActualPartitionIndex()
 
-//     protected override card_input_condition(thisCard : dry_card) {
-//         const res = super.card_input_condition(thisCard);
-//         res[1] = (
-//             (system: dry_system, c: dry_card): boolean => {
-//             //extra condition the targetted card is a fruit and is not a banana
-//                 return (!this.doFruitCheck || c.extensionArr.includes("fruit")) && c.dataID !== thisCard.dataID && c.level === 1
-//             }
-//         )
-//         return res;
-//     }
-// }
+        return [
+            ...cards.map(c => actionConstructorRegistry.a_duplicate_effect(s, c)(card)(pid)(cause, {
+                addedSubtype : ["subtype_once"]
+            })), 
+        ]
+    }
+}
 
-// export class e_lemon extends Effect {
+class e_spring extends Effect<[inputData_card, inputData_pos]> {
+    override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, [inputData_card, inputData_pos], [inputData_card, inputData_pos], inputData_standard, inputData_card, [inputData_pos]> {
+        const r1 = Request.grave(s, c).ofSamePlayer(s.getZoneOf(c)!).cards().ofAtLeastLevel(this.checkLevel).ofArchtype("fruit").once()
+        const r2 = Request.field(s, c).ofSamePlayer(s.getZoneOf(c)!).pos().isEmpty().once()
+        return r1.merge(r2)
+    }
 
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         return true;
-//     }
 
-//     override *activate_final(c: dry_card, system: dry_system, a: Action): Action_final_generatorType_recur {
+    override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<[inputData_card, inputData_pos]>): Action[] {
+        const n = input.next()
+        const target_c = n[0].data.card
+        const target_pos = n[1].data.pos
+        const cause = this.cause(s, c)
 
-//         const zone = system.getZoneOf(c)
-//         if(!zone) return [];
+        const l = Request.grave(s, c).ofSamePlayer(s.getZoneOf(c)!).cards().ofAtLeastLevel(this.checkLevel).ofArchtype("fruit").filter(c_ => c.id !== c_.id).clean().length - 1
+        if(l < 0) return []
 
-//         let cards = system.filter(1, (c_find, zid) => {
-//             let z = system.getZoneWithID(zid)!
-//             return z.types.includes(zoneRegistry.z_field) && c.dataID === c_find.dataID && z.playerIndex === zone.playerIndex
-//         })
+        const a1 = actionConstructorRegistry.a_duplicate_card(s, target_c)(target_pos)(cause, {
+            followUp: (c) => ((l : number) => [
+                    actionConstructorRegistry.a_add_status_effect("e_generic_stat_change_diff", true)(s, c)(
+                    cause, {
+                        maxAtk : Math.max(l, 3),
+                    })
+                ]
+            )(l),
+        })
 
-//         return cards.map(c_element => 
-//             actionConstructorRegistry.a_attack(system, c_element)(actionFormRegistry.effect(system, c, this), {
-//                 dmg : c_element.atk,
-//                 dmgType : damageType.physical
-//             })
-//         )
-//     }
-// }
+        return [a1]
+    }
 
-// export class e_pomegranate extends Effect {
+}
 
-//     get exposedDmg() : number {return this.attr.get("exposedDmg") ?? 0};
-//     get coveredDmg() : number {return this.attr.get("coveredDmg") ?? 0};
 
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         if(
-//             a.typeID === actionRegistry.a_pos_change ||
-//             a.typeID === actionRegistry.a_pos_change_force
-//         ) {
-//             const target = (a as Action<"a_pos_change">).targets;
+export default {
 
-//             if(target[0].card.id !== c.id) return false;
+    //white
 
-//             const zone = system.getZoneWithID(target[1].pos.zoneID)
-//             if(!zone) return false;
-
-//             return zone.types.includes(zoneRegistry.z_grave);
-//         }
-//         return false;
-//     }
-
-//     override *activate_final(c: dry_card, system: dry_system, a: Action): Action_final_generatorType_recur {
-
-//         const zone = system.getZoneWithID(c.pos.zoneID);
-//         if(!zone) return [];
-
-//         // const targets = system.map(1, (z : dry_zone, c_ele : dry_card) => {
-//         //     if(z.isExposed !== undefined && z.isOpposite(zone) && z.isOpposite(c_ele, c)) return [z, c_ele];
-//         //     else return undefined
-//         // }).filter(i => i !== undefined) as [dry_zone, dry_card][]
-
-//         const targets = system.map(1, (c_ele, zid) => {
-//             let z = system.getZoneWithID(zid)!
-//             if(z.isCardExposed !== undefined && z.isOpposite(zone) && z.isOpposite(c_ele, c)) return [z, c_ele];
-//             else return undefined
-//         }).filter(i => i !== undefined) as [dry_zone, dry_card][]
-
-//         return targets.map(([zone, target]) => {
-//             return actionConstructorRegistry.a_deal_damage_card(system, target)(actionFormRegistry.effect(system, c, this), {
-//                 dmg : (zone.isCardExposed!(target)) ? this.exposedDmg : this.coveredDmg,
-//                 dmgType : damageType.magic,
-//             })
-//         })
-
-//     }
-
-//     override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
-//         return [this.exposedDmg]
-//     }
-// } 
-
-// export class e_pollinate extends Effect {
-//     get doFruitCheck() : 0 | 1 {return this.attr.get("doFruitCheck") === 1 ? 1 : 0}
-//     set doFruitCheck(val : boolean) {this.attr.set("doFruitCheck", Number(val))}
-
-//     override *activate_final(c: dry_card, s: dry_system, a: Action): Action_final_generatorType_recur {
-//         const input1 = yield s.requestInput_card_default(
-//             c, zoneRegistry.z_deck,
-//             (s : dry_system, c : dry_card) => c.is("fruit") && c.level === 1 && c.effects.length != 0
-//         )
-
-//         const input2 = yield s.requestInput_zone_default(c, zoneRegistry.z_grave)
-//         const input3 = yield s.requestInput_zone_default(c, zoneRegistry.z_hand)
-
-//         const target_card = (input1 as inputData_card).data.card
-//         const target_grave = (input2 as inputData_zone).data.zone
-//         const target_hand = (input3 as inputData_zone).data.zone
-
-//         const cause = actionFormRegistry.effect(s, c, this)
-        
-//         const res : Action[] = [
-//             actionConstructorRegistry.a_pos_change(s, target_card)(target_grave.top)(cause)
-//         ]
-
-//         const subTypeIDs = target_card.effects[0].subTypes.map(st => st.dataID);
-//         if(!subTypeIDs.includes("e_once")) subTypeIDs.push("e_once")
-
-//         if(c.effects[0]) res.push(
-//             ...target_hand.cardArr_filtered
-//             .filter(c => c.level === 1 && (!this.doFruitCheck || c.is("fruit")))
-//             .map(c_ele => actionConstructorRegistry.a_duplicate_effect(s, c_ele)(target_card, target_card.effects[0])(cause, {
-//                 overrideData : {
-//                     subTypeIDs : subTypeIDs as any[]
-//                 }
-//             }))
-//         )
-
-//         //I didnt implement the effect limit, go nuts
-//         return res;
-//     }
+    e_apple : e_add_to_hand.implyCondition("c", 
+        (c, oldc, s) => 
+            c.dataID === "c_apple" && //selection is c_apple
+            s.getZoneOf(c)!.is(zoneRegistry.z_deck) //selction is from deck
+    ),
+    e_banana : e_revive.implyCondition("c", 
+        function(c, oldC, _, _2) {
+            return c.dataID !== oldC.dataID &&  //selection is NOT same name as this card
+            c.level === 1 && //selection is lv1
+            (
+                !this.doArchtypeCheck || //either dont do archtypecheck or
+                c.is("fruit") //selection has to be fruit
+                //this condition is upgrade and not upgrade in one
+            )
+        }
+    ),
+    e_lemon,
+    e_pomegranate,
+    e_pumpkin : e_add_stat_change_diff.implyCondition("c", (c, c2) => c.dataID === c2.dataID),
+    //e_cherry is e_draw 
     
-// }
-
-// export class e_growth extends Effect {
-//     get doFruitCheck() : 0 | 1 {return this.attr.get("doFruitCheck") === 1 ? 1 : 0}
-//     set doFruitCheck(val : boolean) {this.attr.set("doFruitCheck", Number(val))}
-
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         return true;
-//     }
-
-//     override *activate_final(c: dry_card, s: dry_system, a: Action): Action_final_generatorType_recur {
-
-//         const input1 = yield s.requestInput_card_default(c, zoneRegistry.z_grave, 
-//             (this.doFruitCheck) ? (_ : any, c : dry_card, z : dry_zone) => c.is("fruit") : undefined
-//         );
-//         const input2 = yield s.requestInput_zone_default(c, zoneRegistry.z_deck);
-//         const input3 = yield s.requestInput_zone_default(c, zoneRegistry.z_hand);
-
-//         const target_card = (input1 as inputData_card).data.card
-//         const target_deck = (input2 as inputData_zone).data.zone
-//         const target_hand = (input3 as inputData_zone).data.zone
-//         const target_zone = s.getZoneOf(target_card)!;
-
-//         //return all copies of target in grave to deck
-//         const return_targets = target_zone.cardArr_filtered.filter(c => c.dataID === target_card.dataID);
-//         let n = return_targets.length;
-        
-//         const cause = actionFormRegistry.effect(s, c, this);
-        
-//         const res : Action[] = return_targets.map(c => 
-//             actionConstructorRegistry.a_add_top(s, c)(target_deck)(cause),
-//         )
-//         res.push(
-//             target_deck.getAction_shuffle(s, cause)
-//         )
-//         while(n !== 0){
-//             res.push(
-//                 target_deck.getAction_draw!(s, target_hand, cause)
-//             )
-//             n--;
-//         }
-//         return res;
-//     }
-// }
-
-// export class e_greenhouse extends Effect {
-
-//     get checkLevel() : number {return this.attr.get("checkLevel") ?? -1}
-
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-
-//         const thisZone = system.getZoneOf(c);
-
-//         return (
-//             //valid condition
-//             this.checkLevel >= 0 &&
-
-//             //action condition
-//             (a.is("a_pos_change") ||
-//             a.is("a_pos_change_force")) &&
-
-//             //zone condition
-//             thisZone !== undefined &&
-//             thisZone.is(zoneRegistry.z_field) &&
-//             a.targets[1].pos.zoneID === thisZone.id &&
-
-//             //card condition
-//             thisZone.isBehind(a.targets[1], c) &&
-//             a.targets[0].card.dataID !== this.dataID &&
-//             a.targets[0].card.level <= this.checkLevel
-//         )
-//     }
-
-//     override *activate_final(c: dry_card, s: dry_system, a: Action<"a_pos_change">): Action_final_generatorType_recur {
-//         const input1 = yield s.requestInput_card_default(c, zoneRegistry.z_grave, (s : any, c : dry_card) => c.dataID === a.targets[0].card.dataID);
-//         const input2 = yield s.requestInput_zone_default(c, zoneRegistry.z_hand);
-
-//         const target_card = (input1 as inputData_card).data.card
-//         const target_hand = (input2 as inputData_zone).data.zone
-
-//         return [
-//             actionConstructorRegistry.a_add_top(s, target_card)(target_hand)(actionFormRegistry.effect(s, c, this))
-//         ]
-//     }
-
-//     override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
-//         return [this.checkLevel]
-//     }
-// }
-
-// export class e_spring extends Effect {
-//     get checkLevel() : number {return this.attr.get("checkLevel") ?? -1}
-
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         return this.checkLevel >= 0;
-//     }
-
-//     override *activate_final(c: dry_card, s: dry_system, a: Action): Action_final_generatorType_recur {
-//         const input1 = yield s.requestInput_card_default(c, zoneRegistry.z_grave, (s : any, c_ele : dry_card) => c_ele.is("fruit") && c_ele.dataID !== c.dataID && c_ele.level <= this.checkLevel);
-//         const input2 = yield s.requestInput_pos_default(c, zoneRegistry.z_field, true);
-
-//         const target_card = (input1 as inputData_card).data.card;
-//         const target_pos = (input2 as inputData_pos).data.pos;
-
-//         const target_grave = s.getZoneOf(target_card)!;
-//         let increaseAmmount = target_grave.cardArr_filtered.filter(c => c.dataID === target_card.dataID).length;
-//         if(increaseAmmount > 3) increaseAmmount = 3
-
-//         const cause = actionFormRegistry.effect(s, c, this)
-
-//         return [
-//             actionConstructorRegistry.a_duplicate_card(s, target_pos)(target_card)(cause, {
-//                 followUp : [
-//                     actionConstructorRegistry.a_add_status_effect("generic_stat_change_diff", true)(s, s.NULLCARD)(cause, {
-//                         maxAtk : increaseAmmount
-//                     })
-//                 ]
-//             })   
-//         ]
-//     }
-
-//     override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
-//         return [this.checkLevel]
-//     }
-// }
-
-// export class e_winter extends Effect {
-//     get HPinc() : number {return this.attr.get("HPinc") ?? -1}
-
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         return this.HPinc >= 0
-//     }
-
-//     override *activate_final(c: dry_card, s: dry_system, a: Action): Action_final_generatorType_recur {
-//         const input1 = yield s.requestInput_card_default(c, zoneRegistry.z_deck, (s : any, c_ele : dry_card) => c_ele.is("fruit") && c_ele.dataID !== c.dataID)
-//         const input2 = yield s.requestInput_zone_default(c, zoneRegistry.z_grave)
-//         const input3 = yield s.requestInput_zone_default(c, zoneRegistry.z_field)
-
-
-//         const target_card = (input1 as inputData_card).data.card
-//         const target_grave = (input2 as inputData_zone).data.zone
-//         const target_field = (input3 as inputData_zone).data.zone
-//         const target_deck = s.getZoneOf(target_card)!
-
-//         let targets = target_deck.cardArr_filtered.filter(c => c.dataID === target_card.dataID)
-//         const healAmmount = this.HPinc * targets.length;
-//         const cause = actionFormRegistry.effect(s, c, this);
-
-//         let res : Action[] = []
-
-//         targets.forEach(c => {
-//             res.push(
-//                 actionConstructorRegistry.a_add_top(s, c)(target_grave)(cause)
-//             )   
-//         })
-
-//         targets = target_field.cardArr_filtered
-
-//         targets.forEach(c => {
-//             res.push(
-//                 actionConstructorRegistry.a_add_status_effect("generic_stat_change_diff", true)(s, c)(cause, {
-//                     maxHp : healAmmount
-//                 })
-//             )
-//         })
-
-//         return res;
-//     }
-
-//     override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
-//         return [this.HPinc]
-//     }
-// }
-
-// export class e_summer extends Effect {
-//     get checkLevel() : number {return this.attr.get("checkLevel") ?? -1}
-
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         return this.checkLevel >= 0;
-//     }
-
-//     override *activate_final(c: dry_card, s: dry_system, a: Action): Action_final_generatorType_recur {
-//         const input1 = yield s.requestInput_card_default(c, zoneRegistry.z_grave, (s : any, c_ele : dry_card) => c_ele.is("fruit") && c_ele.dataID !== c.dataID && c_ele.level <= this.checkLevel);
-//         const input2 = yield s.requestInput_zone_default(c, zoneRegistry.z_hand);
-
-//         const target_card = (input1 as inputData_card).data.card;
-//         const target_hand = (input2 as inputData_zone).data.zone;
-
-//         const cause = actionFormRegistry.effect(s, c, this)
-
-//         return [
-//             actionConstructorRegistry.a_add_top(s, target_card)(target_hand)(cause)
-//         ]
-//     }
-
-//     override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
-//         return [this.checkLevel]
-//     }
-// }
-
-// export class e_autumn extends Effect {
-//     get doIncAtk() : 0 | 1 {return this.attr.get("doIncAtk") ? 1 : 0}
-
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         return true;
-//     }
-
-//     override *activate_final(c: dry_card, s: dry_system, a: Action): Action_final_generatorType_recur {
-//         const input1 = yield s.requestInput_zone_default(c, zoneRegistry.z_field);
-//         const input2 = yield s.requestInput_zone_default(c, zoneRegistry.z_deck);
-//         const input3 = yield s.requestInput_zone_default(c, zoneRegistry.z_hand)
-
-//         const target_field = (input1 as inputData_zone).data.zone
-//         const target_deck = (input2 as inputData_zone).data.zone
-//         const target_hand = (input3 as inputData_zone).data.zone
-//         const cause = actionFormRegistry.effect(s, c, this)
-
-//         const targets = target_field.cardArr_filtered.filter(c => c.is("fruit") && c.level === 1)
-
-//         let count = targets.length;
-//         if(count === 0) return []
-
-//         let res : Action[] = []
-//         targets.forEach(c => {
-//             res.push(
-//                 actionConstructorRegistry.a_remove_all_effects(s, c)(cause)
-//             )
-//             if(this.doIncAtk){
-//                 res.push(
-//                     actionConstructorRegistry.a_add_status_effect("generic_stat_change_diff", true)(s, c)(cause, {
-//                         maxAtk : 1
-//                     })
-//                 )
-//             }
-//         })
-
-//         while(count !== 0){
-//             res.push( target_deck.getAction_draw!(s, target_hand, cause) );
-//             count--;
-//         }
-
-//         return res;
-//     }
-// }
-
-// export class e_persephone_1 extends Effect {
-//     //void all other cards on <this card's entry field>, add status effect that override this card's maxAtk to voided targets * 2
-//     //I have doubts how this effects work with multiple fields?, ima make it work with just this one field for now
-
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         return true;
-//     }
-
-//     override *activate_final(c: dry_card, s: dry_system, a: Action): Action_final_generatorType_recur {
-//         const z = s.getZoneOf(c);
-//         if(!z) return []
-
-//         let res : Action[] = []
-//         const cause = actionFormRegistry.effect(s, c, this);
-
-//         z.cardArr_filtered.forEach(c => {
-//             res.push(
-//                 actionConstructorRegistry.a_void(s, c)(cause)
-//             )
-//         })
-
-//         const count = res.length * 2;
-//         if(count === 0) return []
-
-//         res.push(
-//             actionConstructorRegistry.a_add_status_effect("generic_stat_change_override", true)(s, c)(cause, {
-//                 maxAtk : count
-//             })
-//         )
-        
-//         return res;
-//     }
-// }
-
-// export class e_persephone_2 extends Effect {
-//     //after attacking, (atk -= 2, max 0), deal the actual reduction as magic damage to all enemies
-
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         return a.is("a_attack") && a.targets[0].is(c)
-//     }
-
-//     override *activate_final(c: dry_card, s: dry_system, a: Action): Action_final_generatorType_recur {
-//         let dmg = 2;
-//         if(c.atk < 1) return []
-//         if(c.atk === 1) dmg = 1;
-        
-//         //deal damage to ALL ENEMIES
-//         //in all zones that is classified as enemies
-
-//         const thisZone = s.getZoneOf(c)!;
-//         const zones = s.filter(0, z => z.is(zoneRegistry.z_field) && z.playerType !== thisZone.playerType);
-//         const cards = zones.map(z => z.cardArr_filtered).reduce((c, ele) => c.concat(ele), [] as dry_card[]);
-
-//         const cause = actionFormRegistry.effect(s, c, this);
-
-//         let res : Action[] = cards.map(c => 
-//             actionConstructorRegistry.a_deal_damage_card(s, c)(cause, {
-//                 dmg : dmg,
-//                 dmgType : damageType.magic
-//             })
-//         )
-
-//         res.unshift(
-//             actionConstructorRegistry.a_add_status_effect("generic_stat_change_diff", true)(s, c)(cause, {
-//                 maxAtk : dmg * -1
-//             })
-//         )
-
-//         return res;
-//     }
-// }
-
-// export class e_persephone_3 extends e_generic_lock {
-//     //checks if there are 3 level 1 fruit with different dataIDs on the field
-//     //again, same as e_persephone_1, ima check for just 1 field instead of across all fields
-//     override key_condition(c: dry_card, system: dry_system, a: Action<"a_pos_change">): boolean {
-//         const temp = new Set<string>();
-
-//         const zone = system.getZoneWithID(a.targets[1].pos.zoneID)!
-//         const cards = zone.cardArr_filtered
-
-//         for(let i = 0; i < cards.length; i++){
-//             const c_ele = cards[i];
-//             if(c_ele.is("fruit") && c.level === 1) temp.add(c.dataID);
-//             if(temp.size >= 3) return true;
-//         }
-
-//         return false;
-//     }
-// }
-
-// export class e_demeter_1 extends Effect {
-//     //add one lv1 card from grave to hand
-
-//     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-//         return true;
-//     }
-
-//     override *activate_final(c: dry_card, s: dry_system, a: Action): Action_final_generatorType_recur {
-//         const input1 = yield s.requestInput_card_default(c, zoneRegistry.z_grave, (_, c) => c.level === 1)
-//         const input2 = yield s.requestInput_zone_default(c, zoneRegistry.z_hand)
-
-//         const target_card = (input1 as inputData_card).data.card
-//         const target_hand = (input2 as inputData_zone).data.zone
-
-//         const cause = actionFormRegistry.effect(s, c, this)
-
-//         return [
-//             actionConstructorRegistry.a_add_top(s, target_card)(target_hand)(cause)
-//         ]
-//     }
-// } 
-
-// export class e_demeter_2 extends Effect {
-//     //"attack" ahead with magic damage whenever a card is played from hand to any field
-
-//     override canRespondAndActivate_final(c: dry_card, s: dry_system, a: Action): boolean {
-//         if(!(a.is("a_pos_change") || a.is("a_pos_change_force"))) return false;
-//         const zoneTo = s.getZoneWithID(a.targets[1].pos.zoneID)
-//         const zoneFrom = s.getZoneOf(a.targets[0].card)
-//         return (
-//             zoneTo !== undefined && zoneFrom !== undefined &&
-//             zoneTo.is(zoneRegistry.z_field) &&
-//             zoneFrom.is(zoneRegistry.z_hand)
-//         )
-//     }
-
-//     override *activate_final(c: dry_card, s: dry_system, a: Action): Action_final_generatorType_recur {
-//         const cause = actionFormRegistry.effect(s, c, this)
-//         return [
-//             actionConstructorRegistry.a_deal_damage_ahead(s, c)(cause, {
-//                 dmg : c.atk,
-//                 dmgType : damageType.magic
-//             })
-//         ]
-//     }
-// }
-
-// export class e_demeter_3 extends e_generic_lock {
-//     //at least 3 lv1 fruit card available in grave
-//     //which grave?, ahhhh
-//     //executive decision : at least 1 grave fulfills the decision
-//     override key_condition(c: dry_card, s: dry_system, a: Action): boolean {
-//         return s.zoneArr.some(z => {
-//             const cards_filtered = z.cardArr_filtered.filter(c => c.level === 1 && c.is("fruit"))
-//             return (
-//                 z.is(zoneRegistry.z_grave) &&
-//                 cards_filtered.length >= 3
-//             )
-//         })
-//     }
-// }
-
-// export default {
-//     //white
-//     e_apple,
-//     e_banana,
-//     e_lemon,
-//     e_pomegranate,
-//     //cherry has the generic draw effect
-
-//     //green
-//     e_pollinate,
-//     e_greenhouse,
+    //green
     
+    e_greenhouse,
+    e_pollinate, 
 
-//     //blue
-//     e_growth,
+    //blue
 
-//     e_spring,
-//     e_winter,
-//     e_summer,
-//     e_autumn,
+    e_autumn,
+    //e_autumn also has these 2 in its partition:
+    //e_draw
+    //e_add_stat_change_diff (if upgraded)
 
-//     //red
-//     e_persephone_1,
-//     e_persephone_2,
-//     e_persephone_3,
+    e_spring,
+    e_summer : e_add_to_hand.retarget(
+        function(c, s, a){
+            const r1 = Request.grave(s, c).ofSamePlayer(s.getZoneOf(c)).cards().ofAtLeastLevel(this.checkLevel).ofArchtype("fruit").filter(c => c.dataID !== "c_summer").once(this)
+            const r2 = Request.hand(s, c).ofSamePlayer(s.getZoneOf(c)).once(this)
+            return r1.merge(r2) as any
+        },
+        (res) => res
+    ),
 
-//     e_demeter_1,
-//     e_demeter_2,
-//     e_demeter_3,
-// }
+    e_winter_1 : e_add_all_to_grave.implyCondition("c", 
+        function(c, oldC, s, a){
+            return c.is("fruit") && c.dataID !== "c_winter" && c.level === 1
+        }
+    ).thenShares(
+        function(res, c, s, a, input){
+            return ["MaxHp", res.length * this.mult]
+        }
+    ),
+    e_winter_2 : e_add_stat_change_diff.toAllOfZone(
+        function(c, s, a){
+            return Request.field(s, c).ofSamePlayer(s.getZoneOf(c)).once()
+        }
+    ),
+    //e_winter_3 is e_dmg_reduction
+
+    e_growth : e_add_all_to_hand.implyCondition("c", 
+        function(c1, c, s, a){
+            return (
+                !this.doArchtypeCheck ||
+                c.is("fruit")
+            )   && (
+                s.getZoneOf(c)!.is(zoneRegistry.z_grave)        
+            )
+        }
+    ).thenShares(res => ["count", res.length]),
+
+    //red
+
+    e_demeter_1 : e_add_all_to_hand.implyCondition("c", (c, _, s) => c.level === 1 && c.isFrom(s, zoneRegistry.z_grave)),
+    e_demeter_2 : e_deal_dmg_ahead.listen((c, s, a) => s.isPlayAction(a)),
+    e_demeter_3 : e_lock.keyCondition((c, s, a) => {
+        const z = s.getZoneOf(c)
+        if(!z) return false
+        return Request.grave(s, c).ofSamePlayer(z).cards().ofArchtype("fruit").ofLevel(1).clean().length > 0
+    }),
+
+    e_persephone_1 : e_void.toAllOfZone(
+        (c, s, a) => Request.field(s, c).ofSamePlayer(s.getZoneOf(c)!).once()
+    ).then((res, c, s, a) => {
+        const l = res.length * 2
+        res.push(
+            actionConstructorRegistry.a_add_status_effect("e_generic_stat_change_diff", true)(s, c)(actionFormRegistry.effect(s, c, this as any), {
+                maxAtk : l,
+            })
+        )
+        return res
+    }),
+
+    e_persephone_2 : e_add_stat_change_diff.listen((c, s, a) => a.is("a_attack") && a.targets[0].is(c)),
+    // e_persephone_2_2 : e_deal_damage_card.retargetToAllEnemies(),
+
+    e_persephone_3 : e_lock.keyCondition((c, s, a) => {
+        const z = s.getZoneOf(c)
+        if(!z) return false
+        const cardsInField = Request.field(s, c).ofSamePlayer(z).cards().ofArchtype("fruit").ofLevel(1).clean()
+        return (new Set(cardsInField.map(c => c.dataID))).size >= 3
+    })
+}

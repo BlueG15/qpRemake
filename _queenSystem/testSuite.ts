@@ -5,25 +5,54 @@ import { actionConstructorRegistry, actionFormRegistry } from "./handler/actionG
 import { auto_input_option } from "../types/abstract/gameComponents/settings"
 import { inputFormRegistry, inputRequester, inputRequester_multiple } from "./handler/actionInputGenerator"
 import { inputType } from "../data/systemRegistry"
+import {get_effect_require_number_input} from "../specificEffects/e_test"
+import { quickEffect } from "../data/effectRegistry"
+import actionRegistry from "../data/actionRegistry"
 
 const testSuite : Record<string, ((s : queenSystem) => void)> = {
+
+    testAll(s){
+
+        const fails : string[] = []
+        const succeed : string[] = []
+
+        const keys = Object.keys(testSuite).slice(1)
+
+        for(const key of keys){
+            console.log(`===================\n\n`) 
+            console.log(`Calling t = ${key}`)
+            try{
+                testSuite[key](s)
+                succeed.push(key)
+            }catch(e){
+                console.log(e)
+                fails.push(key)
+            }
+            console.log(`===================`) 
+        }
+
+        console.log(`\n\n\n~~~~~~~~~~~~~~~~~~~~~~~~~`) 
+
+        console.log(`Succeeded ${succeed.length}/${fails.length + succeed.length} tests`)
+        console.log(`Failed : ${fails.length}/${fails.length + succeed.length} tests: `, fails);
+    },
 
     progressCheck(s : queenSystem){
         console.log("Effects check:")
 
-        const dataArr = s.registryFile.effectLoader.datakeys
-        const classArr = s.registryFile.effectLoader.classkeys
+        const EffectDataArr = s.registryFile.effectLoader.datakeys
+        const EffectClassArr = s.registryFile.effectLoader.classkeys
 
-        console.log(`Loaded ${dataArr.length} data entries`)
-        console.log(`Loaded ${classArr.length} class entries`)
+        console.log(`Loaded ${EffectDataArr.length} data entries`)
+        console.log(`Loaded ${EffectClassArr.length} class entries`)
 
-        const set1 = new Set(classArr)
-        dataArr.forEach(i => {
+        const set1 = new Set(EffectClassArr)
+        EffectDataArr.forEach(i => {
             set1.delete(i)
         })
 
-        const set2 = new Set(dataArr)
-        classArr.forEach(i => {
+        const set2 = new Set(EffectDataArr)
+        EffectClassArr.forEach(i => {
             set2.delete(i)
         })
 
@@ -39,47 +68,140 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
 
         console.log("Cards check:")
         
-        const dataArr2 = s.registryFile.cardLoader.datakeys
+        const CardDataArr = s.registryFile.cardLoader.datakeys
 
-        console.log(`Loaded ${dataArr2.length} data entries`)
+        console.log(`Loaded ${CardDataArr.length} data entries`)
+
+        console.log("Action check")
+
+        const PossibleActionsKeys = Object.keys(actionConstructorRegistry);
+        
+        //ok, potentially cursed shit here
+        const unhandledActionList : string[] = []
+        PossibleActionsKeys.forEach(k => {
+            if( !s.___testAction(actionRegistry[k as any] as any) ) unhandledActionList.push(k)
+        })
+
+        console.log(`${unhandledActionList.length} / ${PossibleActionsKeys.length} actions unhandled`, unhandledActionList)
+
+        console.log("Localization check")
+        const Localizer = s.localizer
+        if(!Localizer.isLoaded) console.log("Localizer isnt loaded"); 
+        else {
+            EffectDataArr.forEach(k => {
+                const symbol = Localizer.getLocalizedSymbol(k)
+                if(symbol === undefined) console.log(`Effect ${k} doesnt map to a localized symbol`)
+            })
+
+            const archTypeSet = new Set<string>()
+            const extensionSet = new Set<string>()
+
+            CardDataArr.forEach(k => {
+                const symbol = Localizer.getLocalizedSymbol(k)
+                if(symbol === undefined) console.log(`Card ${k} doesnt map to a localized symbol`)
+
+                const testCard = s.cardHandler.getCard(k)
+                if(testCard){
+                    const archtype = testCard.originalData.belongTo
+                    const ex = testCard.originalData.extensionArr
+
+                    archtype.forEach(k => {
+                        if(!archTypeSet.has(k)){
+                            archTypeSet.add(k);
+                            const s = "a_" + k
+                            const symbol = Localizer.getLocalizedSymbol(s)
+                            if(symbol === undefined) console.log(`Archtype ${s} of card ${testCard.dataID} doesnt map to a localized symbol`)
+                        }
+                    })
+
+                    ex.forEach(k => {
+                        if(!extensionSet.has(k)){
+                            extensionSet.add(k);
+                            const s = "ex_" + k
+                            const symbol = Localizer.getLocalizedSymbol(s)
+                            if(symbol === undefined) console.log(`Extension ${s} of card ${testCard.dataID} doesnt map to a localized symbol`)
+                        }
+                    })
+                } else {
+                    console.log(`Card ${k} unsuccessfully loads`)
+                }
+            })
+        }
     },
 
-    testInput(s : queenSystem){
-        console.log("Test overriding")
-        const requester = new inputRequester(inputType.number, [1, 2, 3].map(n => inputFormRegistry.num(n)));
-        console.log("Intial: ", requester.next())
-        requester.extend(s, (s, prev) => {
-            return [100, 101, 102, 501].map(n => inputFormRegistry.num(n))
-        })
-        requester.extendOverride(s, (s, n) => n.data % 2 === 1)
-        const k = requester.next()
+    testInput1(s : queenSystem){
+        console.log("Testing inputs multiple chaining to multiple, autofilled = true")
 
-        requester.apply(s, k[1]![0])
+        let re = new inputRequester_multiple(2, inputType.number, Utils.range(10, 7).map(i => inputFormRegistry.num(i)))
+        const re2 = new inputRequester_multiple(5, inputType.number, Utils.range(10).map(i => inputFormRegistry.num(i)))
+        re.merge_with_signature(re2)
 
-        console.log("After extending and applying once: ", requester.next())
-        //expected: [101, 501]
+        console.log("Begin applying first to multiple len = 5");
+        console.log("Expected : 7 8 0 1 2 exactly")
 
-        console.log("Test overridding inputRequest_multiple")
-        const requester2 = new inputRequester_multiple(2, inputType.number, [1, 2, 3].map(n => inputFormRegistry.num(n)));
-        console.log("Intial: ", requester2.next(), requester2.__multiple_len)
-        requester2.extend(s, (s, prev) => {
-            // console.log("prev called: ", prev)
-            return [100, 101, 102, 501].map(n => inputFormRegistry.num(n))
-        })
+        let x = 0
+        const applied : number[] = []
+        while(!re.isFinalized()){
+            x++
+            const n = re.next()
+            const apply = n[1]![0]
+            console.log(`applying input number ${x} : `, apply.data)
+            applied.push(apply.data)
+            re = re.apply(s, apply) as any
+        }
 
-        console.log("After extending once: ", requester2.next(), requester2.__multiple_len)
+        Utils.assert([7, 8, 0, 1, 2], applied)
+    },
 
-        requester2.extendOverride(s, (s, n) => n.data % 2 === 1)
-        const k2 = requester2.next()
+    testInput2(s : queenSystem){
+        console.log("Testing inputs normal chaining to multiple, autofilled = true")
 
-        console.log("After extending and applying none: ", k2, requester2.__multiple_len)
+        let re : any = new inputRequester(inputType.number, [7].map(i => inputFormRegistry.num(i)))
+        re.extend(s, () => [8].map(i => inputFormRegistry.num(i)) )
 
-        requester2.apply(s, k2[1]![0])
-        console.log("After extending and applying once: ", requester2.next(), requester2.__multiple_len)
-        
-        requester2.apply(s, k2[1]![0])
-        console.log("After extending and applying twice: ", requester2.next(), requester2.__multiple_len)
-        //expected: [101, 501]
+        const re2 = new inputRequester_multiple(5, inputType.number, Utils.range(10).map(i => inputFormRegistry.num(i)))
+        re.merge_with_signature(re2)
+
+        console.log("Begin applying first to multiple len = 5");
+        console.log("Expected : 7 8 0 1 2 exactly")
+
+        let x = 0
+        const applied : number[] = []
+        while(!re.isFinalized()){
+            x++
+            const n = re.next()
+            const apply = n[1]![0]
+            console.log(`applying input number ${x} : `, apply.data)
+            applied.push(apply.data)
+            re = re.apply(s, apply)
+        }
+
+        Utils.assert([7, 8, 0, 1, 2], applied)
+    },
+
+    testInput3(s : queenSystem){
+        console.log("Testing inputs normal chaining to normal, autofilled = true")
+
+        let re = new inputRequester(inputType.number, [7].map(i => inputFormRegistry.num(i)))
+        re.extend(s, () => [8].map(i => inputFormRegistry.num(i)) )
+
+        const re2 = new inputRequester(inputType.number, Utils.range(10).map(i => inputFormRegistry.num(i)))
+        re.merge_with_signature(re2)
+
+        console.log("Expected : 7 8")
+
+        let x = 0
+        const applied : number[] = []
+        while(!re.isFinalized()){
+            x++
+            const n = re.next()
+            const apply = n[1]![0]
+            console.log(`applying input number ${x} : `, apply.data)
+            applied.push(apply.data)
+            re = re.apply(s, apply) as any
+        }
+
+        Utils.assert([7, 8], applied)
     },
 
     test1(s : queenSystem){
@@ -167,6 +289,9 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
         console.log("hand before: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
         console.log("field before: ", s.zoneHandler.fields[0].cardArr.map(i => i ? i.dataID : ""))
 
+        Utils.assert(s.zoneHandler.hands[0].cardArr.length, 1)
+        Utils.assert(s.zoneHandler.fields[0].cardArr.length, 0)
+
         let a = actionConstructorRegistry.a_pos_change(
             ds, 
             target
@@ -180,13 +305,16 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
         console.log("deck after: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
         console.log("hand after: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
         console.log("field after: ", s.zoneHandler.fields[0].cardArr.map(i => i ? i.dataID : ""))
+
+        Utils.assert(s.zoneHandler.hands[0].cardArr.length, 0)
+        Utils.assert(s.zoneHandler.fields[0].cardArr.length, 1)
     },
 
     test6(s : queenSystem){
         //test inputs
 
-        let target = s.cardHandler.getCard("c_blank");
-        target.effects = [s.registryFile.effectLoader.getEffect("e_addToHand", s.setting)]
+        let target = s.cardHandler.getCard("c_test");
+        target.effects = [s.registryFile.effectLoader.getEffect("e_add_to_hand", s.setting)]
         s.zoneHandler.graves[0].forceCardArrContent([
             target
         ]);
@@ -195,7 +323,9 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
         console.log("grave before: ", s.zoneHandler.graves[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
         console.log("hand before: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
 
-        const a = actionConstructorRegistry.a_activate_effect_internal(s, target, target.effects[0])(actionFormRegistry.system());
+        const pidArr = target.getAllPartitions(0)
+        if(pidArr.length === 0) throw new Error("pid arr len = 0 for some reason???")
+        const a = actionConstructorRegistry.a_activate_effect_internal(s, target)(pidArr[0])(actionFormRegistry.system());
         
         s.processTurn(a)
 
@@ -225,6 +355,63 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
         
         s.processTurn(a)
 
+        s.setting.auto_input = k
+    },
+
+    test8(s : queenSystem){
+        //test prefilling inputs of a partition with multiple effects
+        const k = s.setting.auto_input
+        s.setting.auto_input = auto_input_option.first
+
+        const c = s.cardHandler.getCard("c_test");
+        s.zoneHandler.hands[0].forceCardArrContent([
+            c
+        ])
+
+        console.log("Playing c_test to field\n")
+
+        const a = actionConstructorRegistry.a_pos_change(
+            s, c
+        )(
+            s.zoneHandler.fields[0].getRandomEmptyPos()
+        )(
+            actionFormRegistry.player(s, 0)
+        )
+        
+        s.processTurn(a)
+
+        s.setting.auto_input = k
+    },
+
+    test9(s){
+        const k = s.setting.auto_input
+        s.setting.auto_input = auto_input_option.first
+
+        const ec1 = get_effect_require_number_input(2, [7, 8, 9]) //expects 7 8 9
+        const ec2 = get_effect_require_number_input(5, Utils.range(10)) //expects 0 -> 10 exclusive
+
+        const e1 = s.registryFile.effectLoader.getDirect("e_num_2", s.setting, ec1, quickEffect.init())!
+        const e2 = s.registryFile.effectLoader.getDirect("e_num_5", s.setting, ec2, quickEffect.def)!
+
+        const c = s.registryFile.cardLoader.getDirect("c_test", s.setting, e1, e2)!
+
+        console.log(c.partitionInfo)
+
+        s.zoneHandler.hands[0].forceCardArrContent([
+            c
+        ])
+
+        console.log("Playing c_test to field\n")
+
+        const a = actionConstructorRegistry.a_pos_change(
+            s, c
+        )(
+            s.zoneHandler.fields[0].getRandomEmptyPos()
+        )(
+            actionFormRegistry.player(s, 0)
+        )
+
+        s.processTurn(a)
         s.setting.auto_input = k
     }
 }

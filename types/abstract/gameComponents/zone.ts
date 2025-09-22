@@ -755,13 +755,13 @@ class Zone_base<
 
     //Position check API
 
-    isBehind(c1 : Positionable, c2 : Positionable){
+    isC2Behind(c1 : Positionable, c2 : Positionable){
         if(c1.pos.zoneID !== this.id || c2.pos.zoneID !== this.id) return false;
         const p = this.getFrontPos(c1)
         return c2.pos.x === p.x && c2.pos.y === p.y
     }
 
-    isInfront(c1 : Positionable, c2 : Positionable){
+    isC2Infront(c1 : Positionable, c2 : Positionable){
         if(c1.pos.zoneID !== this.id || c2.pos.zoneID !== this.id) return false;
         const p = this.getBackPos(c1);
         return c2.pos.x === p.x && c2.pos.y === p.y

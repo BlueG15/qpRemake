@@ -12,7 +12,8 @@ import type {
     inputData_effect,
     inputData_player,
     inputData_subtype,
-    inputData_pos
+    inputData_pos,
+    identificationInfo_partition
 } from "../../data/systemRegistry";
 
 import type { effectName, effectData_specific } from "../../data/effectRegistry";
@@ -528,6 +529,15 @@ function form_player(s : dry_system) {return (pid : number) => {return {
     },
 } as identificationInfo_player }}
 
+function form_partition(s : dry_system){return (pid : number) => {return {
+    type : identificationType.partition,
+    sys : s,
+    pid,
+    is(n : number){
+        return n === pid
+    }
+} as identificationInfo_partition }}
+
 function form_subtype(s : dry_system) {return (card : dry_card, eff : dry_effect, subtype : dry_effectSubType) => {return {
     type : identificationType.effectSubtype,
     sys : s,
@@ -546,8 +556,6 @@ function form_none() : identificationInfo_none {return {
 function form_system() : identificationInfo_system {return {
     type : identificationType.system
 }}
-
-type formFuncs = typeof form_none | typeof form_card | typeof form_action | typeof form_effect | typeof form_zone | typeof form_position | typeof form_player | typeof form_subtype
 
 type ExtractInnerType<A> = A extends actionConstructionObj_variable<infer B> ? B : never
 
@@ -808,6 +816,7 @@ const actionConstructorRegistry = {
     a_reprogram_end: ActionAssembler("a_reprogram_end"),
 
     a_clear_all_status_effect: ActionAssembler("a_clear_all_status_effect", form_card),
+    a_clear_all_counters: ActionAssembler("a_clear_all_counters", form_card),
     a_deal_damage_card: ActionAssembler("a_deal_damage_card", form_card, {
         dmg : 0,
         dmgType : 0
@@ -840,24 +849,24 @@ const actionConstructorRegistry = {
     a_reset_card: ActionAssembler("a_reset_card", form_card),
     a_decompile : ActionAssembler("a_decompile", form_card),
     a_void : ActionAssembler("a_void", form_card),
+    a_reset_all_once : ActionAssembler("a_reset_all_once", form_card),
 
     a_declare_activation: ActionAssembler("a_declare_activation", form_effect),
     a_reset_effect: ActionAssembler("a_reset_effect", form_effect),
-    a_activate_effect: ActionAssembler("a_activate_effect", form_effect),
-    a_activate_effect_internal: ActionAssembler("a_activate_effect_internal", form_effect),
+    a_activate_effect: ActionAssembler("a_activate_effect", form_card, form_partition),
+    a_activate_effect_internal: ActionAssembler("a_activate_effect_internal", form_card, form_partition),
     a_add_status_effect: addEffectContructor,
     a_add_effect : addEffectContructor,
-    a_duplicate_effect : ActionAssembler("a_duplicate_effect", form_card, form_effect, {} as {
-        overrideData? : Partial<effectData>
-        followUp? : Action_class<[identificationInfo_effect, ...identificationInfo[]]>[]
-    }), //duplicate effect into card
-    a_duplicate_card : ActionAssembler("a_duplicate_card", form_position, form_card, {} as {
+    a_duplicate_effect : ActionAssembler("a_duplicate_effect", form_card, form_card, form_partition, {} as {
+        addedSubtype : string[]
+    }), //duplicate partition of card[1] into card[0]
+    a_duplicate_card : ActionAssembler("a_duplicate_card", form_card, form_position, {} as {
         variantIDs? : string[]
         overrideData? : patchData
-        followUp? : Action_class<[identificationInfo_card, ...identificationInfo[]]>[]
+        followUp? : (c : dry_card) => Action[]
     }), //duplicate card onto position
     a_remove_status_effect: ActionAssembler("a_remove_status_effect", form_effect),
-    a_remove_effect : ActionAssembler("a_remove_effect", form_effect),
+    a_remove_effect : ActionAssembler("a_remove_effect", form_card, form_partition),
     a_remove_all_effects : ActionAssembler("a_remove_all_effects", form_card),
 
     a_activate_effect_subtype: ActionAssembler("a_activate_effect_subtype", form_subtype, {
@@ -887,7 +896,7 @@ const actionConstructorRegistry = {
         delayAmmount : number,
         delayCID : string, //cid
         delayEID : string, //eid
-    })
+    }),
 
 } as const;
 

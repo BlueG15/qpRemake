@@ -97,7 +97,7 @@ class queenSystem {
     private suspensionReason : suspensionReason | false = false
 
     private curr_input_obj : ReturnType<Action<"a_get_input">["flatAttr"]> | undefined = undefined
-    input_cache : Map<string, inputRequester<any, inputData[], inputData[], inputData>> = new Map() //key is cid_partitionid
+    // input_cache : Map<string, inputRequester<any, inputData[], inputData[], inputData>> = new Map() //key is cid_partitionid
 
     get isSuspended() {return this.suspensionReason !== false}
 
@@ -188,6 +188,26 @@ class queenSystem {
         console.log(a.toString())
     }
 
+    ___testAction(id : actionRegistry) : boolean {
+        const oldF = this.registryFile.customActionLoader.___ObtainFunc(id)
+
+        let didCustomHandlerTriggered = false
+
+        this.registryFile.customActionLoader.load(id, () => {didCustomHandlerTriggered = true; throw 0})
+        try {
+            //Test forcing invaldi action to the handler
+            //if error or resolve normally without reaching custom action handler, we safe
+            const test = this.actionSwitch_resolve({typeID : id} as Action)
+            if(oldF) this.registryFile.customActionLoader.load(id, oldF);
+            else this.registryFile.customActionLoader.delete(id)
+            return true
+        }catch(e){
+            if(oldF) this.registryFile.customActionLoader.load(id, oldF);
+            else this.registryFile.customActionLoader.delete(id)
+            return !didCustomHandlerTriggered
+        }
+    }
+
     private actionSwitch_resolve(a : Action) : undefined | Action[]{
         //ok this is just a bunch of ifs
         //lord forgive me for this
@@ -197,7 +217,7 @@ class queenSystem {
                 return
             case actionRegistry.error : 
                 this.resolveError(a as error);
-                break;
+                break; //break is intentional to access the default case
             
             case actionRegistry.a_turn_start : 
                 return; //turn start
@@ -356,6 +376,8 @@ class queenSystem {
             case actionRegistry.a_zone_interact:
                 return this.zoneHandler.handleZoneInteract((a as Action<"a_zone_interact">).targets[0].zone as Zone, this, a)
 
+            //TODO : add the missing actions
+
             default : {
                 //only should reach here iff effect is unregistered
                 //technically this is unreachable code but who knows
@@ -364,8 +386,8 @@ class queenSystem {
                 //new note
                 //mods may emit new undefined actions
                 //go to zone handler to fix this shit
-
-                return this.registryFile.customActionLoader.handle(a.id, a, this);
+                console.log("Unhandle case reached, ", a.typeID)
+                return this.registryFile.customActionLoader.handle(a.typeID, a, this);
             }
         }
 
@@ -443,6 +465,8 @@ class queenSystem {
                     responses : Object.fromEntries(logInfo)
                 })
 
+                console.log("chain phase log: ", actionArr.length)
+
                 const forcedActions = actionArr.filter(a => a.isCost)
 
                 //special handled
@@ -450,11 +474,12 @@ class queenSystem {
                     i => i.id === actionRegistry.a_negate_action
                 )
                 let gotoComplete = isNegated
-                let replacements = actionArr.filter(i => i.id === actionRegistry.a_replace_action).map(i => (i as Action<"a_replace_action">).targets[0].action)
+                let replacements = actionArr.filter(a => a.is("a_replace_action")).map(i => (i as Action<"a_replace_action">).targets[0].action)
                 if(replacements.length){
                     gotoComplete = true;
-                    actionArr = isNegated ? forcedActions : forcedActions.concat(replacements)
+                    actionArr = forcedActions.concat(replacements)
                 }
+                if(isNegated) actionArr = forcedActions
 
                 actionArr.forEach(i => {
                     if(i.isChain) this.actionTree.attach_node(n, i);
@@ -559,7 +584,7 @@ class queenSystem {
         console.log("processing input")
 
         this.curr_input_obj = a.flatAttr();
-        const requester = this.curr_input_obj.requester;
+        let requester = this.curr_input_obj.requester;
         const applicator = this.curr_input_obj.applicator;
 
         if(!requester.hasInput()) {
@@ -576,7 +601,7 @@ class queenSystem {
             let [i_type, i_set] = requester.next();
             //returns if break of not
             function proceed(t : queenSystem, input : inputData) : Action[] | undefined {
-                requester.apply(t, input)
+                requester = requester.apply(t, input) as any
                 if(requester.isFinalized()) {
                     return applicator.apply(requester);
                 }
@@ -1032,6 +1057,14 @@ class queenSystem {
     //const
     readonly NULLPOS: dry_position = new Position(-1)
     readonly NULLCARD: dry_card
+
+    isPlayAction(a : Action) : a is Action<"a_pos_change"> | Action<"a_pos_change_force">{
+        if (!(a.is("a_pos_change") || a.is("a_pos_change_force"))) return false
+        const zoneTo = this.getZoneWithID(a.targets[1].pos.zoneID)
+        const cond1 = zoneTo ? zoneTo.is(zoneRegistry.z_field) : false
+        const cond2 = a.targets[0].card.isFrom(this, zoneRegistry.z_hand)
+        return cond1 && cond2
+    }
 }
 
 export default queenSystem

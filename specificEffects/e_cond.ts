@@ -5,6 +5,7 @@ import { dry_card, dry_system } from "../data/systemRegistry";
 import Effect from "../types/abstract/gameComponents/effect";
 import { identificationType } from "../data/systemRegistry";
 
+/**@deprecated */
 export class e_on_atk_destroy extends Effect {
     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
             //so logically, it is

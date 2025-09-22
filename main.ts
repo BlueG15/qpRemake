@@ -6,7 +6,6 @@ globalLoader.load()
 
 import fs from "fs"
 import Processor from "./_queenSystem/handler/oldDataProcessor";
-import effectDataRegistry from "./data/effectRegistry";
 
 async function main(){
     let s = new defaultSetting();
@@ -18,8 +17,6 @@ async function main(){
     fs.writeFileSync("./data_processed_cards.csv", Processor.Cards())
     fs.writeFileSync("./zeroEffCardData.json", Processor.get0EffectCardsInCurrentFormat())
     fs.writeFileSync("./generics.json", Processor.getGeneric())
-
-    console.log(effectDataRegistry.e_apple)
 
     testSuite.progressCheck(sys)
 }

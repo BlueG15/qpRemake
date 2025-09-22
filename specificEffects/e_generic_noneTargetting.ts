@@ -13,8 +13,9 @@ export default class e_generic_noneTargetting extends Effect {
     override activate_final(c: dry_card, system: dry_system, a: Action){
         let r = this.resolutionAID
         if(r === undefined) return []
+        const cause = this.cause(system, c)
         return [
-            actionConstructorRegistry[r](actionFormRegistry.effect(system, c, this))
+            actionConstructorRegistry[r](cause)
         ]
     }
 }
