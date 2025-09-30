@@ -13,6 +13,8 @@ import type queenSystem from "../_queenSystem/queenSystem"
 
 import type { Readonly_recur, Transplant } from "../types/misc"
 import type effectSubtype from "../types/abstract/gameComponents/effectSubtype"
+import type { playerTypeID } from "./zoneRegistry"
+import type { deckRegistry } from "./deckRegistry"
 
 type universalOmit = "originalData" | "setting" | "toDry" | "arr" | "zoneArr" |
                      "actionTree" | "cardHandler" | "modHandler" | "zoneHandler" | "localizer" | "registryFile" | "takenInput" |
@@ -55,7 +57,7 @@ export type dry_effect = {
     "is" : Effect["is"]
 }
 
-export type dry_card = dry_parse<Card, "is" | "getAllPartitions" | "isInSamePartition" | "isFrom" | "addShareMemory" | "getFirstActualPartitionIndex">
+export type dry_card = dry_parse<Card, "is" | "getAllPartitionsIDs" | "isInSamePartition" | "isFrom" | "addShareMemory" | "getFirstActualPartitionIndex">
 export type dry_zone = dry_parse<
     Zone, 
     "count" | "findIndex" | "getAction_add" | "getAction_move" | "getAction_shuffle" | "getAction_remove" | "getOppositeCards" | 
@@ -121,11 +123,17 @@ export interface system_stat {
 }
 
 export interface player_stat {
-    playerIndex : number, //most times 0
+    playerType : playerTypeID
+    playerIndex : number,
     heart : number,
     maxHeart : number,
     operator : operatorID
-    deckInfo : any //TODO : deck info
+    deck? : deckRegistry,
+    loadCardsInfo : {
+        dataID : string,
+        variant : string[],
+        count : number,
+    }[]
 }
 
 export interface gameState_stat {

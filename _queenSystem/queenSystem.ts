@@ -61,6 +61,10 @@ import { id_able, notFull, Player_specific, Positionable, StrictGenerator } from
 import Position from "../types/abstract/generics/position";
 
 import { inputFormRegistry, inputRequester } from "./handler/actionInputGenerator";
+import { qpRenderer } from "./renderer/rendererInterface";
+import { loadOptions } from "../effectTextParser";
+import { Serialized_card, Serialized_effect, Serialized_player, Serialized_system, Serialized_zone } from "../types/abstract/serializedGameComponents/Gamestate";
+import { parseMode } from "../types/abstract/parser";
 
 // import type dry_card from "../dryData/dry_card";
 // import position from "../baseClass/position";
@@ -74,6 +78,7 @@ class queenSystem {
     //properties
     turnAction? : Action = undefined
     turnCount : number = 0
+    waveCount : number = 0
 
     //handlers
     zoneHandler : zoneHandler
@@ -86,18 +91,17 @@ class queenSystem {
     setting : Setting
 
     //
-    player_stat : player_stat[]
+    player_stat : player_stat[] = []
     
     private processStack : number[] = [] 
     //stores id of node before step "recur until meet this again"
     private suspendID : number = -1; 
     //^ node id of the node before suspended, 
-    //when unsuspended, continue processing this node from phaseIdx 3
+    //when unsuspended, continue processing this node from current phase ID
     
     private suspensionReason : suspensionReason | false = false
 
     private curr_input_obj : ReturnType<Action<"a_get_input">["flatAttr"]> | undefined = undefined
-    // input_cache : Map<string, inputRequester<any, inputData[], inputData[], inputData>> = new Map() //key is cid_partitionid
 
     get isSuspended() {return this.suspensionReason !== false}
 
@@ -126,38 +130,22 @@ class queenSystem {
 
     get maxThreatLevel() : number[] {return this.zoneHandler.system.map(i => i.maxThreat)}
 
-    
-
-    constructor(s : Setting){
+    constructor(
+        s : Setting, 
+        public renderer : qpRenderer
+    ){
         this.setting = s
 
         this.registryFile = new registryHandler(s)
-        this.zoneHandler = new zoneHandler(this.registryFile, s)
+        this.zoneHandler = new zoneHandler(this.registryFile)
         this.cardHandler = new cardHandler(s, this.registryFile)
         this.modHandler = new modHandler(s, this.registryFile)
-        this.localizer = new Localizer(this.registryFile)
+        this.localizer = new Localizer(this, this.registryFile)
 
         this.actionTree = new _tree(
             actionConstructorRegistry.a_turn_end(actionFormRegistry.system(), {
                 doIncreaseTurnCount : true
             })
-        )
-
-        this.player_stat = s.players.map((i, index) => 
-            i === playerTypeID.player ?
-            {
-                playerIndex : index,
-                heart : 20,
-                maxHeart : 20,
-                operator : operatorRegistry.o_esper,
-                deckInfo : []
-            } : {
-                playerIndex : index,
-                heart : Infinity,
-                maxHeart : Infinity,
-                operator : operatorRegistry.o_queen,
-                deckInfo : []
-            }
         )
 
         this.forEach = this.zoneHandler.forEach
@@ -168,6 +156,98 @@ class queenSystem {
         c.pos = new Position(-1)
         c.canAct = false;
         this.NULLCARD = c;
+    }
+
+    addDeck(
+        loadCardsInfo : player_stat["loadCardsInfo"],
+        merge = false
+    ){
+        const p = this.player_stat.at(-1)
+        if(!p) throw new Error("Tried to load deck info into a none-existent player")
+        merge ? p.loadCardsInfo.concat(loadCardsInfo) : p.loadCardsInfo = loadCardsInfo
+    }
+
+    addPlayers(
+        type : keyof typeof playerTypeID,
+        operatorID : operatorRegistry,
+        //optional
+        loadCardsInfo : player_stat["loadCardsInfo"] = [],
+        heart = 20, 
+        maxHeart = heart,
+    ){
+        this.player_stat.push({
+            playerType : playerTypeID[type],
+            playerIndex : this.player_stat.length,
+            heart,
+            maxHeart,
+            operator : operatorID,
+            loadCardsInfo
+        })    
+    }
+
+    async load(gamestate? : Serialized_system){
+
+        if(gamestate){
+            this.loadGamestate(gamestate)
+        }
+        
+        
+        if(this.player_stat.length === 0) console.warn("No player loaded, if this is unintended, make sure to call addPlayer(...) before load");
+        this.zoneHandler.loadZones(this.setting, this.player_stat)
+        let arr = [
+            this.localizer.load(new loadOptions(this.setting.modFolder_parser, this.setting.parser_modules)),
+            this.modHandler.load(),
+            this.registryFile.effectLoader.load(this.setting),
+        ]
+        await Promise.all(arr);
+
+    }
+
+    loadGamestate(gamestate : Serialized_system){
+        function getEffectFromSerialized(s : queenSystem, serialized_e : Serialized_effect){
+            const newEff = s.registryFile.effectLoader.getEffect(serialized_e.dataID, s.setting, {
+                typeID : serialized_e.typeID,
+                subTypeIDs : serialized_e.subTypeIDs,
+                displayID_default : serialized_e.displayID_default
+            });
+
+            if(!newEff) return newEff
+            newEff.attr = new Map(Object.entries(serialized_e.attr))
+            return newEff
+        }
+
+        this.player_stat = gamestate.players.map(
+            (p, index) => {return {
+                playerType : p.pType,
+                playerIndex : index,
+                heart : p.heart,
+                maxHeart : p.heart,
+                operator : p.operator,
+                deck : p.deckName,
+                loadCardsInfo : []
+            }
+        })
+
+        this.turnCount = gamestate.turn
+        this.waveCount = gamestate.wave
+
+        this.zoneHandler.zoneArr = gamestate.zones.map((z, index) => {
+            const newZone = this.registryFile.zoneLoader.getZone(z.classID, this.setting, 0, 0, z.dataID)
+            if(!newZone) throw new Error("Tried to load invalid state data")
+            newZone.attr = new Map(Object.entries(z.attr))
+            newZone.cardArr = z.cardArr.map(c => {
+                if(!c) return c
+                const newCard = this.registryFile.cardLoader.getCard(c.dataID, this.setting, c.variants)
+                if(!newCard) return undefined
+                newCard.partitionInfo = c.partitions
+                newCard.attr = new Map(Object.entries(c.attr))
+                newCard.statusEffects = c.statusEffects.map(e => getEffectFromSerialized(this, e) as any)
+                newCard.effects = c.effects.map(e => getEffectFromSerialized(this, e)!)
+            })
+            newZone.types = z.types
+            return newZone
+        })
+        this.restartTurn()
     }
 
     restartTurn(a? : Action){
@@ -394,9 +474,17 @@ class queenSystem {
 
     }
 
+    start(){
+        this.renderer.startTurn(this, this.processTurn.bind(this))
+    }
+
     processTurn(startNode? : _node) : completed;
     processTurn(turnActionFromPlayer?: Action) : completed
     processTurn(param? : Action | _node) : completed{
+        if(!param) {
+            console.log("finish processing turn");
+            return true;
+        }
         let n : _node | undefined
         if(param instanceof _node){
             n = param
@@ -404,14 +492,30 @@ class queenSystem {
             this.restartTurn(param);
             this.phaseIdx = 1;
             n = this.actionTree.getNext()
+            if(!n) return true;
+            this.suspend(n.id)
+            this.suspensionReason = false;
+            this.renderer.init(this, this.continue.bind(this))
+            return false
         }
-        while(n){
+        // while(n){
             let doGetNewNode = this.process(n);
-            if(this.suspendID !== -1) return false;
+            if(this.suspendID !== -1) {
+                if(!this.curr_input_obj) throw Error("Somehow suspended but dont want to input");
+                this.suspend(n.id)
+                this.suspensionReason = false;
+                this.renderer.requestInput(this.curr_input_obj!.requester.next(), this.phaseIdx, this, n.data, this.continue.bind(this))
+                return false;
+            };
+            const oldAction = n.data
             if(doGetNewNode) n = this.actionTree.getNext(); 
-        }
-        console.log("finish processing turn");
-        return true;
+            if(!n) return true;
+
+            this.suspend(n.id)
+            this.suspensionReason = false;
+            this.renderer.update(this.phaseIdx, this, oldAction, this.continue.bind(this))
+            return false;
+            // }
     }
 
     process(n : _node) : doGetNewNode {
@@ -440,7 +544,7 @@ class queenSystem {
                     this.phaseIdx = TurnPhase.resolve;
                     return this.process(n);
                 }
-                console.log("declare action: " + n.data.type)
+                // console.log("declare action: " + n.data.type)
                 this.phaseIdx = TurnPhase.input;
                 return false;
             }
@@ -464,8 +568,6 @@ class queenSystem {
                     currentAction : n.data,
                     responses : Object.fromEntries(logInfo)
                 })
-
-                console.log("chain phase log: ", actionArr.length)
 
                 const forcedActions = actionArr.filter(a => a.isCost)
 
@@ -515,7 +617,7 @@ class queenSystem {
                     currentAction : n.data,
                     resolvedResult : (x) ? x : []
                 })
-                console.log("finish resolving acion: " + n.data.type)
+                // console.log("finish resolving acion: " + n.data.type)
                 if(n.data.canBeTriggeredTo) this.phaseIdx = TurnPhase.trigger;
                 else this.phaseIdx = TurnPhase.complete; //6 is skipped
                 return false;
@@ -709,7 +811,7 @@ class queenSystem {
 
                 case inputType.card : return this.map(1, c => inputFormRegistry.card(this, c))
 
-                case inputType.player : return this.setting.players.map((_, pid) => inputFormRegistry.player(this, pid))
+                case inputType.player : return this.player_stat.map((_, pid) => inputFormRegistry.player(this, pid))
 
                 case inputType.position : {
                     let res : dry_position[] = []
@@ -797,22 +899,13 @@ class queenSystem {
             if(res) return this.processTurn();
             else {
                 console.log("Input taken, but unfinished, please continue")
+                this.renderer.requestInput(requester.next(), this.phaseIdx, this, n.data, this.continue.bind(this))
                 return false;
             }
             
         } else if(this.suspensionReason !== false) throw new Error(`Cannot unsuspend when reason is not resolved`)
         this.suspendID = -1;
         return this.processTurn(n)
-    }
-
-    async load(){
-        let arr = [
-            this.modHandler.load(),
-            this.localizer.load(),
-            this.modHandler.load(),
-            this.registryFile.effectLoader.load(this.setting)
-        ]
-        await Promise.all(arr);
     }
 
     //Parsing log API
@@ -1064,6 +1157,36 @@ class queenSystem {
         const cond1 = zoneTo ? zoneTo.is(zoneRegistry.z_field) : false
         const cond2 = a.targets[0].card.isFrom(this, zoneRegistry.z_hand)
         return cond1 && cond2
+    }
+
+    toSerialized(){
+        return new Serialized_system(
+            this.player_stat.map(p => new Serialized_player(p.playerType, p.heart, p.operator, p.deck)),
+            this.zoneArr.map(z => 
+                new Serialized_zone(z.classID, z.dataID, z.cardArr.map(
+                        c => c ? new Serialized_card(
+                            c.dataID, c.variants, 
+                            c.effects.map(
+                                e => new Serialized_effect(e.dataID, e.type.dataID as any, e.subTypes.map(st => st.dataID) as any, e.displayID, e.attr)
+                            ), 
+                            c.statusEffects.map(
+                                e => new Serialized_effect(e.dataID, e.type.dataID as any, e.subTypes.map(st => st.dataID) as any, e.displayID, e.attr)
+                            ),
+                            c.partitionInfo,
+                            c.attr
+                        ) : c
+                    ), 
+                    z.types.slice(), 
+                    z.attr
+                )
+            ),
+            this.turnCount,
+            this.waveCount
+        )
+    }
+
+    toLocalized(mode? : parseMode){
+        return this.localizer.localizeSystem(this, mode)
     }
 }
 

@@ -38,7 +38,7 @@ class Zone_base<
     attr: Map<string, any>;
     cardArr: (Card | undefined)[] = [];
 
-    readonly types : ReadonlyArray<number>
+    types : ReadonlyArray<number>
     readonly dataID: string;    
     readonly name : string
     
@@ -51,6 +51,7 @@ class Zone_base<
         playerIndex = -1, 
         data?: zoneData
     ) {
+        console.log("Loaded zone: ", dataID, data?.posBound, JSON.stringify(data?.posBound))
         this.name = name;
         this.dataID = dataID;
 

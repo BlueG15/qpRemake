@@ -8,8 +8,11 @@ import { inputType } from "../data/systemRegistry"
 import {get_effect_require_number_input} from "../specificEffects/e_test"
 import { quickEffect } from "../data/effectRegistry"
 import actionRegistry from "../data/actionRegistry"
+import type fs from "fs"
+import effectTypeRegistry from "../data/effectTypeRegistry"
+import subtypeRegistry from "../data/subtypeRegistry"
 
-const testSuite : Record<string, ((s : queenSystem) => void)> = {
+const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)> = {
 
     testAll(s){
 
@@ -127,6 +130,16 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
                 }
             })
         }
+
+        Object.keys(effectTypeRegistry).filter(k => Number.isNaN( Number(k) ) ).forEach(k => {
+            let symbol = Localizer.getLocalizedSymbol(k)
+            if(symbol === undefined) console.log(`effect type ${k} doesnt map to a localized symbol`)
+        })
+
+        Object.keys(subtypeRegistry).filter(k => Number.isNaN( Number(k) ) ).forEach(k => {
+            let symbol = Localizer.getLocalizedSymbol(k)
+            if(symbol === undefined) console.log(`effect type ${k} doesnt map to a localized symbol`)
+        })
     },
 
     testInput1(s : queenSystem){
@@ -323,7 +336,7 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
         console.log("grave before: ", s.zoneHandler.graves[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
         console.log("hand before: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
 
-        const pidArr = target.getAllPartitions(0)
+        const pidArr = target.getAllPartitionsIDs(0)
         if(pidArr.length === 0) throw new Error("pid arr len = 0 for some reason???")
         const a = actionConstructorRegistry.a_activate_effect_internal(s, target)(pidArr[0])(actionFormRegistry.system());
         
@@ -413,6 +426,14 @@ const testSuite : Record<string, ((s : queenSystem) => void)> = {
 
         s.processTurn(a)
         s.setting.auto_input = k
+    },
+    test10(s, file){
+        const lemon = s.registryFile.cardLoader.getCard("c_pomegranate", s.setting)
+        if(!lemon) throw Error("Somehow pom is not available")
+        const localize_lemon = s.localizer.localizeCard(lemon)
+        console.dir(localize_lemon, {depth : 5})
+        if(file)
+            file.writeFileSync("./localized_test.json", JSON.stringify(localize_lemon, null, 4));
     }
 }
 

@@ -32,12 +32,13 @@ import { type identificationInfo_card, type identificationInfo, type identificat
 import type error from "../../types/errors/error";
 import actionRegistry from "../../data/actionRegistry";
 import { damageType } from "../../types/misc";
-import type { dry_system, dry_card, dry_zone, inputData } from "../../data/systemRegistry";
+import type { dry_system, dry_card, dry_zone, inputData, player_stat } from "../../data/systemRegistry";
 import { inputApplicator, inputRequester } from "./actionInputGenerator";
-import queenSystem from "../queenSystem";
+import type queenSystem from "../queenSystem";
+import drop from "../../types/defaultZones/drop";
 
 class zoneHandler {
-    readonly zoneArr : ReadonlyArray<Zone> = []
+    zoneArr : ReadonlyArray<Zone> = []
     private loader : zoneLoader
 
     //old
@@ -58,13 +59,14 @@ class zoneHandler {
 
     //     await Promise.all(zonePromises);
     // }
+    constructor(regs : registryHandler){this.loader = regs.zoneLoader}
     
-    constructor(regs : registryHandler, s : Setting){
-        this.loader = regs.zoneLoader
+    loadZones(s : Setting, players : player_stat[]){
         this.loader.load(zoneRegistry[zoneRegistry.z_system], zoneDataRegistry.z_system, system);
+        this.loader.load(zoneRegistry[zoneRegistry.z_drop], zoneDataRegistry.z_drop, drop)
+        this.loader.load(zoneRegistry[zoneRegistry.z_void], zoneDataRegistry.z_void, _void);
         this.loader.load(zoneRegistry[zoneRegistry.z_deck], zoneDataRegistry.z_deck, deck);
         this.loader.load(zoneRegistry[zoneRegistry.z_hand], zoneDataRegistry.z_hand, hand);
-        this.loader.load(zoneRegistry[zoneRegistry.z_void], zoneDataRegistry.z_void, _void);
         this.loader.load(zoneRegistry[zoneRegistry.z_storage], zoneDataRegistry.z_storage, storage);
         this.loader.load(zoneRegistry[zoneRegistry.z_field], zoneDataRegistry.z_field, field);
         this.loader.load(zoneRegistry[zoneRegistry.z_grave], zoneDataRegistry.z_grave, grave);
@@ -81,9 +83,9 @@ class zoneHandler {
                     this.sortFunc
                 )
             } else {
-                s.players.forEach((ptype, pindex) => {
-                    let zinstance = (this.loader.getZone(zkey, s, ptype, pindex) as Zone)
-                    if(zdata.instancedFor.includes(ptype)){
+                players.forEach((p, pindex) => {
+                    let zinstance = (this.loader.getZone(zkey, s, p.playerType, pindex) as Zone)
+                    if(zdata.instancedFor.includes(p.playerType)){
                         Utils.insertionSort(
                             this.zoneArr as Zone[],
                             zinstance,
@@ -685,6 +687,7 @@ class zoneHandler {
     get abilityZones() {return this.getZoneWithType(zoneRegistry.z_ability) as abiltyZone[]}
     get graves() {return this.getZoneWithType(zoneRegistry.z_grave) as grave[]}
     get fields() {return this.getZoneWithType(zoneRegistry.z_field) as field[]}
+    get drops() {return this.getZoneWithType(zoneRegistry.z_drop) as drop[]}
 
     getPlayerZone(pid : number, type : number) : Zone[]{
         return this.zoneArr.filter(i => i.playerIndex === pid && i.types.includes(type))

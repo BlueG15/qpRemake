@@ -8,13 +8,13 @@ import { zoneRegistry } from "./zoneRegistry"
 // 1. this must extends fron Fucntion to work
 // 2. toFunc overwrites the function call to returning the internal data
 export class  quickEffect<K extends effectData = {
-    typeID : "e_none",
+    typeID : "e_t_none",
     subTypeIDs : []
 }> extends Function {
 
     private constructor(){super()}
     data : effectData = {
-            typeID : "e_none",
+            typeID : "e_t_none",
             subTypeIDs : []
         }
 
@@ -79,25 +79,25 @@ export class  quickEffect<K extends effectData = {
         }) as (() => K) & this
     }
 
-    static get init(){return new quickEffect().toFunc().type("e_init")}
-    static get manual(){return new quickEffect().type("e_manual").toFunc()}
-    static get trigger(){return new quickEffect().type("e_trigger").toFunc()}
-    static get passive(){return new quickEffect().type("e_passive").toFunc()}
-    static get status(){return new quickEffect().type("e_status").toFunc()}
-    static get counter(){return new quickEffect().type("e_counter").toFunc()}
-    static get lock(){return new quickEffect().type("e_lock").toFunc()}
+    static get init(){return new quickEffect().toFunc().type("e_t_init")}
+    static get manual(){return new quickEffect().type("e_t_manual").toFunc()}
+    static get trigger(){return new quickEffect().type("e_t_trigger").toFunc()}
+    static get passive(){return new quickEffect().type("e_t_passive").toFunc()}
+    static get status(){return new quickEffect().type("e_t_status").toFunc()}
+    static get counter(){return new quickEffect().type("e_t_counter").toFunc()}
+    static get lock(){return new quickEffect().type("e_t_lock").toFunc()}
     static get def(){return {
-            typeID : "e_none" as const,
+            typeID : "e_t_none" as const,
             subTypeIDs : []
         }}
 
-    get chained(){return this.sub("e_chained")}
-    get once(){return this.sub("e_once")}
-    get unique(){return this.sub("e_unique")}
-    get instant(){return this.sub("e_instant")}
-    get fieldLock(){return this.sub("e_fieldLock")}
-    get graveLock(){return this.sub("e_graveLock")}
-    get delayed(){return this.sub("e_delayed")}
+    get chained(){return this.sub("e_st_chained")}
+    get once(){return this.sub("e_st_once")}
+    get unique(){return this.sub("e_st_unique")}
+    get instant(){return this.sub("e_st_instant")}
+    get fieldLock(){return this.sub("e_st_fieldLock")}
+    get graveLock(){return this.sub("e_st_graveLock")}
+    get delayed(){return this.sub("e_st_delayed")}
 }
 
 const effectDataRegistry //: { [K in string] : effectData} 

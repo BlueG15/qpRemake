@@ -104,7 +104,7 @@ export interface partitionData {
     //for display only
     displayID? : string
     typeID : string | type_and_or_subtype_inference_method.first | type_and_or_subtype_inference_method.most
-    subTypeID : string | type_and_or_subtype_inference_method
+    subTypeID : string[] | type_and_or_subtype_inference_method
 }
 
 import { rarityRegistry } from "./rarityRegistry";
@@ -686,7 +686,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                     }
                 },
                 imgURL : oldImgURL("naturalBanana"),
-                partition : [defaultPartition("c_banana")]
+                partition : [defaultPartition()]
             },
             upgrade_1 : {
                 effects : {
@@ -712,7 +712,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                     }
                 },
                 imgURL : oldImgURL("naturalCherry"),
-                partition : [defaultPartition("c_cherry")]
+                partition : [defaultPartition()]
             },
             upgrade_1 : {
                 effects : {
@@ -736,7 +736,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                     e_lemon : {}
                 },
                 imgURL : oldImgURL("naturalLemon"),
-                partition : [defaultPartition("c_lemon")]
+                partition : [defaultPartition()]
             },
             upgrade_1 : {
                 atk : 2
@@ -759,7 +759,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                     }
                 },
                 imgURL : oldImgURL("naturalPomegranate"),
-                partition : [defaultPartition("c_pomegranate")]
+                partition : [defaultPartition()]
             },
             upgrade_1 : {
                 effects : {

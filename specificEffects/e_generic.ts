@@ -24,7 +24,7 @@ import { e_clear_all_status, e_deactivate, e_decompile, e_destroy, e_execute, e_
  */
 
 export class e_quick extends Effect {
-    protected instant_subtype = new subtype_instant(subtypeRegistry[subtypeRegistry.e_instant])
+    protected instant_subtype = new subtype_instant(subtypeRegistry[subtypeRegistry.e_st_instant])
 
     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
         return system.turnAction !== undefined && system.turnAction.id === a.id;

@@ -6,6 +6,7 @@ export default {
     false : "FALSE",
 
     //operator names
+    o_null : "No operator",
     o_aurora : "Aurora",
     o_esper : "Esper",
     o_idol : "Idol",
@@ -23,6 +24,15 @@ export default {
     o_real_omega : "Kyril",
     o_real_kaia : "Kaia",
 
+    //operator description, not filled
+    o_desc_aurora : "",
+    o_desc_esper : "",
+    o_desc_idol : "",
+    o_desc_leo : "",
+    o_desc_queen : "",
+    o_desc_omega : "",
+    o_desc_kaia : "",
+
     //rarities
     r_white : "<white> white </>",
     r_blue : "<blue> blue </>",
@@ -34,7 +44,7 @@ export default {
     //archtype full names
     //TODO : insert all
     a_fruit : "All Natural",
-    a_Legion : "Legion's Commanđ",
+    a_legion : "Legion's Commanđ",
     a_nova : "Supernova's Wake",
     a_generic : "Generic",
     a_other : "No archtype",
@@ -100,23 +110,30 @@ export default {
     
     //effect type/subtype name
     //TODO : add more later once coded
+    e_t_none : "NO TYPE",
+    e_t_none_desc : "",
+
+    e_t_lock : "LOCK",
+    e_t_lock_desc : "You must do something in order to play this card from your hand manually.",
+
+    e_t_counter : "COUNTER",
+    e_t_counter_desc : "Dont do much, just a resource for other effects",
+
     e_t_manual : "MANUAL",
-    e_t_desc_manual : "Click to activate. This card cannot attack afterwards.",
+    e_t_manual_desc : "Click to activate. this card cannot attack afterwards.",
 
     e_t_trigger : "TRIGGER",
-    e_t_desc_trigger : "Activates automatically when something specific happens. Does not take a turn.",
+    e_t_trigger_desc : "Activates automatically when something specific happens. Does not take a turn.",
 
     e_t_passive : "PASSIVE",
-    e_t_desc_passive : "Happens automatically, does not activate.",
+    e_t_passive_desc : "Happens automatically, does not activate.",
 
     e_t_status : "STATUS EFFECT",
-    e_t_desc_status : "Status effects are temporary effects.",
+    e_t_status_desc : "Status effects are temporary effects.",
 
     e_t_init : "INITIALIZE",
-    e_t_desc_init : "Activates when this card is played to the field.",
+    e_t_init_desc : "Activates when this card is played to the field.",
 
-    // effectTypeCondition,"CONDITION"
-    // effectTypeCondition_desc,"You must do something in order to play this card from your hand manually."
     // effectTypeExec,"EXECUTE"
     // effectTypeExec_desc,"Activates when this card is EXECUTED."
     // effectTypeDestruction,"DESTRUCTION"
@@ -125,8 +142,6 @@ export default {
     // effectTypeVolatile_desc,"VOID thsis card when it leaves the field."
     // effectTypeDefense,"DEFENSE"
     // effectTypeDefense_desc,"This card cannot take more than a certain amount of damage at once."
-    // effectTypeQuick,"QUICK"
-    // effectTypeQuick_desc,"This card does not take a turn to play to the field."
     // effectTypeDragoon,"DRAGOON'S LINK"
     // effectTypeDragoon_desc,"Programs created from the same Dragoon are linked."
     // effectTypeSingle,"CONSUMABLE"
@@ -135,24 +150,38 @@ export default {
     // effectTypeArtifact_desc,"This card starts in your hand."
     // effectTypeStorage,"CACHED"
     // effectTypeStorage_desc,"This effect applies while this card is in Storage."
-    // effectFlagOnce,"ONCE"
-    // effectFlagOnce_desc,"This effect can only be activated once."
-    // effectFlagInstant,"INSTANT"
-    // effectFlagInstant_desc,"This effect does not take a turn to use."
-    // effectFlagUnique,"UNIQUE"
-    // effectFlagUnique_desc,"This effect can only activate once in a turn."
-    // effectFlagGlobal,"HARD UNIQUE"
-    // effectFlagGlobal_desc,"This effect can only activate exactly once in a turn, even if multiple cards have this same effect."
     // effectFlagBonded,"BONDED"
     // effectFlagBonded_desc,"This effect cannot be removed."
-    // effectFlagExclusive,"EXCLUSIVE"
-    // effectFlagExclusive_desc,"This effect will not activate if this card has used another effect this turn."
-    // effectFlagChained,"CHAINED"
-    // effectFlagChained_desc,"This effect chains directly to the event that triggered it."
-    
+
+    e_st_chained : "CHAINED",
+    e_st_chained_desc : "This effect chains directly to the event that triggered it.",
+
+    e_st_delayed : "DELAYED",
+    e_st_delayed_desc : "This effects chains to the event that triggers it, but activates after that event resolves.",
+
+    e_st_unique : "UNIQUE",
+    e_st_unique_desc : "This effect can only activate once per copy of this card in a turn.",
+
+    e_st_hardUnique : "HARD_UNIQUE",
+    e_st_hardUnique_desc : "This effect can only activate once across all copies of this card in a turn.",
+
+    e_st_instant : "INSTANT",
+    e_st_instant_desc : "This effect does not take a turn to activate.",
+
+    e_st_once : "ONCE",
+    e_st_once_desc : "This effect can only be activated once.",
+
+    e_st_fieldLock : "FIELD_LOCK",
+    e_st_fieldLock_desc : "This card has to be on the field to activate this effect.",
+
+    e_st_handOrFieldLock : "FIELD_OR_HAND_LOCK",
+    e_st_handOrFieldLock_desc : "This card has to be on the field or in hand to activate this effect.",
+
+    e_st_graveLock : "GRAVE_LOCK",
+    e_st_graveLock_desc : "This card has to be on the grave to activate this effect.",
 
     //card extension
-    //TODO : fill this in, only fruit for now
+    //TODO : fill this in,
     ex_fruit : "fruit",
     ex_legion : "legion",
     ex_nova : "nova",
@@ -220,22 +249,23 @@ export default {
 
 
     //effectID -> display XML
-
+    e_lemon : "Attack with all cards on your field with the same name as this card.",
+    e_pomegranate : `<string> a + "_" + b </>`,
+    e_quick : "This card does not take a turn to play to the field.",
 
     //zone names
-    z_deck : "deck",
-    z_p1_field : "player field",
-    z_p2_field : "enemy field",
-    z_p1_grave : "GY",
-    z_p2_grave : "GY",
-    z_grave : "grave",
-    z_hand : "hand",
-    z_void : "void",
-    z_system : "system",
-    z_storage : "storage",
+    z_deck : "Deck",
+    z_field : "Field",
+    z_grave : "GY",
+    z_hand : "Hand",
+    z_void : "Void",
+    z_ability : "Ability card zone",
+    z_system : "System",
+    z_storage : "Storage",
+    z_drop : "Drop zone",
 
     //Log command
-    //action names (chahnge this)
+    //action names
     l_turnStart : "turnStart",
     l_turnReset : "turnReset",
     l_turnEnd :"turnEnd",
@@ -259,6 +289,7 @@ export default {
 
     //Preset-deck names ? Maybe no need
     //maybe just rewrite this whole section
+    d_null_deck : "Not a deck",
     d_queenIntro: "Queen's Kit 1",
     d_esperIntro: "All Natural",
     d_auroraIntro: "Sakura Bloom",

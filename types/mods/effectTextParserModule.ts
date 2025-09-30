@@ -58,6 +58,6 @@ export class parserModule {
 
     //abstract, should override
     evaluate(cmd : string, args: moduleInputObject, option : parseOptions, raw : string) : nestedTree<component> {
-        return [new component()]
+        return []
     }
 }

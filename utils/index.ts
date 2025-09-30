@@ -15,6 +15,25 @@ class utils {
         });
     }
 
+    //find the element occurs the most in an array
+    static most<T extends safeSimpleTypes>(arr : T[]) : T | undefined {
+        const countMap = new Map<T, number>();
+        let maxCount = 0;
+        let mostElement: T | undefined = undefined;
+
+        for (const item of arr) {
+            const count = (countMap.get(item) ?? 0) + 1;
+            countMap.set(item, count);
+            if (count > maxCount) {
+                maxCount = count;
+                mostElement = item;
+            }
+        }
+
+        // If arr is empty, mostElement will be undefined
+        return mostElement;
+    }
+
     static rng(max : number, min : number, round : boolean){
         return (round) ? Math.round(Math.random() * (max - min) + min) : Math.random() * (max - min) + min
     }
@@ -106,10 +125,11 @@ class utils {
     static indexToPosition(index : number, shapeArr : ReadonlyArray<number>) {
         const position : number[] = new Array(shapeArr.length);
         let remainingIndex = index;
+        const l = shapeArr.length - 1
     
-        for (let i = shapeArr.length - 1; i >= 0; i--) {
-            position[i] = remainingIndex % (shapeArr[i] as number);
-            remainingIndex = Math.floor(remainingIndex / (shapeArr[i] as number));
+        for (let i = l; i >= 0; i--) {
+            position[l - i] = remainingIndex % (shapeArr[l - i] as number);
+            remainingIndex = Math.floor(remainingIndex / (shapeArr[l - i] as number));
         }
     
         return position;
@@ -121,9 +141,9 @@ class utils {
      * @param shapeArr the base
      * @returns 
      * Imagine counting up in the base [2, 2]
-     * That would go: [0, 0], [0, 1], [1, 0], [1, 1]
+     * That would go: [0, 0], [1, 0], [0, 1], [1, 1] [x, y]
      * Once the previous index hits the limit, the next count up and this index is back to 0
-     * so Pos -> index of [1, 0] is 2 (0 indexing)
+     * so Pos -> index of [1, 0] is 1 (0 indexing)
      * 
      * Invalid indexes like [0, 3] in base [2, 2] would be disallow but i didnt code this part in
      */
@@ -132,10 +152,11 @@ class utils {
 
         let flatIndex = 0;
         let stride = 1;
+        const l = shapeArr.length - 1 
     
-        for (let i = shapeArr.length - 1; i >= 0; i--) {
-            flatIndex += (position[i] as number) * stride;
-            stride *= (shapeArr[i] as number);
+        for (let i = l; i >= 0; i--) {
+            flatIndex += (position[l - i] as number) * stride;
+            stride *= (shapeArr[l - i] as number);
         }
     
         return flatIndex;

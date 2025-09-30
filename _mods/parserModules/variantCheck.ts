@@ -37,7 +37,7 @@ export default class variantCheckModule extends parserModule {
         //remove bracket by default
         
         const checkVariant = (args.getAttr("expr") as string).split(' ')
-        let correctVariantFlag = option.cardData.variants.some(i => checkVariant.includes(i))
+        let correctVariantFlag = option.cardData && option.cardData.variants.some(i => checkVariant.includes(i))
         if((correctVariantFlag && cmd == "variantExclude") || (!correctVariantFlag && cmd == "variantInclude")){
             return []
         }

@@ -18,7 +18,6 @@ export default class uadduminusModule extends parserModule {
     }
 
     override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<component> {
-        
         let k = args.getChilren()
 
         if(option.mode == mode.debug) 
@@ -26,7 +25,7 @@ export default class uadduminusModule extends parserModule {
             
         //remove bracket by default
         
-        let upgradeFlag = option.cardData.variants.join(" ").toLowerCase().includes("upgrade")
+        let upgradeFlag = option.cardData && option.cardData.variants.join(" ").toLowerCase().includes("upgrade")
         if((upgradeFlag && cmd == "uminus") || (!upgradeFlag && cmd == "uadd")){
             return []
         }

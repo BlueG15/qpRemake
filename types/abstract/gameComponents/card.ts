@@ -10,7 +10,7 @@ import { cardData_unified, partitionData, partitionActivationBehavior, cardData,
 import { effectNotExist, wrongEffectIdx } from "../../errors";
 
 import { Setting, partitionSetting } from "./settings";
-import { id_able } from "../../misc";
+import { id_able, safeSimpleTypes } from "../../misc";
 import type { zoneRegistry } from "../../../data/zoneRegistry";
 import { inputRequester, inputRequester_finalized } from "../../../_queenSystem/handler/actionInputGenerator";
 // import error from "../../errors/error";
@@ -22,7 +22,7 @@ export class partitionData_class implements partitionData {
 
     displayID? : string
     typeID : string | type_and_or_subtype_inference_method.first | type_and_or_subtype_inference_method.most
-    subTypeID : string | type_and_or_subtype_inference_method
+    subTypeID : string[] | type_and_or_subtype_inference_method
 
 
     constructor(
@@ -196,7 +196,8 @@ class Card {
             maxAtk : this.originalData.atk,
             maxHp : this.originalData.hp,
             level : this.originalData.level,
-            extensionArr : this.originalData.extensionArr.map(i => String(i))
+            extensionArr : this.originalData.extensionArr.map(i => String(i)),
+            rarityID : this.originalData.rarityID
         }
 
         this.statusEffects.forEach(i => i.parseStat(statObj))
@@ -214,6 +215,7 @@ class Card {
 
         this.level = statObj.level
         this.extensionArr = statObj.extensionArr
+        this.rarityID = statObj.rarityID
     }
 
     //shorthand access
@@ -446,23 +448,30 @@ class Card {
 
     getPartitionDisplayInputs(sys : dry_system, partitionIndex : number) : (string | number)[]; //input array
     getPartitionDisplayInputs(sys : dry_system) : (string | number)[][]; //displayID -> input array
-    getPartitionDisplayInputs(sys : dry_system, pid = -1){
+    getPartitionDisplayInputs(sys : dry_system, pid = -1) : (string | number)[] | (string | number)[][] {
         //default implementation
         if(pid < 0){
             //get all
-
-            return this.partitionInfo.map(data => {
-                let res : (string | number)[] = []
-                data.mapping.forEach(i => res.push(...this.effects[i].getDisplayInput(this, sys)))
-                return res
-            })
-
+            return this.getAllDisplayEffects().map(p => this.getPartitionDisplayInputs(sys, p.pid))
         } else {
-            let res : (string | number)[] = []
-            this.partitionInfo[pid].mapping.forEach(i => {
-                res.push(...this.effects[i].getDisplayInput(this, sys))
-            })
-            return res
+            if(pid >= this.partitionInfo.length){
+                pid -= this.partitionInfo.length
+                if(pid >= this.statusEffects.length){
+                    //ghost effects
+                    pid -= this.statusEffects.length
+                    const res = this.effects[pid] 
+                    if(res) return res.getDisplayInput(this, sys)
+                    return []
+                }
+                //status effects
+                const res = this.statusEffects[pid]
+                if(res) return res.getDisplayInput(this, sys)
+                return []
+            }   
+
+            const partition = this.partitionInfo[pid]
+            if(!partition) return []
+            return partition.mapping.map(i => this.effects[i]).flatMap(e => e.getDisplayInput(this, sys))
         }
     }
 
@@ -475,7 +484,7 @@ class Card {
         })
     }
 
-    getAllPartitions(eindex : number) : number[]{
+    getAllPartitionsIDs(eindex : number) : number[]{
         let res : number[] = []
         this.partitionInfo.forEach((p, i) => {
             if(p.mapping.length >= 2 && p.mapping.includes(eindex)) res.push(i)
@@ -494,6 +503,79 @@ class Card {
 
 
         return res;
+    }
+
+    private inferPdata(
+        pdata : partitionData
+    ) : {
+        key : string,
+        type : string,
+        subtype : string[],
+    } | undefined {
+        const res : {
+            key? : string,
+            type? : string,
+            subtype? : string[],
+        } = {}
+        const effs = pdata.mapping.map(i => this.effects[i])
+        switch(pdata.typeID){
+            case type_and_or_subtype_inference_method.first : {
+                res.type = effs[0] ? effs[0].type.dataID : "e_t_null";
+                break;
+            }
+            case type_and_or_subtype_inference_method.most : {
+                res.type = Utils.most(effs.map(e => e.type.dataID)) ?? "e_t_null";
+                break;
+            }
+            default : {
+                res.type = pdata.typeID ?? "e_t_null";
+                break;
+            }
+        }
+        switch(pdata.subTypeID){
+            case type_and_or_subtype_inference_method.first : {
+                res.subtype = effs[0] ? effs[0].subTypes.map(st => st.dataID) : [];
+                break;
+            }
+            case type_and_or_subtype_inference_method.most : {
+                res.subtype = [ Utils.most(effs.flatMap(e => e.subTypes.map(st => st.dataID))) ?? "" ];
+                if(res.subtype[0].length === 0) res.subtype = [];
+                break;
+            }
+            case type_and_or_subtype_inference_method.all : {
+                res.subtype = effs.flatMap(e => e.subTypes.map(st => st.dataID));
+                break;
+            }
+            default : {
+                res.subtype = pdata.subTypeID;
+                break;
+            }
+        }
+        if(pdata.displayID) res.key = pdata.displayID;
+        else if(effs[0]) res.key = effs[0].displayID;
+        return (res.key) ? res as any : undefined
+    }
+
+    getAllDisplayEffects() : {
+        pid : number,
+        key : string,
+        type : string,
+        subtypes : string[]
+    }[] {
+        return this.partitionInfo.map((p, index) => {
+            const obj = this.inferPdata(p)
+            if(!obj) return undefined
+            return {
+                pid : index,
+                key : obj.key,
+                type : obj.type,
+                subtypes : obj.subtype
+            }
+        }).filter(c => c !== undefined) as any
+    }
+
+    isStatusPartition(pid : number){
+        return (pid >= this.partitionInfo.length && pid - this.partitionInfo.length < this.statusEffects.length)
     }
 
     protected pInputMap = new Map<number, inputRequester<any, any>>
@@ -578,7 +660,7 @@ class Card {
 
     addShareMemory(e : Effect<any>, key : string, val : number){
         const eindex = this.findEffectIndex(e.id);
-        const pid = this.getAllPartitions(eindex);
+        const pid = this.getAllPartitionsIDs(eindex);
         if(pid.length <= 0) return;
         pid.forEach(p => {
             let k = this.pShareMemory.get(p);

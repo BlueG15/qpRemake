@@ -13,7 +13,7 @@ export enum iconID  {
     "doubleArrowRight",
 
     //effect icon
-    "bonded" = 100, //cannot be deleted
+    "bonded" = 100, //cannot be deleted, duplicated or moved
     "cached",
     "chain",
     "consumable", 
@@ -21,7 +21,7 @@ export enum iconID  {
     "defense", //reduce or prevent damage
     "dragoonLink",
     "effect_condition", //lock    
-    "exclusive", //unused, no clue what the fuck this does
+    "exclusive", //unused
     "execute",
     "hardUnique",
     "init",

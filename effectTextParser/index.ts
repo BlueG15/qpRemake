@@ -6,7 +6,7 @@ import type { nestedTree } from '../types/misc';
 
 type XMLTree =  XmlProcessingInstruction | XmlElement
 
-export default class parser {
+export default class Parser {
     private loaded = false;
     private moduleArr : parserModule[] = []
     private moduleMap : Map<string, [number, number]> = new Map()
@@ -60,31 +60,52 @@ export default class parser {
         this.loaded = true;
     }
 
-    private parse_internal_lib_level(str : string, inRecur = false) : XMLTree{
+    private parse_internal_lib_level(str : string, inRecur = false, escapedCharLimit = str.length) : XMLTree{
         if(!inRecur){
-            str = `<document>${str}</document>`;
+            str = `<document>${str}</document>`; //if i dont do this, it doesnt work
         }
 
         try{
             //the lib wraps everything in a layer so we need to extract that layer
             return parseXml(str, lib_parse_option).children[0] as XMLTree
         } catch(err : any){
+            
             if( 
-                err.message.startsWith("Missing end tag") && 
-                str.slice(err.pos, err.pos + 3) == "</>"
+                err.message.startsWith("Missing end tag")
             ){
-                //correct condition to replace the shorthand </> as the most recent opening tag
-                let pre = str.slice(0, err.pos);
-                let post = str.slice(err.pos + 3);
+                let temp = err.message.indexOf("(line");
+                if(temp == -1) throw err;
+                let cTag = err.message.slice(28, temp-1);
 
-                let k = err.message.indexOf("(line");
-                if(k == -1) throw err;
-                let cTag = err.message.slice(28, k-1);
-                return this.parse_internal_lib_level(pre + `</${cTag}>` + post, true);
+                let pre = str.slice(0, err.pos);
+                let post = str.slice(err.pos + 1)
+
+                const properClose = `</${cTag}>`
+                const properOpen = `<${cTag}>`
+
+                const errorChar = str[err.pos]
+                const escapedChar = `&#${errorChar.charCodeAt(0)};`
+                
+                //situation patchfix 1: allowing </> as a universal end tag
+                //by repllacing </> with the proper close tag 
+                const flag1 = str.slice(err.pos, err.pos + 3) === "</>"
+
+                
+                if(flag1){
+                    post = str.slice(err.pos + 3);
+                    return this.parse_internal_lib_level(pre + properClose + post, true, escapedCharLimit); //reparse
+                }
+                
+                //situation patchfix 2: escape the character that fails to parse
+                //try replacing the problematic character with its XML entity
+                if(escapedCharLimit <= 0) throw err
+                return this.parse_internal_lib_level(pre + escapedChar + post, true, escapedCharLimit - 1)
             }
-            else throw err
+
+            throw err
         }
     }
+
 
     private parse_internal_loader_level_node(originalXML : string, tree : XmlElement, o : parseOptions, children: nestedTree<component>) : nestedTree<component>{
         const cmd = tree.name
@@ -161,7 +182,6 @@ export default class parser {
 }
 
 export {
-    parser,
     parseOptions,
     loadOptions
 }
