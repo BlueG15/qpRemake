@@ -26,11 +26,14 @@ export type Fn_4<Args1 extends any[], Args2 extends any[], Args3 extends any[], 
 export type Fn_5<Args1 extends any[], Args2 extends any[], Args3 extends any[], Args4 extends any[], Args5 extends any[], Ret> = (...a1 : Args1) => (...a2 : Args2) => (...a3 : Args3) => (...a4 : Args4) => (...a5 : Args5) => Ret
 
 
-export type lambda_number = [] | [lambda_number] 
-export type precursor<T extends lambda_number> = T extends [] ? never : T[0]
-export type successor<T extends lambda_number> = [T]
+export type lambda_number = Array<0>
+export type precursor<T extends lambda_number> = T extends [0, ...infer Tail] ? Tail : never
+export type successor<T extends lambda_number> = [0, ...T]
 
-export type lambda_number_monster = [[[[[[[[[[[[[[[[[[[[[[[[[]]]]]]]]]]]]]]]]]]]]]]]]]
+//supports up to 999, 1000 yields a depth error
+//update : limit bypassable by breaking up the type into smaller steps
+export type lambda_number_monster = NumToLambda<50>
+export type lambda_number_monster_num = LambdaToNum<lambda_number_monster>
 
 export type Fn_any<Ret, recurLevel extends lambda_number> = (...args : any) => 
   recurLevel extends [] ? Ret : Fn_any<Ret, precursor<recurLevel>>
@@ -45,20 +48,70 @@ export type ExtractReturn_any<
 export type ExtractArgs<T> = T extends Fn<infer A, any> ? A : never;
 export type ExtractReturn<T> = T extends Fn<any, infer R> ? R : never;
 
-export type Tuple_any<T, len extends lambda_number, maxRecurLevel extends lambda_number = lambda_number_monster> = 
-  len extends [] ? [] :
-  len extends [[]] ? [T] :
-  len extends maxRecurLevel ? [] :
-  [T, ...Tuple_any<T, precursor<len>>]
-
 export type WritableKeys<T> = {
   [K in keyof T]-?: IfEquals<{ [Q in K]: T[K] }, { -readonly [Q in K]: T[K] }, K>
 }[keyof T];
 
-export type LenInLambda<T extends any[], maxRecurLevel extends lambda_number = lambda_number_monster> = 
-  T extends Tuple_any<any, maxRecurLevel> ? maxRecurLevel : 
-  maxRecurLevel extends [] ? never :
-  LenInLambda<T, precursor<maxRecurLevel>>
+export type Tuple_any<T, len extends number = lambda_number_monster_num, cull extends T[] = [], len_lambda extends lambda_number = NumToLambda<len>> = 
+  number extends len ? T[] :
+  len_lambda extends [] ? cull : Tuple_any<T, len, [T, ...cull], precursor<len_lambda>>
+
+export type LenInLambda<T extends any[]> = NumToLambda<T["length"]>
+
+export type lambdaArr<
+  End extends lambda_number = lambda_number_monster, 
+  Start extends lambda_number = [],
+  cull extends lambda_number[] = [],
+> = End extends Start ? [Start, ...cull] : lambdaArr<precursor<End>, Start, [End, ...cull]>
+
+export type Add<A extends lambda_number, B extends lambda_number> = [...A, ...B]
+export type Sub<A extends lambda_number, B extends lambda_number> = A extends [...B, ...infer K] ? K : []
+
+export type Mul<A extends lambda_number, B extends lambda_number> = 
+  A extends [] ? [] :
+  B extends [] ? [] :
+  [...Mul< precursor<A>, B >, ...B]
+
+export type Div<A extends lambda_number, B extends lambda_number, C extends lambda_number = []> = 
+  B extends 0 ? never :
+  A extends [] ? [] :
+  isLtr<A, B, C, Div<Sub<A, B>, B, [0, ...C]>>
+
+export type Mod<A extends lambda_number, B extends lambda_number> = 
+  B extends 0 ? never :
+  A extends [] ? [] :
+  isLtr<A, B, A, Mod<Sub<A, B>, B>>
+
+export type Sum<
+  T extends lambda_number[], 
+  cull extends lambda_number = [],
+  T_head extends lambda_number = T extends [infer Head, ...any[]] ? Head : [],
+  T_tail extends lambda_number[]= T extends [any, ...infer Tail] ? Tail : [],
+> =
+  T extends [] ? cull :
+  Sum<T_tail, Add<cull, T_head>>
+
+//greater
+export type isGtr<A extends lambda_number, B extends lambda_number, resTrue = true, resFalse = false> = isLtr<B, A, resTrue, resFalse>
+
+//lesser
+export type isLtr<A extends lambda_number, B extends lambda_number, resTrue = true, resFalse = false> =
+  Sub<A, B> extends never ? resTrue : resFalse
+
+//lesser or equal
+export type isLeq<A extends lambda_number, B extends lambda_number, resTrue = true, resFalse = false> = 
+  A extends B ? resTrue : 
+  isLtr<A, B, resTrue, resFalse>
+
+//greater or equal
+export type isGeq<A extends lambda_number, B extends lambda_number, resTrue = true, resFalse = false> = 
+  A extends B ? resTrue : 
+  isGtr<A, B, resTrue, resFalse>
+
+export type NumToLambda<T extends number, cull extends lambda_number = []> = LambdaToNum<cull> extends T ? cull : NumToLambda<T, [0, ...cull]>
+export type LambdaToNum<T extends lambda_number> = T["length"]
+
+export type sliceHead<T extends Array<any>, Head extends Array<any>> = T extends [...Head, ...infer Tail] ? Tail : never
 
 export type IfEquals<X, Y, A = X, B = never> =
   (<T>() => T extends X ? 1 : 2) extends
@@ -110,8 +163,16 @@ export type Transplant<T extends Object, K extends keyof T, newType> = {
 }
 
 export type FilterKeys<T extends Object, ConditionType> = keyof {
-  [K in keyof T as T[K] extends ConditionType ? K : never] : true
+   [K in keyof T as T[K] extends ConditionType ? K : never] : true
 }
+
+//[Last, rest]
+export type lastInfo<T extends any[], saved extends any[] = []> = 
+  [] extends T ? never : 
+  T extends [any] ? [T, saved] :
+  T extends [infer Head, ...infer Tails] ? lastInfo<Tails, [...saved, Head]> : [T, saved]
+
+type K = lastInfo<[1, 2, 3]>
 
 export type FunctionalKeys<T extends Object> = FilterKeys<T, Fn<any, any>>
 export type UnFunctionalKeys<T extends Object> = Exclude<keyof T, FunctionalKeys<T>>
@@ -119,4 +180,23 @@ export type UnFunctionalKeys<T extends Object> = Exclude<keyof T, FunctionalKeys
 export type Readonly_recur_Record<K extends keyof any, V> = Readonly<Record<K, Readonly_recur<V>>>;
 
 export type isUnion<T, U = T> = T extends any ? [U] extends [T] ? false : true : never;
+
+export type notFull<T extends any[], R extends any[] = []> = T extends [infer Head, ...infer Tail] ? R | notFull<Tail, [...R, Head]> : R;
+
+//Note to dum dum me
+//Y is the yield type, the type the generator spits out after a yield statement
+//R is Y but for return statement, after a return, the done flag is set
+//N is the type received by yield inside the generator, inputted into next()
+export interface StrictGenerator<Y, R, N> extends Generator<Y, R, N> {
+  next(value: N): IteratorResult<Y, R>;
+}
+
+export type nestedTree<T> = T[] | nestedTree<T>[]
+
+export type Last<
+  T extends any[], 
+  K extends any[] = []
+> = T extends K ? T[ sliceHead<K, [any]>["length"] ] : Last<T, [any, ...K]>
+
+type k = Last<[1, 2, 3]>
 

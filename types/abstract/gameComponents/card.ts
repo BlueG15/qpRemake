@@ -1,5 +1,5 @@
 import Effect from "./effect";
-import { StatusEffect_base } from "../../../specificEffects/e_status";
+import { genericCounter, StatusEffect_base } from "../../../specificEffects/e_status";
 import Position from "../generics/position";
 import type { dry_card, dry_system } from "../../../data/systemRegistry";
 
@@ -10,16 +10,19 @@ import { cardData_unified, partitionData, partitionActivationBehavior, cardData,
 import { effectNotExist, wrongEffectIdx } from "../../errors";
 
 import { Setting, partitionSetting } from "./settings";
-import utils from "../../../utils";
+import { id_able, safeSimpleTypes } from "../../misc";
+import type { zoneRegistry } from "../../../data/zoneRegistry";
+import { inputRequester, inputRequester_finalized } from "../../../_queenSystem/handler/actionInputGenerator";
+// import error from "../../errors/error";
 
 
 export class partitionData_class implements partitionData {
     mapping : number[]
     behaviorID : partitionActivationBehavior
 
-    displayID : string
+    displayID? : string
     typeID : string | type_and_or_subtype_inference_method.first | type_and_or_subtype_inference_method.most
-    subTypeID : string | type_and_or_subtype_inference_method
+    subTypeID : string[] | type_and_or_subtype_inference_method
 
 
     constructor(
@@ -75,7 +78,7 @@ class Card {
         effectArr : Effect[],
     ){
         this.originalData = cardData
-        this.loadStat()
+        this.loadStat(true)
         this.repartitioning(s);
         this.setting = s
         this.effects = effectArr
@@ -135,7 +138,7 @@ class Card {
             }
             case partitionSetting.auto_mapping_ygo: {
                 this.partitionInfo = [
-                    new partitionData_class(newSetting.default_partition_behavior, ...utils.range(this.effects.length))
+                    new partitionData_class(newSetting.default_partition_behavior, ...Utils.range(this.effects.length))
                 ]
                 return;
             }
@@ -189,30 +192,30 @@ class Card {
 
     private loadStat(fromStart = true){
 
-        let statObj = fromStart ? {
-            atk : this.originalData.atk,
-            hp : this.originalData.hp,
+        let statObj = {
             maxAtk : this.originalData.atk,
             maxHp : this.originalData.hp,
             level : this.originalData.level,
-            extensionArr : this.originalData.extensionArr.map(i => String(i))
-        } : {
-            atk : this.atk,
-            hp : this.hp,
-            maxAtk : this.maxAtk,
-            maxHp : this.maxHp,
-            level : this.level,
-            extensionArr : this.extensionArr
+            extensionArr : this.originalData.extensionArr.map(i => String(i)),
+            rarityID : this.originalData.rarityID
         }
 
         this.statusEffects.forEach(i => i.parseStat(statObj))
 
-        this.atk = statObj.atk
-        this.hp = statObj.hp
+        if(fromStart){
+            this.attr.set("atk", this.originalData.atk);
+            this.attr.set("hp", this.originalData.hp);
+
+            this.attr.set("maxAtk", statObj.maxAtk);
+            this.attr.set("maxHp", statObj.maxHp);
+        } else {
+            this.maxAtk = statObj.maxAtk
+            this.maxHp = statObj.maxHp
+        }
+
         this.level = statObj.level
-        this.maxAtk = statObj.maxAtk
-        this.maxHp = statObj.maxHp
         this.extensionArr = statObj.extensionArr
+        this.rarityID = statObj.rarityID
     }
 
     //shorthand access
@@ -236,14 +239,18 @@ class Card {
 
     get maxAtk() : number {return this.attr.get("maxAtk")}
     set maxAtk(n : number){
+        //maintains the diff between 
+        const diff = this.maxAtk - this.atk
         this.attr.set("maxAtk", n);
-        if(this.atk > n) this.atk = n;
+        this.hp = n - diff
     }
     
     get maxHp() : number {return this.attr.get("maxHp")}
     set maxHp(n : number){
+        //maintains the diff between maxHp and hp
+        const diff = this.maxHp - this.hp;
         this.attr.set("maxHp", n);
-        if(this.hp > n) this.hp = n;
+        this.hp = n - diff;
     }
 
     get extensionArr() : string[] {
@@ -436,35 +443,238 @@ class Card {
             patchData.mapping = k
         }
 
-        utils.patchGeneric(this.partitionInfo[targetPartitionID], patchData);
+        Utils.patchGeneric(this.partitionInfo[targetPartitionID], patchData);
     }
 
     getPartitionDisplayInputs(sys : dry_system, partitionIndex : number) : (string | number)[]; //input array
     getPartitionDisplayInputs(sys : dry_system) : (string | number)[][]; //displayID -> input array
-    getPartitionDisplayInputs(sys : dry_system, pid = -1){
+    getPartitionDisplayInputs(sys : dry_system, pid = -1) : (string | number)[] | (string | number)[][] {
         //default implementation
         if(pid < 0){
             //get all
-
-            return this.partitionInfo.map(data => {
-                let res : (string | number)[] = []
-                data.mapping.forEach(i => res.push(...this.effects[i].getDisplayInput(this, sys)))
-                return res
-            })
-
+            return this.getAllDisplayEffects().map(p => this.getPartitionDisplayInputs(sys, p.pid))
         } else {
-            let res : (string | number)[] = []
-            this.partitionInfo[pid].mapping.forEach(i => {
-                res.push(...this.effects[i].getDisplayInput(this, sys))
-            })
-            return res
+            if(pid >= this.partitionInfo.length){
+                pid -= this.partitionInfo.length
+                if(pid >= this.statusEffects.length){
+                    //ghost effects
+                    pid -= this.statusEffects.length
+                    const res = this.effects[pid] 
+                    if(res) return res.getDisplayInput(this, sys)
+                    return []
+                }
+                //status effects
+                const res = this.statusEffects[pid]
+                if(res) return res.getDisplayInput(this, sys)
+                return []
+            }   
+
+            const partition = this.partitionInfo[pid]
+            if(!partition) return []
+            return partition.mapping.map(i => this.effects[i]).flatMap(e => e.getDisplayInput(this, sys))
         }
     }
 
-    
+    isInSamePartition(eindex1 : number, eindex2 : number) : boolean {
+        const e1 = this.effects[eindex1]
+        const e2 = this.effects[eindex2]
+        if(!e1 || !e2) return false;
+        return this.partitionInfo.some(p => {
+            p.mapping.length >= 2 && p.mapping.includes(eindex1) && p.mapping.includes(eindex2)
+        })
+    }
+
+    getAllPartitionsIDs(eindex : number) : number[]{
+        let res : number[] = []
+        this.partitionInfo.forEach((p, i) => {
+            if(p.mapping.length >= 2 && p.mapping.includes(eindex)) res.push(i)
+        })
+
+        if(res.length === 0){
+            //eff is ghost or status
+            if(eindex < this.effects.length){
+                //ghost
+                return [eindex + this.partitionInfo.length + this.statusEffects.length]
+            }
+
+            //status
+            return [eindex + this.partitionInfo.length]
+        }
+
+
+        return res;
+    }
+
+    private inferPdata(
+        pdata : partitionData
+    ) : {
+        key : string,
+        type : string,
+        subtype : string[],
+    } | undefined {
+        const res : {
+            key? : string,
+            type? : string,
+            subtype? : string[],
+        } = {}
+        const effs = pdata.mapping.map(i => this.effects[i])
+        switch(pdata.typeID){
+            case type_and_or_subtype_inference_method.first : {
+                res.type = effs[0] ? effs[0].type.dataID : "e_t_null";
+                break;
+            }
+            case type_and_or_subtype_inference_method.most : {
+                res.type = Utils.most(effs.map(e => e.type.dataID)) ?? "e_t_null";
+                break;
+            }
+            default : {
+                res.type = pdata.typeID ?? "e_t_null";
+                break;
+            }
+        }
+        switch(pdata.subTypeID){
+            case type_and_or_subtype_inference_method.first : {
+                res.subtype = effs[0] ? effs[0].subTypes.map(st => st.dataID) : [];
+                break;
+            }
+            case type_and_or_subtype_inference_method.most : {
+                res.subtype = [ Utils.most(effs.flatMap(e => e.subTypes.map(st => st.dataID))) ?? "" ];
+                if(res.subtype[0].length === 0) res.subtype = [];
+                break;
+            }
+            case type_and_or_subtype_inference_method.all : {
+                res.subtype = effs.flatMap(e => e.subTypes.map(st => st.dataID));
+                break;
+            }
+            default : {
+                res.subtype = pdata.subTypeID;
+                break;
+            }
+        }
+        if(pdata.displayID) res.key = pdata.displayID;
+        else if(effs[0]) res.key = effs[0].displayID;
+        return (res.key) ? res as any : undefined
+    }
+
+    getAllDisplayEffects() : {
+        pid : number,
+        key : string,
+        type : string,
+        subtypes : string[]
+    }[] {
+        return this.partitionInfo.map((p, index) => {
+            const obj = this.inferPdata(p)
+            if(!obj) return undefined
+            return {
+                pid : index,
+                key : obj.key,
+                type : obj.type,
+                subtypes : obj.subtype
+            }
+        }).filter(c => c !== undefined) as any
+    }
+
+    isStatusPartition(pid : number){
+        return (pid >= this.partitionInfo.length && pid - this.partitionInfo.length < this.statusEffects.length)
+    }
+
+    protected pInputMap = new Map<number, inputRequester<any, any>>
+
+    getParititonInputObj(pid : number, s : dry_system, a : Action) : inputRequester<any, any, any, any, any, any> | undefined {
+
+        if(pid >= this.partitionInfo.length){
+            pid -= this.partitionInfo.length
+            if(pid >= this.statusEffects.length){
+                //ghost effects
+                pid -= this.statusEffects.length
+                const res = this.effects[pid]
+                if(res) return res.getInputObj(this, s, a)
+                return
+            }
+            //status effects
+            const res = this.statusEffects[pid]
+            if(res) return res.getInputObj(this, s, a)
+            return
+        }
+
+        const pdata = this.partitionInfo[pid]
+        if(!pdata) return
+
+        const iarr = pdata.mapping.map(i => {
+            const res = this.effects[i].getInputObj(this, s, a)
+            if(res) this.pInputMap.set(i, res)
+            return res
+        }).filter(e => e !== undefined) as inputRequester<any>[]
+        if(iarr.length === 0) return 
+
+        return iarr.reduce((prev, curr) => prev.merge_with_signature(curr))
+    }
+
+    getFirstActualPartitionIndex(){
+        if(this.partitionInfo.length) return 0;
+        if(this.effects.length) return this.getAllGhostEffects()[0] + this.partitionInfo.length + this.statusEffects.length;
+        return -1;
+    }
+
+    pShareMemory = new Map<number, Map<string, number>>
+    activatePartition(pid : number, s : dry_system, a : Action, input? : any) : Action[] {
+
+        if(pid >= this.partitionInfo.length){
+            pid -= this.partitionInfo.length
+            if(pid >= this.statusEffects.length){
+                //ghost effects
+                pid -= this.statusEffects.length
+                const res = this.effects[pid]
+                if(res) return res.activate(this, s, a, input)
+                return []
+            }
+            //status effects
+            const res = this.statusEffects[pid]
+            if(res) return res.activate(this, s, a, input)
+            return []
+        }
+
+        const pdata = this.partitionInfo[pid]
+        if(!pdata) return []
+
+        const iarr = pdata.mapping.map(i => {
+            const k = this.pInputMap.get(i)
+            if(k) k.emplaceReserve()
+            return k
+        })
+        
+        const mem = this.pShareMemory.get(pid)
+        const res = pdata.mapping.flatMap((i, idx) => {
+            //transplant memory
+            if(mem) mem.forEach((val, key) => this.effects[i].attr.set(key, val))
+            return this.effects[i].activate(this, s, a, iarr[idx] as any)
+        })
+
+        //clear saved inputs
+        this.pInputMap.clear()
+
+        this.pShareMemory.delete(pid)
+
+        return res
+    }
+
+    addShareMemory(e : Effect<any>, key : string, val : number){
+        const eindex = this.findEffectIndex(e.id);
+        const pid = this.getAllPartitionsIDs(eindex);
+        if(pid.length <= 0) return;
+        pid.forEach(p => {
+            let k = this.pShareMemory.get(p);
+            if(!k) {
+                k = new Map()
+                this.pShareMemory.set(p, k)
+            }
+            k.set(key, val)
+        })
+    }
 
     //end partition API
 
+    /** @final */
     toDry() : dry_card {
         return this
     }
@@ -475,6 +685,14 @@ class Card {
         let index = this.findEffectIndex(eid);
         if(index < 0) return
         this.effects[index].disable()
+    }
+
+    disable(){
+        this.effects.forEach(e => e.disable())
+    }
+
+    enable(){
+        this.effects.forEach(e => e.enable())
     }
 
     findEffectIndex(eid?: string) : number{
@@ -493,91 +711,87 @@ class Card {
 
     getResponseIndexArr(system : dry_system, a : Action) : number[]{
         //returns the effect indexes that respond
-        let res = new Set<number>()
-        let map = this.effects.map(i => i.canRespondAndActivate(this, system, a));
+        let res = [] as number[]
 
-        this.partitionInfo.forEach(i => {
+        //update 1.2.6
+        //assume map is all 1s
+        let map = this.effects.map(i => i.canRespondAndActivate_prelim(this, system, a));
+
+        this.partitionInfo.forEach((i, index) => {
             switch(i.behaviorID){
                 case partitionActivationBehavior.first: {
-                    for(let j = 0; j < i.mapping.length; j++){
-                        if(map[ i.mapping[j] ]) {
-                            res.add(j)
-                            return;
-                        }
+                    if(i.mapping.length && map[ i.mapping[0] ]) {
+                        res.push(index)
                     }
                     return;
                 }
                 case partitionActivationBehavior.last: {
-                    for(let j = i.mapping.length - 1; j >= 0; j--){
-                        if(map[ i.mapping[j] ]) {
-                            res.add(j)
-                            return;
-                        }
-                    }
-                    return;
-                }
-                case partitionActivationBehavior.loose: {
-                    for(let j = i.mapping.length - 1; j >= 0; j--){
-                        if(map[ i.mapping[j] ]) res.add(j)
+                    //only allow the last to activate
+                    if(i.mapping.length && map[ i.mapping.at(-1)! ]) {
+                        res.push(index)
                     }
                     return;
                 }
                 case partitionActivationBehavior.strict: {
                     if(i.mapping.some(t => map[t] === false)) return;
-                    for(let j = i.mapping.length - 1; j >= 0; j--){
-                        if(map[ i.mapping[j] ]) res.add(j)
-                    }
+                    res.push(index)
                     return;
                 }
             }
         })
-        let l = this.effects.length
+
+        //pid mapping
+        //0 -> pinfo's len - 1 : normal map, 1 to 1
+        //pinfo's len -> pinfo's len + status's len -1 (x): map to status eff id x - pinfo's len 
+        //pinfo's len + status's len -> pinfo's len + status's len + efflen's len (x): map to eff id 
+        let l = this.partitionInfo.length
         this.statusEffects.forEach((i, index) => {
-            if(i.canRespondAndActivate(this, system, a)) res.add(index + l)
+            if(i.canRespondAndActivate_prelim(this, system, a)) res.push(index + l)
         })
+        l = l + this.statusEffects.length
         this.getAllGhostEffects().forEach(i => {
-            if( map[i] ) res.add(i)
+            if( map[i] ) res.push(l + i)
         })
-        return Array.from(res.values());
+        return res;
     }; 
 
-    activateEffect(idx : number, system : dry_system, a : Action) : res 
-    activateEffect(eid : string, system : dry_system, a : Action) : res
-    activateEffect(id : number | string, system : dry_system, a : Action) : res {
-        let idx : number
-        if(typeof id === "number"){
-            idx = id;
-        } else {
-            idx = this.findEffectIndex(id);
-            if(idx < 0) return [new effectNotExist(id, this.id), undefined]
-        }
-        if(!this.totalEffects[idx]){
-            let err = new wrongEffectIdx(idx, this.id)
-            err.add("card.ts", "activateEffect", 25)
-            return [err, undefined]
-        }
-        //assumes can activate
-        //fix later
-        return [undefined, this.totalEffects[idx].activate(this, system, a)]
-    }
+    // activateEffect(idx : number, system : dry_system, a : Action) : [error, undefined] | [undefined, ReturnType<Effect["activate"]>]
+    // activateEffect(eid : string, system : dry_system, a : Action) : [error, undefined] | [undefined, ReturnType<Effect["activate"]>]
+    // activateEffect(id : number | string, system : dry_system, a : Action) : [error, undefined] | [undefined, ReturnType<Effect["activate"]>]{
+    //     let idx : number
+    //     if(typeof id === "number"){
+    //         idx = id;
+    //     } else {
+    //         idx = this.findEffectIndex(id);
+    //         if(idx < 0) return [new effectNotExist(id, this.id), undefined]
+    //     }
+    //     if(!this.totalEffects[idx]){
+    //         let err = new wrongEffectIdx(idx, this.id)
+    //         err.add("card.ts", "activateEffect", 25)
+    //         return [err, undefined]
+    //     }
+    //     //assumes can activate
+    //     //fix later
+    //     return [undefined, this.totalEffects[idx].activate(this, system, a)]
+    // }
 
-    activateEffectSubtypeSpecificFunc(eidx : number, subTypeidx : number, system : dry_system, a : Action) : res;
-    activateEffectSubtypeSpecificFunc(eidx : number, subTypeID  : string, system : dry_system, a : Action) : res;
-    activateEffectSubtypeSpecificFunc(eID  : string, subTypeID  : string, system : dry_system, a : Action) : res;
-    activateEffectSubtypeSpecificFunc(eID  : string, subTypeidx : number, system : dry_system, a : Action) : res;
-    activateEffectSubtypeSpecificFunc(effectIdentifier : string | number, subtypeIdentifier : string | number, system : dry_system, a : Action) : res{
-        let idx : number
-        if(typeof effectIdentifier === "string"){
-            idx = this.findEffectIndex(effectIdentifier)
-            if(idx < 0) return [new effectNotExist(effectIdentifier, this.id), undefined]
-        } else idx = effectIdentifier;
-        if(!this.totalEffects[idx]){
-            let err = new wrongEffectIdx(idx, this.id)
-            err.add("card.ts", "activateEffect", 25)
-            return [err, undefined]
-        }
-        return [undefined, this.totalEffects[idx].activateSubtypeSpecificFunc(subtypeIdentifier, this, system, a)];
-    }
+    // activateEffectSubtypeSpecificFunc(eidx : number, subTypeidx : number, system : dry_system, a : Action) : res;
+    // activateEffectSubtypeSpecificFunc(eidx : number, subTypeID  : string, system : dry_system, a : Action) : res;
+    // activateEffectSubtypeSpecificFunc(eID  : string, subTypeID  : string, system : dry_system, a : Action) : res;
+    // activateEffectSubtypeSpecificFunc(eID  : string, subTypeidx : number, system : dry_system, a : Action) : res;
+    // activateEffectSubtypeSpecificFunc(effectIdentifier : string | number, subtypeIdentifier : string | number, system : dry_system, a : Action) : res{
+    //     let idx : number
+    //     if(typeof effectIdentifier === "string"){
+    //         idx = this.findEffectIndex(effectIdentifier)
+    //         if(idx < 0) return [new effectNotExist(effectIdentifier, this.id), undefined]
+    //     } else idx = effectIdentifier;
+    //     if(!this.totalEffects[idx]){
+    //         let err = new wrongEffectIdx(idx, this.id)
+    //         err.add("card.ts", "activateEffect", 25)
+    //         return [err, undefined]
+    //     }
+    //     return [undefined, this.totalEffects[idx].activateSubtypeSpecificFunc(subtypeIdentifier, this, system, a)];
+    // }
 
     //misc APIs
     //this is specicfically for step2 - resolution of effects
@@ -656,6 +870,33 @@ class Card {
             dataID : this.dataID,
             imgUrl : this.imgUrl,
         }, null, spaces)
+    }
+
+    get numCounters() : number {
+        return this.statusEffects.filter(s => s.is(genericCounter)).reduce((prev, cur) => prev + cur.count, 0)
+    }
+
+    get hasCounter() : boolean {
+        return this.statusEffects.some(s => s.is(genericCounter))
+    }
+
+    is(c : id_able) : boolean;
+    is(extension : string) : boolean;
+    is(extensionArr : ReadonlyArray<string>) : boolean;
+    is(p : id_able | string | (readonly string[] & {id? : undefined})) {
+        if(Array.isArray(p)){
+            return p.some(ex => this.is(ex))
+        }
+        if(typeof p === "object"){
+            return p.id === this.id
+        } 
+        return this.extensionArr.includes("*") || this.extensionArr.includes(p)
+    }
+
+    isFrom(s : dry_system, z : zoneRegistry){
+        const zone = s.getZoneOf(this);
+        if(!zone) return false;
+        return zone.is(z)
     }
 }
 

@@ -1,13 +1,20 @@
 //hand, grave, field, deck, etc extends from this, reserve index 0 for system
 import Position from "../generics/position";
-import utils from "../../../utils";
-import Zone from "./zone";
+import { Zone_base } from "./zone";
 import type Card from "./card";
 
 import { playerOppositeMap, playerTypeID } from "../../../data/zoneRegistry";
 import type { Positionable, Player_specific, HasTypesArr} from "../../misc";
+import type { inputData } from "../../../data/systemRegistry";
+import type { inputRequester, inputRequester_finalized } from "../../../_queenSystem/handler/actionInputGenerator";
 
-class Zone_grid extends Zone {
+class Zone_grid<
+    T_cull_zone_res extends inputData[] | undefined = undefined,
+    T_cull_interact extends inputData[] | undefined = undefined,
+    
+    Requester_T_zone_res extends (T_cull_zone_res extends Array<inputData> ? inputRequester<any, any, T_cull_zone_res> : undefined) | undefined = T_cull_zone_res extends Array<inputData> ? inputRequester<T_cull_zone_res[0]["type"], T_cull_zone_res, T_cull_zone_res> : undefined,
+    Requester_T_interact extends (T_cull_interact extends Array<inputData> ? inputRequester<any, any, T_cull_interact> : undefined) | undefined = T_cull_interact extends Array<inputData> ? inputRequester<T_cull_interact[0]["type"], T_cull_interact, T_cull_interact> : undefined
+> extends Zone_base<T_cull_zone_res, T_cull_interact, Requester_T_zone_res, Requester_T_interact> {
 
     override cardArr = (isFinite(this.capacity) && !isNaN(this.capacity)) ? new Array(this.capacity).fill(undefined) : []
 
@@ -22,7 +29,7 @@ class Zone_grid extends Zone {
     }
 
     override get lastPos() : Position {
-        return new Position(this.id, this.name, ...utils.indexToPosition(
+        return new Position(this.id, this.name, ...Utils.indexToPosition(
             (this.isFull) ? this.capacity-1 : this.lastEmptyIndex, 
             this.shape
         ))
@@ -32,7 +39,7 @@ class Zone_grid extends Zone {
         return new Position(
             this.id, 
             this.name,
-            ...utils.indexToPosition(this.firstEmptyIndex, this.shape)
+            ...Utils.indexToPosition(this.firstEmptyIndex, this.shape)
         )
     }
 
@@ -49,7 +56,7 @@ class Zone_grid extends Zone {
     override isOpposite(z: Player_specific & HasTypesArr): boolean;
     override isOpposite(p1: Positionable | (Player_specific & HasTypesArr), p2?: Positionable): boolean {
         if(p2 === undefined){
-            const z = p1 as Zone;
+            const z = p1 as Zone_base;
             const flag1 =  playerOppositeMap[playerTypeID[this.playerType] as keyof typeof playerOppositeMap].some(i => i === z.playerType);
             const flag2 =  this.types.join() === z.types.join();
             return flag1 && flag2

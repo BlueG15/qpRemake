@@ -17,7 +17,7 @@ export default class modLoader<T> {
     }
 
     async load() : Promise<void>{
-        let s = this.setting.modFolder;
+        let s = this.setting.modFolder_game;
         if(!s.endsWith("/")) s += "/";
 
         let promiseArr = this.setting.mods.map(i => this.loadSingle(s, i));

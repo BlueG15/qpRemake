@@ -1,12 +1,13 @@
 enum subtypeRegistry {
-    e_chained = 0,
-    e_fieldLock,
-    e_handOrFieldLock,
-    e_graveLock,
-    e_unique,
-    e_hardUnique,
-    e_instant,
-    e_once,
+    e_st_chained = 0,
+    e_st_delayed,
+    e_st_fieldLock,
+    e_st_handOrFieldLock,
+    e_st_graveLock,
+    e_st_unique,
+    e_st_hardUnique,
+    e_st_instant,
+    e_st_once,
 }
 
 type subtypeName = keyof typeof subtypeRegistry

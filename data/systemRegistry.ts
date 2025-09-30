@@ -13,21 +13,28 @@ import type queenSystem from "../_queenSystem/queenSystem"
 
 import type { Readonly_recur, Transplant } from "../types/misc"
 import type effectSubtype from "../types/abstract/gameComponents/effectSubtype"
+import type { playerTypeID } from "./zoneRegistry"
+import type { deckRegistry } from "./deckRegistry"
 
-type universalOmit = "originalData" | "setting" | "toDry" | "arr" | 
+type universalOmit = "originalData" | "setting" | "toDry" | "arr" | "zoneArr" |
                      "actionTree" | "cardHandler" | "modHandler" | "zoneHandler" | "localizer" | "registryFile" | "takenInput" |
                      keyof replacements
 type replacements = {
     pos : dry_position,
     cardArr : ReadonlyArray<dry_card | undefined>,
     cardArr_filtered : dry_card[],
+    statusEffects : ReadonlyArray<dry_effect>,
     effects : ReadonlyArray<dry_effect>,
+    totalEffects : ReadonlyArray<dry_effect>,
     lastPos : dry_position,
     firstPos : dry_position,
     top : dry_position,
     bottom : dry_position,
     turnAction? : Action,
-    NULLPOS : dry_position
+    NULLPOS : dry_position,
+    NULLCARD : dry_card,
+    setting : Readonly_recur<Setting>,
+    zoneArr : ReadonlyArray<dry_zone>
 }
 
 export type dry_parse<T extends Object, SafeFunctionKeys extends Exclude<FunctionalKeys<T>, universalOmit> = never> = Readonly_recur<
@@ -41,24 +48,36 @@ export type dry_parse<T extends Object, SafeFunctionKeys extends Exclude<Functio
 export type dry_position = dry_parse<Position, "is" | "flat" | "map" | "toString">
 export type dry_effectType = dry_parse<EffectType>
 export type dry_effectSubType = dry_parse<effectSubtype>
-export type dry_effect = dry_parse<Effect, "getDisplayInput" | "toString" | "getSubtypeidx">
-export type dry_card = dry_parse<Card>
+export type dry_effect = {
+    [K in keyof Omit<Effect, universalOmit> as Effect[K] extends Function ? never : K] : Readonly_recur<Effect[K]>
+} & {
+    "getDisplayInput" : Effect["getDisplayInput"],
+    "toString" : Effect["toString"],
+    "getSubtypeidx" : Effect["getSubtypeidx"],
+    "is" : Effect["is"]
+}
+
+export type dry_card = dry_parse<Card, "is" | "getAllPartitionsIDs" | "isInSamePartition" | "isFrom" | "addShareMemory" | "getFirstActualPartitionIndex">
 export type dry_zone = dry_parse<
     Zone, 
     "count" | "findIndex" | "getAction_add" | "getAction_move" | "getAction_shuffle" | "getAction_remove" | "getOppositeCards" | 
-    "getCardByPosition" | "getOppositeZone" | "toString" | "validatePosition" | "isOpposite" | "isPositionOccupied" | "is"
+    "getCardByPosition" | "getOppositeZone" | "toString" | "validatePosition" | "isOpposite" | "isPositionOccupied" | 
+    "is" | "getAllPos" | "of" |"getBackPos" | "getFrontPos" | "isC2Behind" | "isC2Infront" | "isOccupied" | "isExposed"
 > & {
     getEmptyPosArr? : () => dry_position[]
     getRandomEmptyPos? : () => dry_position
-    isCardExposed? : (c : dry_card) => boolean
-    getAction_draw? : () => Action
+    getAction_draw? : (s : dry_system, hand : dry_zone, cause : identificationInfo, isTurnDraw? : boolean) => Action<"a_draw">
 }
 export type dry_system = dry_parse<
-    queenSystem, 
+    Omit<queenSystem, "zoneArr">, 
     "count" | "filter" | "map" | "forEach" | "filter" | 
     "findSpecificChainOfAction_resolve" | "getActivatedCardIDs" | "getActivatedEffectIDs" |
     "getAllZonesOfPlayer" | "getResolvedActions" | "getWouldBeAttackTarget" | "getCardWithDataID" | "getCardWithID" |
-    "getZoneOf" | "getZoneWithID" | "hasActionCompleted" | "getRootAction"
+    "getZoneOf" | "getZoneWithID" | "hasActionCompleted" | "getRootAction" | "is" | "getPIDof" | 
+    "generateSignature" |
+    "isNotActionArr" |
+    "getAllInputs" |
+    "isPlayAction"
 >
 
 export interface logInfoNormal {
@@ -104,11 +123,17 @@ export interface system_stat {
 }
 
 export interface player_stat {
-    playerIndex : number, //most times 0
+    playerType : playerTypeID
+    playerIndex : number,
     heart : number,
     maxHeart : number,
     operator : operatorID
-    deckInfo : any //TODO : deck info
+    deck? : deckRegistry,
+    loadCardsInfo : {
+        dataID : string,
+        variant : string[],
+        count : number,
+    }[]
 }
 
 export interface gameState_stat {
@@ -131,6 +156,7 @@ export enum suspensionReason {
 export enum identificationType {
     "zone",
     "card",
+    "partition",
     "effect",
     "effectSubtype",
     "position",
@@ -138,6 +164,13 @@ export enum identificationType {
     "player",
     "none",
     "system",
+}
+
+export interface identificationInfo_partition {
+    type : identificationType.partition,
+    sys : dry_system,
+    pid : number,
+    is(pid : number) : boolean
 }
 
 export interface identificationInfo_action {
@@ -150,7 +183,7 @@ export type identificationInfo_card = {
     type : identificationType.card
     sys : dry_system
     card : dry_card
-    is(card : id_able) : boolean
+    is : Card["is"]
 }
 export type identificationInfo_effect = {
     type : identificationType.effect
@@ -163,13 +196,14 @@ export type identificationInfo_zone = {
     type : identificationType.zone
     sys : dry_system
     zone : dry_zone
-    is(zone : dry_zone) : boolean
+    is : Zone["is"]
+    of : Zone["of"]
 }
 export type identificationInfo_pos = {
     type : identificationType.position
     sys : dry_system
     pos : dry_position
-    is(pos : dry_position) : boolean
+    is : Position["is"]
 }
 export type identificationInfo_none = {
     type : identificationType.none
@@ -194,13 +228,14 @@ export type identificationInfo_system = {
 export type identificationInfo = 
             identificationInfo_action | 
             identificationInfo_card | 
+            identificationInfo_partition | 
             identificationInfo_effect | 
             identificationInfo_none |
             identificationInfo_player |
             identificationInfo_pos |
             identificationInfo_subtype |
             identificationInfo_zone | 
-            identificationInfo_system
+            identificationInfo_system 
 
 export enum inputType {
     "zone",
@@ -212,7 +247,7 @@ export enum inputType {
     
     "string",
     "boolean",
-    "number",
+    "number"
 }
 
 export type inputData_str = {
@@ -230,29 +265,36 @@ export type inputData_num = {
 export type inputData_pos = {
     type : inputType.position
     data : Omit<identificationInfo_pos, "sys">
+    is : identificationInfo_pos["is"]
 }
 export type inputData_zone = {
     type : inputType.zone
     data : Omit<identificationInfo_zone, "sys">
+    is : identificationInfo_zone["is"]
+    of : identificationInfo_zone["of"]
 }
 export type inputData_card = {
     type : inputType.card
     data : Omit<identificationInfo_card, "sys">
+    is : identificationInfo_card["is"]
 }
 export type inputData_effect = {
     type : inputType.effect
     data : Omit<identificationInfo_effect, "sys">
+    is : identificationInfo_effect["is"]
 }
 export type inputData_subtype = {
     type : inputType.effectSubtype
     data : Omit<identificationInfo_subtype, "sys">
+    is : identificationInfo_subtype["is"]
 }
 export type inputData_player = {
     type : inputType.player
     data : Omit<identificationInfo_player, "sys">
+    is : identificationInfo_player["is"]
 }
 
-export type inputData = inputData_str |
+export type inputData_standard = inputData_str |
                         inputData_num |
                         inputData_bool |
                         inputData_card |
@@ -261,6 +303,25 @@ export type inputData = inputData_str |
                         inputData_zone |
                         inputData_player | 
                         inputData_pos
+
+export type inputData = inputData_standard
+
+export type inputDataSpecific<T extends inputType> =
+T extends inputType.number ? inputData_num :
+T extends inputType.string ? inputData_str :
+T extends inputType.boolean ? inputData_bool :
+T extends inputType.player ? inputData_player :
+T extends inputType.position ? inputData_pos :
+T extends inputType.zone ? inputData_zone : 
+T extends inputType.card ? inputData_card :
+T extends inputType.effect ? inputData_effect : 
+T extends inputType.effectSubtype ? inputData_subtype : inputData
+
+export type validSetFormat<T extends inputType = inputType> = Exclude<[T, inputDataSpecific<T>[] | undefined], []>
+// import type { StrictGenerator } from "../types/misc"
+// export type inputRequester_format<T extends inputType = inputType, T2 extends inputType = T> = [validSetFormat<T2>, StrictGenerator<validSetFormat<T>, validSetFormat<T> | void, inputDataSpecific<T>>]
+// export type Action_final_generatorType<T extends inputType = inputType> = Generator<validSetFormat<T>, Action[], inputDataSpecific<T>>
+// export type Action_final_generatorType_recur<T extends inputType = inputType> = Generator<inputRequester_format<T>, Action[] | Action_final_generatorType_recur<T>, inputDataSpecific<T>>
 
 
 

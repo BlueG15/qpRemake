@@ -1,5 +1,4 @@
 import { partitionActivationBehavior } from "../../../data/cardRegistry"
-import { playerTypeID } from "../../../data/zoneRegistry"
 
 export enum partitionSetting {
     "manual_mapping_no_ghost" = 0,
@@ -26,6 +25,16 @@ enum id_style {
     "FULL", //dataID + minimal + additional info (subtypeID, effectID, etc)
 }
 
+enum auto_input_option {
+    none, //no assumtion, prompt input even if valid choices is only one
+    default, //if valid choices is one, skip that input
+
+    //the below skips all input prompting
+    first, //auto chooses the first option available
+    last, //auto chooses the last option
+    random, //randomly pick one
+}
+
 interface Setting {
     //load settings
     languageID : supporttedLanguages
@@ -40,7 +49,8 @@ interface Setting {
     effectFolder : string
     effectFiles : string[]
     mods : string[]
-    modFolder : string
+    modFolder_game : string
+    modFolder_parser : string
     localizationFolder : string
 
     //load error handling
@@ -49,6 +59,9 @@ interface Setting {
 
     //gameplay
     show_negative_stat : boolean
+
+    //input handling
+    auto_input : auto_input_option
 
     //gameplay error handling
     ignore_invalid_partition_mapping : boolean
@@ -66,7 +79,6 @@ interface Setting {
 
     //game setting
     spawn_instanced_zones_per_player : boolean //enable this for multiplayer shenanigans
-    players : playerTypeID[] 
     //this array dictates the order in which player plays / zone responses
     //enemies turn are skipped
 }
@@ -76,11 +88,17 @@ class defaultSetting implements Setting {
     mods = [] //no mods
     dynamic_id_len = 5
     id_style = id_style.MINIMAL
-    id_separator = '_'
+    id_separator = ''
     max_id_count = 65536
     effectFolder = "../../specificEffects"
-    effectFiles = ["e_status", "e_generic_effects", "e_fruit"];
-    modFolder = "../../_mods"
+    effectFiles = [
+        "e_test",
+        "e_status", 
+        "e_generic", 
+        "e_fruit", 
+    ];
+    modFolder_game = "../_mods/gameModules"
+    modFolder_parser = "../_mods/parserModules"
     localizationFolder = "../../_localizationFiles"
     ignore_undefined_subtype = true
     ignore_undefined_effect  = true
@@ -92,10 +110,7 @@ class defaultSetting implements Setting {
     singleton_effect_subtype = true
     singleton_effect_type = true
     spawn_instanced_zones_per_player = false;
-    players = [
-        playerTypeID.player, //player zone have priority
-        playerTypeID.enemy
-    ]
+    auto_input = auto_input_option.default
 } 
 
 export default new defaultSetting()
@@ -104,5 +119,6 @@ export {
     Setting,
     defaultSetting,
     supporttedLanguages,
+    auto_input_option,
     id_style,
 }

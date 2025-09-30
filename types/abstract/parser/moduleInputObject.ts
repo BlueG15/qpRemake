@@ -1,5 +1,5 @@
 import type { component } from "./component";
-type nestedTree<T> = T[] | nestedTree<T>[]
+import type { nestedTree } from "../../misc";
 
 export default class moduleInputObject {
     private paramMap : Map<string, string> = new Map()

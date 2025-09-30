@@ -2,7 +2,7 @@ import _node from "./node";
 import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 
 class _tree<RootType extends Action> {
-    protected length : number = 0
+    length : number = 0
     root : _node<RootType>
     constructor(a : RootType){
         this.root = new _node<RootType>(a, 0, this.length)
@@ -19,8 +19,9 @@ class _tree<RootType extends Action> {
     // }
     protected handleNode(func: (node: _node) => void, node: _node = this.root, ...data : any[]): boolean {
         if (!node) return false;
-        for (let child of node.childArr) {
-            if (this.handleNode(func, child, data)) return true;
+        for(let i = 0; i < node.childArr.length; i++) {
+            let child = node.childArr[i]
+            if (this.handleNode(func, child, ...data)) return true;
         }
         if (node.isNormal) {
             func(node);
@@ -32,6 +33,10 @@ class _tree<RootType extends Action> {
         this.handleNode((n : _node) => {
             return n.attach(this.length, ...data)
         }, this.root, ...data)
+        this.length += data.length
+    }
+    attach_node(n : _node, ...data : Action[]){
+        n.attach(this.length, ...data)
         this.length += data.length
     }
     modify(func : (a : Action) => Action){
@@ -73,7 +78,7 @@ class _tree<RootType extends Action> {
         if(!this.IDValid(nodeID)) return false
         if (!node) return false;
         for (let child of node.childArr) {
-            if (this.handleNodeWithID(nodeID, func, child, data)) return true;
+            if (this.handleNodeWithID(nodeID, func, child, ...data)) return true;
         }
         if (node.id == nodeID) {
             func(node);

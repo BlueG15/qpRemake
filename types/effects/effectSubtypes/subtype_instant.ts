@@ -10,7 +10,7 @@ class subtype_instant extends effectSubtype {
         // return [new modifyAnotherAction(system.rootID, "doIncreaseTurnCount", false, true, c.id)]
         return [
             actionConstructorRegistry.a_modify_action("a_turn_end")(system, system.getRootAction())(
-                actionFormRegistry.subtype(system, c, e.toDry(), this.toDry()))({
+                actionFormRegistry.subtype(system, c, e, this))({
                     doIncreaseTurnCount : false
             })
         ]

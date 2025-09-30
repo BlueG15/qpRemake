@@ -18,8 +18,6 @@ export class StatusEffect_base extends Effect {
     //merge target is guaranteed to have the same signature of this
     merge(mergeTargets : StatusEffect_base[]) : StatusEffect_base[] {return mergeTargets}
     parseStat(statObj : {
-        atk : number,
-        hp : number,
         level : number,
         maxAtk : number,
         maxHp : number,
@@ -62,7 +60,7 @@ export class StatusEffect_base extends Effect {
         return false
     }
 
-    override activate_final(c: dry_card, system: dry_system, a: Action): Action[] {
+    override activate_final(c: dry_card, system: dry_system, a: Action) {
         let res : Action[] = []
         if(this.activateOnTurnStart && a.typeID === actionRegistry.a_turn_start){
             res = this.activateOnTurnStart(c, system, a as Action<"a_turn_start">);
@@ -120,8 +118,8 @@ export class genericCounter extends StatusEffect_base {
         return [this];
     }
 
-    get count() : number {return this.attr.get("count") ?? 1}
-    set count(val : number){this.attr.set("count", val)}
+    override get count() : number {return this.attr.get("count") ?? 1}
+    override set count(val : number){this.attr.set("count", val)}
 
     override getDisplayInput(): (string | number)[] {
         return [this.count]
@@ -129,21 +127,15 @@ export class genericCounter extends StatusEffect_base {
 }
 
 export class generic_stat_change_diff extends StatusEffect_base {
-    get atk() {return this.attr.get("atk") ?? 0}
-    get hp() {return this.attr.get("hp") ?? 0}
-    get maxAtk() {return this.attr.get("maxAtk") ?? this.atk}
-    get maxHp() {return this.attr.get("maxHp") ?? this.hp}
+    get maxAtk() {return this.attr.get("maxAtk") ?? 0}
+    get maxHp() {return this.attr.get("maxHp") ?? 0}
     get level() {return this.attr.get("level") ?? 0}
 
-    set atk(val : number) {this.attr.set("atk", val)}
-    set hp(val : number) {this.attr.set("hp", val)}
     set maxAtk(val : number) {this.attr.set("maxAtk", val)}
     set maxHp(val : number) {this.attr.set("maxHp", val)}
     set level(val : number) {this.attr.set("level", val)}
 
-    override parseStat(statObj: { atk: number; hp: number; level: number; maxAtk: number; maxHp: number; extensionArr: string[]; }): void {
-        statObj.atk += this.atk;
-        statObj.hp += this.hp;
+    override parseStat(statObj: { level: number; maxAtk: number; maxHp: number; extensionArr: string[]; }): void {
         statObj.maxAtk += this.maxAtk;
         statObj.maxHp += this.maxHp;
         statObj.level += this.level;
@@ -151,8 +143,6 @@ export class generic_stat_change_diff extends StatusEffect_base {
 
     override merge(mergeTargets: generic_stat_change_diff[]): generic_stat_change_diff[] {
         mergeTargets.forEach(i => {
-            this.atk += i.atk
-            this.hp += i.hp
             this.maxAtk += i.maxAtk
             this.maxHp += i.maxHp
             this.level += i.level
@@ -162,21 +152,15 @@ export class generic_stat_change_diff extends StatusEffect_base {
 }
 
 export class generic_stat_change_override extends StatusEffect_base {
-    get atk() : number | undefined {return this.attr.get("atk")}
-    get hp() : number | undefined {return this.attr.get("hp")}
-    get maxAtk(): number | undefined {return this.attr.get("maxAtk") ?? this.atk}
-    get maxHp() : number | undefined {return this.attr.get("maxHp") ?? this.hp}
-    get level() : number | undefined {return this.attr.get("level") ?? 0}
+    get maxAtk(): number | undefined {return this.attr.get("maxAtk")}
+    get maxHp() : number | undefined {return this.attr.get("maxHp")}
+    get level() : number | undefined {return this.attr.get("level")}
 
-    set atk(val : number) {this.attr.set("atk", val)}
-    set hp(val : number) {this.attr.set("hp", val)}
     set maxAtk(val : number) {this.attr.set("maxAtk", val)}
     set maxHp(val : number) {this.attr.set("maxHp", val)}
     set level(val : number) {this.attr.set("level", val)}
 
-    override parseStat(statObj: { atk: number; hp: number; level: number; maxAtk: number; maxHp: number; extensionArr: string[]; }): void {
-        if(this.atk !== undefined) statObj.atk = this.atk;
-        if(this.hp !== undefined) statObj.hp = this.hp;
+    override parseStat(statObj: { level: number; maxAtk: number; maxHp: number; extensionArr: string[]; }): void {
         if(this.maxAtk !== undefined) statObj.maxAtk = this.maxAtk;
         if(this.maxHp !== undefined) statObj.maxHp = this.maxHp;
         if(this.level !== undefined) statObj.level = this.level;
@@ -184,13 +168,29 @@ export class generic_stat_change_override extends StatusEffect_base {
 
     override merge(mergeTargets: generic_stat_change_override[]): generic_stat_change_override[] {
         if(mergeTargets.length === 0) return [this];
-        return [mergeTargets.at(-1) as generic_stat_change_override];
+        return [mergeTargets.at(-1)! as generic_stat_change_override];
+    }
+}
+
+export class e_automate_base extends StatusEffect_base {
+    get countdown() : number {return this.attr.get("countdown") ?? 0};
+    set countdown(a : number){this.attr.set("countdown", a)};
+
+    private act(c: dry_card, system: dry_system, a: Action<"a_turn_end">): Action[] {return []}
+
+    override activateOnTurnEnd(c: dry_card, system: dry_system, a: Action<"a_turn_end">): Action[] {
+        this.countdown--;
+        if(this.countdown === 0) {
+            //act
+            return this.act(c, system, a)
+        }
+        return []
     }
 }
 
 export default {
     e_any_extension,
-    genericCounter,
-    generic_stat_change_diff,
-    generic_stat_change_override,
+    e_generic_counter : genericCounter,
+    e_generic_stat_change_diff : generic_stat_change_diff,
+    e_generic_stat_change_override : generic_stat_change_override,
 }

@@ -1,5 +1,5 @@
 import { component, parserModule, moduleInputObject, parseOptions, mode, textComponent } from '../../types/abstract/parser';
-type nestedTree<T> = T[] | nestedTree<T>[]
+import type { nestedTree } from '../../types/misc';
 
 export default class variantCheckModule extends parserModule {
 
@@ -37,7 +37,7 @@ export default class variantCheckModule extends parserModule {
         //remove bracket by default
         
         const checkVariant = (args.getAttr("expr") as string).split(' ')
-        let correctVariantFlag = option.cardData.variants.some(i => checkVariant.includes(i))
+        let correctVariantFlag = option.cardData && option.cardData.variants.some(i => checkVariant.includes(i))
         if((correctVariantFlag && cmd == "variantExclude") || (!correctVariantFlag && cmd == "variantInclude")){
             return []
         }

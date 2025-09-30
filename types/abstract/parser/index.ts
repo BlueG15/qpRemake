@@ -2,8 +2,7 @@ import { iconID, component, componentID, textComponent, numberComponent, imageCo
 import modPack from "./modPack";
 import { parserModule } from "../../mods/effectTextParserModule";
 import moduleInputObject from "./moduleInputObject";
-import { mode, parseOptions, loadOptions, lib_parse_option } from "./options";
-
+import { parseMode, parseOptions, loadOptions, lib_parse_option } from "./options";
 
 export {
     iconID, 
@@ -18,8 +17,9 @@ export {
     parserModule,
     modPack,
     moduleInputObject,
-    mode, 
+    parseMode, 
     parseOptions, 
     loadOptions,
-    lib_parse_option
+    parseMode as mode,
+    lib_parse_option,
 }

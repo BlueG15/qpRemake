@@ -1,6 +1,5 @@
 import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
-// import utils from "../../utils";
 
 export default class subtypeLoader {
 

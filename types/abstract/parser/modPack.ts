@@ -2,7 +2,7 @@ import { component } from "./component";
 import { parserModule } from "../../mods/effectTextParserModule";
 import moduleInputObject from "./moduleInputObject";
 import { parseOptions } from "./options";
-type nestedTree<T> = T[] | nestedTree<T>[]
+import type { nestedTree } from "../../misc";
 
 class modPack extends parserModule {
 

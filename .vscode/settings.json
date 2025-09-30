@@ -5,4 +5,9 @@
             
         },
     },
+    "eslint.enable": true,
+    "eslint.validate": ["javascript", "typescript"],
+    "eslint.options": {
+        "overrideConfigFile" : ".eslintrc.js"
+    }
 }

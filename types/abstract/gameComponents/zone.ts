@@ -3,16 +3,15 @@ import type Card from "./card";
 import type res from "../generics/universalResponse";
 
 import Position from "../generics/position";
-import utils from "../../../utils";
 
 import { playerTypeID, zoneAttributes, zoneRegistry, type zoneData } from "../../../data/zoneRegistry";
 
-import type { dry_card, dry_zone, dry_system } from "../../../data/systemRegistry";
+import type { dry_card, dry_system, dry_position, inputData } from "../../../data/systemRegistry";
 
 import { Action, actionConstructorRegistry, actionFormRegistry } from "../../../_queenSystem/handler/actionGenrator";
 // import { actionFormRegistry_target } from "../../../data/actionRegistry";
 
-import type { Positionable, Player_specific, HasTypesArr, id_able} from "../../misc";
+import type { Positionable, Player_specific, HasTypesArr, id_able, Position_like} from "../../misc";
 
 import {
     cardNotInApplicableZone,
@@ -24,20 +23,22 @@ import {
     zoneFull,
 } from "../../errors";
 import { identificationInfo } from "../../../data/systemRegistry";
-import type system from "../../../types/defaultZones/system";
-import type deck from "../../../types/defaultZones/deck";
-import type storage from "../../../types/defaultZones/storage";
-import type grave from "../../../types/defaultZones/grave";
-import type hand from "../../../types/defaultZones/hand";
-import type field from "../../../types/defaultZones/field";
-import type abiltyZone from "../../../types/defaultZones/ability";
 import type _void from "../../../types/defaultZones/void";
 
-class Zone {
+import type { inputRequester, inputRequester_finalized } from "../../../_queenSystem/handler/actionInputGenerator";
+
+class Zone_base<
+    T_cull_zone_res extends inputData[] | undefined = undefined,
+    T_cull_interact extends inputData[] | undefined = undefined,
+    
+    Requester_T_zone_res extends (T_cull_zone_res extends Array<inputData> ? inputRequester<any, any, T_cull_zone_res> : undefined) | undefined = T_cull_zone_res extends Array<inputData> ? inputRequester<T_cull_zone_res[0]["type"], T_cull_zone_res, T_cull_zone_res> : undefined,
+    Requester_T_interact extends (T_cull_interact extends Array<inputData> ? inputRequester<any, any, T_cull_interact> : undefined) | undefined = T_cull_interact extends Array<inputData> ? inputRequester<T_cull_interact[0]["type"], T_cull_interact, T_cull_interact> : undefined
+>{
     //list of boolean attributes:
     attr: Map<string, any>;
     cardArr: (Card | undefined)[] = [];
-    readonly types : ReadonlyArray<number>
+
+    types : ReadonlyArray<number>
     readonly dataID: string;    
     readonly name : string
     
@@ -50,6 +51,7 @@ class Zone {
         playerIndex = -1, 
         data?: zoneData
     ) {
+        console.log("Loaded zone: ", dataID, data?.posBound, JSON.stringify(data?.posBound))
         this.name = name;
         this.dataID = dataID;
 
@@ -116,14 +118,14 @@ class Zone {
         return new Position(
             this.id,
             this.name,
-            ...utils.indexToPosition(
+            ...Utils.indexToPosition(
                 this.isFull ? this.capacity - 1 : this.cardArr.length,
                 this.shape
             )
         );
     }
     get firstPos(): Position {
-        return new Position(this.id, this.name, ...utils.indexToPosition(0, this.shape));
+        return new Position(this.id, this.name, ...Utils.indexToPosition(0, this.shape));
     }
 
     get top() {return this.lastPos}
@@ -131,7 +133,7 @@ class Zone {
 
     getCardByPosition(p : Position) : Card | undefined {
         if(!this.validatePosition(p)) return undefined;
-        let index = utils.positionToIndex(p.flat(), this.shape);
+        let index = Utils.positionToIndex(p.flat(), this.shape);
         return this.cardArr[index]
     }
 
@@ -142,7 +144,7 @@ class Zone {
         return false
     }
 
-    getOppositeZone(zoneArr : ReadonlyArray<dry_zone>) : dry_zone[]{
+    getOppositeZone<T extends Player_specific & HasTypesArr>(zoneArr : ReadonlyArray<T>) : T[]{
         return zoneArr.filter(z => this.isOpposite(z))
     }
 
@@ -242,7 +244,7 @@ class Zone {
         if (!this.validatePosition(p)) return -1;
         p = p as Position;
         if (this.posLength == 1) return p.x;
-        return utils.positionToIndex(p.flat(), this.shape);
+        return Utils.positionToIndex(p.flat(), this.shape);
     }
     isPositionOccupied(p?: Position): [number, boolean] {
         if (!this.validatePosition(p)) return [-1, false];
@@ -276,7 +278,7 @@ class Zone {
             );
         }
         if (!p) p = this.lastPos;
-        let idx = utils.positionToIndex(p.flat(), this.shape);
+        let idx = Utils.positionToIndex(p.flat(), this.shape);
         if (idx < 0 || !this.validatePosition(p)) {
             return new invalidPosition(c.id, p).add("zone.Dts", "getAction_add", 138);
         }
@@ -284,7 +286,7 @@ class Zone {
         // if (this.cardArr[idx]) swapTargetID = (this.cardArr[idx] as card).id;
         //return new posChange(c.id, isChain, c.pos, p, swapTargetID);
 
-        return actionConstructorRegistry.a_pos_change(s, c.toDry())(p.toDry())(cause)
+        return actionConstructorRegistry.a_pos_change(s, c)(p)(cause)
     }
 
     getAction_remove(s : dry_system, c: Card, newPos: Position, cause : identificationInfo = actionFormRegistry.none()) {
@@ -304,7 +306,7 @@ class Zone {
             );
         }
         // return new posChange(c.id, isChain, c.pos, newPos);
-        return actionConstructorRegistry.a_pos_change(s, c.toDry())(newPos.toDry())(cause)
+        return actionConstructorRegistry.a_pos_change(s, c)(newPos)(cause)
     }
 
     //move within zone
@@ -324,7 +326,7 @@ class Zone {
                 158
             );
 
-        let toIndex = utils.positionToIndex(newPos.flat(), this.shape);
+        let toIndex = Utils.positionToIndex(newPos.flat(), this.shape);
         if (toIndex < 0 || !this.validatePosition(newPos))
             return new invalidPosition(c.id, newPos).add(
                 "zone.ts",
@@ -339,20 +341,20 @@ class Zone {
 
         // return new posChange(c.id, isChain, c.pos, newPos, swapTargetID);
 
-        return actionConstructorRegistry.a_pos_change(s, c.toDry())(newPos.toDry())(cause)
+        return actionConstructorRegistry.a_pos_change(s, c)(newPos)(cause)
     }
 
-    protected generateShuffleMap() {
+    protected generateShuffleMap() { 
         let a: number[] = [];
         for (let i = 0; i < this.capacity; i++) a.push(i);
-        a = a.sort((a, b) => utils.rng(1, 0, false) - 0.5);
+        a = a.sort((a, b) => Utils.rng(1, 0, false) - 0.5);
 
         let k = new Map<number, number>();
         a.forEach((i, index) => k.set(index, i));
         return k;
     }
 
-    getAction_shuffle(s : dry_system, cause : identificationInfo = actionFormRegistry.none()) {
+    getAction_shuffle(s : dry_system, cause : identificationInfo = actionFormRegistry.none()) : Action<"a_shuffle"> | zoneAttrConflict{
         if (!this.canReorderSelf || !this.capacity) {
             return new zoneAttrConflict(this.id, "shuffle").add(
                 "zone.ts",
@@ -363,7 +365,7 @@ class Zone {
 
         let map = this.generateShuffleMap();
 
-        return actionConstructorRegistry.a_shuffle(s, this.toDry())(cause, {
+        return actionConstructorRegistry.a_shuffle(s, this)(cause, {
             shuffleMap : map
         })
 
@@ -383,7 +385,7 @@ class Zone {
         c.pos = new Position(
             this.id,
             this.name,
-            ...utils.indexToPosition(toIndex, this.shape)
+            ...Utils.indexToPosition(toIndex, this.shape)
         );
         this.cardArr[toIndex] = c;
 
@@ -392,7 +394,7 @@ class Zone {
 
     add(c: Card, p1: Position): res {
         if (this.moveToNeedPosition) {
-            let toIndex = utils.positionToIndex(p1.flat(), this.shape);
+            let toIndex = Utils.positionToIndex(p1.flat(), this.shape);
             if (toIndex < 0 || !this.validatePosition(p1))
                 return this.handleInvalidPos(c ? c.id : undefined, p1, "add", 204);
             let res = this.addToIndex(c, toIndex);
@@ -426,7 +428,7 @@ class Zone {
         if (index < 0 || !this.cardArr[index] || !this.validatePosition(c.pos))
             return this.handleCardNotInApplicableZone(c, "remove", 233);
 
-        let toIndex = utils.positionToIndex(p.flat(), this.shape);
+        let toIndex = Utils.positionToIndex(p.flat(), this.shape);
         if (toIndex < 0 || !this.validatePosition(p))
             return this.handleInvalidPos(c.id, p, "move", 237);
 
@@ -514,44 +516,28 @@ class Zone {
         return res;
     }
     
-    getZoneRespond(a: Action, system: dry_system): Action[] {
+    //should override
+    getInput_ZoneRespond(a : Action, s : dry_system) : Requester_T_zone_res | undefined {return undefined}
+    getZoneRespond(a: Action, system: dry_system, input : T_cull_zone_res extends Array<inputData> ? inputRequester_finalized<T_cull_zone_res> : undefined) : Action[] {
         //zone responses bypasses cannot chain
         //only calls in chain phase
         return [];
     }
+    //should override
+    getInput_interact(s : dry_system, cause : identificationInfo) : Requester_T_interact | undefined {return undefined}
+    interact(s : dry_system, cause : identificationInfo, input : T_cull_interact extends Array<inputData> ? inputRequester_finalized<T_cull_interact> : undefined) : Action[] {
+        return [];
+    }
+
     getCanRespondMap(a: Action, system: dry_system) {
         let res = new Map<dry_card, number[]>();
         this.cardArr.forEach((i, idx) => {
             if (i) {
-                res.set(i.toDry(), i.getResponseIndexArr(system, a));
+                res.set(i, i.getResponseIndexArr(system, a));
             }
         });
         return res;
     }
-
-    //should override
-    interact(s : dry_system, cause : identificationInfo) : Action[] {return [] as Action[]}
-
-    // activateEffect(
-    //     cidx: number,
-    //     eidx: number,
-    //     system: dry_system,
-    //     a: action
-    // ): res {
-    //     if (!this.cardArr[cidx]) return [new unknownError(), undefined];
-    //     return (this.cardArr[cidx] as card).activateEffect(eidx, system, a);
-    // }
-
-    // activateEffectSubtypeSpecificFunc(
-    //     cidx: number,
-    //     eidx: number,
-    //     subTypeidx: number,
-    //     system: dry_system,
-    //     a: action
-    // ) : res {
-    //     if (!this.cardArr[cidx]) return [new unknownError(), undefined];
-    //     return (this.cardArr[cidx] as card).activateEffectSubtypeSpecificFunc(eidx, subTypeidx, system, a)
-    // }
 
     //can override section
     handleCardNotExist(func: string, line?: number): res {
@@ -648,7 +634,7 @@ class Zone {
         }
 
         //swap the two indexes
-        let cIndex = utils.positionToIndex(c.pos.flat(), this.shape);
+        let cIndex = Utils.positionToIndex(c.pos.flat(), this.shape);
         //let swapTargetID = this.cardArr[index].id
 
         let oldPos = c.pos;
@@ -686,7 +672,7 @@ class Zone {
         this.cardArr = [...temp, c, ...temp2];
         this.cardArr.forEach((i, index) => {
             if (i) {
-                i.pos.arr = utils.indexToPosition(index, this.shape);
+                i.pos.arr = Utils.indexToPosition(index, this.shape);
                 i.pos.zoneID = this.id;
             }
         });
@@ -698,17 +684,13 @@ class Zone {
         return this.handleOccupiedSwap(c, index, func, line);
     }
 
-    toDry() : dry_zone {
-        return this;
-    }
-
     forceCardArrContent(newCardArr: Card[]) {
         this.cardArr = newCardArr;
         this.cardArr.forEach((i, index) => {
             let p: Position = new Position(
                 this.id,
                 this.name,
-                ...utils.indexToPosition(index, this.shape)
+                ...Utils.indexToPosition(index, this.shape)
             );
             (i as Card).pos = p;
             console.log(
@@ -746,15 +728,67 @@ class Zone {
     }
 
     is(type : zoneRegistry) : boolean;
-    is(obj : id_able) : boolean;
-    is(p : zoneRegistry | id_able){
+    is(obj : id_able | undefined) : boolean;
+    is(p : zoneRegistry | id_able | undefined){
+        if(p === undefined) return false;
         if(typeof p === "number"){
             return this.types.includes(p)
         }
         return p.id === this.id
     }
 
+    of(pid : number) : boolean;
+    of(obj : Player_specific | undefined) : boolean;
+    of(p : number | Player_specific | undefined){
+        if(typeof p === "number"){
+            return this.playerIndex === p;
+        }
+
+        if(!p) return false;
+        return p.playerIndex === this.playerIndex
+    }
+
     get cardArr_filtered() : dry_card[] {return this.cardArr.filter(i => i !== undefined) as dry_card[]}
+
+    getAllPos() : dry_position[] {
+        return this.cardArr.map((_, index) => new Position(this.id, this.name, ...Utils.indexToPosition(index, this.shape)))
+    }
+
+    //Position check API
+
+    isC2Behind(c1 : Positionable, c2 : Positionable){
+        if(c1.pos.zoneID !== this.id || c2.pos.zoneID !== this.id) return false;
+        const p = this.getFrontPos(c1)
+        return c2.pos.x === p.x && c2.pos.y === p.y
+    }
+
+    isC2Infront(c1 : Positionable, c2 : Positionable){
+        if(c1.pos.zoneID !== this.id || c2.pos.zoneID !== this.id) return false;
+        const p = this.getBackPos(c1);
+        return c2.pos.x === p.x && c2.pos.y === p.y
+    }
+
+    getFrontPos(c : Positionable) : dry_position{
+        return new Position(this.id, this.name, c.pos.x + 1, c.pos.y)
+    }
+
+    getBackPos(c : Positionable) : dry_position{
+        return new Position(this.id, this.name, c.pos.x - 1, c.pos.y)
+    }
+
+    isOccupied(pos : Position_like){
+        const n = Utils.positionToIndex(pos.flat(), this.shape);
+        if(isNaN(n) || n < 0) return false;
+        return this.cardArr[n] !== undefined
+    }
+
+    isExposed(c1 : Positionable){
+        //exposed = no card is infront of this
+        return !this.isOccupied(this.getFrontPos(c1))
+    }
 }
 
+
+class Zone extends Zone_base<inputData[] | undefined, inputData[] | undefined, inputRequester<any, any, inputData[]> | undefined, inputRequester<any, any, inputData[]> | undefined>{}
 export default Zone;
+export { Zone_base };

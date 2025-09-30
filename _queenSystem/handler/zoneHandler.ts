@@ -19,7 +19,6 @@ import _void from "../../types/defaultZones/void";
 import zoneLoader from "../loader/loader_zone";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 
-import utils from "../../utils";
 import zoneDataRegistry, { playerTypeID, zoneData } from "../../data/zoneRegistry";
 import { zoneRegistry, zoneName, zoneID } from "../../data/zoneRegistry";
 
@@ -33,10 +32,13 @@ import { type identificationInfo_card, type identificationInfo, type identificat
 import type error from "../../types/errors/error";
 import actionRegistry from "../../data/actionRegistry";
 import { damageType } from "../../types/misc";
-import type { dry_card, dry_system } from "../../data/systemRegistry";
+import type { dry_system, dry_card, dry_zone, inputData, player_stat } from "../../data/systemRegistry";
+import { inputApplicator, inputRequester } from "./actionInputGenerator";
+import type queenSystem from "../queenSystem";
+import drop from "../../types/defaultZones/drop";
 
 class zoneHandler {
-    readonly zoneArr : ReadonlyArray<Zone> = []
+    zoneArr : ReadonlyArray<Zone> = []
     private loader : zoneLoader
 
     //old
@@ -57,13 +59,14 @@ class zoneHandler {
 
     //     await Promise.all(zonePromises);
     // }
+    constructor(regs : registryHandler){this.loader = regs.zoneLoader}
     
-    constructor(regs : registryHandler, s : Setting){
-        this.loader = regs.zoneLoader
+    loadZones(s : Setting, players : player_stat[]){
         this.loader.load(zoneRegistry[zoneRegistry.z_system], zoneDataRegistry.z_system, system);
+        this.loader.load(zoneRegistry[zoneRegistry.z_drop], zoneDataRegistry.z_drop, drop)
+        this.loader.load(zoneRegistry[zoneRegistry.z_void], zoneDataRegistry.z_void, _void);
         this.loader.load(zoneRegistry[zoneRegistry.z_deck], zoneDataRegistry.z_deck, deck);
         this.loader.load(zoneRegistry[zoneRegistry.z_hand], zoneDataRegistry.z_hand, hand);
-        this.loader.load(zoneRegistry[zoneRegistry.z_void], zoneDataRegistry.z_void, _void);
         this.loader.load(zoneRegistry[zoneRegistry.z_storage], zoneDataRegistry.z_storage, storage);
         this.loader.load(zoneRegistry[zoneRegistry.z_field], zoneDataRegistry.z_field, field);
         this.loader.load(zoneRegistry[zoneRegistry.z_grave], zoneDataRegistry.z_grave, grave);
@@ -74,16 +77,16 @@ class zoneHandler {
         Object.entries(zoneDataRegistry).forEach(([zkey, zdata], index) => {
             if(!zdata.instancedFor.length){
                 let  zinstance = (this.loader.getZone(zkey, s) as Zone)
-                utils.insertionSort(
+                Utils.insertionSort(
                     this.zoneArr as Zone[], 
                     zinstance,
                     this.sortFunc
                 )
             } else {
-                s.players.forEach((ptype, pindex) => {
-                    let zinstance = (this.loader.getZone(zkey, s, ptype, pindex) as Zone)
-                    if(zdata.instancedFor.includes(ptype)){
-                        utils.insertionSort(
+                players.forEach((p, pindex) => {
+                    let zinstance = (this.loader.getZone(zkey, s, p.playerType, pindex) as Zone)
+                    if(zdata.instancedFor.includes(p.playerType)){
+                        Utils.insertionSort(
                             this.zoneArr as Zone[],
                             zinstance,
                             this.sortFunc
@@ -115,7 +118,7 @@ class zoneHandler {
     add(zclassID : string, s : Setting, ptype? : playerTypeID | -1, pid? : number, zDataID? : string){
         let instance = this.loader.getZone(zclassID, s, ptype, pid, zDataID);
         if(!instance) throw new Error(`Fail to create instance of zone ${zclassID}`);
-        utils.insertionSort(this.zoneArr as Zone[], instance, this.sortFunc);
+        Utils.insertionSort(this.zoneArr as Zone[], instance, this.sortFunc);
         this.correctID()
     }
 
@@ -156,7 +159,7 @@ class zoneHandler {
             }
         })
 
-        insertNew.forEach(i => utils.insertionSort(this.zoneArr as Zone[], i, this.sortFunc))
+        insertNew.forEach(i => Utils.insertionSort(this.zoneArr as Zone[], i, this.sortFunc))
         this.correctID()
     }
 
@@ -172,7 +175,7 @@ class zoneHandler {
             c = this.getCardWithID(target.card.id);
             if (!c) return [true, [new cardNotExist()]];
         }
-        if(!a.resolvable(s, z.toDry(), c.toDry())) return [true, []]
+        if(!a.resolvable(s, z, c)) return [true, []]
         return [false, c];
     }
 
@@ -196,7 +199,7 @@ class zoneHandler {
             eff = c.totalEffects[eindex]
         }
 
-        if(!a.resolvable(s, z.toDry(), c.toDry(), eff.toDry())) return [true, []]
+        if(!a.resolvable(s, z, c, eff)) return [true, []]
         return [false, c, eff]
     }
 
@@ -223,7 +226,7 @@ class zoneHandler {
         let st = eff.getSubtypeidx(target.subtype.dataID)
         if(st < 0) return [true, [new effectNotExist(target.eff.id, c.id).add("zoneHandler", "handleActivateEffectSubtypeFunc", 326)]]
 
-        if(!a.resolvable(s, z.toDry(), c.toDry(), eff.toDry(), eff.subTypes[st].toDry())) return [true, []]
+        if(!a.resolvable(s, z, c, eff, eff.subTypes[st])) return [true, []]
 
         return [false, c, eff, st]
 
@@ -258,7 +261,7 @@ class zoneHandler {
             ];
         }
 
-        if(!a.resolvable(s, z.toDry(), c.toDry())) return [];
+        if(!a.resolvable(s, z, c)) return [];
 
         let temp : res
 
@@ -291,9 +294,9 @@ class zoneHandler {
             new zoneNotExist(a.targets[0].zone.id).add("zoneHandler", "handleDraw", 213)
         ]
 
-        if(!a.resolvable(s, zone.toDry())) return []
+        if(!a.resolvable(s, zone)) return []
 
-        let deck = zone as deck;
+        let deck = zone as any as deck;
 
         let playerindex = deck.playerIndex
         let hand = this.hands.filter(i => i.playerIndex === playerindex);
@@ -313,7 +316,7 @@ class zoneHandler {
         if(!z || !(z as any).draw) return [
             new zoneNotExist(a.targets[0].zone.id).add("zoneHandler", "handleDraw", 213)
         ]
-        if(!a.resolvable(s, z.toDry())) return [];
+        if(!a.resolvable(s, z)) return [];
         let temp = z.shuffle(a.flatAttr().shuffleMap)
         if(temp[0]) return [temp[0]]
         return temp[1]
@@ -338,10 +341,21 @@ class zoneHandler {
         return res[2].reset()
     }
 
-    handleEffectActivation(s : dry_system, a : Action<"a_activate_effect">) : Action[]{
-        let res = this.genericHandler_effect(s, a);
-        if(res[0]) return res[1];
-        return res[2].activate(res[1], s, a);
+    handleEffectActivation(s : queenSystem, a : Action<"a_activate_effect">) : Action[]{
+        
+        const card = a.targets[0].card as Card
+        const pid = a.targets[1].pid
+
+        const gen = card.getParititonInputObj(pid, s, a)
+
+        if(!gen) return card.activatePartition(pid, s, a)
+
+        return [
+            actionConstructorRegistry.a_get_input(a.cause, {
+                requester : gen,
+                applicator : new inputApplicator(card.activatePartition, [pid, s, a], card)
+            })
+        ];
     }
 
     handleActivateEffectSubtypeFunc(s : dry_system, a : Action<"a_activate_effect_subtype">) : Action[]{
@@ -378,9 +392,7 @@ class zoneHandler {
         return []
     }
 
-    handleAttack(s : dry_system, a : Action<"a_attack">) : Action[] {
-        let attr = a.flatAttr()
-
+    getWouldBeAttackTarget(s : dry_system, a : Action) : [Zone, Card[]] | [] {
         //find opposite
         if((a.cause as any).card === undefined) return []
         let c = (a.cause as any).card as dry_card
@@ -391,20 +403,27 @@ class zoneHandler {
         let targetZone = oppositeZones.getOppositeZone(this.zoneArr)
         if(!targetZone.length) return []
 
-        let targets = targetZone[0].getOppositeCards(c)
+        return [oppositeZones, targetZone[0].getOppositeCards(c).sort((a, b) => a.pos.y - b.pos.y)]
+    }
+
+    handleAttack(s : dry_system, a : Action<"a_attack">) : Action[] {
+        let attr = a.flatAttr()
+        let c = (a.cause as any).card as dry_card
+        if(!c) return []
+
+        let targets = this.getWouldBeAttackTarget(s, a);
+        if(!targets.length) return []
         
-        if(!targets.length){
+        if(!targets[1].length){
             return [
-                actionConstructorRegistry.a_deal_heart_damage(s, oppositeZones.playerIndex)(a.cause, {
+                actionConstructorRegistry.a_deal_heart_damage(s, targets[0].playerIndex)(a.cause, {
                     dmg : c.attr.get("atk") ?? 0
                 })
             ]
         }
 
-        targets = targets.sort((a, b) => a.pos.x - b.pos.x)
-
         return [
-            actionConstructorRegistry.a_deal_damage_internal(s, targets[0].toDry())(a.cause, {
+            actionConstructorRegistry.a_deal_damage_internal(s, targets[1][0])(a.cause, {
                 dmg : (attr.dmg === undefined) ? c.attr.get("atk") ?? 0 : attr.dmg,
                 dmgType : (attr.dmgType === undefined) ? damageType.physical : attr.dmgType
             })
@@ -420,7 +439,7 @@ class zoneHandler {
 
         if(res[1].hp === 0){
             return [
-                actionConstructorRegistry.a_destroy(s, res[1].toDry())(actionFormRegistry.system())
+                actionConstructorRegistry.a_destroy(s, res[1])(actionFormRegistry.system())
             ]
         }
         return []
@@ -439,7 +458,7 @@ class zoneHandler {
 
         if(c.hp === 0){
             return [
-                actionConstructorRegistry.a_destroy(s, c.toDry())(actionFormRegistry.system())
+                actionConstructorRegistry.a_destroy(s, c)(actionFormRegistry.system())
             ]
         }
 
@@ -470,7 +489,7 @@ class zoneHandler {
                 dmg : res[1].atk,
                 dmgType : damageType.physical
             }),
-            actionConstructorRegistry.a_pos_change_force(s, res[1].toDry())(g[0].top.toDry())(actionFormRegistry.system()).dontchain()
+            actionConstructorRegistry.a_pos_change_force(s, res[1])(g[0].top)(actionFormRegistry.system()).dontchain()
         ]
     }
 
@@ -492,7 +511,31 @@ class zoneHandler {
         ]
 
         return [
-            actionConstructorRegistry.a_pos_change_force(s, res[1].toDry())(targetZone[0].top.toDry())(actionFormRegistry.system())
+            actionConstructorRegistry.a_pos_change_force(s, res[1])(targetZone[0].top)(actionFormRegistry.system())
+        ]
+    }
+
+    getZoneRespond(z : Zone, s : dry_system, a : Action) : Action[] {
+        const gen = z.getInput_ZoneRespond(a, s);
+        if(gen === undefined) return z.getZoneRespond(a, s, undefined);
+
+        return [
+            actionConstructorRegistry.a_get_input(actionFormRegistry.system(), {
+                requester : gen as any,
+                applicator : new inputApplicator(z.getZoneRespond, [a, s], z)
+            })
+        ]
+    }
+
+    handleZoneInteract(z : Zone, s : dry_system, a : Action) : Action[] {
+        const gen = z.getInput_interact(s, a.cause);
+        if(gen === undefined) return z.interact(s, a.cause, undefined);
+
+        return [
+            actionConstructorRegistry.a_get_input(actionFormRegistry.system(), {
+                requester : gen as any,
+                applicator : new inputApplicator(z.interact, [s, a.cause], z)
+            })
         ]
     }
 
@@ -500,20 +543,20 @@ class zoneHandler {
         let arr : Action[] = []
         let infoLog : Map<string, string[]> = new Map() //cardID, effectIDs[]
         this.zoneArr.forEach(i => {
-            arr.push(...i.getZoneRespond(a, system))
+            arr.push(...this.getZoneRespond(i, system, a))
         })
         if(zoneResponsesOnly) return [arr, []];
         this.zoneArr.forEach(i => {
             let respondMap = i.getCanRespondMap(a, system)
-            respondMap.forEach((eidxArr, cardInfo) => {
-                eidxArr.forEach(eidx => {
+            respondMap.forEach((pidxArr, cardInfo) => {
+                pidxArr.forEach(pidx => {
                     arr.push(
-                        actionConstructorRegistry.a_activate_effect_internal(system, cardInfo, cardInfo.effects[eidx])(a.cause)
+                        actionConstructorRegistry.a_activate_effect_internal(system, cardInfo)(pidx)(a.cause)
                     )
                     if(infoLog.has(cardInfo.id)) {
-                        (infoLog.get(cardInfo.id) as string[]).push(cardInfo.effects[eidx].id);
+                        (infoLog.get(cardInfo.id) as string[]).push(cardInfo.effects[pidx].id);
                     } else {
-                        infoLog.set(cardInfo.id, [cardInfo.effects[eidx].id])
+                        infoLog.set(cardInfo.id, [cardInfo.effects[pidx].id])
                     } 
                 })
             })
@@ -644,6 +687,7 @@ class zoneHandler {
     get abilityZones() {return this.getZoneWithType(zoneRegistry.z_ability) as abiltyZone[]}
     get graves() {return this.getZoneWithType(zoneRegistry.z_grave) as grave[]}
     get fields() {return this.getZoneWithType(zoneRegistry.z_field) as field[]}
+    get drops() {return this.getZoneWithType(zoneRegistry.z_drop) as drop[]}
 
     getPlayerZone(pid : number, type : number) : Zone[]{
         return this.zoneArr.filter(i => i.playerIndex === pid && i.types.includes(type))

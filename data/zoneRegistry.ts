@@ -16,6 +16,7 @@ type zoneData = (zoneData_fixxed_entries) | (zoneData_fixxed_entries & zoneData_
 //dataID lookup
 enum zoneRegistry {
     z_system = 0,
+    z_drop,
     z_void,
     z_deck,
     z_field,
@@ -51,7 +52,7 @@ const playerOppositeMap = {
 const zoneDataRegistry : Record<zoneName, zoneData> =  {
     z_system : {
         priority: Infinity,
-        posBound: [] as number[],
+        posBound: [],
         minCapacity : -Infinity,
         attriutesArr: [],
         instancedFor: [],
@@ -59,6 +60,18 @@ const zoneDataRegistry : Record<zoneName, zoneData> =  {
         startThreat : 0,
         maxThreat : 20,
         clearThreatWhenBurn : false,
+    },
+    z_drop : {
+        priority: Infinity,
+        posBound: [Infinity],
+
+        minCapacity : 0,
+        attriutesArr : [
+            zoneAttributes.canReorderSelf, 
+            zoneAttributes.canMoveTo, 
+            zoneAttributes.canMoveFrom, 
+        ],
+        instancedFor : [],
     },
     z_deck : {
         priority: 1,

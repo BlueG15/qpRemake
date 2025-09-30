@@ -1,6 +1,6 @@
 import type cardLoader from "../loader/loader_card";
 import type effectLoader from "../loader/loader_effect";
-import type subtypeLoader from "../loader/loader_subtype";
+import subtypeLoader from "../loader/loader_subtype";
 import typeLoader from "../loader/loader_type";
 import type registryHandler from "./registryHandler";
 import type rarityLoader from "../loader/loader_rarity";
@@ -14,6 +14,9 @@ import subtype_hardUnique from "../../types/effects/effectSubtypes/subtype_hardU
 import subtype_instant from "../../types/effects/effectSubtypes/subtype_instant";
 import subtype_once from "../../types/effects/effectSubtypes/subtype_once";
 import subtype_unique from "../../types/effects/effectSubtypes/subtype_unique";
+import subtype_hand_or_fieldLock from "../../types/effects/effectSubtypes/subtype_hand_or_fieldLock";
+import subtype_graveLock from "../../types/effects/effectSubtypes/subtype_graveLock";
+import subtype_delayed from "../../types/effects/effectSubtypes/subtype_delayed";
 
 import effectTypeRegistry from "../../data/effectTypeRegistry";
 
@@ -22,13 +25,15 @@ import initEffect from "../../types/effects/effectTypes/initEffect";
 import manualEffect from "../../types/effects/effectTypes/manualEffect";
 import passiveEffect from "../../types/effects/effectTypes/passiveEffect";
 import triggerEffect from "../../types/effects/effectTypes/triggerEffect";
+import lockEffect from "../../types/effects/effectTypes/lockEffect";
 
 import { rarityRegistry } from "../../data/rarityRegistry";
 import rarityDataRegistry from "../../data/rarityRegistry";
 
-import { cardDataRegistry } from "../../data/cardRegistry";
-import subtype_hand_or_fieldLock from "../../types/effects/effectSubtypes/subtype_hand_or_fieldLock";
-import subtype_graveLock from "../../types/effects/effectSubtypes/subtype_graveLock";
+import { cardData, cardDataRegistry } from "../../data/cardRegistry";
+
+
+import type Card from "../../types/abstract/gameComponents/card";
 
 export default class cardHandler {
     private cloader : cardLoader
@@ -46,21 +51,23 @@ export default class cardHandler {
         this.rarityLoader = regs.rarityLoader
         this.setting = s
 
-        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_chained], subtype_chained)
-        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_fieldLock], subtype_fieldLock)
-        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_hardUnique], subtype_hardUnique)
-        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_instant], subtype_instant)
-        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_once], subtype_once)
-        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_unique], subtype_unique)
-        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_handOrFieldLock], subtype_hand_or_fieldLock)
-        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_graveLock], subtype_graveLock)
+        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_st_chained], subtype_chained)
+        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_st_fieldLock], subtype_fieldLock)
+        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_st_hardUnique], subtype_hardUnique)
+        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_st_instant], subtype_instant)
+        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_st_once], subtype_once)
+        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_st_unique], subtype_unique)
+        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_st_handOrFieldLock], subtype_hand_or_fieldLock)
+        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_st_graveLock], subtype_graveLock)
+        this.subtypeloader.load(subtypeRegistry[subtypeRegistry.e_st_delayed], subtype_delayed)
 
-        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_none], EffectType)
-        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_counter], EffectType)
-        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_init], initEffect)
-        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_manual], manualEffect)
-        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_passive], passiveEffect)
-        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_trigger], triggerEffect)
+        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_t_none], EffectType)
+        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_t_counter], EffectType)
+        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_t_init], initEffect)
+        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_t_manual], manualEffect)
+        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_t_passive], passiveEffect)
+        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_t_trigger], triggerEffect)
+        this.typeLoader.load(effectTypeRegistry[effectTypeRegistry.e_t_lock], lockEffect)
 
         this.rarityLoader.load(rarityRegistry[rarityRegistry.r_white], rarityDataRegistry.r_white)
         this.rarityLoader.load(rarityRegistry[rarityRegistry.r_green], rarityDataRegistry.r_green)
@@ -69,12 +76,14 @@ export default class cardHandler {
         this.rarityLoader.load(rarityRegistry[rarityRegistry.r_ability], rarityDataRegistry.r_ability)
         this.rarityLoader.load(rarityRegistry[rarityRegistry.r_algo], rarityDataRegistry.r_algo)
 
-        Object.values(cardDataRegistry).forEach(i => {
-            this.cloader.load(i.id, i);
+        Object.entries(cardDataRegistry).forEach(([key, val]) => {
+            this.cloader.load(key, {id : key, ...val});
         })
     }
 
-    getCard(cid : string, variantID? : string[]){
+    getCard(cid : keyof typeof cardDataRegistry, variantID? : string[]) : Card
+    getCard(cid : string, variantID? : string[]) : Card | undefined
+    getCard(cid : string, variantID? : string[]) : Card | undefined{
         return this.cloader.getCard(cid, this.setting, variantID);
     }
 }

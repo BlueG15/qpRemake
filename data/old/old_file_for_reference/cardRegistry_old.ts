@@ -12,7 +12,7 @@ type cardData_general = {
   //imgURL = base image path + "/cards/id.png"
   //backgroundURL = base image path + "/cardbg/{isUpgraded ? 1 : 0}/rarityStr.png"
   
-  //base image path : https://raw.githubusercontent.com/qpProject/qpProject.github.io/bfbdde7174971022b7bf95b7b591b5b94ee66c9d/
+  //base image path : https://raw.githubusercontent.com/qpProject/qpProject.github.io/refs/heads/main/cards/
   level: number;
   rarityID: number;
   archtype: string;

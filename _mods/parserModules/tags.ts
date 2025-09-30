@@ -1,5 +1,5 @@
 import { component, parserModule, moduleInputObject, parseOptions } from '../../types/abstract/parser';
-type nestedTree<T> = T[] | nestedTree<T>[]
+import type { nestedTree } from '../../types/misc';
 
 export default class tagsModule extends parserModule {
 

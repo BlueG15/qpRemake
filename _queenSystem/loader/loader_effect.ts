@@ -5,7 +5,6 @@ import type subtypeLoader from "./loader_subtype";
 import type typeLoader from "./loader_type";
 import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
 import type effectDataRegistry from "../../data/effectRegistry";
-import utils from "../../utils";
 
 //Cards have 2 parts
 
@@ -32,6 +31,14 @@ export default class effectLoader {
         this.dataCache = new Map(Object.entries(dataRegistry))
         this.subtypeLoader = subtypeLoader
         this.typeLoader = typeLoader
+    }
+
+    get classkeys() {
+        return Array.from(this.classCache.keys())
+    }
+
+    get datakeys() {
+        return Array.from(this.dataCache.keys())
     }
 
     private async loadSingle(path : string, eid : string, s : Setting){
@@ -88,13 +95,21 @@ export default class effectLoader {
         }
     }
 
-    getEffect(eid : string, s : Setting, edata? : effectData){
+    getEffect(eid : keyof typeof effectDataRegistry, s : Setting, edata? : Partial<effectData>) : Effect
+    getEffect(eid : string, s : Setting, edata? : Partial<effectData>) : Effect | undefined
+    getEffect(eid : string, s : Setting, edata? : Partial<effectData>) : Effect | undefined{
         let data = this.dataCache.get(eid)
         if(!data) return undefined
 
         let eclass = this.classCache.get(eid)
-        if(!eclass) return undefined
+        if(!eclass) {console.log("No class Data for key ", eid); return undefined}
 
+        if(edata) Utils.patchGeneric(data, edata)
+
+        return this.getDirect(eid, s, eclass, data)
+    }
+
+    getDirect(eid : string, s : Setting, eclass : typeof Effect | Function, data : effectData){
         let c = this.countCache.get(eid);
         c = (c) ? (c + 1) % s.max_id_count : 0;
         this.countCache.set(eid, c); 
@@ -103,9 +118,7 @@ export default class effectLoader {
         let type = this.typeLoader.getType(data.typeID, s, eid)
         if(!type) return undefined
 
-        let runID = utils.dataIDToUniqueID(eid, c, s, ...data.subTypeIDs)
-
-        if(edata) utils.patchGeneric(data, edata)
+        let runID = Utils.dataIDToUniqueID(eid, c, s, ...data.subTypeIDs)
             
         //load subtypes
         let k : effectSubtype[] = []

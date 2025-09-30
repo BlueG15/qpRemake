@@ -307,6 +307,12 @@ specify numPlayers
 change zoneData to have 2 more properties, isFieldZone and isPlayerInstanced
 if isPlayerInstanced, spawn one for every player
 
+// July 3rd
+
+fix zone respond and interact to return a recurring generator
+make a zone_effect class thats replaced dry-card param with dry_zone
+make a handle zoneEffect handler 
+
 
 
 

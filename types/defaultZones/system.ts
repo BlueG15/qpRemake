@@ -1,11 +1,11 @@
-import zone from "../abstract/gameComponents/zone";
+import { Zone_base } from "../abstract/gameComponents/zone";
 import type { player_stat } from "../../data/systemRegistry";
 import type { Action } from "../../_queenSystem/handler/actionGenrator";
 import type { dry_system } from "../../data/systemRegistry";
 
 import { actionConstructorRegistry, actionFormRegistry } from "../../_queenSystem/handler/actionGenrator";
 
-class system extends zone {
+class system extends Zone_base {
     // constructor(){
     //     super("system");
     // }
@@ -26,12 +26,12 @@ class system extends zone {
         if(pdata.heart === 1) {
             pdata.heart = 0;
             return [
-                actionConstructorRegistry.a_force_end_game(actionFormRegistry.zone(s, this.toDry()))
+                actionConstructorRegistry.a_force_end_game(actionFormRegistry.zone(s, this))
             ]
         }
         pdata.heart = Math.floor(pdata.heart / 2)
         return this.clearThreatWhenBurn ? [
-            actionConstructorRegistry.a_set_threat_level(actionFormRegistry.zone(s, this.toDry()), {
+            actionConstructorRegistry.a_set_threat_level(actionFormRegistry.zone(s, this), {
                 newThreatLevel : 0
             })
         ] :[]

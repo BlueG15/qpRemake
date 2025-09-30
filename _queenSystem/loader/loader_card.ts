@@ -3,7 +3,6 @@ import type { cardData, cardData_unified, effectData } from "../../data/cardRegi
 import type effectLoader from "./loader_effect";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 import type Effect from "../../types/abstract/gameComponents/effect";
-import utils from "../../utils";
 
 //Cards have 2 parts
 
@@ -22,6 +21,14 @@ export default class cardLoader {
 
     constructor(effectHandler : effectLoader){
         this.effectHandler = effectHandler
+    }
+
+    get classkeys() {
+        return Array.from(this.customClassCache.keys())
+    }
+
+    get datakeys() {
+        return Array.from(this.dataCache.keys())
     }
 
     load(key : string, data : cardData, c? : typeof Card | Record<string, typeof Card>){
@@ -47,7 +54,13 @@ export default class cardLoader {
         c = (c) ? (c + 1) % s.max_id_count : 0;
         this.countCache.set(cid, c); 
 
-        let runID = variantid ? utils.dataIDToUniqueID(cid, c, s, ...variantid) : utils.dataIDToUniqueID(cid, c, s);
+        let runID = variantid ? Utils.dataIDToUniqueID(cid, c, s, ...variantid) : Utils.dataIDToUniqueID(cid, c, s);
+
+        if(!data.variantData) {
+            console.log("invalid data somehow", JSON.stringify(data))
+            return undefined
+        }
+
         let baseData = data.variantData.base
 
         let d : cardData_unified = {
@@ -59,16 +72,45 @@ export default class cardLoader {
 
         if(variantid){
             variantid.forEach(i => {
-                utils.patchCardData(d, data.variantData[i])
+                Utils.patchCardData(d, data.variantData[i])
             })
         }
         
         let effArr : Effect[] = []
         Object.keys(d.effects).forEach(i => {
-            const eObj : effectData | undefined = (d.effects as any)[i]
-            let e = this.effectHandler.getEffect(i, s, eObj);
-            if(e) effArr.push(e);
-            else console.log(`Effect id not found: ${i}\n`)
+            const eObj : effectData & {
+                __loadOptions? : {
+                    ___internalMultipleLoadCount? : number,
+                    __additionalPatches?: Partial<effectData>[]
+                }
+            } | undefined = (d.effects as any)[i]
+
+            function Load(t : cardLoader, eObj : Partial<effectData> | undefined){
+                // console.log("Trying to load eff: ", JSON.stringify(eObj))
+                let e = t.effectHandler.getEffect(i, s, eObj);
+                if(e) effArr.push(e);
+                else console.log(`Effect id not found: ${i}\n`)
+            }
+
+            if(eObj && typeof eObj.__loadOptions === "object"){
+                if(eObj.__loadOptions.___internalMultipleLoadCount || eObj.__loadOptions.__additionalPatches){
+                    let t1 = eObj.__loadOptions.___internalMultipleLoadCount ?? 0
+                    let t2 = (eObj.__loadOptions.__additionalPatches ?? []).length
+
+                    let t = Math.max(t1, t2);
+                    
+                    if(!Number.isFinite(t)) console.log(
+                        "Trying to load an infinite ammounnt of effects: ", cid, eObj
+                    ); else if(t > 0) {
+                        for(let z = 0; z < t; z++){
+                            Load(this, eObj.__loadOptions.__additionalPatches ? eObj.__loadOptions.__additionalPatches[z] : eObj)
+                        }
+                    }
+                }
+            } else {
+                Load(this, eObj)
+            }
+            
         })
         
         if(effArr.length != Object.keys(d.effects).length && !s.ignore_undefined_effect){
@@ -79,6 +121,33 @@ export default class cardLoader {
         //     debug log: loading card ${cid}, loaded ${effArr.length} effects\n`)
     
         return new cclass(s, d, effArr)
+    }
+
+    getDirect(cid : string, s : Setting, ...eff : Effect<any>[]){
+        //default partiton scheme: all eff into one partiton
+
+        let data = this.dataCache.get("c_test")
+        if(!data) return undefined
+
+        let c = this.countCache.get(cid);
+        c = (c) ? (c + 1) % s.max_id_count : 0;
+        this.countCache.set(cid, c); 
+
+        let runID = Utils.dataIDToUniqueID(cid, c, s);
+        let baseData = data.variantData.base
+
+        let d : cardData_unified = {
+            id : runID, 
+            dataID : cid,
+            variants : ["base"],
+            ...baseData
+        }
+
+        d.effects = Object.fromEntries( eff.map(e => [e.dataID, e.originalData]) )
+        d.partition[0].mapping = Utils.range(eff.length)
+        d.partition[0].displayID = cid
+
+        return new Card(s, d, eff)
     }
 }
 

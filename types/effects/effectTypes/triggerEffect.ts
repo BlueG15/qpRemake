@@ -1,6 +1,6 @@
-import type { Action } from "../../../_queenSystem/handler/actionGenrator";
+import { actionConstructorRegistry, actionFormRegistry, type Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "../../abstract/gameComponents/card"
-import type { dry_system } from "../../../data/systemRegistry";
+import type { dry_effect, dry_system } from "../../../data/systemRegistry";
 import EffectType from "../../abstract/gameComponents/effectType"
 
 class triggerEffect extends EffectType {
@@ -10,7 +10,7 @@ class triggerEffect extends EffectType {
     //      action != "activate self" -> returns an "activate self" action, isChain = false
     //      action == "activate self" -> returns whatever super.activate returns, isChain = true
 
-    override canRespondAndActivate(c: Card, system: dry_system, a: Action): -1 | boolean {
+    override canRespondAndActivate(e : any, c: Card, system: dry_system, a: Action): -1 | boolean {
         //enforces only respond in the trigger phase
         //if and only if no subtype overrides the result
         //this function only runs if no override happens 
@@ -18,7 +18,11 @@ class triggerEffect extends EffectType {
         return -1;
     }
 
-    override parseAfterActivate(c: Card, system: dry_system, res: Action[]) {
+    override parseAfterActivate(e : dry_effect, c: Card, system: dry_system, res: Action[]) {
+        const cause = actionFormRegistry.effect(system, c, e);
+        res.unshift(
+            actionConstructorRegistry.a_declare_activation(system, c, e)(cause)
+        )
         res.forEach(i => i.isChain = false);
     }
 }
