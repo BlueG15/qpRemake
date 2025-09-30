@@ -475,7 +475,7 @@ class queenSystem {
     }
 
     start(){
-        this.renderer.startTurn(this, this.processTurn.bind(this))
+        this.renderer.startTurn(this.toLocalized()!, this.processTurn.bind(this))
     }
 
     processTurn(startNode? : _node) : completed;
@@ -495,7 +495,7 @@ class queenSystem {
             if(!n) return true;
             this.suspend(n.id)
             this.suspensionReason = false;
-            this.renderer.init(this, this.continue.bind(this))
+            this.renderer.init(this.toLocalized()!, this.continue.bind(this))
             return false
         }
         // while(n){
@@ -504,7 +504,7 @@ class queenSystem {
                 if(!this.curr_input_obj) throw Error("Somehow suspended but dont want to input");
                 this.suspend(n.id)
                 this.suspensionReason = false;
-                this.renderer.requestInput(this.curr_input_obj!.requester.next(), this.phaseIdx, this, n.data, this.continue.bind(this))
+                this.renderer.requestInput(this.curr_input_obj!.requester.next(), this.phaseIdx, this.toLocalized()!, n.data, this.continue.bind(this))
                 return false;
             };
             const oldAction = n.data
@@ -513,7 +513,7 @@ class queenSystem {
 
             this.suspend(n.id)
             this.suspensionReason = false;
-            this.renderer.update(this.phaseIdx, this, oldAction, this.continue.bind(this))
+            this.renderer.update(this.phaseIdx, this.toLocalized()!, oldAction, this.continue.bind(this))
             return false;
             // }
     }
@@ -899,7 +899,7 @@ class queenSystem {
             if(res) return this.processTurn();
             else {
                 console.log("Input taken, but unfinished, please continue")
-                this.renderer.requestInput(requester.next(), this.phaseIdx, this, n.data, this.continue.bind(this))
+                this.renderer.requestInput(requester.next(), this.phaseIdx, this.toLocalized()!, n.data, this.continue.bind(this))
                 return false;
             }
             
