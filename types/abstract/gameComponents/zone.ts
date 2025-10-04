@@ -51,7 +51,6 @@ class Zone_base<
         playerIndex = -1, 
         data?: zoneData
     ) {
-        console.log("Loaded zone: ", dataID, data?.posBound, JSON.stringify(data?.posBound))
         this.name = name;
         this.dataID = dataID;
 

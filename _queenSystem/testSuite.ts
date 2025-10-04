@@ -269,7 +269,7 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
 
     test3(s : queenSystem){
         let a = s.zoneHandler.decks[0].getAction_draw(s, s.zoneHandler.hands[0], actionFormRegistry.system(), true)
-        console.dir(a, {depth : 2})
+        console.log(a)
     },
 
     test4(s : queenSystem){
@@ -406,7 +406,11 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
         const e1 = s.registryFile.effectLoader.getDirect("e_num_2", s.setting, ec1, quickEffect.init())!
         const e2 = s.registryFile.effectLoader.getDirect("e_num_5", s.setting, ec2, quickEffect.def)!
 
-        const c = s.registryFile.cardLoader.getDirect("c_test", s.setting, e1, e2)!
+        const c = s.registryFile.cardLoader.getDirect("c_apple", s.setting, e1, e2)!
+        if(!c){
+            console.log("Some how get direct fails is not found")
+            return
+        }
 
         console.log(c.partitionInfo)
 
@@ -431,7 +435,7 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
         const lemon = s.registryFile.cardLoader.getCard("c_pomegranate", s.setting)
         if(!lemon) throw Error("Somehow pom is not available")
         const localize_lemon = s.localizer.localizeCard(lemon)
-        console.dir(localize_lemon, {depth : 5})
+        console.log(localize_lemon, {depth : 5})
         if(file)
             file.writeFileSync("./localized_test.json", JSON.stringify(localize_lemon, null, 4));
     }

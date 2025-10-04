@@ -8,11 +8,13 @@ import fs from "fs"
 import Processor from "./_queenSystem/handler/oldDataProcessor";
 import { simpleRenderer } from "./_queenSystem/renderer/simpleRenderer";
 import { operatorRegistry } from "./data/operatorRegistry";
+import { qpTerminalRenderer } from "./_queenSystem/renderer/terminalRenderer";
 
 async function main(){
     let s = new defaultSetting();
-    let renderer = new simpleRenderer()
+    let renderer = new qpTerminalRenderer()
     let sys = new queenSystem(s, renderer);
+    renderer.bind(sys)
     sys.addPlayers("player", operatorRegistry.o_esper)
     sys.addPlayers("enemy", operatorRegistry.o_null)
     await sys.load();
@@ -23,8 +25,9 @@ async function main(){
     // fs.writeFileSync("./zeroEffCardData.json", Processor.get0EffectCardsInCurrentFormat())
     // fs.writeFileSync("./generics.json", Processor.getGeneric())
 
-    testSuite.progressCheck(sys)
-    testSuite.test10(sys, fs)
+    // testSuite.progressCheck(sys)
+    // testSuite.test10(sys, fs)
+    renderer.start();
 }
 
 main()

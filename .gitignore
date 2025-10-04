@@ -2,6 +2,6 @@
 /node_modules
 /dist
 /progress_tracker
+/build
 
 package-lock.json
-tsconfig.json
