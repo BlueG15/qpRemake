@@ -466,7 +466,7 @@ class queenSystem {
                 //new note
                 //mods may emit new undefined actions
                 //go to zone handler to fix this shit
-                console.log("Unhandle case reached, ", a.typeID)
+                // console.log("Unhandle case reached, ", a.typeID)
                 return this.registryFile.customActionLoader.handle(a.typeID, a, this);
             }
         }
@@ -475,7 +475,7 @@ class queenSystem {
     }
 
     start(){
-        this.renderer.startTurn(this.toLocalized()!, this.processTurn.bind(this))
+        this.renderer.turnStart(this.toLocalized()!, this.processTurn.bind(this))
     }
 
     processTurn(startNode? : _node) : completed;
@@ -495,7 +495,7 @@ class queenSystem {
             if(!n) return true;
             this.suspend(n.id)
             this.suspensionReason = false;
-            this.renderer.init(this.toLocalized()!, this.continue.bind(this))
+            this.renderer.gameStart(this.toLocalized()!, this.continue.bind(this))
             return false
         }
         // while(n){
@@ -504,7 +504,16 @@ class queenSystem {
                 if(!this.curr_input_obj) throw Error("Somehow suspended but dont want to input");
                 this.suspend(n.id)
                 this.suspensionReason = false;
-                this.renderer.requestInput(this.curr_input_obj!.requester.next(), this.phaseIdx, this.toLocalized()!, n.data, this.continue.bind(this))
+                let inputArr
+                const input = this.curr_input_obj!.requester.next()
+                if(input[1]) inputArr = input[1];
+                else inputArr = this.getAllInputs(input[0], true);
+                this.renderer.requestInput(
+                    inputArr, 
+                    this.phaseIdx, this.toLocalized()!, 
+                    n.data, 
+                    this.continue.bind(this)
+                )
                 return false;
             };
             const oldAction = n.data
@@ -899,7 +908,13 @@ class queenSystem {
             if(res) return this.processTurn();
             else {
                 console.log("Input taken, but unfinished, please continue")
-                this.renderer.requestInput(requester.next(), this.phaseIdx, this.toLocalized()!, n.data, this.continue.bind(this))
+
+                let inputArr
+                const input = requester.next()
+                if(input[1]) inputArr = input[1];
+                else inputArr = this.getAllInputs(input[0], true);
+
+                this.renderer.requestInput(inputArr, this.phaseIdx, this.toLocalized()!, n.data, this.continue.bind(this))
                 return false;
             }
             

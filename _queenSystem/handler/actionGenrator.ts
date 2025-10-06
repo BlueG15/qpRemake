@@ -162,7 +162,20 @@ export class Action_class<
     }
 
     resolvable(s : dry_system, z? : dry_zone, c? : dry_card, eff? : dry_effect, subtype? : dry_effectSubType) : boolean{
+        
+        //Oct 5th, i forgor what this is for but it breaks for stuff with multiple of the same type
+        //like a_draw
+        //no way the id check matches 2 times for 2 different zones man
+
+        //this now checks for at least 1 one per type thats in the target
+        //i.e if target has 2 zones, only 1 zone needs to match teh condition
+        //TODO : figure out what i was trying to do here
+
+        const seenTypes = new Set<identificationType>()
+
         return this.targets.every(target => {
+            if(seenTypes.has(target.type)) return true
+            seenTypes.add(target.type)
             switch(target.type){
                 case identificationType.zone : return z ? this.checkers.zone(target, z) : false;
                 case identificationType.card : return (c && z) ? this.checkers.card(target, c, z) : false;
@@ -452,7 +465,8 @@ function defaultChecker_effectSubtype(target : identificationInfo_subtype, currS
     return target.subtype.dataID === currSubtype.dataID && defaultChecker_effect(target, currEffect, currCard, currZone, recur, strict)
 }
 
-const defaultChecker = {
+const defaultChecker = 
+{
     zone : defaultChecker_zone,
     card : defaultCheker_card,
     effect : defaultChecker_effect,

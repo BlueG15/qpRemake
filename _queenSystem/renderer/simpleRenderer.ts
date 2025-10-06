@@ -7,6 +7,38 @@ import { Localized_system, Localized_zone } from "../../types/abstract/serialize
 
 export class simpleRenderer implements qpRenderer {
 
+    scene0Index = 0
+
+    startMenu(index : number = 0){
+        switch(index){
+            case 0 : return this.scene0()
+        }
+
+        process.stdin.setRawMode(true);
+
+        process.stdin.on("data", function(this : simpleRenderer, buffer : Array<any>){
+            console.log(buffer)
+            this.scene0Index++
+            this.scene0()
+        }.bind(this))
+
+        process.on("SIGKILL", () => process.stdin.setRawMode(false));
+        process.on("exit", () => process.stdin.setRawMode(false));
+    }
+
+    scene0(){
+        this.scene0Index %= 3
+        console.log("Welcome to qpRemake, a passion project of Blu insipired by the hit game Quamtum Protocol")
+        console.log("What do you like to run today?")
+        const k = [
+            "Run a test",
+            "Progress check",
+            "Quit"
+        ]
+        k[this.scene0Index] = "=> " + k[this.scene0Index]
+        k.forEach(line => console.log(line))
+    }
+
     formater_zone(z : Localized_zone){
         ///okii, render 
         //[ ][ ][ ] ...
@@ -30,24 +62,24 @@ export class simpleRenderer implements qpRenderer {
         return ""
     }
 
-    init(s: Localized_system, callback: () => any): void {
+    gameStart(s: Localized_system, callback: () => any): void {
         //render only fields and hand, hide the rest
         const texts = s.zones.map(z => this.formater_zone(z)).reverse().join("\n")
         console.log(texts)
         callback()
     }
 
-    startTurn(s: any, callback: (a? : Action) => any): void {
+    turnStart(s: any, callback: (a? : Action) => any): void {
         callback()
     }
     update(phase: TurnPhase, s: any, a: Action, callback: () => any): void {
         if(phase === TurnPhase.complete) console.log(`Action performed: ${a.type}`)
         callback()
     }
-    requestInput<T extends inputType>(inputSet: validSetFormat<T>, phase: TurnPhase, s: any, a: Action, callback: (input: inputDataSpecific<T>) => any): void {
+    requestInput<T extends inputType>(inputSet: inputDataSpecific<T>[], phase: TurnPhase, s: any, a: Action, callback: (input: inputDataSpecific<T>) => any): void {
         console.log("input requested: ", inputSet)
         console.log("Attempting to continue with the first input")
-        callback(inputSet[1]![0])
+        callback(inputSet[0])
     }
 
 }

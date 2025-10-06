@@ -18,7 +18,7 @@ export default class Parser {
     async load(l : loadOptions){
         let path = l.modulePath
         if(!path.endsWith("/")) path += "/";
-        console.log(`load triggered, ab to load ${l.modulesInUse.length} modules`)
+        // console.log(`load triggered, ab to load ${l.modulesInUse.length} modules`)
         for(let x = 0; x < l.modulesInUse.length; x++){
             let i = l.modulesInUse[x]
             //start dynamic importing
@@ -51,7 +51,7 @@ export default class Parser {
                             } else console.warn(`WARN: Repeated commands in multiple modules found, cmd = ${n}, originally from ${oldName}, currently override to use from module ${i}`)
                         }
                         this.moduleMap.set(n, [k, index])
-                        console.log(`loaded cmd ${n} from module ${i}`)
+                        // console.log(`loaded cmd ${n} from module ${i}`)
                     })
                     
                 }

@@ -21,6 +21,22 @@ Alpha branch is finally ended and will be merged into main!!, only a renderer pe
 
 ( * ) : Fruit and Some of Generic
 
+## How to get and run the project
+
+### Clone the project:
+
+In an empty folder you want the project in, open a terminal and run:
+```bash
+git clone https://github.com/BlueG15/qpRemake
+```
+### Run the project
+
+```bash
+npm run dev
+```
+
+This runs ```tsc```, adn then run ```./build/main.js```
+
 ## Game components
 system have zones, zones have cards, cards have effects, effects have types and subtypes
 effects "activate" by sending API calls to system in the form of Actions
