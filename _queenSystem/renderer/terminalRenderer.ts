@@ -1,9 +1,11 @@
-import { TurnPhase, inputType, inputDataSpecific } from "../../data/systemRegistry";
 import type { Localized_system, Localized_zone } from "../../types/abstract/serializedGameComponents/Localized";
 import type { Action } from "../handler/actionGenrator";
+import type { qpFieldModule } from "./terminal/terminalModule/fieldModule";
 import type queenSystem from "../queenSystem";
-import testSuite from "../testSuite";
 import type { qpRenderer } from "./rendererInterface";
+
+import { TurnPhase, inputType, inputDataSpecific } from "../../data/systemRegistry";
+import testSuite from "../testSuite";
 import { Terminal, TerminalModule } from "./terminal";
 import chalk from "chalk"
 
@@ -16,24 +18,25 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
             "mainMenu", 
             new TerminalModule.menu(
                 [
+                    chalk.bold("Play"),
                     "progress check",
                     "run tests",
                     "setting",
                     "credit",
                     "exit"
                 ], [
+                    "Play",
                     "___progress_check",
                     "test",
                     "___setting",
                     "___credit",
-                    "exit"
+                    "quitConfirm"
                 ], 
                 undefined, undefined, 
                 chalk.yellow("Welcome to qpRemake!, a passion project of Blu, with terminal code provided by Decembber"), 
                 this.post
             )
         )
-        this.registerModule("exit", new TerminalModule.exit())
         this.registerModule(
             "test", 
             new TerminalModule.menu(
@@ -52,6 +55,7 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
             this.history.push(this.currModuleKey)
             this.stopModule()
             this.currModuleKey = k
+            // this.log("From inside branch", k, this.history.join(" _ "))
             //signal
             const sig = k.slice(3)
             switch(sig){
@@ -60,14 +64,14 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
                 }
                 case "setting": {
                     this.clear();
-                    Object.entries(this.___s.setting).forEach(val => this.log(...val.map(v => v.toString())))
+                    this.log(this.___s.setting)
                     this.log(this.post)
                     return
                 }
                 case "credit": {
                     this.clear();
                     this.log("Source code: ", chalk.cyan("Blu")),
-                    this.log("Terminal renderer source code: ", "December"),
+                    this.log("Terminal renderer source code: ", chalk.hex("1dea79")("December")),
                     this.log("Quantum protocol: ", "Jkong")
                     this.log(this.post)
                     return
@@ -76,8 +80,7 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
                     return this.___run_test(sig)
                 }
             }
-        }
-        return super.branchToModule(k)
+        } else return super.branchToModule(k)
     }
 
     override start(){
@@ -86,15 +89,49 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
     }
 
     private ___run_test(k : string){
-        this.clear()
         const test = testSuite[k]
-        if(!test) return;
+        if(!test) {
+            //impossible situation
+            const temp = new TerminalModule.menu(
+                [`Test ${k} does not exist somehow, enter to go back`], 
+                ["back"], 
+                ">", 
+                ["yellow"], 
+                chalk.yellowBright("Test logs:")
+            )
+            this.registerModule("temp", temp);
+            return super.branchToModule("temp")
+        };
         if(!this.___s) return;
+        this.ignoreLog()
+        this.doAddTimestamp = false;
+
         const console = globalThis.console
         globalThis.console = this as any
-        test(this.___s)
+        try{
+            test(this.___s)
+        }catch(e){
+            // fakeConsole.log(e)
+        }
         globalThis.console = console //revert console
+        
+        this.log(`Finished running test ${k}`)
+
+        const list = this.retrieveLog()
+        const temp = new TerminalModule.menu(
+            list.length === 0 ? [`No logs for ${k}, enter to go back`] : list.reverse(), 
+            list.length === 0 ? ["back"] : [], 
+            ">", 
+            ["yellow"], 
+            chalk.yellowBright("Test logs:")
+        )
+        this.registerModule("temp", temp);
+
+        this.doAddTimestamp = true
+        super.branchToModule("temp")
     }
+
+    get field() {return this.storedModules.get("field") as qpFieldModule}
 
     warn(...p : any){
         this.log(...p)
@@ -103,6 +140,10 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
     ___s? : queenSystem
     bind(s : queenSystem){
         this.___s = s
+        this.registerModule(
+            "field",
+            new TerminalModule.field(s)
+        )
     }
 
     turnStart(s: Localized_system, callback: (a?: Action) => any): void {
@@ -110,41 +151,27 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
         callback();
     }
     update(phase: TurnPhase, s: Localized_system, a: Action, callback: () => any): void {
-        if(phase === TurnPhase.complete) this.log(`Action performed: ${a.type}`)
+        // if(phase === TurnPhase.complete) 
+            this.log("Phase:", TurnPhase[phase], `Action performed: ${a.type}`);
         callback();
     }
     requestInput<T extends inputType>(inputSet: inputDataSpecific<T>[], phase: TurnPhase, s: Localized_system, a: Action, callback: (input: inputDataSpecific<T>) => any): void {
-        this.log("Input requested, continue with the first input")
+        //we need to print the inputs here?
+        if(!inputSet.length) return callback(inputSet[0]);
+        this.log(`Select a/an ${inputSet[0].type}:`)
+        // const field = this.field
+        // inputSet.forEach(input => {
+        //     switch (input.type) {
+        //         case inputType.card: {
+        //             input.data.card
+        //         }
+        //     }
+        // })
         callback(inputSet[0]);
     }
     gameStart(s: Localized_system, callback: () => any): void {
-        const texts = s.zones.map(z => this.formater_zone(z)).reverse().join("\n")
-        this.log(texts)
+        this.log("Game started!")
+        // this.branchButDoNotRecord("field")
         callback()
     }
-
-    formater_zone(z : Localized_zone){
-            ///okii, render 
-            //[ ][ ][ ] ...
-            //for zone shape
-            if(z.shape.length === 1) 
-                return `----${z.name}---- : ` +  ((z.cards.length === 0) ? "<Empty>" : z.cards.map((c) => c === undefined ? "[ ]" : "[c]").join(""))
-            if(z.shape.length >= 2){
-                const x = Number.isInteger(z.shape[0]) ? z.shape[0] : 3
-                const y = Number.isInteger(z.shape[1]) ? z.shape[1] : 3
-    
-                const res : string[] = []
-                for(let i = 0; i < y; i++){
-                    const arr = new Array(y)
-                    for(let j = 0; j < x; j++){
-                        const index = Utils.positionToIndex([j, i], z.shape)
-                        arr[j] = z.cards[index] === undefined ? "[ ]" : '[c]'
-                    }
-                }
-                return `----${z.name[0]}:[${[x, y]}]----\n` + res.join("\n")
-            }
-            return ""
-        }
-
-    
 }

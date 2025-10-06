@@ -294,7 +294,10 @@ class zoneHandler {
             new zoneNotExist(a.targets[0].zone.id).add("zoneHandler", "handleDraw", 213)
         ]
 
-        if(!a.resolvable(s, zone)) return []
+        if(!a.resolvable(s, zone)) {
+            console.log("from handle draw: ", zone.id, a.targets[0].zone.id)
+            return []
+        }
 
         let deck = zone as any as deck;
 

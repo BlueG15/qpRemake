@@ -1,12 +1,21 @@
 import chalk from "chalk";
 import { ChalkFormatKeys, I_Terminal, TerminalModule } from "../terminal/utils";
+import stripAnsi from "strip-ansi";
 
 export class TerminalMenuModule extends TerminalModule {
+  protected x_offset = 0
+
+  protected readonly x_scroll_delay = 10;
+  protected x_scroll_speed_counter = 0;
+
   protected ___i = 0
-  get currChoice() {return this.___i}
-  set currChoice(n : number){
-    this.___i = n % this.choices.length
-    if(this.___i < 0) this.___i = this.choices.length - this.___i - 1
+  get currChoice() { return this.___i }
+  set currChoice(n: number) {
+    if (this.choices.length === 0) {
+      this.___i = 0;
+      return;
+    }
+    this.___i = ((n % this.choices.length) + this.choices.length) % this.choices.length;
   }
 
   constructor(
@@ -16,6 +25,7 @@ export class TerminalMenuModule extends TerminalModule {
     protected chosenStrFormat : ChalkFormatKeys[] = ["green"],
     protected pre? : string,
     protected post? : string,
+    protected frame = 20
   ){
     super()
   }
@@ -27,15 +37,49 @@ export class TerminalMenuModule extends TerminalModule {
   protected log(){
     if(!this.terminalPtr) return
     this.terminalPtr.clear()
-    if(this.pre) this.terminalPtr.log(this.pre)
-    this.choices.forEach((str, index) => {
-      this.terminalPtr!.log(index === this.currChoice ? this.formatStr(str) : str)
+
+    
+    const halfFrame = Math.floor(this.frame / 2)
+
+    let beginIndex : number
+    let endIndex : number
+
+    if(this.choices.length <= this.frame){
+      beginIndex = 0
+      endIndex = this.choices.length
+    } else {
+      beginIndex = Math.max(this.currChoice - halfFrame, 0)
+      endIndex = Math.min(beginIndex + this.frame, this.choices.length)
+      if(endIndex - beginIndex < this.frame) beginIndex = endIndex - this.frame
+    }
+    const checkChoice = this.currChoice - beginIndex
+
+    if(this.pre) this.terminalPtr.log(this.pre);
+
+    this.choices.slice(beginIndex, endIndex).forEach((text, index) => {
+      let str : string
+      const frame = Math.floor(this.terminalPtr!.width / 2)
+      const possibleOffsets = stripAnsi(text).length - frame - 2
+      
+      
+      if(possibleOffsets <= 0){
+        str = text;
+      } else {
+        const x = this.x_offset % possibleOffsets
+        beginIndex = index === this.currChoice ? x : 0
+        // endIndex = Math.min(beginIndex + frame, this.terminalPtr!.width)
+        str = text.slice(beginIndex)
+      }
+
+      this.terminalPtr!.log(index === checkChoice ? this.formatStr(str) : str)
     })
+
     if(this.post) this.terminalPtr.log(this.post)
   }
 
   protected updateChoice(data : number){
     if(!this.terminalPtr) return
+    this.x_scroll_speed_counter = 0
     switch(data){
       case 0: {
         this.currChoice--;
@@ -64,9 +108,19 @@ export class TerminalMenuModule extends TerminalModule {
     }
   }
 
+  protected scrollX(){
+    this.x_scroll_speed_counter++;
+    if(this.x_scroll_speed_counter >= this.x_scroll_delay){
+      this.x_scroll_speed_counter = 0;
+      this.x_offset++
+      return this.log()
+    }
+  }
+
   override start(): void {
     this.log()
     this.listen("arrows", this.updateChoice.bind(this))
-    this.listen("input", this.branch.bind(this))
+    this.listen("enter", this.branch.bind(this))
+    this.listen("update", this.scrollX.bind(this))
   }
 }

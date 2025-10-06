@@ -56,6 +56,15 @@ export enum componentID {
     symbol,
 }
 
+export type specificComponent<T extends keyof typeof componentID> = {
+    error : component,
+    number : numberComponent,
+    text : textComponent,
+    image : imageComponent,
+    reference : referenceComponent,
+    symbol : symbolComponent,
+}[T]
+
 export class component{
     id : componentID
 
@@ -88,6 +97,10 @@ export class component{
         if(typeof newID == "string") this.sectionIDs.push(newID); 
         else this.sectionIDs.push(...newID);
         return this;
+    }
+
+    is<T extends keyof typeof componentID>(id : T) : this is specificComponent<T> {
+        return this.id === componentID[id]
     }
 }
 

@@ -13,8 +13,10 @@ export function convertEscapeToLiteral(str: string) {
 export const realLen = (s: string) => stringWidth(s);
 
 export interface I_Terminal {
+  get width() : number;
+  get height() : number;
   clear() : void;
-  log(...arg: string[]): void;
+  log(...arg: any[]): void;
   branchToModule?(moduleName : string) : void;
   event : TerminalEventEmitter;
 }
@@ -39,6 +41,7 @@ interface I_TerminalEvent {
   wasd(data : 0 | 1 | 2 | 3) : void;
   arrows(data : 0 | 1 | 2 | 3) : void;
   enter() : void;
+  update() : void;
 }
 
 export class TerminalEventEmitter extends EventEmitter {

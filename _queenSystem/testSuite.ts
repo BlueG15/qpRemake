@@ -4,7 +4,7 @@ import type Zone from "../types/abstract/gameComponents/zone"
 import { actionConstructorRegistry, actionFormRegistry } from "./handler/actionGenrator"
 import { auto_input_option } from "../types/abstract/gameComponents/settings"
 import { inputFormRegistry, inputRequester, inputRequester_multiple } from "./handler/actionInputGenerator"
-import { inputType } from "../data/systemRegistry"
+import { inputType, TurnPhase } from "../data/systemRegistry"
 import {get_effect_require_number_input} from "../specificEffects/e_test"
 import { quickEffect } from "../data/effectRegistry"
 import actionRegistry from "../data/actionRegistry"
@@ -14,6 +14,9 @@ import subtypeRegistry from "../data/subtypeRegistry"
 
 const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)> = {
 
+    //NOT WORK
+    //due to system need to reset each time
+    //and i dont have a reset yet
     testAll(s){
 
         const fails : string[] = []
@@ -41,7 +44,7 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
     },
 
     progressCheck(s : queenSystem){
-        console.log("Effects check:")
+        console.log("====Effects check====")
 
         const EffectDataArr = s.registryFile.effectLoader.datakeys
         const EffectClassArr = s.registryFile.effectLoader.classkeys
@@ -69,13 +72,15 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
             console.warn(`There are data NOT a class `, k)
         }
 
-        console.log("Cards check:")
+        console.log("")
+        console.log("====Cards check====")
         
         const CardDataArr = s.registryFile.cardLoader.datakeys
 
         console.log(`Loaded ${CardDataArr.length} data entries`)
 
-        console.log("Action check")
+        console.log("")
+        console.log("====Action check====")
 
         const PossibleActionsKeys = Object.keys(actionConstructorRegistry);
         
@@ -87,7 +92,8 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
 
         console.log(`${unhandledActionList.length} / ${PossibleActionsKeys.length} actions unhandled`, unhandledActionList)
 
-        console.log("Localization check")
+        console.log("")
+        console.log("====Localization check====")
         const Localizer = s.localizer
         if(!Localizer.isLoaded) console.log("Localizer isnt loaded"); 
         else {
@@ -101,7 +107,7 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
 
             CardDataArr.forEach(k => {
                 const symbol = Localizer.getLocalizedSymbol(k)
-                if(symbol === undefined) console.log(`Card ${k} doesnt map to a localized symbol`)
+                if(symbol === undefined) console.log(`-Card ${k} doesnt map to a localized symbol`)
 
                 const testCard = s.cardHandler.getCard(k)
                 if(testCard){
@@ -113,7 +119,7 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
                             archTypeSet.add(k);
                             const s = "a_" + k
                             const symbol = Localizer.getLocalizedSymbol(s)
-                            if(symbol === undefined) console.log(`Archtype ${s} of card ${testCard.dataID} doesnt map to a localized symbol`)
+                            if(symbol === undefined) console.log(`--Archtype ${s} of card ${testCard.dataID} doesnt map to a localized symbol`)
                         }
                     })
 
@@ -122,11 +128,11 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
                             extensionSet.add(k);
                             const s = "ex_" + k
                             const symbol = Localizer.getLocalizedSymbol(s)
-                            if(symbol === undefined) console.log(`Extension ${s} of card ${testCard.dataID} doesnt map to a localized symbol`)
+                            if(symbol === undefined) console.log(`---Extension ${s} of card ${testCard.dataID} doesnt map to a localized symbol`)
                         }
                     })
                 } else {
-                    console.log(`Card ${k} unsuccessfully loads`)
+                    console.log(`-Card ${k} unsuccessfully loads`)
                 }
             })
         }
@@ -140,6 +146,10 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
             let symbol = Localizer.getLocalizedSymbol(k)
             if(symbol === undefined) console.log(`effect type ${k} doesnt map to a localized symbol`)
         })
+    },
+
+    testConsole(){
+        console.log("Oki, console can print text")
     },
 
     testInput1(s : queenSystem){
@@ -232,6 +242,7 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
         let a = s.zoneHandler.decks[0].getAction_draw(s, s.zoneHandler.hands[0], actionFormRegistry.player(s, 0), false)
         s.processTurn(a);
 
+        console.log(TurnPhase[s.phaseIdx])
         console.log("deck after drawing: ", s.zoneHandler.decks[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
         console.log("hand after drawing: ", s.zoneHandler.hands[0].cardArr.map(i => i ? i.dataID : undefined).filter(i => i !== undefined))
     },
@@ -406,9 +417,9 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
         const e1 = s.registryFile.effectLoader.getDirect("e_num_2", s.setting, ec1, quickEffect.init())!
         const e2 = s.registryFile.effectLoader.getDirect("e_num_5", s.setting, ec2, quickEffect.def)!
 
-        const c = s.registryFile.cardLoader.getDirect("c_apple", s.setting, e1, e2)!
+        const c = s.registryFile.cardLoader.getDirect("c_apple", s.setting, e1, e2)
         if(!c){
-            console.log("Some how get direct fails is not found")
+            console.log("Some how get apple is not found")
             return
         }
 
