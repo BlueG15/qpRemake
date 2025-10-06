@@ -1,0 +1,60 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+var actionRegistry;
+(function (actionRegistry) {
+    //special
+    actionRegistry[actionRegistry["error"] = -1] = "error";
+    actionRegistry[actionRegistry["a_null"] = 0] = "a_null";
+    //0xx = system signal actions
+    actionRegistry[actionRegistry["a_turn_start"] = 1] = "a_turn_start";
+    actionRegistry[actionRegistry["a_turn_end"] = 2] = "a_turn_end";
+    actionRegistry[actionRegistry["a_turn_reset"] = 3] = "a_turn_reset";
+    actionRegistry[actionRegistry["a_activate_effect_internal"] = 4] = "a_activate_effect_internal";
+    actionRegistry[actionRegistry["a_increase_turn_count"] = 5] = "a_increase_turn_count";
+    actionRegistry[actionRegistry["a_set_threat_level"] = 6] = "a_set_threat_level";
+    actionRegistry[actionRegistry["a_do_threat_burn"] = 7] = "a_do_threat_burn";
+    actionRegistry[actionRegistry["a_force_end_game"] = 8] = "a_force_end_game";
+    actionRegistry[actionRegistry["a_enable_card"] = 9] = "a_enable_card";
+    actionRegistry[actionRegistry["a_disable_card"] = 10] = "a_disable_card";
+    actionRegistry[actionRegistry["a_reset_card"] = 11] = "a_reset_card";
+    actionRegistry[actionRegistry["a_reset_effect"] = 12] = "a_reset_effect";
+    actionRegistry[actionRegistry["a_pos_change_force"] = 13] = "a_pos_change_force";
+    actionRegistry[actionRegistry["a_deal_damage_internal"] = 14] = "a_deal_damage_internal";
+    actionRegistry[actionRegistry["a_get_input"] = 15] = "a_get_input";
+    //control flow redirection
+    actionRegistry[actionRegistry["a_negate_action"] = 16] = "a_negate_action";
+    actionRegistry[actionRegistry["a_replace_action"] = 17] = "a_replace_action";
+    //1xx = API related actions
+    actionRegistry[actionRegistry["a_activate_effect"] = 100] = "a_activate_effect";
+    actionRegistry[actionRegistry["a_zone_interact"] = 101] = "a_zone_interact";
+    actionRegistry[actionRegistry["a_pos_change"] = 102] = "a_pos_change";
+    actionRegistry[actionRegistry["a_draw"] = 103] = "a_draw";
+    actionRegistry[actionRegistry["a_shuffle"] = 104] = "a_shuffle";
+    actionRegistry[actionRegistry["a_execute"] = 105] = "a_execute";
+    actionRegistry[actionRegistry["a_reprogram_start"] = 106] = "a_reprogram_start";
+    actionRegistry[actionRegistry["a_reprogram_end"] = 107] = "a_reprogram_end";
+    actionRegistry[actionRegistry["a_add_status_effect"] = 108] = "a_add_status_effect";
+    actionRegistry[actionRegistry["a_add_effect"] = 109] = "a_add_effect";
+    actionRegistry[actionRegistry["a_remove_all_effects"] = 110] = "a_remove_all_effects";
+    actionRegistry[actionRegistry["a_duplicate_effect"] = 111] = "a_duplicate_effect";
+    actionRegistry[actionRegistry["a_remove_effect"] = 112] = "a_remove_effect";
+    actionRegistry[actionRegistry["a_remove_status_effect"] = 113] = "a_remove_status_effect";
+    actionRegistry[actionRegistry["a_clear_all_status_effect"] = 114] = "a_clear_all_status_effect";
+    actionRegistry[actionRegistry["a_clear_all_counters"] = 115] = "a_clear_all_counters";
+    actionRegistry[actionRegistry["a_activate_effect_subtype"] = 116] = "a_activate_effect_subtype";
+    actionRegistry[actionRegistry["a_reset_all_once"] = 117] = "a_reset_all_once";
+    actionRegistry[actionRegistry["a_modify_action"] = 118] = "a_modify_action";
+    actionRegistry[actionRegistry["a_attack"] = 119] = "a_attack";
+    actionRegistry[actionRegistry["a_deal_damage_ahead"] = 120] = "a_deal_damage_ahead";
+    actionRegistry[actionRegistry["a_deal_damage_card"] = 121] = "a_deal_damage_card";
+    actionRegistry[actionRegistry["a_deal_damage_position"] = 122] = "a_deal_damage_position";
+    actionRegistry[actionRegistry["a_deal_heart_damage"] = 123] = "a_deal_heart_damage";
+    actionRegistry[actionRegistry["a_destroy"] = 124] = "a_destroy";
+    actionRegistry[actionRegistry["a_decompile"] = 125] = "a_decompile";
+    actionRegistry[actionRegistry["a_void"] = 126] = "a_void";
+    actionRegistry[actionRegistry["a_add_top"] = 127] = "a_add_top";
+    actionRegistry[actionRegistry["a_duplicate_card"] = 128] = "a_duplicate_card";
+    actionRegistry[actionRegistry["a_declare_activation"] = 129] = "a_declare_activation";
+    actionRegistry[actionRegistry["a_delay"] = 130] = "a_delay";
+})(actionRegistry || (actionRegistry = {}));
+exports.default = actionRegistry;
