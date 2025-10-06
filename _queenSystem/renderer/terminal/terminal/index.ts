@@ -223,11 +223,7 @@ export class Terminal implements I_Terminal {
     process.stdin.on("data", this.handleInput.bind(this));
     process.stdout.on("resize", this.renderFrame.bind(this));
 
-    //check to be on Node directly
-    if (typeof process.on === 'function' && process.platform !== 'win32') {
-      process.on("SIGKILL", () => this.stop());
-      process.on("exit", () => this.stop());
-    }
+    //removed process.on("exit", ...) due to problems on Mac and Linux
 
     this.println(ANSI_CODES.CLEAR_SCREEN);
     this.renderFrame();
