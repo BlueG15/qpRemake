@@ -1,5 +1,6 @@
 #node
 /node_modules
 /progress_tracker
+/build
 
 package-lock.json
