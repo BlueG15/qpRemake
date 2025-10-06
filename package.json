@@ -20,6 +20,7 @@
     "date-fns": "^4.1.0",
     "eslint": "^9.33.0",
     "eslint-plugin-jsdoc": "^54.1.1",
+    "strip-ansi": "^7.1.2",
     "typescript": "^5.9.2",
     "util": "^0.12.5"
   },

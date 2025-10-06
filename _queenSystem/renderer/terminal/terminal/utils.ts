@@ -1,7 +1,6 @@
 import type { ChalkInstance } from "chalk";
 import { EventEmitter } from "node:events";
 
-import stringWidth from "string-width";
 import stripAnsi from "strip-ansi";
 
 export function convertEscapeToLiteral(str: string) {
@@ -10,7 +9,7 @@ export function convertEscapeToLiteral(str: string) {
   return Array.from(withoutQuotes).join("");
 }
 
-export const realLen = (s: string) => stringWidth(s);
+export const realLen = (s: string) => stripAnsi(s).length;
 
 export interface I_Terminal {
   get width() : number;
