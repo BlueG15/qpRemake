@@ -12,25 +12,30 @@ import {
 } from "./utils";
 import stripAnsi from "strip-ansi";
 
-import { ANSI_CODES, isANSI } from "./ansi";
+import { ANSI_CODES, ANSI_String, isANSI } from "./ansi";
 import { TerminalMenuModule } from "../terminalModule/menuModule";
-import { TerminalExitModule } from "../terminalModule/exitModule";
-import { TerminalAutoInput } from "../terminalModule/autoInputModule";
+
+export const enum TerminalSignals {
+  exit,
+  back,
+  clear,
+}
 
 export class Terminal implements I_Terminal {
   name: string;
 
-  doAddTimestamp = true
+  doAddTimestamp = false
   get timestampLen() {return format(new Date(), "[kk:mm:ss]").length} 
 
   inputBuffer: string[] = [];
-  outputBuffer: string[] = [];
+  outputBuffer: ANSI_String[] = [];
+  debugOutputBuffer : ANSI_String[] = []
 
   settings = new TerminalSettings();
 
   readonly event = new TerminalEventEmitter();
 
-  constructor(name = "Unnamed Terminal") {
+  constructor(name = "Unnamed Terminal", private debugMode = false) {
     this.name = name;
   }
 
@@ -72,8 +77,8 @@ export class Terminal implements I_Terminal {
     process.stdout.write(content.join(" "));
   }
 
-  static addToBuffer(buffer : string[], ...c : string[]){
-    const log = c.join(" ")
+  static addToBuffer(buffer : ANSI_String[], ...c : ANSI_String[]){
+    const log = ANSI_String.from(c, " ")
     buffer.unshift(log);
     return buffer
   }
@@ -86,7 +91,7 @@ export class Terminal implements I_Terminal {
     switch (c) {
       case "\r": {
         // case "\n":
-        // this.log("New input:", this.inputBufferStr);
+        // this.internalog("New input:", this.inputBufferStr);
         this.event.emit("input", this.inputBufferStr);
         this.clearInputBuffer();
         break;
@@ -142,29 +147,22 @@ export class Terminal implements I_Terminal {
   private drawLog() {
     const H = Terminal.height;
     const W = Terminal.width;
-    // let lines: string[] = [];
+    let lines: string[] = this.debugOutputBuffer.concat(this.outputBuffer).map(i => i.full);
 
-    // // Wrap each outputBuffer line to fit terminal width
+    // Wrap each outputBuffer line to fit terminal width
     // this.outputBuffer.forEach(lineRaw => {
-    //   if(stripAnsi(lineRaw).length === 0) {
-    //     lines.push("") //check for specifically empty print
-    //   } else {
-    //     // let temp : string[] = []
-    //     let current = "";
-    //     let visible = 0;
-    //     for (let i = 0; i < lineRaw.length; i++) {
-    //       const char = lineRaw[i];
-    //       current += char;
-    //       if (!isANSI(char)) visible++;
-    //       if (visible >= W) break;
+    //   if(!lineRaw === undefined){ //somehow this is possible
+    //     if(lineRaw.length === 0) {
+    //       lines.push("") //check for specifically empty print
+    //     } else {
+    //       lines.push(lineRaw.slice(0, W).full)
     //     }
-    //     lines.push(current)
     //   }
     // })
 
     // Only display up to H - 2 lines
     for (let i = 0; i < H - 2; i++) {
-      const line = this.outputBuffer[i] ?? "";
+      const line = lines[i] ?? "";
       this.println(
         ANSI_CODES.CURSOR_TO(H - i - 2, 0),
         ANSI_CODES.CLEAR_LINE,
@@ -208,27 +206,61 @@ export class Terminal implements I_Terminal {
   ignoreClear(){this.clearFlag = false}
 
   clear() {
+    this.counter = 0
     // process.stdout.write(ANSI_CODES.CLEAR_SCREEN);
-    if(this.clearFlag) this.outputBuffer = [];
-    else this.clearFlag = true
-    // const whoCallThis = utils.getCallSites(2)[1]
-    // this.log(whoCallThis)
-    // this.log("-".repeat(Terminal.width - 2))
+    
+    if(this.debugMode){
+      const whoCallThis = utils.getCallSites(3).reverse().map(i => i.functionName).join(" -> ")
+      this.logdebug("Who calls clear: " + whoCallThis)
+      if(this.debugOutputBuffer.length > 10){
+        this.debugOutputBuffer.splice(11)
+      }
+      this.log("-".repeat(Terminal.width >> 1))
+    } else {
+      if(this.clearFlag) {
+        this.debugOutputBuffer = []
+        this.outputBuffer = []
+      }
+      else this.clearFlag = true
+    }
+
+  }
+
+  setupShutdownHandlers() {
+    const stop = this.stop.bind(this);
+
+    if (typeof process !== "undefined" && process.release?.name === "node") {
+      const signals = ["SIGINT", "SIGTERM", "SIGHUP"];
+      for (const sig of signals) {
+        process.on(sig, stop);
+      }
+      process.on("exit", stop);
+      return;
+      
+    }
   }
 
   start() {
     this.print(ANSI_CODES.HIDE_CURSOR);
 
-    process.stdin.setRawMode(true);
-    process.stdin.on("data", this.handleInput.bind(this));
-    process.stdout.on("resize", this.renderFrame.bind(this));
+    try{
+      process.stdin.setRawMode(true);
+      process.stdin.on("data", this.handleInput.bind(this));
+      process.stdout.on("resize", this.renderFrame.bind(this));
+    }catch(e){
 
-    //removed process.on("exit", ...) due to problems on Mac and Linux
+    }
+
+    try{
+      this.setupShutdownHandlers()
+    }catch(e){
+
+    }
 
     this.println(ANSI_CODES.CLEAR_SCREEN);
     this.renderFrame();
 
-    this.int = setInterval(this.renderFrame.bind(this), 30);
+    this.int = setInterval(this.renderFrame.bind(this), 15);
   }
 
   stop() {
@@ -243,19 +275,63 @@ export class Terminal implements I_Terminal {
     clearInterval(this.int);
   }
 
-  static log(doAddTimestamp : boolean, res : string[], ...args : any[]){
+  protected customFormatRules_str = new Map<string, (a : any) => any>()
+  protected customFormatRules_obj : [Function, ((a : any) => any)][] = []
+
+  protected formatObj(obj : any, depth = 0){
+    if(depth > 5) return `[${typeof obj}]`
+    let rule = this.customFormatRules_str.get(typeof obj)
+    if(!rule && typeof obj === "object") {
+      for(const key of Object.keys(obj)){
+        obj[key] = this.formatObj(obj[key], depth + 1)
+      }
+      
+      for(let i = 0; i < this.customFormatRules_obj.length; i++){
+        if(obj instanceof this.customFormatRules_obj[i][0]){
+          rule = this.customFormatRules_obj[i][1]
+          break;
+        }
+      }
+    }
+    return rule ? rule(obj) : obj
+  }
+
+  protected ___log(doAddTimestamp : boolean, res : ANSI_String[], ...args : any[]){
     // Terminal.addToBuffer(res, String(args.length))
     const stamp = doAddTimestamp ? format(new Date(), "[kk:mm:ss]") + " " : "";
-    const formatted = args.map(a => {
-      return typeof a === "string" ? a : utils.formatWithOptions({colors : true, depth : 5, compact : false}, "%O", a)
-    })
-    const str = chalk.cyan(stamp) + formatted.join(" ")
-    const forPrint = str.split("\n")
-    forPrint.forEach(p => Terminal.addToBuffer(res, p))
+    let latestLine : ANSI_String[] = [new ANSI_String(stamp)]
+    args.forEach(obj => {
+      const a = this.formatObj(obj)
+      if (typeof a !== "object") {
+        latestLine.push(new ANSI_String(String(a)));
+      } else if (a instanceof ANSI_String) {
+        latestLine.push(a);
+      } else {
+        const formatted = utils.formatWithOptions({ colors: true, depth: 5, compact: false }, "%O", a).split("\n");
+        const [first, ...rest] = formatted;
+        if (first !== undefined) {
+          const forPrint = ANSI_String.from([...latestLine, first], " ");
+          Terminal.addToBuffer(res, forPrint);
+          rest.forEach(line => Terminal.addToBuffer(res, new ANSI_String(line)));
+          latestLine = [];
+        }
+      }
+    });
+    if(latestLine.length){
+      const forPrint = ANSI_String.from(latestLine, " ")
+      Terminal.addToBuffer(res, forPrint)
+    }
     return res
   }
 
-  logged : string[] = []
+  addCustomFormattingRule(type : "string" | "number", rule : (a : any) => any) : void;
+  addCustomFormattingRule<T>(constructor : new (...a : any) => T, rule : (a : T) => any) : void;
+  addCustomFormattingRule(a : "string" | "number" | Function, rule : (a : any) => any){
+    if(typeof a === "function") this.customFormatRules_obj.push([a, rule]);
+    else this.customFormatRules_str.set(a, rule)
+  }
+
+  logged : ANSI_String[] = []
   private ___ignoreLog = false
   ignoreLog(){
     this.___ignoreLog = true
@@ -266,25 +342,74 @@ export class Terminal implements I_Terminal {
     this.logged = []
     return k
   }
-  log(...args: any[]): void {
-    Terminal.log(
+
+  private counter = 0
+  protected logdebug(...args : any[]){
+    args.unshift("(" + this.counter + ")")
+    this.counter++
+    this.___log(
       this.doAddTimestamp,
-      this.___ignoreLog ? this.logged : this.outputBuffer, 
-      this.___ignoreLog ? utils.getCallSites(2)[1].functionName ? chalk.hex("#d95e29")("[" + utils.getCallSites(2)[1].functionName + "]") : "" : "", 
+      this.___ignoreLog ? this.logged : this.debugOutputBuffer, 
+      "", 
       ...args
     )
   }
 
-  addCommonCommands(){
+  log(...args: any[]): void {
 
-    this.registerModule("quitConfirm", new TerminalMenuModule(["yes", "no"], ["exit", "back"], undefined, ["red", "italic"], chalk.bold(chalk.yellow("Are you sure you want to quit?"))))
-    this.registerModule("exit", new TerminalExitModule())
-    this.registerModule("back", new TerminalAutoInput("b", 2))
+    let str
+    try{
+      str = "Who calls log: " + utils.getCallSites(4).map(i => i.functionName).join(" -> ")
+    }catch(e){
+      str = ""
+    }
+
+    this.___log(
+      this.doAddTimestamp,
+      this.___ignoreLog ? this.logged : this.outputBuffer, 
+      this.___ignoreLog ? str : "", 
+      ...args
+    )
+  }
+
+  protected back(){
+    if(this.isInModule()) {
+      let index = this.history.length - 1
+      let target : string | undefined = index >= 0 ? this.history[index] : undefined
+      while( (!this.isValidModule(target) || target === this.currModuleKey) && this.history.length > 0){
+        index--;
+        if(index < 0){
+          target = undefined
+          break;
+        }
+        target = this.history[index]
+      }
+      if(target){
+        this.history.splice(index)
+        this.logdebug(`[b] Back triggered, backing from ${this.currModuleKey}->${target}`)
+        const f = this.storedModules.get(target)
+        if(f instanceof TerminalModule) {
+          this.stopModule()
+          this.currModuleKey = target
+          this.logdebug("History after: ")
+          this.debugPrintHistory()
+          return f.start()
+        }
+      } else {
+        this.logdebug("[b] Back triggered, no back target found")
+        this.debugPrintHistory()
+      }
+    } else process.exit(0);
+  }
+
+  addCommonCommands(){
+    this.currModuleKey = "quitConfirm"
+    this.registerModule("quitConfirm", new TerminalMenuModule(["yes", "no"], [TerminalSignals.exit, TerminalSignals.back], undefined, ["red", "italic"], chalk.bold(chalk.yellow("Are you sure you want to quit?"))))
 
     this.event.on("input", (data) => {
       data = data.trim()
       const [cmd, ...args] = data.split(" ");
-      // this.log("input gotten!", cmd)
+      // this.internalog("input gotten!", cmd)
 
       switch (cmd) {
         case "qq" : {
@@ -308,27 +433,17 @@ export class Terminal implements I_Terminal {
         case "back": 
         case "ret":
         case "return": {
-          if(this.isInModule()) {
-            let target = this.history.pop()
-            while(target && !this.isValidModule(target) && this.history.length > 0 && target === this.currModuleKey){
-              target = this.history.pop()
-            }
-            this.log("back trigger Target: " + target + " History: " + this.history.join("_") + " Curr: " + this.currModuleKey)
-            this.stopModule();
-            if(target){
-              return this.branchToModule(target)
-            }
-          } else return this.branchToModule("quitConfirm");
+          return this.back()
         }
 
         case "echo": {
           const text = args.join(" ");
-          this.log("Echo:", text);
+          this.logdebug("Echo:", text);
           break;
         }
 
         default : {
-          if(cmd.length) this.log("Invalid command: ", cmd)
+          if(cmd.length) this.logdebug("Invalid command: ", cmd)
           break;
         }
       }
@@ -340,14 +455,20 @@ export class Terminal implements I_Terminal {
   protected currModuleKey : string = ""
   protected get currModule() : TerminalModule | undefined {return this.storedModules.get(this.currModuleKey)}
 
-  isValidModule(k : string){return this.storedModules.has(k)}
+  debugPrintHistory(who : string = ""){
+    // who = utils.getCallSites(3).reverse().map(i => `${i.functionName}(${i.scriptName.split("\\").at(-1)!.split(".")[0]})`).join("->")
+    // this.logdebug("Who: " + who)
+    this.logdebug("| -> History: [" + this.history.join(", ") +  "] Curr: " + this.currModuleKey)
+  }
+
+  isValidModule(k? : string){return k && this.storedModules.has(k)}
 
   isInModule(){return this.currModuleKey.length !== 0}
 
   registerModule(k : string, m : TerminalModule){
     m.bind(this)
     this.storedModules.set(k, m)
-    // this.log(`Loaded module ${k}`)
+    // this.internalog(`Loaded module ${k}`)
   }
 
   stopModule(){
@@ -357,28 +478,36 @@ export class Terminal implements I_Terminal {
     }
   }
 
-  branchToModule(k : string){
+  branchToModule(k : string | TerminalSignals, obj? : any) : void{
+    if(typeof k === "number"){
+      switch(k){
+        case TerminalSignals.exit : {
+          process.exit(0)
+        }
+        case TerminalSignals.back : {
+          return this.back()
+        }
+        case TerminalSignals.clear : {
+          return this.clear()
+        }
+      }
+      return
+    }
+    this.debugPrintHistory("branch")
+    this.logdebug(`Branching from ${this.currModuleKey} -> ${k}`)
     if(!k) return
-    if(k === this.currModuleKey) return; //avoid duplicayted branch
+    //avoid duplicated branch
+    if(k === this.currModuleKey) {
+      this.logdebug("Duplicated branch!")
+      return
+    }
     const f = this.storedModules.get(k)
     if(f instanceof TerminalModule) {
-      if(this.isValidModule(this.currModuleKey)) this.history.push(this.currModuleKey)
+      if(this.isValidModule(this.currModuleKey)) this.history.push(this.currModuleKey);
       this.stopModule()
       this.currModuleKey = k
-      return f.start()
+      return f.start(obj)
     }
-    // this.log(`No module named ${k} registered`);
-  }
-
-  branchButDoNotRecord(k : string){
-    if(!k) return
-    if(k === this.currModuleKey) return; //avoid duplicated branch
-    const f = this.storedModules.get(k)
-    if(f instanceof TerminalModule) {
-      // if(this.isValidModule(this.currModuleKey)) this.history.push(this.currModuleKey)
-      this.stopModule()
-      // this.currModuleKey = k
-      return f.start()
-    }
+    this.logdebug(`No module named ${k} registered`);
   }
 }

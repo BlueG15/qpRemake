@@ -42,25 +42,26 @@ export class e_quick extends Effect {
 }
 
 export class e_attack extends Effect<inputData_card[]> {
-    get times() {return this.attr.get("times") ?? 0}
-    set times(val : number) {this.attr.set("times", val)}
-
     get dmg() : number | undefined {return this.attr.get("dmg")}
     set dmg(val : number) {this.attr.set("dmg", val)}
 
     get dmgType() {return this.attr.get("dmgType") ?? damageType.physical}
     set dmgType(val : damageType) {this.attr.set("dmgType", val)}
 
+    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+        return [this.count, this.dmg ?? -1, this.dmgType]
+    }
+
     override createInputObj(c: dry_card, s: dry_system, a: Action): inputRequester<any, inputData_card[], inputData_card[], inputData_standard, inputData_standard, inputData_standard[]> {
         return Request.field(s, c).cards().many(this.count, this)
     }
 
     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
-        return this.times > 0 && this.count > 0
+        return this.count > 0
     }
 
     override activate_final(c: dry_card, s: dry_system, a: Action, input: inputRequester_finalized<inputData_card[]>): Action[] {
-        let t = this.times
+        let t = this.count
         if(!t || isNaN(t) || !isFinite(t)) return []
         const cards = input.next()
         const cause = this.cause(s, c)
@@ -106,6 +107,10 @@ export class e_add_to_hand extends Effect<[...inputData_card[], inputData_zone]>
             )(this.cause(s, c.data.card))
         )
     }
+
+    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+        return [this.count ?? 0]
+    }
 }
 
 export class e_add_stat_change_diff extends Effect<inputData_card[]> {
@@ -143,6 +148,10 @@ export class e_add_stat_change_diff extends Effect<inputData_card[]> {
             cause, this.statObj)
         )
     }
+
+    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+        return [this.maxAtk ?? 0, this.maxHp ?? 0, this.level ?? 0]
+    }
 }
 
 export class e_add_stat_change_override extends e_add_stat_change_diff {
@@ -156,7 +165,7 @@ export class e_add_stat_change_override extends e_add_stat_change_diff {
 
 export class e_deal_dmg_ahead extends e_attack {
     override activate_final(c: dry_card, s: dry_system, a: Action): Action_class<identificationInfo[], any, any>[] {
-        let t = this.times
+        let t = this.count
         if(!t || isNaN(t) || !isFinite(t)) return []
         const cause = this.cause(s, c)
 
@@ -377,6 +386,10 @@ export class e_draw extends Effect<[inputData_zone, inputData_zone]> {
 
     get doTurnDraw() : boolean {return this.attr.get("doTurnDraw") != 0}
     set doTurnDraw(val : boolean) {this.attr.set("doTurnDraw", Number(val))}
+
+    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+        return [this.times, this.cooldown, Number(this.doTurnDraw)]
+    }
 
     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
         return this.times > 0 && !isNaN(this.times) && isFinite(this.times)

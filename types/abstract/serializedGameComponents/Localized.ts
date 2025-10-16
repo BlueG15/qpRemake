@@ -1,6 +1,8 @@
 //These Localized objects should be serializable
 // import type { dry_effect, dry_card, dry_zone, dry_system, dry_position } from "../../../data/systemRegistry";
 // import type { nestedTree } from "../../misc";
+import type { rarityRegistry } from "../../../data/rarityRegistry";
+import type { playerTypeID, zoneRegistry } from "../../../data/zoneRegistry";
 import type { component } from "../parser";
 
 type LocalizedString = component[]
@@ -11,6 +13,8 @@ export class Localized_effect {
         public text : LocalizedString,
         public type : LocalizedString,
         public subtypes : LocalizedString[],
+        public typeDesc? : LocalizedString,
+        public subtypesDesc? : (LocalizedString | undefined)[]
     ){}
 }
 
@@ -29,7 +33,8 @@ export class Localized_card {
         public maxAtk : number,
         public maxHp : number,
         public level : number,
-        public rarity : LocalizedString,
+        public rarity : rarityRegistry,
+        public rarityName : LocalizedString,
         public archtype : LocalizedString[],
     ){}
 }
@@ -38,7 +43,8 @@ export class Localized_zone {
     constructor(
         public id : number,
         public pid : number,
-        public pType : LocalizedString,
+        public type : zoneRegistry[],
+        public typeName : LocalizedString[],
         public name : LocalizedString,
         public cards : (Localized_card | undefined)[],
         public shape : number[],
@@ -58,6 +64,7 @@ export class Localized_action {
 export class Localized_player {
     constructor(
         public id : number,
+        public type : playerTypeID,
         public pType : LocalizedString,
         public heart : number,
         public maxHeart : number,

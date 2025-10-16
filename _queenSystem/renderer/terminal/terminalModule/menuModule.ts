@@ -1,8 +1,15 @@
 import chalk from "chalk";
 import { ChalkFormatKeys, I_Terminal, TerminalModule } from "../terminal/utils";
 import stripAnsi from "strip-ansi";
+import { ANSI_String } from "../terminal/ansi";
+import type { TerminalSignals } from "../terminal";
 
 export class TerminalMenuModule extends TerminalModule {
+  protected choices : ANSI_String[]
+  protected chosenStr : ANSI_String
+  protected pre? : ANSI_String
+  protected post? : ANSI_String
+
   protected x_offset = 0
 
   protected readonly x_scroll_delay = 10;
@@ -19,19 +26,23 @@ export class TerminalMenuModule extends TerminalModule {
   }
 
   constructor(
-    protected choices : string[],
-    protected branchToTargets : (undefined | string)[] = [],
-    protected chosenStr : string = "=>",
+    choices : (string | ANSI_String)[],
+    protected branchToTargets : (undefined | string | TerminalSignals)[] = [],
+    chosenStr : string | ANSI_String = "=>",
     protected chosenStrFormat : ChalkFormatKeys[] = ["green"],
-    protected pre? : string,
-    protected post? : string,
+    pre? : string | ANSI_String,
+    post? : string | ANSI_String,
     protected frame = 20
   ){
     super()
+    this.choices = choices.map(c => new ANSI_String(c))
+    this.chosenStr = new ANSI_String(chosenStr)
+    if(pre) this.pre = new ANSI_String(pre);
+    if(post) this.post = new ANSI_String(post);
   }
 
-  protected formatStr(str : string){
-    return this.chosenStr + " " + this.chosenStrFormat.reduce((prev, cur) => chalk[cur](prev), str)
+  protected formatStr(str : ANSI_String){
+    return this.chosenStr.full + " " + this.chosenStrFormat.reduce((prev, cur) => chalk[cur](prev), str.full)
   }
 
   protected log(){
@@ -57,9 +68,9 @@ export class TerminalMenuModule extends TerminalModule {
     if(this.pre) this.terminalPtr.log(this.pre);
 
     this.choices.slice(beginIndex, endIndex).forEach((text, index) => {
-      let str : string
+      let str : ANSI_String
       const frame = Math.floor(this.terminalPtr!.width / 2)
-      const possibleOffsets = stripAnsi(text).length - frame - 2
+      const possibleOffsets = text.length - frame - 2
       
       
       if(possibleOffsets <= 0){
@@ -67,7 +78,6 @@ export class TerminalMenuModule extends TerminalModule {
       } else {
         const x = this.x_offset % possibleOffsets
         beginIndex = index === this.currChoice ? x : 0
-        // endIndex = Math.min(beginIndex + frame, this.terminalPtr!.width)
         str = text.slice(beginIndex)
       }
 
@@ -94,7 +104,7 @@ export class TerminalMenuModule extends TerminalModule {
 
   protected branch(){
     if(!this.terminalPtr) return;
-    if(typeof this.branchToTargets[this.currChoice] !== "string" || !this.branchToTargets[this.currChoice]?.length){
+    if(this.branchToTargets[this.currChoice] === undefined){
       this.log()
       this.terminalPtr.log(`No branch target set, current choice: ${this.currChoice}`)
       return
@@ -121,6 +131,6 @@ export class TerminalMenuModule extends TerminalModule {
     this.log()
     this.listen("arrows", this.updateChoice.bind(this))
     this.listen("enter", this.branch.bind(this))
-    this.listen("update", this.scrollX.bind(this))
+    // this.listen("update", this.scrollX.bind(this))
   }
 }

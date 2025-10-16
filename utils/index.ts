@@ -437,6 +437,191 @@ class utils {
         if(returns) return false;
         throw new Error(`Assertion error: ${a} is not ${b}, objects not have the same values.`)
     }
+
+    static a_star<T_State>(
+        startState : T_State,
+        identity : (state : T_State) => number | string,
+        evaluateState : (state : T_State, prev? : T_State) => number, //cheaper = better
+        evaluateTransition : (fromState : T_State, toState : T_State) => number, //cheaper = better
+        getNextStates : (current : T_State) => T_State[],
+        stopCondition? : (state : T_State, f : number, g : number, totalPath : T_State[], depth : number) => boolean,
+        maxDepth = Infinity
+    ) : T_State[]{
+        //min heap
+        const currentlyExploring = new Heap<[number, T_State]>((a, b) => a[0] - b[0])
+        const curretlyExploringSet = new Set<string | number>()
+
+        //reverse mapping of the best path
+        const preceedMap = new Map<number | string, T_State>()
+
+        //f[n] : best guess so far as to lowest score if cheapest path goes through n
+        //g[n] : cheapest cost from start to n
+        const fscoreMap = new Map<number | string, number>() 
+        const gscoreMap = new Map<number | string, number>() 
+
+        const startScore = evaluateState(startState)
+        const startIdentity = identity(startState)
+
+        gscoreMap.set(startIdentity, 0)
+        fscoreMap.set(startIdentity, startScore)
+
+        curretlyExploringSet.add(startIdentity)
+        currentlyExploring.push([startScore, startState])
+
+        let depth = 0
+
+        const savedIdentityMap = new Map<T_State, number | string>()
+
+        function getIdentity(state : T_State){
+            let res = savedIdentityMap.get(state)
+            if(res === undefined){
+                res = identity(state)
+                savedIdentityMap.set(state, res)
+            }  
+            return res
+        }
+
+        //assume get -> undefined is Infinity
+        function getScore(type : "f" | "g", state : T_State){
+            const i = getIdentity(state)
+            return type === "f" ? (fscoreMap.get(i) ?? Infinity) : (gscoreMap.get(i) ?? Infinity)
+        }
+
+        function getPathFromPreceedMap(state : T_State){
+            const res : T_State[] = [state]
+            let i = getIdentity(state)
+            let pre = preceedMap.get(i)
+            while(pre){
+                res.unshift(pre)
+                state = pre
+                i = getIdentity(state)
+                pre = preceedMap.get(i)
+            }
+            return res
+        }
+
+        //technically explores if not in list already
+        //eh, whatever
+        function explores(state : T_State, score = getScore("f", state), identity = getIdentity(state)){
+            if(curretlyExploringSet.has(identity)) return;
+            curretlyExploringSet.add(identity)
+            currentlyExploring.push([score, state])
+        }
+
+        while(currentlyExploring.length !== 0 && depth < maxDepth){
+            const [currentfScore, current] = currentlyExploring.pop()!
+            curretlyExploringSet.delete(getIdentity(current))
+            const path = getPathFromPreceedMap(current)
+            if(
+                stopCondition &&
+                stopCondition(current, currentfScore, getScore("g", current), path, depth)
+            ){
+                return path
+            }
+
+            const neighbors = getNextStates(current)
+
+            for(const neighbor of neighbors){
+                const edgeCost = evaluateTransition(current, neighbor)
+                const gScore = getScore("g", current) + edgeCost //g score if move to neighbor
+                const neighborgScore = getScore("g", neighbor)
+
+                if(gScore < neighborgScore){
+                    const neighborIdentity = getIdentity(neighbor)
+                    const fScore = evaluateState(neighbor, current) + gScore
+                    preceedMap.set(neighborIdentity, current)
+                    gscoreMap.set(neighborIdentity, gScore)
+                    fscoreMap.set(neighborIdentity, fScore)
+                    explores(neighbor, fScore, neighborIdentity)
+                }
+            }
+
+            depth++
+        }
+
+        return currentlyExploring.length === 0 ? [startState] : getPathFromPreceedMap(currentlyExploring.top()![1])
+    }
+
+
+}
+
+export class Heap<T> {
+    private data: T[];
+    // For a minHeap, comparator should return a negative number if a < b
+    // For numbers, a - b would surfice
+    private comparator: (a: T, b: T) => number;
+
+    //comparator works the same as the function in sort()
+    constructor(comparator: (a: T, b: T) => number, ...start : T[]) {
+        this.comparator = comparator;
+        this.data = start
+    }
+
+    push(item: T) {
+        this.data.push(item);
+        this.bubbleUp();
+    }
+
+    pop(): T | undefined {
+        if (this.data.length === 0) return undefined;
+        const top = this.data[0];
+        const end = this.data.pop();
+        if (this.data.length > 0 && end !== undefined) {
+            this.data[0] = end;
+            this.bubbleDown();
+        }
+        return top;
+    }
+
+    top(): T | undefined {
+        return this.data[0];
+    }
+
+    get length(): number {
+        return this.data.length;
+    }
+
+    private bubbleUp() {
+        let index = this.data.length - 1;
+        const element = this.data[index];
+        while (index > 0) {
+            const parentIndex = Math.floor((index - 1) / 2);
+            const parent = this.data[parentIndex];
+            if (this.comparator(element, parent) >= 0) break;
+            this.data[index] = parent;
+            this.data[parentIndex] = element;
+            index = parentIndex;
+        }
+    }
+
+    private bubbleDown() {
+        let index = 0;
+        const length = this.data.length;
+        const element = this.data[0];
+        while (true) {
+            let leftChildIdx = 2 * index + 1;
+            let rightChildIdx = 2 * index + 2;
+            let swapIdx = -1;
+
+            if (leftChildIdx < length) {
+                if (this.comparator(this.data[leftChildIdx], element) < 0) {
+                    swapIdx = leftChildIdx;
+                }
+            }
+            if (rightChildIdx < length) {
+                if (
+                    this.comparator(this.data[rightChildIdx], element) < 0 &&
+                    (swapIdx === -1 || this.comparator(this.data[rightChildIdx], this.data[leftChildIdx]) < 0)
+                ) {
+                    swapIdx = rightChildIdx;
+                }
+            }
+            if (swapIdx === -1) break;
+            this.data[index] = this.data[swapIdx];
+            this.data[swapIdx] = element;
+            index = swapIdx;
+        }
+    }
 }
 
 export default utils

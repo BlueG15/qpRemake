@@ -172,8 +172,6 @@ export type lastInfo<T extends any[], saved extends any[] = []> =
   T extends [any] ? [T, saved] :
   T extends [infer Head, ...infer Tails] ? lastInfo<Tails, [...saved, Head]> : [T, saved]
 
-type K = lastInfo<[1, 2, 3]>
-
 export type FunctionalKeys<T extends Object> = FilterKeys<T, Fn<any, any>>
 export type UnFunctionalKeys<T extends Object> = Exclude<keyof T, FunctionalKeys<T>>
 

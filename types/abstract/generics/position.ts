@@ -6,12 +6,13 @@ class Position {
     zoneName : string 
     get length(){return this.arr.length}
     get x(){
-        if(!this.arr[0]) return -1;
-        return this.arr[0]
+        return this.arr[0] ?? 0
     }
     get y(){
-        if(!this.arr[1]) return -1;
-        return this.arr[1]
+        return this.arr[1] ?? -1
+    }
+    get z(){
+        return this.arr[2] ?? -1
     }
     map(func : (value: number, index: number) => number){
         return this.arr.map(func)

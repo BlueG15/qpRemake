@@ -4,8 +4,6 @@ import registryAPI from "../../types/abstract/gameComponents/API";
 //importing loaders
 import cardLoader from "../loader/loader_card";
 import effectLoader from "../loader/loader_effect";
-import operatorLoader from "../loader/loader_operator";
-import rarityLoader from "../loader/loader_rarity";
 import subtypeLoader from "../loader/loader_subtype";
 import typeLoader from "../loader/loader_type";
 import zoneLoader from "../loader/loader_zone";
@@ -19,15 +17,12 @@ import type { Action } from "./actionGenrator";
 import type queenSystem from "../queenSystem";
 import type Effect from "../../types/abstract/gameComponents/effect";
 import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
-import type { rarityData } from "../../data/rarityRegistry";
 import type { zoneData } from "../../data/zoneRegistry";
 import type Zone from "../../types/abstract/gameComponents/zone";
 
 export default class registryHandler implements registryAPI {
     cardLoader : cardLoader
     effectLoader : effectLoader
-    operatorLoader : operatorLoader
-    rarityLoader : rarityLoader
     typeLoader : typeLoader
     subTypeLoader : subtypeLoader
     zoneLoader : zoneLoader
@@ -36,9 +31,7 @@ export default class registryHandler implements registryAPI {
 
     constructor(s : Setting){
         this.subTypeLoader = new subtypeLoader();
-        this.rarityLoader = new rarityLoader();
         this.zoneLoader = new zoneLoader();
-        this.operatorLoader = new operatorLoader();
         this.customActionLoader = new customHandlerLoader();
         this.localizationLoader = new localizationLoader(s);
         this.typeLoader = new typeLoader();
@@ -76,9 +69,12 @@ export default class registryHandler implements registryAPI {
         this.localizationLoader.add(language, key, val);
     }
 
-    registry_edit_rarity(key: string, data: rarityData): void {
-        this.rarityLoader.load(key, data)
-    }
+    // registry_edit_rarity(key: number, data: rarityData): void {
+    //     (operatorDataRegistry as any)[key] = data
+    //     if(operatorRegistry[key] === undefined){
+    //         operatorRegistry[key]
+    //     }
+    // }
 
     registry_edit_zone_data(key: string, data: zoneData): void {
         this.zoneLoader.load(key, data);

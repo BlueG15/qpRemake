@@ -27,12 +27,12 @@ import type _void from "../../../types/defaultZones/void";
 
 import type { inputRequester, inputRequester_finalized } from "../../../_queenSystem/handler/actionInputGenerator";
 
-class Zone_base<
+class Zone<
     T_cull_zone_res extends inputData[] | undefined = undefined,
     T_cull_interact extends inputData[] | undefined = undefined,
     
-    Requester_T_zone_res extends (T_cull_zone_res extends Array<inputData> ? inputRequester<any, any, T_cull_zone_res> : undefined) | undefined = T_cull_zone_res extends Array<inputData> ? inputRequester<T_cull_zone_res[0]["type"], T_cull_zone_res, T_cull_zone_res> : undefined,
-    Requester_T_interact extends (T_cull_interact extends Array<inputData> ? inputRequester<any, any, T_cull_interact> : undefined) | undefined = T_cull_interact extends Array<inputData> ? inputRequester<T_cull_interact[0]["type"], T_cull_interact, T_cull_interact> : undefined
+    Requester_T_zone_res extends inputRequester<any, any, inputData[]> | undefined = T_cull_zone_res extends Array<inputData> ? inputRequester<T_cull_zone_res[0]["type"], T_cull_zone_res, T_cull_zone_res> : undefined,
+    Requester_T_interact extends inputRequester<any, any, inputData[]> | undefined = T_cull_interact extends Array<inputData> ? inputRequester<T_cull_interact[0]["type"], T_cull_interact, T_cull_interact> : undefined
 >{
     //list of boolean attributes:
     attr: Map<string, any>;
@@ -683,8 +683,9 @@ class Zone_base<
         return this.handleOccupiedSwap(c, index, func, line);
     }
 
-    forceCardArrContent(newCardArr: Card[]) {
+    forceCardArrContent(newCardArr: Card[], shuffle = false) {
         this.cardArr = newCardArr;
+        if(shuffle) this.cardArr = this.cardArr.sort((_, __) => Math.random() - 0.5)
         this.cardArr.forEach((i, index) => {
             let p: Position = new Position(
                 this.id,
@@ -692,14 +693,14 @@ class Zone_base<
                 ...Utils.indexToPosition(index, this.shape)
             );
             (i as Card).pos = p;
-            console.log(
-                `forcing ${(i as Card).dataID} in index ` +
-                    index +
-                    " to pos " +
-                    p.toString() +
-                    " whose validity is " +
-                    p.valid
-            );
+            // console.log(
+            //     `forcing ${(i as Card).dataID} in index ` +
+            //         index +
+            //         " to pos " +
+            //         p.toString() +
+            //         " whose validity is " +
+            //         p.valid
+            // );
         });
     }
 
@@ -788,6 +789,12 @@ class Zone_base<
 }
 
 
-class Zone extends Zone_base<inputData[] | undefined, inputData[] | undefined, inputRequester<any, any, inputData[]> | undefined, inputRequester<any, any, inputData[]> | undefined>{}
 export default Zone;
-export { Zone_base };
+export { Zone };
+export type Zone_T = Zone<
+    inputData[] | undefined,
+    inputData[] | undefined,
+    inputRequester<any, any, inputData[]> | undefined,
+    inputRequester<any, any, inputData[]> | undefined
+>
+ 

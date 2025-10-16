@@ -36,6 +36,7 @@ import type { dry_system, dry_card, dry_zone, inputData, player_stat } from "../
 import { inputApplicator, inputRequester } from "./actionInputGenerator";
 import type queenSystem from "../queenSystem";
 import drop from "../../types/defaultZones/drop";
+// import type { Zone_T } from "../../types/abstract/gameComponents/zone";
 
 class zoneHandler {
     zoneArr : ReadonlyArray<Zone> = []
@@ -309,7 +310,7 @@ class zoneHandler {
         ]
 
         let res = deck.draw(s, a, hand[0])
-        console.log("2", a.flatAttr(), res)
+        console.log("2", a, res)
         if(res[0]) return [res[0]];
         else return res[1];
     }   
@@ -525,7 +526,7 @@ class zoneHandler {
         return [
             actionConstructorRegistry.a_get_input(actionFormRegistry.system(), {
                 requester : gen as any,
-                applicator : new inputApplicator(z.getZoneRespond, [a, s], z)
+                applicator : new inputApplicator(z.getZoneRespond as any, [a, s], z)
             })
         ]
     }
@@ -537,7 +538,7 @@ class zoneHandler {
         return [
             actionConstructorRegistry.a_get_input(actionFormRegistry.system(), {
                 requester : gen as any,
-                applicator : new inputApplicator(z.interact, [s, a.cause], z)
+                applicator : new inputApplicator(z.interact as any, [s, a.cause], z)
             })
         ]
     }
@@ -684,7 +685,7 @@ class zoneHandler {
     //get stuff
     get system() {return this.getZoneWithType(zoneRegistry.z_system) as system[]}
     get void() {return this.getZoneWithType(zoneRegistry.z_void) as _void[]}
-    get decks() {return this.getZoneWithType(zoneRegistry.z_deck) as deck[]}
+    get decks() {return this.getZoneWithType(zoneRegistry.z_deck) as any as deck[]}
     get storages() {return this.getZoneWithType(zoneRegistry.z_storage) as storage[]}
     get hands() {return this.getZoneWithType(zoneRegistry.z_hand) as hand[]}
     get abilityZones() {return this.getZoneWithType(zoneRegistry.z_ability) as abiltyZone[]}
