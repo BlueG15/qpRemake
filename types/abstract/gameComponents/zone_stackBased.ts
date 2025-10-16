@@ -2,7 +2,7 @@
 import type Card from "./card";
 import type res from "../generics/universalResponse";
 //import position from "./position";
-import { Zone_base } from "./zone";
+import { Zone } from "./zone";
 import Position from "../generics/position";
 
 import { playerOppositeMap, playerTypeID } from "../../../data/zoneRegistry";
@@ -14,10 +14,7 @@ import type { inputRequester, inputRequester_finalized } from "../../../_queenSy
 class Zone_stack<
     T_cull_zone_res extends inputData[] | undefined = undefined,
     T_cull_interact extends inputData[] | undefined = undefined,
-    
-    Requester_T_zone_res extends (T_cull_zone_res extends Array<inputData> ? inputRequester<any, any, T_cull_zone_res> : undefined) | undefined = T_cull_zone_res extends Array<inputData> ? inputRequester<T_cull_zone_res[0]["type"], T_cull_zone_res, T_cull_zone_res> : undefined,
-    Requester_T_interact extends (T_cull_interact extends Array<inputData> ? inputRequester<any, any, T_cull_interact> : undefined) | undefined = T_cull_interact extends Array<inputData> ? inputRequester<T_cull_interact[0]["type"], T_cull_interact, T_cull_interact> : undefined
-> extends Zone_base<T_cull_zone_res, T_cull_interact, Requester_T_zone_res, Requester_T_interact> {
+> extends Zone<T_cull_zone_res, T_cull_interact> {
     // constructor(dataID: string, data?: zoneData){
     //     super(dataID, data)
     //     this.cardArr = []
@@ -62,7 +59,7 @@ class Zone_stack<
     override isOpposite(z: Player_specific & HasTypesArr): boolean;
     override isOpposite(p1: Positionable | (HasTypesArr & Player_specific), p2?: Positionable): boolean {
         if(p2 === undefined){
-            const z = p1 as Zone_base;
+            const z = p1 as Zone;
             const flag1 =  playerOppositeMap[playerTypeID[this.playerType] as keyof typeof playerOppositeMap].some(i => i === z.playerType);
             const flag2 =  this.types.join() === z.types.join();
             return flag1 && flag2

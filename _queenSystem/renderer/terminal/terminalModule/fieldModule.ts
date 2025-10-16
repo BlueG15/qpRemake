@@ -1,193 +1,161 @@
-import type Card from "../../../../types/abstract/gameComponents/card";
 import type queenSystem from "../../../queenSystem";
-import type { component } from "../../../../types/abstract/parser";
-import type { Localized_system } from "../../../../types/abstract/serializedGameComponents/Localized";
 
 import { playerTypeID, zoneRegistry } from "../../../../data/zoneRegistry";
-import { TerminalMenuModule } from "./menuModule";
 import chalk from "chalk";
+import Zone from "../../../../types/abstract/gameComponents/zone";
 
-//NOT WORK
-export class qpFieldModule extends TerminalMenuModule {
-    public tiles : string[][] = []
-    public commands = [
-        "View player info"
-    ]
+import { empty_pos_cell, execute_cell, TerminalBufferModule } from "./buffer";
+import { deckRegistry, type DeckData } from "../../../../data/deckRegistry";
+
+//arrows to move to highlight stuff
+//then enter to lock them, it then jumps the cursor to that section
+export class qpFieldModule extends TerminalBufferModule {
     constructor(
-        public s : queenSystem
+        public s : queenSystem,
+        w = 5, h = 20
     ){
-        super([])
-        this.choices = this.commands
+        super(w, h)
+        this.buffer.bind(s)
     }
 
-    public currX = 0
-    public currY = 0
-    public currFieldIndex = 0
+    data? : any
+    currentDeck? : DeckData
 
-    private stringifyLocalizedString(str : component[]){
-        return str.map(s => s.is("text") ? "[" + s.sectionIDs.join("_") + "] " + s.str : s.raw).join("")
-    }
-
-    override log(){
+    override log(signal? : "enter" | 0 | 1 | 2 | 3){     
         if(!this.terminalPtr) return
         this.terminalPtr.clear()
-
-        let currentCard : Card | undefined
-        let currentTile : string = ""
-        let currentChoices : string[] = []
-
-        //draw the field
-        const players = this.s.player_stat
-        players.forEach((p) => {
-            const zones = this.s.getAllZonesOfPlayer(p.playerIndex)
-
-            let field = zones[zoneRegistry.z_field] ?? []
-            let deck = zones[zoneRegistry.z_deck] ?? []
-            let grave = zones[zoneRegistry.z_grave] ?? []
-
-            let totalFieldHeight = 0
-
-            if(p.playerType === playerTypeID.enemy){
-                field = field.reverse()
-            }
-
-            this.tiles = []
-            field.forEach(f => {
-                const dim0 = f.shape[0]
-                const dim1 = f.shape[1]
-
-                if(dim0 <= 0 || dim1 <= 0) return;
-
-                const specificTiles : string[][] = []
-                for(let y = 0; y < dim1 ; y++){
-
-                    const res : string[] = ["[>]", " ", " "]
-                    const beginLen = res.length
-                    
-                    const checkX = this.currX - beginLen
-                    const checkY = this.currY - totalFieldHeight
-
-                    for(let x = 0; x < dim0; x++){
-                        const temp_c = f.cardArr[Utils.positionToIndex([x, y], f.shape)] 
-                        let temp = temp_c ? "[c]" : "[ ]"
-
-                        if(x === checkX && y === checkY){
-                            currentCard = f.cardArr[x] as any
-                            temp = chalk.green(temp);
-                        }
-                        res. push(temp)
-                        res.push(" ")
-                    }
-                    if(y === 0){
-                        const addedDecks = new Array(deck.length).fill("[d]").join(" ")
-                        res.push(" ")
-                        res.push(addedDecks)
-                    }
-                    if((y === 1 && dim1 > 1) || (y === 0 && dim1 <= 1)){
-                        const addedGraves = new Array(grave.length).fill("[g]").join(" ")
-                        res.push(" ")
-                        res.push(addedGraves)
-                    }
-                    p.playerType === playerTypeID.enemy ? 
-                    specificTiles.unshift(res) : 
-                    specificTiles.push(res)
-                }
-                this.tiles.concat(specificTiles)
-
-                totalFieldHeight += dim1
-            })
-
-            this.tiles.forEach(line => {
-                this.terminalPtr!.log(...line)
-            })
-        })
+        this.resetPrintInfo()
+        
+        const cellDims = [7, 5] as const
+        this.buffer.updateSignal(signal)
 
         try{
-            currentTile = this.tiles[this.currY][this.currX][1]
+            const obj = this.data as DeckData | undefined
+            if(!obj) throw new Error("No deck")
+            const cards = obj.cards.map(c => this.s.cardHandler.getCard(c))
+            const pid = this.s.player_stat.findIndex(p => p.playerType === playerTypeID.player)
+            if(pid >= 0){
+                const hands = this.s.getAllZonesOfPlayer(pid)[zoneRegistry.z_hand]
+                if(hands[0] instanceof Zone){
+                    hands[0].forceCardArrContent(cards.filter(c => c !== undefined), true)
+                }
+            }
+            this.currentDeck = this.data
+            delete this.data
         }catch(e){}
+        
+        const s = this.s
 
-        //draw the card Info
-        if(currentCard){
-            const localizedCard = this.s.localizer.localizeCard(currentCard)
-            if(localizedCard){
-                this.terminalPtr.log(
-                    this.stringifyLocalizedString(localizedCard.name) + "." +
-                    localizedCard.extensions.map(ex => this.stringifyLocalizedString(ex)).join('.')
-                )
-                this.terminalPtr.log("atk:", localizedCard.atk, "/", localizedCard.maxAtk)
-                this.terminalPtr.log("hp:", localizedCard.hp, "/", localizedCard.maxHp)
-                this.terminalPtr.log("level:", localizedCard.level)
-                this.terminalPtr.log("rarity:", this.stringifyLocalizedString(localizedCard.rarity))
-                localizedCard.effects.forEach(e => 
-                    this.terminalPtr!.log(
-                        "[" + this.stringifyLocalizedString(e.type) + "]" +
-                        "[" + e.subtypes.map(st => this.stringifyLocalizedString(st)).join(", ") + "]" +
-                        this.stringifyLocalizedString(e.text)
-                    )
-                )
-                if(localizedCard.statusEffects) localizedCard.statusEffects.forEach(e => 
-                    this.terminalPtr!.log(
-                        "[" + this.stringifyLocalizedString(e.type) + "]" +
-                        "[" + e.subtypes.map(st => this.stringifyLocalizedString(st)).join(", ") + "]" +
-                        this.stringifyLocalizedString(e.text)
-                    )
-                ); else this.terminalPtr.log("<No status effects>")
-            } else this.terminalPtr.log("<No card selected>")
+        if(this.currentDeck){
+            const parsedName = s.localizer.getAndParseLocalizedSymbol(deckRegistry[this.currentDeck.deckID])
+            if(parsedName) this.terminalPtr.log(`Playing deck : ${chalk.bold(this.buffer.formatLocalizedString(parsedName))}`)
         }
 
-        //draw the tiles's stuff
-        switch(currentTile){
-            case "g" : {
-                currentChoices.push("View detailed GY's content")
-                break;
-            }
-            case ">" : {
-                currentChoices.push("Execute this row")
-                break;
-            }
-        }
 
-        //draw choices
-        this.choices = currentChoices.concat(this.commands)
-        this.branchToTargets = this.choices //wont work but this hack prints what choice is selected
+        const players = s.player_stat
+        const enemy = players.filter(p => p.playerType === playerTypeID.enemy)
+        const player = players.filter(p => p.playerType === playerTypeID.player)
 
-        if( (this.terminalPtr as any).ignoreClear ) (this.terminalPtr as any).ignoreClear()
-        super.log()
+        // const playerCount = new Map<number, number>()
+
+        const pArr = enemy.concat(player)
+
+        const maxAbilityCount = pArr.reduce((prev, cur) => Math.max(prev, s.getAllZonesOfPlayer(cur.playerIndex)[zoneRegistry.z_ability]?.length ?? 0), 0)
+
+        enemy.concat(player).forEach(p => {
+
+            // let count : number
+            // count = playerCount.get(p.playerType)!
+            // if(count === undefined) count = 0;
+            // else count++;
+            // playerCount.set(p.playerType, count)
+
+            // let playerStr = `${playerTypeID[p.playerType]} ${count === 0 ? "" : "(" + count + ")"}`
+            // switch(p.playerType){
+            //     case playerTypeID.enemy : {
+            //         playerStr = chalk.redBright(playerStr)
+            //         break;
+            //     }
+            //     case playerTypeID.player : {
+            //         playerStr = chalk.greenBright(playerStr)
+            //         break;
+            //     }
+            //     default : {
+            //         playerStr = chalk.grey(playerStr)
+            //     }
+            // }
+            // this.buffer.pushCell(playerStr)
+
+            this.buffer.pushDivider()
+
+            const zones = s.getAllZonesOfPlayer(p.playerIndex)
+
+            const fields = zones[zoneRegistry.z_field] ?? []
+            const decks = zones[zoneRegistry.z_deck] ?? []
+            const graves = zones[zoneRegistry.z_grave] ?? []
+            const ability = zones[zoneRegistry.z_ability] ?? []
+            const hand = zones[zoneRegistry.z_hand] ?? []
+            
+            let cards = fields.map(f => f.cardArr)
+
+            cards.forEach((card, index) => {
+                const shape = fields[index].shape
+
+                for(let _y = 0; _y < shape[1]; _y++){
+                    const y = p.playerType === playerTypeID.enemy ? shape[1] - _y - 1 : _y
+
+                    if(y === 1) {
+                        for(let i = 0; i < maxAbilityCount; i++){
+                            if(ability[i]) this.buffer.pushCell(ability[i], ...cellDims);
+                            else this.buffer.pushEmptyCell(...cellDims)
+                        }
+                    } else {
+                        for(let i = 0; i < maxAbilityCount; i++){
+                            this.buffer.pushEmptyCell(...cellDims)
+                        }
+                    }
+
+                    this.buffer.pushCell(new execute_cell(y, fields[index]), ...cellDims)
+
+                    for(let x = 0; x < shape[0] + 1; x++){
+                        if(x === shape[0]){
+                            switch(y){
+                                case 0 : {
+                                    this.buffer.pushEmptyCell(...cellDims)
+                                    graves.forEach(g => this.buffer.pushCell(g, ...cellDims));
+                                    break;
+                                }
+                                case 1 : {
+                                    this.buffer.pushEmptyCell(...cellDims)
+                                    decks.forEach(d => this.buffer.pushCell(d, ...cellDims));
+                                    break;
+                                }
+                            }
+                        }
+                        else this.buffer.pushCell(card[y * shape[0] + x] ?? new empty_pos_cell([x, y], fields[index]), ...cellDims)
+                    }
+                    this.buffer.markEndLine()
+                }
+            })
+
+            
+            if(hand.length) hand.forEach(h => {
+                this.buffer.pushDivider()
+                if(h.cardArr.length) {
+                    const limit = Math.min(8, h.cardArr.length)
+                    for(let i = 0; i < limit; i++){
+                        this.buffer.pushCell(h.cardArr[i], ...cellDims)
+                    }
+                } else this.buffer.pushCell("<Hand empty>")
+            });
+        })
+
+        
+        return this.buffer.print(this.terminalPtr)
     }
 
-    protected override updateChoice(data: number): void {
-        switch(data){
-            case 0 : {
-                if(this.currChoice === 0){
-                    this.currY--
-                    this.___i = -1
-                    if(this.currY < 0) this.currY = 0;
-                } else {
-                    this.currChoice--
-                }
-                break;
-            }
-            case 1 : {
-                if(this.___i === -1){
-                    this.currX--;
-                    if(this.currX < 0) this.currX = 0;
-                }
-                break;
-            }
-            case 2 : {
-                this.currY++
-                if(this.tiles[this.currY + 1] === undefined){
-                    this.currChoice++;
-                }
-                break;
-            }
-            case 3 : {
-                if(this.___i === -1){
-                    this.currX++;
-                    if(this.currX >= 5) this.currX = 0
-                }
-                break;
-            }
-        }
+    override start(obj? : any): void {
+        this.data = obj
+        return super.start()
     }
 }

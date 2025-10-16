@@ -210,7 +210,7 @@ function evaluate_node(node : tree, inputArr : number[]) : number{
         } else {
             return evaluate_node(node[2], inputArr);
         }
-    } else return Number(node[0])
+    } else return isNaN(Number(node[0])) ? (inputArr[node[0].charCodeAt(0) - 'a'.charCodeAt(0)] ?? NaN) : Number(node[0])
     
 }
 

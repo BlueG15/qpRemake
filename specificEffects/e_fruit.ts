@@ -145,7 +145,7 @@ export default {
 
     e_apple : e_add_to_hand.implyCondition("c", 
         (c, oldc, s) => 
-            c.dataID === "c_apple" && //selection is c_apple
+            c.dataID === oldc.dataID && //selection is same as this card
             s.getZoneOf(c)!.is(zoneRegistry.z_deck) //selction is from deck
     ),
     e_banana : e_revive.implyCondition("c", 

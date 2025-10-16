@@ -38,11 +38,6 @@ export default interface registryAPI {
         constructor : typeof Zone 
     ) : void;
 
-    registry_edit_rarity(
-        key : string,
-        data : rarityData
-    ) : void;
-
     //UNSFAFE registry edit
     registry_edit_custom_action_handler(
         actionIDs : number[],
@@ -51,4 +46,6 @@ export default interface registryAPI {
    
     //localization edit
     registry_edit_localization(language : string, key : string, val : string) : void;
+
+    //other registries - edit enums directly
 }

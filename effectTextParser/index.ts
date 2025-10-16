@@ -83,23 +83,24 @@ export default class Parser {
                 const properClose = `</${cTag}>`
                 const properOpen = `<${cTag}>`
 
-                const errorChar = str[err.pos]
-                const escapedChar = `&#${errorChar.charCodeAt(0)};`
-                
                 //situation patchfix 1: allowing </> as a universal end tag
                 //by repllacing </> with the proper close tag 
                 const flag1 = str.slice(err.pos, err.pos + 3) === "</>"
-
                 
                 if(flag1){
                     post = str.slice(err.pos + 3);
                     return this.parse_internal_lib_level(pre + properClose + post, true, escapedCharLimit); //reparse
                 }
                 
-                //situation patchfix 2: escape the character that fails to parse
-                //try replacing the problematic character with its XML entity
-                if(escapedCharLimit <= 0) throw err
-                return this.parse_internal_lib_level(pre + escapedChar + post, true, escapedCharLimit - 1)
+                const errorChar = str[err.pos]
+                if(errorChar){
+                    const escapedChar = `&#${errorChar.charCodeAt(0)};`
+                    
+                    //situation patchfix 2: escape the character that fails to parse
+                    //try replacing the problematic character with its XML entity
+                    if(escapedCharLimit <= 0) throw err
+                    return this.parse_internal_lib_level(pre + escapedChar + post, true, escapedCharLimit - 1)
+                }    
             }
 
             throw err
@@ -125,7 +126,7 @@ export default class Parser {
 
         } else {
             const errMes = `WARN: unknown module, tried to invoke ${cmd}, reverting to a text node`
-            console.warn(errMes)
+            // console.warn(errMes)
             return [new textComponent(tree.text, errMes, cmd, tree.text)]
         }
     }
@@ -135,7 +136,7 @@ export default class Parser {
             //undefined behavior?
             //idk what this shit is???
             const errMes = `WARN: XML processing instruction not supported (trying to parse instuction name = ${tree.name}, content = ${tree.content}), reverting to text node`
-            console.warn(errMes)
+            // console.warn(errMes)
             return [new textComponent(originalXML.slice(tree.start, tree.end), errMes, undefined, originalXML.slice(tree.start, tree.end))]
         } else {
             if(!tree.children || !tree.children.length) {

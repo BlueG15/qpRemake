@@ -1,12 +1,15 @@
 import chalk from "chalk";
 import { ChalkFormatKeys, I_Terminal, TerminalModule } from "../terminal/utils";
+import { ANSI_String } from "../terminal/ansi";
 
 export class TerminalDebugModule extends TerminalModule {
+  pre : ANSI_String
   constructor(
     public format : ChalkFormatKeys[] = ["white"],
-    public pre : string = ""
+    pre : string | ANSI_String = ""
   ){
     super()
+    this.pre = new ANSI_String(pre)
   }
 
   protected formatStr(str : string){

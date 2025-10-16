@@ -497,7 +497,7 @@ class quickEffectInfo<K extends effectInfo = {
 }
 
 //TODO : change to const later
-const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
+const cardDataRegistry //: {[key : string] : Omit<cardData, "id">}
 = {
 
     //zero eff stuff
@@ -658,7 +658,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                     }
                 },
                 imgURL : oldImgURL("naturalApple"),
-                partition : [defaultPartition("c_apple")],
+                partition : [defaultPartition()],
             },
             upgrade_1 : {
                 atk : 3,
@@ -782,8 +782,8 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 hp : 2,
                 imgURL : oldImgURL("naturalPumpkin"),
                 partition : [
-                    defaultPartition("c_pumpkin"),
-                    defaultPartition("c_pumpkin", 1)
+                    defaultPartition(),
+                    defaultPartition(undefined, 1)
                 ],
                 effects : {
                     e_pumpkin : {
@@ -816,7 +816,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 hp : 1,
                 imgURL : oldImgURL("naturalPollination"),
                 partition : [
-                    defaultPartition("c_pollinate")
+                    defaultPartition()
                 ],
                 effects : {
                     e_pollinate : {
@@ -845,7 +845,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 hp : 2,
                 imgURL : oldImgURL("naturalGreenhouse"),
                 partition : [
-                    defaultPartition("c_greenhouse")
+                    defaultPartition()
                 ],
                 effects : {
                     e_greenhouse : {
@@ -876,7 +876,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 hp : 1,
                 imgURL : oldImgURL("naturalGrowth"),
                 partition : [
-                    defaultPartition("c_growth")
+                    defaultPartition()
                 ],
                 effects : {
                     e_growth : {
@@ -906,7 +906,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 hp : 2,
                 imgURL : oldImgURL("naturalSpring"),
                 partition : [
-                    defaultPartition("c_spring")
+                    defaultPartition()
                 ],
                 effects : {
                     e_spring : {
@@ -935,7 +935,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 hp : 2,
                 imgURL : oldImgURL("naturalSummer"),
                 partition : [
-                    defaultPartition("c_summer")
+                    defaultPartition()
                 ],
                 effects : {
                     e_summer : {
@@ -964,7 +964,7 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 hp : 2,
                 imgURL : oldImgURL("naturalFall"),
                 partition : [
-                    defaultPartition("c_autumn")
+                    defaultPartition()
                 ],
                 effects : {
                     e_autumn : {
@@ -993,8 +993,8 @@ const cardDataRegistry : {[key : string] : Omit<cardData, "id">}
                 hp : 2,
                 imgURL : oldImgURL("naturalWinter"),
                 partition : [
-                    defaultPartition("c_winter", [0, 1]),
-                    defaultPartition("c_winter", 2)
+                    defaultPartition(undefined, [0, 1]),
+                    defaultPartition(undefined, 2)
                 ],
                 effects : {
                     e_winter_1 : {

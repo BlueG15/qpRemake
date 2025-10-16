@@ -1,11 +1,11 @@
-import { Zone_base } from "../abstract/gameComponents/zone";
+import { Zone } from "../abstract/gameComponents/zone";
 import type { player_stat } from "../../data/systemRegistry";
 import type { Action } from "../../_queenSystem/handler/actionGenrator";
 import type { dry_system } from "../../data/systemRegistry";
 
 import { actionConstructorRegistry, actionFormRegistry } from "../../_queenSystem/handler/actionGenrator";
 
-class system extends Zone_base {
+class system extends Zone {
     // constructor(){
     //     super("system");
     // }

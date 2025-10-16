@@ -97,14 +97,21 @@ export default class effectLoader {
 
     getEffect(eid : keyof typeof effectDataRegistry, s : Setting, edata? : Partial<effectData>) : Effect
     getEffect(eid : string, s : Setting, edata? : Partial<effectData>) : Effect | undefined
-    getEffect(eid : string, s : Setting, edata? : Partial<effectData>) : Effect | undefined{
+
+    getEffect(eid : keyof typeof effectDataRegistry, s : Setting, edata : Partial<effectData>, dataOnly : true) : effectData
+    getEffect(eid : string, s : Setting, edata : Partial<effectData>, dataOnly : true) : effectData | undefined
+
+    getEffect(eid : string, s : Setting, edata? : Partial<effectData>, dataOnly? : boolean) : effectData | Effect | undefined
+
+    getEffect(eid : string, s : Setting, edata? : Partial<effectData>, dataOnly = false) : Effect | effectData | undefined{
         let data = this.dataCache.get(eid)
         if(!data) return undefined
 
+        if(edata) Utils.patchGeneric(data, edata);
+        if(dataOnly) return data
+
         let eclass = this.classCache.get(eid)
         if(!eclass) {console.log("No class Data for key ", eid); return undefined}
-
-        if(edata) Utils.patchGeneric(data, edata)
 
         return this.getDirect(eid, s, eclass, data)
     }

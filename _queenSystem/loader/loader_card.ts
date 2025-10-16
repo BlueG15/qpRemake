@@ -2,7 +2,7 @@ import Card from "../../types/abstract/gameComponents/card";
 import type { cardData, cardData_unified, effectData } from "../../data/cardRegistry";
 import type effectLoader from "./loader_effect";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
-import type Effect from "../../types/abstract/gameComponents/effect";
+import Effect from "../../types/abstract/gameComponents/effect";
 
 //Cards have 2 parts
 
@@ -43,7 +43,24 @@ export default class cardLoader {
         }
     }
 
-    getCard(cid : string, s : Setting, variantid? : string[]){
+    getCard(
+        cid : string, 
+        s : Setting, 
+        variantid? : string[],
+        dataOnly? : false
+    ) : Card;
+    getCard(
+        cid : string, 
+        s : Setting, 
+        variantid : string[],
+        dataOnly : true
+    ) : Omit<cardData_unified, "effects"> & {effects : effectData[]};
+    getCard(
+        cid : string, 
+        s : Setting, 
+        variantid? : string[],
+        dataOnly = false
+    ){
         let data = this.dataCache.get(cid)
         if(!data) return undefined
 
@@ -52,7 +69,7 @@ export default class cardLoader {
 
         let c = this.countCache.get(cid);
         c = (c) ? (c + 1) % s.max_id_count : 0;
-        this.countCache.set(cid, c); 
+        if(!dataOnly) this.countCache.set(cid, c); 
 
         let runID = variantid ? Utils.dataIDToUniqueID(cid, c, s, ...variantid) : Utils.dataIDToUniqueID(cid, c, s);
 
@@ -76,7 +93,8 @@ export default class cardLoader {
             })
         }
         
-        let effArr : Effect[] = []
+        let effArr : Effect [] = []
+        let effDataArr : effectData[] = []
         Object.keys(d.effects).forEach(i => {
             const eObj : effectData & {
                 __loadOptions? : {
@@ -87,9 +105,10 @@ export default class cardLoader {
 
             function Load(t : cardLoader, eObj : Partial<effectData> | undefined){
                 // console.log("Trying to load eff: ", JSON.stringify(eObj))
-                let e = t.effectHandler.getEffect(i, s, eObj);
-                if(e) effArr.push(e);
-                else console.log(`Effect id not found: ${i}\n`)
+                let e = t.effectHandler.getEffect(i, s, eObj, dataOnly);
+                if(!e) return console.log(`Effect id not found: ${i}\n`);
+                if(e instanceof Effect) effArr.push(e);
+                else effDataArr.push(e)
             }
 
             if(eObj && typeof eObj.__loadOptions === "object"){
@@ -120,6 +139,11 @@ export default class cardLoader {
         // console.log(`
         //     debug log: loading card ${cid}, loaded ${effArr.length} effects\n`)
     
+        if(dataOnly) {
+            const res = d as Omit<cardData_unified, "effects"> & {effects : effectData[]}
+            res.effects = effDataArr
+            return res
+        }
         return new cclass(s, d, effArr)
     }
 

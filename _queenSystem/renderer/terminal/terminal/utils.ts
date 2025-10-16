@@ -16,7 +16,7 @@ export interface I_Terminal {
   get height() : number;
   clear() : void;
   log(...arg: any[]): void;
-  branchToModule?(moduleName : string) : void;
+  branchToModule?(moduleName : string | number, additionalInfo? : any) : void;
   event : TerminalEventEmitter;
 }
 
@@ -90,7 +90,7 @@ export class TerminalEventEmitter extends EventEmitter {
 export class TerminalModule {
   protected terminalPtr? : I_Terminal
   private listened : [keyof I_TerminalEvent, I_TerminalEvent[keyof I_TerminalEvent]][] = []
-
+  
   listen<K extends keyof I_TerminalEvent>(event : K, listener : I_TerminalEvent[K]){
     if(!this.terminalPtr) return;
     this.listened.push( [event, listener] )
@@ -99,7 +99,7 @@ export class TerminalModule {
   bind(terminal : I_Terminal){
     this.terminalPtr = terminal
   }
-  start(){} 
+  start(data? : any){} 
   stop(){
     if(!this.terminalPtr) return
     this.listened.forEach(([k, f]) => this.terminalPtr!.event.off(k, f))

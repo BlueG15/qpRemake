@@ -1,17 +1,19 @@
 import type Zone from "../../types/abstract/gameComponents/zone";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 import type { zoneData } from "../../data/zoneRegistry";
-import type { inputData } from "../../data/systemRegistry";
+import type { Zone_T } from "../../types/abstract/gameComponents/zone";
+
+type ZoneContructor = new (...p : ConstructorParameters<typeof Zone>) => Zone_T
 
 export default class zoneLoader {
 
-    private classCache : Map<string, typeof Zone> = new Map()
+    private classCache : Map<string, ZoneContructor> = new Map()
     private dataCache : Map<string, zoneData> = new Map()
     private counter = 0
 
     //private instanceCache : Map<string, Zone> = new Map()
 
-    load(key : string, data? : zoneData, c? : typeof Zone){
+    load(key : string, data? : zoneData, c? : ZoneContructor){
         if(data) this.dataCache.set(key, data)
         if(c) this.classCache.set(key, c);
     };
@@ -33,6 +35,6 @@ export default class zoneLoader {
         let runID = Utils.dataIDToUniqueID(zclassID, this.counter, s, zDataID, ptype.toString(), pid.toString())
         
         this.counter++;
-        return new zclass(-1, runID, zDataID, zclassID, ptype, pid, data)
+        return new zclass(-1, runID, zDataID, zclassID, ptype, pid, data) as Zone
     }
-}
+} 
