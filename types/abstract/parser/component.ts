@@ -49,7 +49,7 @@ export enum iconID  {
 
 export enum componentID {
     error = -1,
-    number = 0,
+    number = 1,
     text,
     image,
     reference,
@@ -106,14 +106,20 @@ export class component{
 
 export class textComponent extends component{
     str : string
+    private num = -100
     constructor(
         str : string,
         errMsg? : string,
         fromCmd? : string,
         raw? : string
     ){
-        super(componentID.text, errMsg, fromCmd, raw);
+        super(componentID.text, errMsg, fromCmd, raw)
         this.str = str;
+        const num = Number(str)
+        if(!isNaN(num) && str.trim().length){
+            this.id = componentID.number
+            this.num = Number(str)
+        }
     }
 }
 

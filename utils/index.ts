@@ -38,6 +38,18 @@ class utils {
         return (round) ? Math.round(Math.random() * (max - min) + min) : Math.random() * (max - min) + min
     }
 
+    static rngArr(len : number, max : number, min : number, round : boolean){
+        return new Array(len).fill(0).map(_ => utils.rng(max, min, round))
+    }
+
+    static rngChoice<T>(choices : T[]) : T {
+        return choices[ this.rng(choices.length - 1, 0, true) ]
+    }
+
+    static rngArrChoice<T>(len : number, choices : T[]) : T[] {
+        return new Array(len).fill(0).map(_ => this.rngChoice(choices))
+    }
+
     static round(num : number, precision : number){ 
         return Math.round((num + Number.EPSILON) * Math.pow(10, precision)) / Math.pow(10, precision)
     }
