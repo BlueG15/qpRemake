@@ -443,7 +443,7 @@ export class Terminal implements I_Terminal {
         }
 
         default : {
-          if(cmd.length) this.logdebug("Invalid command: ", cmd)
+          // if(cmd.length) this.logdebug("Invalid command: ", cmd)
           break;
         }
       }

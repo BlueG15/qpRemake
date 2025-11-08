@@ -4,6 +4,7 @@ import { TerminalExitModule } from "./exitModule";
 import { TerminalAutoInput } from "./autoInputModule";
 import { qpFieldModule } from "./fieldModule";
 import { qpDeckChoser } from "./deckChoser";
+import { qpTestLocalizer } from "./testLocalize";
 
 export default {
   debug : TerminalDebugModule,
@@ -11,5 +12,6 @@ export default {
   exit : TerminalExitModule,
   input : TerminalAutoInput,
   field : qpFieldModule,
-  chooseDeck : qpDeckChoser
+  chooseDeck : qpDeckChoser,
+  testLocalize : qpTestLocalizer
 }

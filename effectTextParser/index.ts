@@ -12,8 +12,6 @@ export default class Parser {
     private moduleMap : Map<string, [number, number]> = new Map()
     //[module index, command index]
 
-    constructor(){}
-
     //
     async load(l : loadOptions){
         let path = l.modulePath
@@ -118,7 +116,7 @@ export default class Parser {
             if(!inputObj){
                 //incorrect input
                 const errMes = `Failed to parse input for module ${cmd}, tried to parse attributes: ${JSON.stringify(tree.attributes, null, 0)}, required attributes = ${JSON.stringify(module.requiredAttr[cmdIndex], null, 0)}, reverting to text node`
-                console.warn(errMes)
+                //console.warn(errMes)
                 return [new textComponent(tree.text, errMes, cmd, tree.text)]
             }
 
@@ -161,13 +159,102 @@ export default class Parser {
 
         return r;
     }
+    private equationRegex(
+        prefixOperator: string[],
+        inFixOperator: string[],
+        postFixOperator: string[],
+        elementRegex: RegExp,
+        prefix: string,
+        postfix?: string
+    ): RegExp {
+        const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+        // Operators
+        const preOps = prefixOperator.length ? `(?:${prefixOperator.map(escape).join("|")})?` : "";
+        const inOps = inFixOperator.length ? `(?:${inFixOperator.map(escape).join("|")})` : "";
+        const postOps = postFixOperator.length ? `(?:${postFixOperator.map(escape).join("|")})?` : "";
+
+        // Base element core
+        const elemCore = elementRegex.source;
+
+        // Bracketed sub-expressions
+        const bracketed = [
+            `\\(${elemCore}(?:\\s*${inOps}\\s*${elemCore})*\\)`,
+            `\\[${elemCore}(?:\\s*${inOps}\\s*${elemCore})*\\]`,
+            `\\{${elemCore}(?:\\s*${inOps}\\s*${elemCore})*\\}`
+        ].join("|");
+
+        // Base element (prefix/postfix supported)
+        const elem = `${preOps}(?:${elemCore}|${bracketed})${postOps}`;
+
+        // Ternary expression form
+        const ternary = `${elem}\\s*\\?\\s*${elem}\\s*:\\s*${elem}`;
+
+        // Combined atomic unit: an element or a ternary expression
+        const atomic = `(?:${ternary}|${elem})`;
+
+        // Equation body (chain of atomic units with infix ops)
+        const body = `${atomic}(?:\\s*${inOps}\\s*${atomic})*`;
+
+        // Boundaries
+        const start = `(?:${escape(prefix)})`;
+        const end = postfix ? `(?:${escape(postfix)})` : "";
+
+        return new RegExp(`${start}\\s*(${body})\\s*${end}`, "g");
+    }
+    private elementRegex = /[A-Za-z0-9]|".*"/
+    private operationList_infix = [
+        "==", "===",
+        "!=", "!==",
+
+        ">", "<",
+        ">=", "<=",
+
+        "&&", "&",
+        "||", "|", 
+
+        ">>", "<<",
+
+        "++", 
+        "+", "-", "*", "/", 
+        ".."
+    ]
+    private operationList_prefix = [
+        "!", "+", "-"
+    ]
+
+    private preparse_regs = [
+        /=\s*([A-Za-z0-9]+)\s*;?/g, //=ABC...
+        this.equationRegex(this.operationList_prefix, this.operationList_infix, [], this.elementRegex, "=", ";")
+    ]
+
+    private preParseXML(XML : string){
+        const [reg1, reg2] = this.preparse_regs
+        XML = XML.replace(reg2, (_, str) => {
+            return `<expr> ${str} </>`
+        })
+        XML = XML.replace(reg1, (_, str) => {
+            return str.split("").map((c : string) => `<expr> ${c} </>`).join("")
+        })
+        return XML
+    }
 
     parse(XML : string, o : parseOptions) : nestedTree<component>{
         if(!this.loaded){
             throw `Parser did not finish loading modules, call load() first`;
         }
 
-        const tree = this.parse_internal_lib_level(XML); 
+        //replace shorthands with actual tags
+        //=abc...
+        XML = this.preParseXML(XML)
+
+        let tree
+        try{
+            tree = this.parse_internal_lib_level(XML); 
+        }catch(e) {
+            return [new textComponent(XML, "Failed to parse XML")]
+        }
+
         if(!(tree as XmlElement).children || !(tree as XmlElement).children.length) return [] 
         const parsedTree = (tree as XmlElement).children.map(i => this.parse_internal_loader_level(XML, i as XMLTree, o));
 
@@ -176,10 +263,6 @@ export default class Parser {
         } else return parsedTree
         
     }
-
-    debug_parse(XML: string){
-        return this.parse_internal_lib_level(XML)
-    }
 }
 
 export {
@@ -187,6 +270,10 @@ export {
     loadOptions
 }
 
+/**
+ * Added shorthands:
+ * =abcABC... : prints out the value of a, b, c, A, B, C...
+ * = a + 1 + A : do the expression
 /*
 USAGE
 

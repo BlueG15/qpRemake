@@ -35,6 +35,12 @@ export default class Localizer {
         this.loaded = true
     }
 
+    localizeStandaloneString(s : string, input : (number | string)[]){
+        if(!this.loaded) return;
+        const o = new parseOptions(parseMode.gameplay, input, true)
+        return this.parser.parse(s, o) as component[]
+    }
+
     getLocalizedSymbol(s : string) : string | undefined {
         if(!this.loaded) return;
         if(!this.currLanguageData) return;

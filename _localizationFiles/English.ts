@@ -249,14 +249,14 @@ export default {
 
 
     //effectID -> display XML
-    e_apple : `Add <uadd>"up to"</><numeric>a</> card<uadd>s</> with the same name as this card from your deck to your hand`,
+    e_apple : `Add <uadd>up to</> =a <uadd>cards</><uminus>card</> with the same name as this card from your deck to your hand`,
     e_lemon : "Attack with all cards on your field with the same name as this card.",
-    e_pomegranate : `If this card is sent to the trash, deal <numeric> a </> damage to all <expose/> enemies and <numeric> b </> damage to all <cover/> enemies`,
+    e_pomegranate : `If this card is sent to the trash, deal =a damage to all <exposed/> enemies and =b damage to all <cover/> enemies`,
     e_banana : `Target 1 level 1 [.fruit] card in your trash (except cards whose name are the same as this card's). Play it to the field.`,
-    e_pumpkin : `Increase the health of all cards on your field with the same name as this card by <numeric> b </>.`,
+    e_pumpkin : `Increase the health of all cards on your field with the same name as this card by =b.`,
     e_quick : "This card does not take a turn to play to the field.",
-    e_draw : `Draw <numeric> a </> cards, this is <string> c == 0 ? "NOT" : "" </> treated as a Turn draw.`,
-    e_attack : `Attack <numeric> a </> times.`,
+    e_draw : `Draw =a cards, this is  =c == 0 ? "NOT" : ""; </> treated as a Turn draw.`,
+    e_attack : `Attack =a times.`, 
     e_fragile : `If this card attacks, destroy it afterwards.`,
     
 

@@ -31,8 +31,7 @@ export class parserModule {
         return res
     }
 
-    try_grab_child_text(args: moduleInputObject) : string | undefined{
-        const c = args.getChilren()
+    private try_grab_child_text(c : nestedTree<component>) : string | undefined{
         //console.log(`Children arr len: ${c.length}`)
         if(c.length != 1) return undefined;
         if(c[0] instanceof component){
@@ -49,6 +48,23 @@ export class parserModule {
             }
         }
         return undefined
+    }
+
+    try_collapse_child_to_text(args : moduleInputObject) : (string | nestedTree<component>[number])[] {
+        const c = args.getChilren()
+
+        const res : (string | nestedTree<component>[number])[] = []
+
+        c.forEach(treeNode => {
+            const str = this.try_grab_child_text([treeNode] as any)
+            if(!str) return res.push(treeNode);
+            if(
+                typeof res[res.length - 1] === "string"
+            ) res[res.length - 1] += str;
+            else res.push(str)
+        })
+
+        return res
     }
 
     //may override, only triger if doCheckRequiredAttr is true

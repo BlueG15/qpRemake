@@ -40,6 +40,7 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
             new TerminalModule.menu(
                 [
                     chalk.bold("Play"),
+                    "live test localization",
                     "progress check",
                     "run tests",
                     "setting",
@@ -47,6 +48,7 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
                     "exit"
                 ], [
                     "chooseDeck",
+                    "testLocalization",
                     "___progress_check",
                     "test",
                     "___setting",
@@ -169,6 +171,10 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
         this.registerModule(
             "chooseDeck",
             new TerminalModule.chooseDeck(s)
+        )
+        this.registerModule(
+            "testLocalization",
+            new TerminalModule.testLocalize(s)
         )
     }
 

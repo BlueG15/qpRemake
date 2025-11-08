@@ -1,6 +1,4 @@
-import numericModule from "./numeric";
-import stringParseModule from "./string";
-import genericIfModule from "./genericIf";
+import expressionModule from "./expression";
 import imgModule from "./img";
 import sectionIDModule from "./sectionID";
 import tagsModule from "./tags";
@@ -17,9 +15,7 @@ class qpOriginalPack extends modPack {
             new uadduminusModule(),
             new variantCheckModule(),
             new tagsModule(),
-            new numericModule(),
-            new stringParseModule(),
-            new genericIfModule(),
+            new expressionModule(),
         ]
         this.loadModules()
     }
