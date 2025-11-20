@@ -1,6 +1,6 @@
 import type registryAPI from "../abstract/gameComponents/API";
 
-export default class gameModule {
+export default class GameModule {
     constructor(){}
     
     //should override, call upon load

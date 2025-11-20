@@ -1,10 +1,10 @@
-import type { component } from "./component";
+import type { DisplayComponent } from "./component";
 import type { nestedTree } from "../../misc";
 
 export default class moduleInputObject {
     private paramMap : Map<string, string> = new Map()
-    private chilren : nestedTree<component>
-    constructor(attrObj : {[attr : string] : string}, children : nestedTree<component>){
+    private chilren : nestedTree<DisplayComponent>
+    constructor(attrObj : {[attr : string] : string}, children : nestedTree<DisplayComponent>){
         Object.keys(attrObj).forEach(i => {
             this.paramMap.set(i, attrObj[i])
         })

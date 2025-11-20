@@ -1,10 +1,10 @@
 import type { parseOptions } from "../abstract/parser/options";
-import { component, componentID, textComponent } from "../abstract/parser/component";
+import { DisplayComponent, componentID, TextComponent } from "../abstract/parser/component";
 import moduleInputObject from "../abstract/parser/moduleInputObject";
 import type { nestedTree } from "../misc";
 
 //abstract class
-export class parserModule {
+export class ParserModule {
     cmdName : string[] = []
     requiredAttr : string[][] = []
     doCheckRequiredAttr = false
@@ -13,7 +13,7 @@ export class parserModule {
     generateInputObj(
         cmdIndex : number, 
         attrObj : {[attr : string] : string}, 
-        children : nestedTree<component>
+        children : nestedTree<DisplayComponent>
     ) : moduleInputObject | undefined{
         let res = new moduleInputObject(attrObj, children)
         if(this.doCheckRequiredAttr){
@@ -31,29 +31,29 @@ export class parserModule {
         return res
     }
 
-    private try_grab_child_text(c : nestedTree<component>) : string | undefined{
+    private try_grab_child_text(c : nestedTree<DisplayComponent>) : string | undefined{
         //console.log(`Children arr len: ${c.length}`)
         if(c.length != 1) return undefined;
-        if(c[0] instanceof component){
+        if(c[0] instanceof DisplayComponent){
             if(c[0].id == componentID.text){
-                return (c[0] as textComponent).str
+                return (c[0] as TextComponent).str
             }
         } else {
             //console.log(`Children 0 arr len: ${c[0].length}`)
             if(c[0].length != 1) return undefined
-            if(c[0][0] instanceof component){
+            if(c[0][0] instanceof DisplayComponent){
                 if(c[0][0].id == componentID.text){
-                    return (c[0][0] as textComponent).str
+                    return (c[0][0] as TextComponent).str
                 }
             }
         }
         return undefined
     }
 
-    try_collapse_child_to_text(args : moduleInputObject) : (string | nestedTree<component>[number])[] {
+    try_collapse_child_to_text(args : moduleInputObject) : (string | nestedTree<DisplayComponent>[number])[] {
         const c = args.getChilren()
 
-        const res : (string | nestedTree<component>[number])[] = []
+        const res : (string | nestedTree<DisplayComponent>[number])[] = []
 
         c.forEach(treeNode => {
             const str = this.try_grab_child_text([treeNode] as any)
@@ -73,7 +73,7 @@ export class parserModule {
     }
 
     //abstract, should override
-    evaluate(cmd : string, args: moduleInputObject, option : parseOptions, raw : string) : nestedTree<component> {
+    evaluate(cmd : string, args: moduleInputObject, option : parseOptions, raw : string) : nestedTree<DisplayComponent> {
         return []
     }
 }

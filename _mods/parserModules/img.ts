@@ -1,14 +1,14 @@
 import { 
-    component, 
-    parserModule, 
+    DisplayComponent, 
+    ParserModule, 
     moduleInputObject, 
     parseOptions, 
     iconID, 
-    iconComponent, 
-    imageComponent 
+    IconComponent, 
+    ImageComponent 
 } from '../../types/abstract/parser';
 
-export default class imgModule extends parserModule {
+export default class imgModule extends ParserModule {
 
     override cmdName = ['img', 'icon'];
     override requiredAttr = [[], []];
@@ -21,7 +21,7 @@ export default class imgModule extends parserModule {
         return [x, true];
     }
 
-    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): component[] {
+    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): DisplayComponent[] {
         let isInIconMode = false
         
         let str = args.getAttr('id');
@@ -33,11 +33,11 @@ export default class imgModule extends parserModule {
         if(isInIconMode){
             let [iconID, isCorrect] = this.getIconID(str);
             return [
-                new iconComponent(iconID, isCorrect ? undefined : `Wrong iconID, received = ${str}`, cmd, raw)
+                new IconComponent(iconID, isCorrect ? undefined : `Wrong iconID, received = ${str}`, cmd, raw)
             ]
         } else {
             return [
-                new imageComponent(str, undefined, cmd, raw)
+                new ImageComponent(str, undefined, cmd, raw)
             ]
         }
         

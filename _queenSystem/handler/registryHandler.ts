@@ -16,7 +16,7 @@ import type { Setting } from "../../types/abstract/gameComponents/settings";
 import type { Action } from "./actionGenrator";
 import type queenSystem from "../queenSystem";
 import type Effect from "../../types/abstract/gameComponents/effect";
-import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
+import type EffectSubtype from "../../types/abstract/gameComponents/effectSubtype";
 import type { zoneData } from "../../data/zoneRegistry";
 import type Zone from "../../types/abstract/gameComponents/zone";
 
@@ -61,7 +61,7 @@ export default class registryHandler implements registryAPI {
         this.effectLoader.add(key, constructor);
     }
 
-    registry_edit_effect_subtype(key: string, constructor: typeof effectSubtype): void {
+    registry_edit_effect_subtype(key: string, constructor: typeof EffectSubtype): void {
         this.subTypeLoader.load(key, constructor);
     }
 

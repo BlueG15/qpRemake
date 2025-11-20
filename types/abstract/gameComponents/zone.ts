@@ -23,7 +23,7 @@ import {
     zoneFull,
 } from "../../errors";
 import { identificationInfo } from "../../../data/systemRegistry";
-import type _void from "../../../types/defaultZones/void";
+import type Void from "../../../types/defaultZones/void";
 
 import type { inputRequester, inputRequester_finalized } from "../../../_queenSystem/handler/actionInputGenerator";
 

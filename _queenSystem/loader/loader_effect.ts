@@ -3,7 +3,7 @@ import type { cardData_unified, effectData } from "../../data/cardRegistry";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 import type subtypeLoader from "./loader_subtype";
 import type typeLoader from "./loader_type";
-import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
+import type EffectSubtype from "../../types/abstract/gameComponents/effectSubtype";
 import type effectDataRegistry from "../../data/effectRegistry";
 
 //Cards have 2 parts
@@ -128,7 +128,7 @@ export default class effectLoader {
         let runID = Utils.dataIDToUniqueID(eid, c, s, ...data.subTypeIDs)
             
         //load subtypes
-        let k : effectSubtype[] = []
+        let k : EffectSubtype[] = []
         data.subTypeIDs.forEach(i => {
             let st = this.subtypeLoader.getSubtype(i, s, eid)
             if(st) k.push(st);

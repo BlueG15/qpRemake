@@ -10,7 +10,7 @@ import { Positionable } from "../misc";
 
 //flipped if enemy
 
-class field extends zone_grid {
+class Field extends zone_grid {
     getEmptyPosArr(){
         let res : Position[] = [];
         for(let i = 0; i < this.capacity; i++){
@@ -36,4 +36,4 @@ class field extends zone_grid {
     }
 }
 
-export default field
+export default Field

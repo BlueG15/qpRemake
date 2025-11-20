@@ -1,10 +1,10 @@
-import effectSubtype from "../../abstract/gameComponents/effectSubtype";
+import EffectSubtype from "../../abstract/gameComponents/effectSubtype";
 import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type { dry_card, dry_system } from "../../../data/systemRegistry";
 import type Effect from "../../abstract/gameComponents/effect";
 import { actionConstructorRegistry, actionFormRegistry } from "../../../_queenSystem/handler/actionGenrator";
 
-class subtype_instant extends effectSubtype {
+class Instant extends EffectSubtype {
     override onEffectActivate(c: dry_card, e: Effect, system: dry_system, a: Action): -1 | Action[] {
         if(system.turnAction && system.turnAction.id !== a.id) return -1;
         // return [new modifyAnotherAction(system.rootID, "doIncreaseTurnCount", false, true, c.id)]
@@ -17,4 +17,4 @@ class subtype_instant extends effectSubtype {
     }
 }
 
-export default subtype_instant
+export default Instant

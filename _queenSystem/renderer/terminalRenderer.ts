@@ -1,4 +1,4 @@
-import type { Localized_system, Localized_zone } from "../../types/abstract/serializedGameComponents/Localized";
+import type { LocalizedSystem, LocalizedZone } from "../../types/abstract/serializedGameComponents/Localized";
 import { Action_class, type Action } from "../handler/actionGenrator";
 import type { qpFieldModule } from "./terminal/terminalModule/fieldModule";
 import queenSystem from "../queenSystem";
@@ -178,16 +178,16 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
         )
     }
 
-    turnStart(s: Localized_system, callback: (a?: Action) => any): void {
+    turnStart(s: LocalizedSystem, callback: (a?: Action) => any): void {
         this.logdebug("Turn started")
         callback();
     }
-    update(phase: TurnPhase, s: Localized_system, a: Action, callback: () => any): void {
+    update(phase: TurnPhase, s: LocalizedSystem, a: Action, callback: () => any): void {
         // if(phase === TurnPhase.complete) 
             this.logdebug("Phase:", TurnPhase[phase], `Action performed: ${a.type}`);
         callback();
     }
-    requestInput<T extends inputType>(inputSet: inputDataSpecific<T>[], phase: TurnPhase, s: Localized_system, a: Action, callback: (input: inputDataSpecific<T>) => any): void {
+    requestInput<T extends inputType>(inputSet: inputDataSpecific<T>[], phase: TurnPhase, s: LocalizedSystem, a: Action, callback: (input: inputDataSpecific<T>) => any): void {
         //we need to print the inputs here?
         if(!inputSet.length) return callback(inputSet[0]);
         this.logdebug(`Select a/an ${inputSet[0].type}:`)
@@ -201,7 +201,7 @@ export class qpTerminalRenderer extends Terminal implements qpRenderer {
         // })
         callback(inputSet[0]);
     }
-    gameStart(s: Localized_system, callback: () => any): void {
+    gameStart(s: LocalizedSystem, callback: () => any): void {
         this.logdebug("Game started!")
         // this.branchButDoNotRecord("field")
         callback()

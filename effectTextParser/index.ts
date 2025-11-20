@@ -1,14 +1,14 @@
 import { parseXml } from '@rgrove/parse-xml';
 import {XmlProcessingInstruction, XmlElement} from '@rgrove/parse-xml'
 
-import { component, textComponent, parserModule, parseOptions, loadOptions, lib_parse_option } from '../types/abstract/parser';
+import { DisplayComponent, TextComponent, ParserModule, parseOptions, loadOptions, lib_parse_option } from '../types/abstract/parser';
 import type { nestedTree } from '../types/misc';
 
 type XMLTree =  XmlProcessingInstruction | XmlElement
 
 export default class Parser {
     private loaded = false;
-    private moduleArr : parserModule[] = []
+    private moduleArr : ParserModule[] = []
     private moduleMap : Map<string, [number, number]> = new Map()
     //[module index, command index]
 
@@ -24,10 +24,10 @@ export default class Parser {
             if(!moduleClass || !moduleClass.default){
                 console.warn(`WARN: Cannot import module ${i} in path ${path + i}`);
             } else {
-                let moduleInstance = new moduleClass.default() as parserModule
+                let moduleInstance = new moduleClass.default() as ParserModule
                 
                 //test malformed module
-                if(!(moduleInstance instanceof parserModule)){
+                if(!(moduleInstance instanceof ParserModule)){
                     console.warn(`WARN: file ${path + i} is not a module, skipped`)
                 } else {
                     if(moduleInstance.requiredAttr.length != moduleInstance.cmdName.length){
@@ -106,7 +106,7 @@ export default class Parser {
     }
 
 
-    private parse_internal_loader_level_node(originalXML : string, tree : XmlElement, o : parseOptions, children: nestedTree<component>) : nestedTree<component>{
+    private parse_internal_loader_level_node(originalXML : string, tree : XmlElement, o : parseOptions, children: nestedTree<DisplayComponent>) : nestedTree<DisplayComponent>{
         const cmd = tree.name
         if(this.moduleMap.has(cmd)){
             const [moduleIndex, cmdIndex] = (this.moduleMap.get(cmd) as [number, number])
@@ -117,7 +117,7 @@ export default class Parser {
                 //incorrect input
                 const errMes = `Failed to parse input for module ${cmd}, tried to parse attributes: ${JSON.stringify(tree.attributes, null, 0)}, required attributes = ${JSON.stringify(module.requiredAttr[cmdIndex], null, 0)}, reverting to text node`
                 //console.warn(errMes)
-                return [new textComponent(tree.text, errMes, cmd, tree.text)]
+                return [new TextComponent(tree.text, errMes, cmd, tree.text)]
             }
 
             return module.evaluate(cmd, inputObj, o, tree.text)
@@ -125,35 +125,35 @@ export default class Parser {
         } else {
             const errMes = `WARN: unknown module, tried to invoke ${cmd}, reverting to a text node`
             // console.warn(errMes)
-            return [new textComponent(tree.text, errMes, cmd, tree.text)]
+            return [new TextComponent(tree.text, errMes, cmd, tree.text)]
         }
     }
 
-    private parse_internal_loader_level(originalXML : string, tree : XMLTree, o : parseOptions) : nestedTree<component>{
+    private parse_internal_loader_level(originalXML : string, tree : XMLTree, o : parseOptions) : nestedTree<DisplayComponent>{
         if(tree instanceof XmlProcessingInstruction){
             //undefined behavior?
             //idk what this shit is???
             const errMes = `WARN: XML processing instruction not supported (trying to parse instuction name = ${tree.name}, content = ${tree.content}), reverting to text node`
             // console.warn(errMes)
-            return [new textComponent(originalXML.slice(tree.start, tree.end), errMes, undefined, originalXML.slice(tree.start, tree.end))]
+            return [new TextComponent(originalXML.slice(tree.start, tree.end), errMes, undefined, originalXML.slice(tree.start, tree.end))]
         } else {
             if(!tree.children || !tree.children.length) {
                 //base case
                 if(tree.type == "text"){
-                    return [new textComponent(tree.text, undefined, undefined, tree.text)]
+                    return [new TextComponent(tree.text, undefined, undefined, tree.text)]
                 }
                 return this.parse_internal_loader_level_node(originalXML, tree, o, [])
             }
-            const deeperParse = tree.children.map((i : any) => this.parse_internal_loader_level(originalXML, i as XMLTree, o)) as nestedTree<component>
+            const deeperParse = tree.children.map((i : any) => this.parse_internal_loader_level(originalXML, i as XMLTree, o)) as nestedTree<DisplayComponent>
             return this.parse_internal_loader_level_node(originalXML, tree, o, deeperParse)
         }
     }
 
-    private recur_flat_tree(tree : nestedTree<component>) : component[]{
-        let r = [] as component[];
+    private recur_flat_tree(tree : nestedTree<DisplayComponent>) : DisplayComponent[]{
+        let r = [] as DisplayComponent[];
 
         tree.forEach(i => {
-            if(i instanceof component) r.push(i);
+            if(i instanceof DisplayComponent) r.push(i);
             else r.push(...this.recur_flat_tree(i));
         })
 
@@ -228,18 +228,46 @@ export default class Parser {
         this.equationRegex(this.operationList_prefix, this.operationList_infix, [], this.elementRegex, "=", ";")
     ]
 
-    private preParseXML(XML : string){
-        const [reg1, reg2] = this.preparse_regs
-        XML = XML.replace(reg2, (_, str) => {
-            return `<expr> ${str} </>`
-        })
-        XML = XML.replace(reg1, (_, str) => {
-            return str.split("").map((c : string) => `<expr> ${c} </>`).join("")
-        })
-        return XML
+    private preParseXML(XML: string) {
+        const [reg1, reg2] = this.preparse_regs;
+
+        const segments: string[] = [];  // ordered pieces of the final output
+        let lastIndex = 0;
+
+        // Scan for all reg2 matches
+        XML.replace(reg2, (match, group, offset) => {
+            // Unprotected text before this reg2 match
+            if (offset > lastIndex) {
+                const chunk = XML.slice(lastIndex, offset);
+                segments.push(this.applyReg1(chunk, reg1));
+            }
+
+            segments.push(`<expr> ${group} </>`);
+
+            lastIndex = offset + match.length;
+            return ""; // not used
+        });
+
+        // Remainder after last reg2 match
+        if (lastIndex < XML.length) {
+            const chunk = XML.slice(lastIndex);
+            segments.push(this.applyReg1(chunk, reg1));
+        }
+
+        return segments.join("");
     }
 
-    parse(XML : string, o : parseOptions) : nestedTree<component>{
+    // Apply reg1 only to normal text (NOT inside reg2 results)
+    private applyReg1(text: string, reg1: RegExp): string {
+        return text.replace(reg1, (_, str) =>
+            str
+                .split("")
+                .map((c : string) => `<expr> ${c} </>`)
+                .join("")
+        );
+    }
+
+    parse(XML : string, o : parseOptions) : nestedTree<DisplayComponent>{
         if(!this.loaded){
             throw `Parser did not finish loading modules, call load() first`;
         }
@@ -252,7 +280,7 @@ export default class Parser {
         try{
             tree = this.parse_internal_lib_level(XML); 
         }catch(e) {
-            return [new textComponent(XML, "Failed to parse XML")]
+            return [new TextComponent(XML, "Failed to parse XML")]
         }
 
         if(!(tree as XmlElement).children || !(tree as XmlElement).children.length) return [] 

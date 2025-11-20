@@ -12,8 +12,8 @@ import type fs from "fs"
 import effectTypeRegistry from "../data/effectTypeRegistry"
 import subtypeRegistry from "../data/subtypeRegistry"
 import { playerTypeID, zoneRegistry } from "../data/zoneRegistry"
-import type { Localized_card, Localized_effect } from "../types/abstract/serializedGameComponents/Localized"
-import type { component } from "../types/abstract/parser"
+import type { LocalizedCard, LocalizedEffect } from "../types/abstract/serializedGameComponents/Localized"
+import type { DisplayComponent } from "../types/abstract/parser"
 
 import chalk from "chalk"
 import { ChalkFormatKeys } from "./renderer/terminal/terminal/utils"
@@ -682,7 +682,7 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
 
         addDivider()
 
-        function formatLocalizedComponent(c : component){
+        function formatLocalizedComponent(c : DisplayComponent){
             if(c.is("text")) return c.str;
             if(c.is("image")) return chalk.blue(`[${c.fromCmd}].{${c.raw}}`);
             if(c.is("number")) return chalk.yellow(`${c.num}`);
@@ -690,12 +690,12 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
             return c.raw
         }
 
-        function formatLocalizedString(c : component[]){
+        function formatLocalizedString(c : DisplayComponent[]){
             return c.map(k => formatLocalizedComponent(k)).join("")
         }
 
         function styleEffect(
-            e : Localized_effect, 
+            e : LocalizedEffect, 
             color : ChalkFormatKeys = "green",
         ) : string[][] {
             let type = formatLocalizedString(e.type)
@@ -734,7 +734,7 @@ const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)>
             
         }
 
-        function styleCard(c? : Localized_card){
+        function styleCard(c? : LocalizedCard){
             if(!c) return []
             let name = c.name.filter(k => k.is("text")).map(k => k.str).join("")
             const ex = c.extensions.map(ex => ex.filter(k => k.is("text")).map(k => k.str).join("")).join(".")

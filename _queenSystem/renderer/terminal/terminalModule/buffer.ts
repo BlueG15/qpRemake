@@ -1,7 +1,7 @@
-import type { component } from "../../../../types/abstract/parser";
+import type { DisplayComponent } from "../../../../types/abstract/parser";
 import type { dry_zone } from "../../../../data/systemRegistry";
 import type queenSystem from "../../../queenSystem";
-import { Localized_system, Localized_effect, Localized_card, Localized_player, Localized_zone, Localized_action } from "../../../../types/abstract/serializedGameComponents/Localized";
+import { LocalizedSystem, LocalizedEffect, LocalizedCard, LocalizedPlayer, LocalizedZone, LocalizedAction } from "../../../../types/abstract/serializedGameComponents/Localized";
 
 import chalk from "chalk";
 import { ChalkFormatKeys, I_Terminal, TerminalModule } from "../terminal/utils";
@@ -43,18 +43,41 @@ export class empty_pos_cell {
 class Buffer {
     selected_pos : [number, number][] = []
 
+    __selection_limit = 3
+    get selection_limit() {return this.__selection_limit}
+    set selection_limit(a : number){
+        this.__selection_limit = a
+
+        //collapse selected pos
+        if(this.selected_pos.length > a){
+            let diff = this.selected_pos.length - a
+            this.selected_pos.splice(0, diff)
+        }
+    }
+
     private savedSignal : 0 | 1 | 2 | 3 | -1 = -1
 
     private hx = -1 //h for highlight
     private hy = -1 //h for highlight
 
     private mx = 0 //m for max
-    get my(){return this.lines.length} //m for max
+    get my(){return this.length} //m for max
 
     private lines : (BufferElement | undefined)[][] = []
 
     get length() {
         return this.lines.length
+    }
+
+    calcPrintHeight(){
+        let h = 0
+        this.lines.forEach(elemArr => {
+            const first = elemArr.find((a => a instanceof BufferElement))
+            if(first){
+                h += first.str.length
+            }
+        })
+        return h
     }
 
     //for highlighting
@@ -85,6 +108,11 @@ class Buffer {
                 this.selected_pos.splice(indexIfFound, 1)
             } else {
                 //highlighting an unselected
+
+                //enforce limit
+                if(this.selected_pos.length === this.selection_limit){
+                    this.selected_pos.splice(0, 1)
+                }
                 this.selected_pos.push([this.hx, this.hy])
             }
             return
@@ -169,7 +197,7 @@ class Buffer {
         })
     }
 
-    protected formatLocalizedComponent(c : component){
+    protected formatLocalizedComponent(c : DisplayComponent){
         if(c.is("text")) return c.str;
         if(c.is("image")) return chalk.blue(`[${c.fromCmd}].{${c.raw}}`);
         if(c.is("number")) return chalk.yellow(`${c.num}`);
@@ -177,7 +205,7 @@ class Buffer {
         return c.raw
     }
 
-    formatLocalizedString(c : component[]){
+    formatLocalizedString(c : DisplayComponent[]){
         return c.map(k => this.formatLocalizedComponent(k)).join("")
     }
 
@@ -194,7 +222,7 @@ class Buffer {
 
     private createCell(obj : any, dim : [number, number], forcedSelectable = false, forcedType : BufferElement["type"] = "other") : BufferElement {
         const type = typeof obj
-        let str : string
+        let str : string = ""
 
         if(type === "object"){
             const border_top = "┌" + "─".repeat(dim[0] - 2) + "┐"
@@ -222,7 +250,7 @@ class Buffer {
                 ], true, "pos", obj)
             }
             
-            if(obj instanceof Localized_card){
+            if(obj instanceof LocalizedCard){
                 if(dim[1] === 1) return new BufferElement(`[c]`, true, "card", obj)
                 let name = this.formatLocalizedString(obj.name)
                 if(stripAnsi(name).length >= dim[0] - 2) name = this.removeVowel(name).slice(0, dim[0] - 2)
@@ -269,7 +297,7 @@ class Buffer {
                 ], true, "card", obj)  
             }
 
-            if(obj instanceof Localized_zone){
+            if(obj instanceof LocalizedZone){
                 let name = this.formatLocalizedString(obj.name)
                 name = this.removeVowel(name)
                 if(dim[1] === 1) return new BufferElement(`[${name}]`, true, "zone", obj)
@@ -345,7 +373,7 @@ class Buffer {
             // return new BufferElement(parsed, false, "other")
             str = `[obj]`
         } else {
-            str = String(obj)
+            if(obj !== undefined) str = String(obj);
         }
 
         if(dim[1] === 1) return new BufferElement(str.padEnd(dim[0], " "), forcedSelectable, forcedType);
@@ -369,7 +397,7 @@ class Buffer {
         return new BufferElement(k, forcedSelectable, forcedType)
     }
 
-    private getDetailedEffect(e : Localized_effect, helperText : Set<string>) : string[]{
+    private getDetailedEffect(e : LocalizedEffect, helperText : Set<string>) : string[]{
         const type = chalk.hex("#FF7700")(`[${this.formatLocalizedString(e.type)}]`)
         const subtypes = e.subtypes.map(st => this.formatLocalizedString(st))
 
@@ -398,7 +426,7 @@ class Buffer {
     }
 
     private getDetailedObj(obj : any, helperText : Set<string>) : string[]{
-        if(obj instanceof Localized_card){
+        if(obj instanceof LocalizedCard){
             let name = this.formatLocalizedString(obj.name)
             const extension = obj.extensions.map(ex => this.formatLocalizedString(ex)).join(".")
             if(extension) name += "." + extension
@@ -606,6 +634,7 @@ class Buffer {
         if(highlight_lines.length) highlight_lines.unshift(chalk.green(`Highlighted :`));
         if(selected_lines.length) selected_lines.unshift(chalk.yellow(`Selected :`));
         let totalInfo : (string | undefined)[] = highlight_lines.concat(selected_lines)
+
         totalInfo.unshift(sideBarDivider)
 
         const m = Math.max(totalInfo.length, forPrint.length)

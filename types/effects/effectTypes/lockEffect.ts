@@ -2,9 +2,9 @@ import { actionConstructorRegistry, actionFormRegistry, type Action } from "../.
 import type Card from "../../abstract/gameComponents/card"
 import type { dry_effect, dry_system } from "../../../data/systemRegistry";
 // import type { subTypeOverrideConflict } from "../../errors"
-import passiveEffect from "./passiveEffect";
+import PassiveEffect from "./passiveEffect";
 
-class lockEffect extends passiveEffect {
+class LockEffect extends PassiveEffect {
     override canRespondAndActivate(e : dry_effect, c: Card, s: dry_system, a: Action) {
         //enforces only respond in the chain phase
         if(!a.is("a_pos_change") && !a.is("a_pos_change_force")) return false;
@@ -21,4 +21,4 @@ class lockEffect extends passiveEffect {
     }
 }  
 
-export default lockEffect
+export default LockEffect

@@ -4,7 +4,7 @@ import type { dry_effect, dry_system } from "../../../data/systemRegistry"
 
 import EffectType from "../../abstract/gameComponents/effectType"
 
-class manualEffect extends EffectType {
+class ManualEffect extends EffectType {
     //behaviors:
     //manual effect uhh just sits there, until the action "activate effect" forcefull activate it
 
@@ -19,4 +19,4 @@ class manualEffect extends EffectType {
     }
 }
 
-export default manualEffect
+export default ManualEffect

@@ -7,7 +7,7 @@ import { dry_effectSubType } from "../../../data/systemRegistry";
 
 type doNothingCode = -1
 type doNothingAndSkipTypeCheckCode = -2
-class effectSubtype {
+class EffectSubtype {
     dataID : string
     isDisabled : boolean = false
     constructor(dataID : string){
@@ -56,4 +56,4 @@ class effectSubtype {
     }
 }
 
-export default effectSubtype
+export default EffectSubtype

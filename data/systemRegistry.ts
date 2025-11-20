@@ -12,7 +12,7 @@ import type EffectType from "../types/abstract/gameComponents/effectType"
 import type queenSystem from "../_queenSystem/queenSystem"
 
 import type { Readonly_recur, Transplant } from "../types/misc"
-import type effectSubtype from "../types/abstract/gameComponents/effectSubtype"
+import type EffectSubtype from "../types/abstract/gameComponents/effectSubtype"
 import type { playerTypeID } from "./zoneRegistry"
 import type { deckRegistry } from "./deckRegistry"
 
@@ -47,7 +47,7 @@ export type dry_parse<T extends Object, SafeFunctionKeys extends Exclude<Functio
 
 export type dry_position = dry_parse<Position, "is" | "flat" | "map" | "toString">
 export type dry_effectType = dry_parse<EffectType>
-export type dry_effectSubType = dry_parse<effectSubtype>
+export type dry_effectSubType = dry_parse<EffectSubtype>
 export type dry_effect = {
     [K in keyof Omit<Effect, universalOmit> as Effect[K] extends Function ? never : K] : Readonly_recur<Effect[K]>
 } & {

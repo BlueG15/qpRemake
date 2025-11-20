@@ -255,7 +255,7 @@ export default {
     e_banana : `Target 1 level 1 [.fruit] card in your trash (except cards whose name are the same as this card's). Play it to the field.`,
     e_pumpkin : `Increase the health of all cards on your field with the same name as this card by =b.`,
     e_quick : "This card does not take a turn to play to the field.",
-    e_draw : `Draw =a cards, this is  =c == 0 ? "NOT" : ""; </> treated as a Turn draw.`,
+    e_draw : `Draw =a cards, this is =c == 0 ? "NOT" : ""; treated as a Turn draw.`,
     e_attack : `Attack =a times.`, 
     e_fragile : `If this card attacks, destroy it afterwards.`,
     

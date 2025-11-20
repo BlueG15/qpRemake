@@ -23,7 +23,7 @@ export class Serialized_effect {
     }
 }
 
-export class Serialized_card {
+export class SerializedCard {
     attr : Record<string, any> = {}
     constructor(
         // public id : string, //generated again
@@ -41,12 +41,12 @@ export class Serialized_card {
     }
 }
 
-export class Serialized_zone {
+export class SerializedZone {
     attr : Record<string, any> = {}
     constructor(
         public classID : string,
         public dataID: string,
-        public cardArr: (Serialized_card | undefined)[],
+        public cardArr: (SerializedCard | undefined)[],
         public types : number[],
         attr: Map<string, any>,
     ){
@@ -56,7 +56,7 @@ export class Serialized_zone {
     }
 }
 
-export class Serialized_player {
+export class SerializedPlayer {
     constructor(
         public pType : playerTypeID,
         public heart : number,
@@ -65,10 +65,10 @@ export class Serialized_player {
     ){}
 }
 
-export class Serialized_system {
+export class SerializedSystem {
      constructor(
-            public players : Serialized_player[],
-            public zones : Serialized_zone[],
+            public players : SerializedPlayer[],
+            public zones : SerializedZone[],
             
             public turn : number,
             public wave : number,

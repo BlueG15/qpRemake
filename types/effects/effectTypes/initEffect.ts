@@ -1,11 +1,11 @@
 import type { Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "../../abstract/gameComponents/card";
 import type { dry_effect, dry_system } from "../../../data/systemRegistry";
-import triggerEffect from "./triggerEffect";
+import TriggerEffect from "./triggerEffect";
 import actionRegistry from "../../../data/actionRegistry";
 import { zoneRegistry } from "../../../data/zoneRegistry";
 
-export default class initEffect extends triggerEffect {
+export default class InitEffect extends TriggerEffect {
 
     override canRespondAndActivate(e : dry_effect, c: Card, system: dry_system, a: Action): -1 | boolean {
         if (a.typeID !== actionRegistry.a_pos_change && a.typeID !== actionRegistry.a_pos_change_force) return false;

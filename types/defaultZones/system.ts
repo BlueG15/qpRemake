@@ -5,7 +5,7 @@ import type { dry_system } from "../../data/systemRegistry";
 
 import { actionConstructorRegistry, actionFormRegistry } from "../../_queenSystem/handler/actionGenrator";
 
-class system extends Zone {
+class System extends Zone {
     // constructor(){
     //     super("system");
     // }
@@ -38,4 +38,4 @@ class system extends Zone {
     }
 }
 
-export default system
+export default System

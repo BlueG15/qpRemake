@@ -1,7 +1,7 @@
 import type { Action, Action_class } from "../_queenSystem/handler/actionGenrator";
 import type { dry_system, dry_card, dry_position, inputData_card, inputData_pos, inputData, dry_zone, identificationInfo, inputData_zone, inputData_standard, inputData_effect } from "../data/systemRegistry";
 import Effect from "../types/abstract/gameComponents/effect";
-import subtype_instant from "../types/effects/effectSubtypes/subtype_instant";
+import Instant from "../types/effects/effectSubtypes/subtype_instant";
 import subtypeRegistry from "../data/subtypeRegistry";
 import { identificationType, inputType } from "../data/systemRegistry";
 import actionRegistry from "../data/actionRegistry";
@@ -24,7 +24,7 @@ import { e_clear_all_status, e_deactivate, e_decompile, e_destroy, e_execute, e_
  */
 
 export class e_quick extends Effect {
-    protected instant_subtype = new subtype_instant(subtypeRegistry[subtypeRegistry.e_st_instant])
+    protected instant_subtype = new Instant(subtypeRegistry[subtypeRegistry.e_st_instant])
 
     override canRespondAndActivate_final(c: dry_card, system: dry_system, a: Action): boolean {
         return system.turnAction !== undefined && system.turnAction.id === a.id;
@@ -465,7 +465,7 @@ export class e_lock extends Effect {
         return [actionConstructorRegistry.a_negate_action(this.cause(s, c))]
     }
 
-    static keyCondition(f: (...p: [dry_card, dry_system, Action, Effect["attr"]]) => boolean) {
+    static keyCondition(f: (...p: [dry_card, dry_system, Action, Effect["attr"]]) => boolean) : (new (...p : any[]) => Effect) {
         return class ExtendedEff extends this {
             constructor(...p : [any, any, any, any, any]){
                 super(...p);
@@ -559,10 +559,10 @@ export class e_add_all_to_zone extends Effect<[inputData_card, inputData_zone]> 
         )
     }
 
-    static to(zType : zoneRegistry){
+    static to(zType : zoneRegistry) : typeof e_add_all_to_zone {
         return class extendedEff extends this {
             protected override target_zone: zoneRegistry = zType
-        }
+        } as any
     }
 }
 
@@ -781,4 +781,4 @@ export default {
     //magic ember is e_decompile signaling count to e_draw
     //magic flare is e_decompile and e_deal_damage_card both listen to numbe rof 0|1 card on field for input
     //rush mega is e_add_stat_change_diff
-}
+} as Record<string, new (...p : any[]) => Effect<any>>

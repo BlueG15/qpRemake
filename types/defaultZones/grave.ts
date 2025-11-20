@@ -3,7 +3,7 @@ import type res from "../abstract/generics/universalResponse";
 import type card from "../abstract/gameComponents/card";
 import zone_stack from "../abstract/gameComponents/zone_stackBased";
 
-class grave extends zone_stack {
+class Grave extends zone_stack {
     // constructor(isPlayerGrave : boolean);
     // constructor(keyStr : string);
     // constructor(param : boolean | string = true){
@@ -20,4 +20,4 @@ class grave extends zone_stack {
     }
 }
 
-export default grave
+export default Grave

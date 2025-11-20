@@ -6,13 +6,13 @@ import zone_stack from "../abstract/gameComponents/zone_stackBased";
 
 import { type Action, actionConstructorRegistry, actionFormRegistry } from "../../_queenSystem/handler/actionGenrator";
 import { identificationInfo } from "../../data/systemRegistry";
-import type hand from "./hand";
+import type Hand from "./hand";
 import type { dry_system, dry_zone, inputData, inputData_zone, inputType } from "../../data/systemRegistry";
 import { zoneRegistry } from "../../data/zoneRegistry";
 import { inputRequester, inputRequester_finalized } from "../../_queenSystem/handler/actionInputGenerator";
 import Request from "../../_queenSystem/handler/actionInputRequesterGenerator";
 
-class deck extends zone_stack<undefined, [inputData_zone]> {
+class Deck extends zone_stack<undefined, [inputData_zone]> {
     //TODO : add editting ability
     isEditting : boolean = false;
 
@@ -71,7 +71,7 @@ class deck extends zone_stack<undefined, [inputData_zone]> {
         return [this.getAction_draw(s, hand, cause, true)];
     }
 
-    draw(s : dry_system, a : Action<"a_draw">, hand : hand) : res {
+    draw(s : dry_system, a : Action<"a_draw">, hand : Hand) : res {
         //assume the hand passed in is of the correct player
         let res : res = [undefined, []]
 
@@ -99,4 +99,4 @@ class deck extends zone_stack<undefined, [inputData_zone]> {
     }
 }
 
-export default deck
+export default Deck

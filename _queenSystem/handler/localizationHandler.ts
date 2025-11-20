@@ -9,8 +9,8 @@ import type Zone from "../../types/abstract/gameComponents/zone";
 import type queenSystem from "../queenSystem";
 import type { dry_system, player_stat } from "../../data/systemRegistry";
 
-import { parseMode, component, textComponent } from "../../types/abstract/parser";
-import { Localized_card, Localized_action, Localized_effect, Localized_player, Localized_system, Localized_zone } from "../../types/abstract/serializedGameComponents/Localized";
+import { parseMode, DisplayComponent, TextComponent } from "../../types/abstract/parser";
+import { LocalizedCard, LocalizedAction, LocalizedEffect, LocalizedPlayer, LocalizedSystem, LocalizedZone } from "../../types/abstract/serializedGameComponents/Localized";
 import localizationLoader from "../loader/loader_localization";
 import registryHandler from "./registryHandler";
 
@@ -38,7 +38,7 @@ export default class Localizer {
     localizeStandaloneString(s : string, input : (number | string)[]){
         if(!this.loaded) return;
         const o = new parseOptions(parseMode.gameplay, input, true)
-        return this.parser.parse(s, o) as component[]
+        return this.parser.parse(s, o) as DisplayComponent[]
     }
 
     getLocalizedSymbol(s : string) : string | undefined {
@@ -55,11 +55,11 @@ export default class Localizer {
         if(!this.loaded) return;
         const res = this.getLocalizedSymbol(s)
         if(res === undefined) return [
-            new textComponent(s, `Unknown key`)
+            new TextComponent(s, `Unknown key`)
         ];
         const i = card ? card.getPartitionDisplayInputs(this.__s, pid) : []
         const o = new parseOptions(mode, i, true, card)
-        const ret = this.parser.parse(res, o) as component[]
+        const ret = this.parser.parse(res, o) as DisplayComponent[]
 
         let addSpaceStart = false
         let addSpaceEnd = false
@@ -75,11 +75,11 @@ export default class Localizer {
         return ret
     }
 
-    localizeCard(c? : Card, mode : parseMode = parseMode.gameplay) : Localized_card | undefined {
+    localizeCard(c? : Card, mode : parseMode = parseMode.gameplay) : LocalizedCard | undefined {
         if(!this.loaded) return;
         if(!c) return;
         const eArr = c.getAllDisplayEffects().map(
-            p => new Localized_effect(
+            p => new LocalizedEffect(
                 p.pid,
                 this.getAndParseLocalizedSymbol(p.key, mode, c, p.pid)!,
                 this.getAndParseLocalizedSymbol(p.type, mode, c, p.pid)!,
@@ -96,7 +96,7 @@ export default class Localizer {
             else eArr1.push(p)
         }
 
-        const testObj = new Localized_card(
+        const testObj = new LocalizedCard(
             c.id,
             this.getAndParseLocalizedSymbol(c.dataID, mode, c)!,
             c.extensionArr.map(ex => this.getAndParseLocalizedSymbol("ex_" + ex, mode, c)!),
@@ -116,11 +116,11 @@ export default class Localizer {
         return testObj
     }
 
-    localizeZone(z? : Zone, mode : parseMode = parseMode.gameplay) : Localized_zone | undefined {
+    localizeZone(z? : Zone, mode : parseMode = parseMode.gameplay) : LocalizedZone | undefined {
         if(!this.loaded) return undefined;
         if(!z) return;
 
-        const testObj = new Localized_zone(
+        const testObj = new LocalizedZone(
             z.id,
             z.playerIndex,
             z.types as any,
@@ -134,7 +134,7 @@ export default class Localizer {
     }
 
     localizePlayer(player : player_stat, mode : parseMode = parseMode.gameplay){
-        return new Localized_player(
+        return new LocalizedPlayer(
                     player.playerIndex, 
                     player.playerType,
                     this.getAndParseLocalizedSymbol(playerTypeID[player.playerType], mode)!, 
@@ -150,15 +150,15 @@ export default class Localizer {
         if(!s) return;
 
         // this.__s = s
-        const testObj = new Localized_system(
+        const testObj = new LocalizedSystem(
             s.player_stat.map(
                 player => this.localizePlayer(player, mode)
             ),
             s.zoneArr.map(z => this.localizeZone(z, mode)!),
-            s.turnAction ? new Localized_action(
+            s.turnAction ? new LocalizedAction(
                 s.turnAction.id,
                 this.getAndParseLocalizedSymbol(s.turnAction.type, mode)!,
-            ) : new Localized_action(
+            ) : new LocalizedAction(
                 -1,
                 this.getAndParseLocalizedSymbol("a_null", mode)!,
             ),

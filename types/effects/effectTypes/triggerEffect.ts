@@ -3,7 +3,7 @@ import type Card from "../../abstract/gameComponents/card"
 import type { dry_effect, dry_system } from "../../../data/systemRegistry";
 import EffectType from "../../abstract/gameComponents/effectType"
 
-class triggerEffect extends EffectType {
+class TriggerEffect extends EffectType {
     //behaviors:
     //1. activates only in the trigger phase if and only if no subtype overrides the result 
     //2. activate has 2 behaviors: 
@@ -27,4 +27,4 @@ class triggerEffect extends EffectType {
     }
 }
 
-export default triggerEffect
+export default TriggerEffect

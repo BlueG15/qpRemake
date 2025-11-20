@@ -1,14 +1,14 @@
 import { 
-    component, 
-    parserModule, 
+    DisplayComponent, 
+    ParserModule, 
     componentID, iconID, 
     moduleInputObject, 
     parseOptions, 
-    textComponent, iconComponent, symbolComponent 
+    TextComponent, IconComponent, SymbolComponent 
 } from '../../types/abstract/parser';
 import type { nestedTree } from '../../types/misc';
 
-export default class sectionIDModule extends parserModule {
+export default class sectionIDModule extends ParserModule {
 
     private quickKeyword = ['void', 'decompile', 'pathed', 'exposed', 'exec', 'align','cover', 'suspend', 'automate']
     private normalKeyword = ['key', 'physical', 'magic', 'health', 'attack', 'specialbuff']
@@ -25,12 +25,12 @@ export default class sectionIDModule extends parserModule {
     override requiredAttr = new Array(this.cmdName.length).fill([]);
     override doCheckRequiredAttr = false;
 
-    private recurModify(tree : nestedTree<component>, sectionID : string, upperCase : boolean) : void{
+    private recurModify(tree : nestedTree<DisplayComponent>, sectionID : string, upperCase : boolean) : void{
         tree.forEach(i => {
-            if(i instanceof component) {
+            if(i instanceof DisplayComponent) {
                 i.addSectionID(sectionID)
                 if(i.id == componentID.text && upperCase){
-                    (i as textComponent).str = (i as textComponent).str.toUpperCase();
+                    (i as TextComponent).str = (i as TextComponent).str.toUpperCase();
                 }
             } else {
                 this.recurModify(i, sectionID, upperCase)
@@ -38,7 +38,7 @@ export default class sectionIDModule extends parserModule {
         })
     }
 
-    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<component> {
+    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<DisplayComponent> {
         let quickFlag = this.quickKeyword.includes(cmd)
         let addIconFlag = cmd.endsWith('2')
 
@@ -52,7 +52,7 @@ export default class sectionIDModule extends parserModule {
             //special behavior
             // x = x.toLowerCase()
             return [
-                new symbolComponent(
+                new SymbolComponent(
                     "key_" + x, undefined, cmd, raw
                 )
             ]
@@ -61,7 +61,7 @@ export default class sectionIDModule extends parserModule {
         this.recurModify(final, x, quickFlag);
         
         if(addIconFlag){
-            final = [final, [new iconComponent(
+            final = [final, [new IconComponent(
                 (x == "physical") ? iconID.dmg_phys : iconID.dmg_magic,
                 undefined,
                 cmd, 

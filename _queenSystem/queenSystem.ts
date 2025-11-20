@@ -24,7 +24,7 @@ import { playerTypeID, zoneRegistry } from "../data/zoneRegistry";
 import Card from "../types/abstract/gameComponents/card";
 import Zone from "../types/abstract/gameComponents/zone";
 import Effect from "../types/abstract/gameComponents/effect";
-import effectSubtype from "../types/abstract/gameComponents/effectSubtype";
+import EffectSubtype from "../types/abstract/gameComponents/effectSubtype";
 
 import { 
     inputData,
@@ -63,7 +63,7 @@ import Position from "../types/abstract/generics/position";
 import { inputFormRegistry, inputRequester } from "./handler/actionInputGenerator";
 import { qpRenderer } from "./renderer/rendererInterface";
 import { loadOptions } from "../effectTextParser";
-import { Serialized_card, Serialized_effect, Serialized_player, Serialized_system, Serialized_zone } from "../types/abstract/serializedGameComponents/Gamestate";
+import { SerializedCard, Serialized_effect, SerializedPlayer, SerializedSystem, SerializedZone } from "../types/abstract/serializedGameComponents/Gamestate";
 import { parseMode } from "../types/abstract/parser";
 
 // import type dry_card from "../dryData/dry_card";
@@ -185,7 +185,7 @@ class queenSystem {
         })    
     }
 
-    async load(gamestate? : Serialized_system){
+    async load(gamestate? : SerializedSystem){
 
         if(gamestate){
             this.loadGamestate(gamestate)
@@ -203,7 +203,7 @@ class queenSystem {
 
     }
 
-    loadGamestate(gamestate : Serialized_system){
+    loadGamestate(gamestate : SerializedSystem){
         function getEffectFromSerialized(s : queenSystem, serialized_e : Serialized_effect){
             const newEff = s.registryFile.effectLoader.getEffect(serialized_e.dataID, s.setting, {
                 typeID : serialized_e.typeID,
@@ -681,7 +681,7 @@ class queenSystem {
             
             case inputType.card : return i1.data instanceof Card && i2.data instanceof Card && i2.data.is(i1.data);
             case inputType.effect : return i1.data instanceof Effect && i2.data instanceof Effect && i2.data.is(i1.data);
-            case inputType.effectSubtype : return i1.data instanceof effectSubtype && i2.data instanceof effectSubtype && i2.data.is(i1.data);
+            case inputType.effectSubtype : return i1.data instanceof EffectSubtype && i2.data instanceof EffectSubtype && i2.data.is(i1.data);
 
             case inputType.player : return typeof i1.data.id === (i2.data as any).id;
             case inputType.position : return i2.data instanceof Position && i1.data.is(i2.data);
@@ -1175,11 +1175,11 @@ class queenSystem {
     }
 
     toSerialized(){
-        return new Serialized_system(
-            this.player_stat.map(p => new Serialized_player(p.playerType, p.heart, p.operator, p.deck)),
+        return new SerializedSystem(
+            this.player_stat.map(p => new SerializedPlayer(p.playerType, p.heart, p.operator, p.deck)),
             this.zoneArr.map(z => 
-                new Serialized_zone(z.classID, z.dataID, z.cardArr.map(
-                        c => c ? new Serialized_card(
+                new SerializedZone(z.classID, z.dataID, z.cardArr.map(
+                        c => c ? new SerializedCard(
                             c.dataID, c.variants, 
                             c.effects.map(
                                 e => new Serialized_effect(e.dataID, e.type.dataID as any, e.subTypes.map(st => st.dataID) as any, e.displayID, e.attr)

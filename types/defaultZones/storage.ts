@@ -5,7 +5,7 @@ import card from "../abstract/gameComponents/card";
 import zone_stack from "../abstract/gameComponents/zone_stackBased";
 
 
-class storage extends zone_stack {
+class Storage extends zone_stack {
     isEditting : boolean = false;
     maxCardCount = 9;
 
@@ -19,4 +19,4 @@ class storage extends zone_stack {
     }
 }
 
-export default storage
+export default Storage

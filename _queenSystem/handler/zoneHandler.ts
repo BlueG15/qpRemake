@@ -4,17 +4,17 @@
 import type Zone from "../../types/abstract/gameComponents/zone";
 import type Effect from "../../types/abstract/gameComponents/effect";
 import type Card from "../../types/abstract/gameComponents/card";
-import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
+import type EffectSubtype from "../../types/abstract/gameComponents/effectSubtype";
 
-import system from "../../types/defaultZones/system";
+import System from "../../types/defaultZones/system";
 import res from "../../types/abstract/generics/universalResponse";
-import deck from "../../types/defaultZones/deck";
-import storage from "../../types/defaultZones/storage";
-import grave from "../../types/defaultZones/grave";
-import hand from "../../types/defaultZones/hand";
-import field from "../../types/defaultZones/field";
-import abiltyZone from "../../types/defaultZones/ability";
-import _void from "../../types/defaultZones/void";
+import Deck from "../../types/defaultZones/deck";
+import Storage from "../../types/defaultZones/storage";
+import Grave from "../../types/defaultZones/grave";
+import Hand from "../../types/defaultZones/hand";
+import Field from "../../types/defaultZones/field";
+import Ability from "../../types/defaultZones/ability";
+import Void from "../../types/defaultZones/void";
 // import type dry_card from "../dryData/dry_card";
 import zoneLoader from "../loader/loader_zone";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
@@ -35,7 +35,7 @@ import { damageType } from "../../types/misc";
 import type { dry_system, dry_card, dry_zone, inputData, player_stat } from "../../data/systemRegistry";
 import { inputApplicator, inputRequester } from "./actionInputGenerator";
 import type queenSystem from "../queenSystem";
-import drop from "../../types/defaultZones/drop";
+import Drop from "../../types/defaultZones/drop";
 // import type { Zone_T } from "../../types/abstract/gameComponents/zone";
 
 class zoneHandler {
@@ -63,15 +63,15 @@ class zoneHandler {
     constructor(regs : registryHandler){this.loader = regs.zoneLoader}
     
     loadZones(s : Setting, players : player_stat[]){
-        this.loader.load(zoneRegistry[zoneRegistry.z_system], zoneDataRegistry.z_system, system);
-        this.loader.load(zoneRegistry[zoneRegistry.z_drop], zoneDataRegistry.z_drop, drop)
-        this.loader.load(zoneRegistry[zoneRegistry.z_void], zoneDataRegistry.z_void, _void);
-        this.loader.load(zoneRegistry[zoneRegistry.z_deck], zoneDataRegistry.z_deck, deck);
-        this.loader.load(zoneRegistry[zoneRegistry.z_hand], zoneDataRegistry.z_hand, hand);
-        this.loader.load(zoneRegistry[zoneRegistry.z_storage], zoneDataRegistry.z_storage, storage);
-        this.loader.load(zoneRegistry[zoneRegistry.z_field], zoneDataRegistry.z_field, field);
-        this.loader.load(zoneRegistry[zoneRegistry.z_grave], zoneDataRegistry.z_grave, grave);
-        this.loader.load(zoneRegistry[zoneRegistry.z_ability], zoneDataRegistry.z_ability, abiltyZone);
+        this.loader.load(zoneRegistry[zoneRegistry.z_system], zoneDataRegistry.z_system, System);
+        this.loader.load(zoneRegistry[zoneRegistry.z_drop], zoneDataRegistry.z_drop, Drop)
+        this.loader.load(zoneRegistry[zoneRegistry.z_void], zoneDataRegistry.z_void, Void);
+        this.loader.load(zoneRegistry[zoneRegistry.z_deck], zoneDataRegistry.z_deck, Deck);
+        this.loader.load(zoneRegistry[zoneRegistry.z_hand], zoneDataRegistry.z_hand, Hand);
+        this.loader.load(zoneRegistry[zoneRegistry.z_storage], zoneDataRegistry.z_storage, Storage);
+        this.loader.load(zoneRegistry[zoneRegistry.z_field], zoneDataRegistry.z_field, Field);
+        this.loader.load(zoneRegistry[zoneRegistry.z_grave], zoneDataRegistry.z_grave, Grave);
+        this.loader.load(zoneRegistry[zoneRegistry.z_ability], zoneDataRegistry.z_ability, Ability);
 
         // this.maxPlayerIndex = s.players.length
 
@@ -300,7 +300,7 @@ class zoneHandler {
             return []
         }
 
-        let deck = zone as any as deck;
+        let deck = zone as any as Deck;
 
         let playerindex = deck.playerIndex
         let hand = this.hands.filter(i => i.playerIndex === playerindex);
@@ -571,7 +571,7 @@ class zoneHandler {
     forEach(depth : 0, callback : ((z : Zone, zid : number) => void)) : void;
     forEach(depth : 1, callback : ((c : Card, zid : number, cid : number) => void)) : void;
     forEach(depth : 2, callback : ((e : Effect, zid : number, cid : number, eid : number) => void)) : void;
-    forEach(depth : 3, callback : ((st : effectSubtype, zid : number, cid : number, eid : number, stid : number) => void)) : void;
+    forEach(depth : 3, callback : ((st : EffectSubtype, zid : number, cid : number, eid : number, stid : number) => void)) : void;
     forEach(depth : number, callback : ((z : any, ...index : number[]) => void)) : void{
         switch(depth){
             case 0: 
@@ -608,7 +608,7 @@ class zoneHandler {
     map<T>(depth : 0, callback : ((z : Zone, zid : number) => T)) : T[];
     map<T>(depth : 1, callback : ((c : Card, zid : number, cid : number) => T)) : T[];
     map<T>(depth : 2, callback : ((e : Effect, zid : number, cid : number, eid : number) => T)) : T[];
-    map<T>(depth : 3, callback : ((st : effectSubtype, zid : number, cid : number, eid : number, stid : number) => T)) : T[];
+    map<T>(depth : 3, callback : ((st : EffectSubtype, zid : number, cid : number, eid : number, stid : number) => T)) : T[];
     map<T>(depth : number, callback : ((z : any, ...index : number[]) => T)) : T[]{
         let final : T[] = [];
         this.forEach(depth as any, (c, ...index : number[]) => {
@@ -620,7 +620,7 @@ class zoneHandler {
     filter(depth : 0, callback : ((z : Zone, zid : number) => boolean)) : Zone[];
     filter(depth : 1, callback : ((c : Card, zid : number, cid : number) => boolean)) : Card[];
     filter(depth : 2, callback : ((e : Effect, zid : number, cid : number, eid : number) => boolean)) : Effect[];
-    filter(depth : 3, callback : ((st : effectSubtype, zid : number, cid : number, eid : number, stid : number) => boolean)) : effectSubtype[];
+    filter(depth : 3, callback : ((st : EffectSubtype, zid : number, cid : number, eid : number, stid : number) => boolean)) : EffectSubtype[];
     filter(depth : number, callback : ((z : any, ...index : number[]) => boolean)) : any[]{
         let final : any[] = [];
         this.forEach(depth as any, (c, ...index : number[]) => {
@@ -683,15 +683,15 @@ class zoneHandler {
     }
 
     //get stuff
-    get system() {return this.getZoneWithType(zoneRegistry.z_system) as system[]}
-    get void() {return this.getZoneWithType(zoneRegistry.z_void) as _void[]}
-    get decks() {return this.getZoneWithType(zoneRegistry.z_deck) as any as deck[]}
-    get storages() {return this.getZoneWithType(zoneRegistry.z_storage) as storage[]}
-    get hands() {return this.getZoneWithType(zoneRegistry.z_hand) as hand[]}
-    get abilityZones() {return this.getZoneWithType(zoneRegistry.z_ability) as abiltyZone[]}
-    get graves() {return this.getZoneWithType(zoneRegistry.z_grave) as grave[]}
-    get fields() {return this.getZoneWithType(zoneRegistry.z_field) as field[]}
-    get drops() {return this.getZoneWithType(zoneRegistry.z_drop) as drop[]}
+    get system() {return this.getZoneWithType(zoneRegistry.z_system) as System[]}
+    get void() {return this.getZoneWithType(zoneRegistry.z_void) as Void[]}
+    get decks() {return this.getZoneWithType(zoneRegistry.z_deck) as any as Deck[]}
+    get storages() {return this.getZoneWithType(zoneRegistry.z_storage) as Storage[]}
+    get hands() {return this.getZoneWithType(zoneRegistry.z_hand) as Hand[]}
+    get abilityZones() {return this.getZoneWithType(zoneRegistry.z_ability) as Ability[]}
+    get graves() {return this.getZoneWithType(zoneRegistry.z_grave) as Grave[]}
+    get fields() {return this.getZoneWithType(zoneRegistry.z_field) as Field[]}
+    get drops() {return this.getZoneWithType(zoneRegistry.z_drop) as Drop[]}
 
     getPlayerZone(pid : number, type : number) : Zone[]{
         return this.zoneArr.filter(i => i.playerIndex === pid && i.types.includes(type))

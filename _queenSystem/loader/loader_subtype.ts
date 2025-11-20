@@ -1,14 +1,14 @@
-import type effectSubtype from "../../types/abstract/gameComponents/effectSubtype";
+import type EffectSubtype from "../../types/abstract/gameComponents/effectSubtype";
 import type { Setting } from "../../types/abstract/gameComponents/settings";
 
 export default class subtypeLoader {
 
-    private classCache : Map<string, typeof effectSubtype> = new Map()
+    private classCache : Map<string, typeof EffectSubtype> = new Map()
     // private countCache : Map<string, number> = new Map()
 
-    private instanceCache : Map<string, effectSubtype> = new Map()
+    private instanceCache : Map<string, EffectSubtype> = new Map()
 
-    load(key : string, c : typeof effectSubtype){
+    load(key : string, c : typeof EffectSubtype){
         this.classCache.set(key, c);
     };
 

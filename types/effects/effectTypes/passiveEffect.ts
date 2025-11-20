@@ -5,7 +5,7 @@ import type { dry_system } from "../../../data/systemRegistry";
 
 import EffectType from "../../abstract/gameComponents/effectType"
 
-class passiveEffect extends EffectType {
+class PassiveEffect extends EffectType {
 
     //behaviors:
     //1. every action returns have isChain = true
@@ -22,4 +22,4 @@ class passiveEffect extends EffectType {
     }
 }  
 
-export default passiveEffect
+export default PassiveEffect

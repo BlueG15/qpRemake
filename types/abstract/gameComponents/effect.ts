@@ -1,7 +1,7 @@
 import type { dry_card, dry_system, inputDataSpecific, inputType, inputData, inputData_standard, inputData_bool, inputData_num, dry_effect, dry_zone, dry_position, inputData_card, inputData_zone } from "../../../data/systemRegistry";
 import { Action_class, actionFormRegistry, type Action } from "../../../_queenSystem/handler/actionGenrator";
 import type Card from "./card";
-import type effectSubtype from "./effectSubtype";
+import type EffectSubtype from "./effectSubtype";
 import type { effectData } from "../../../data/cardRegistry";
 import EffectType from "./effectType";
 import { id_able, StrictGenerator } from "../../misc";
@@ -16,7 +16,7 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
     id: string;
     dataID : string;
     type: EffectType;
-    subTypes: effectSubtype[]
+    subTypes: EffectSubtype[]
     readonly originalData : effectData
 
     isDisabled: boolean = false //I DO NOT LIKE THIS NAME
@@ -179,7 +179,7 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
         return this.subTypes[subtypeIdentifier].activateSpecificFunctionality(c, this, system, a);
     }
  
-    constructor(id : string, dataID : string, type : EffectType, subTypes: effectSubtype[] = [], data : effectData){
+    constructor(id : string, dataID : string, type : EffectType, subTypes: EffectSubtype[] = [], data : effectData){
         this.id = id
         this.type = type
         this.subTypes = subTypes
@@ -193,7 +193,7 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
 
     get displayID() : string {return this.originalData.displayID_default ?? this.dataID}
 
-    addSubType(st : effectSubtype){
+    addSubType(st : EffectSubtype){
         this.subTypes.push(st)
     }
 
@@ -280,26 +280,26 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
     private overrideActivationCondition? : (this : Effect<any>, ...p : [dry_card, dry_system, Action]) => boolean
     static listen(
         f : Exclude<Effect<any>["overrideActivationCondition"], undefined>
-    ){
+    ) : typeof Effect {
         return class ExtendedEff extends this {
             constructor(...p : [any, any, any, any, any]){
                 super(...p);
                 this.overrideActivationCondition = f.bind(this)
             }
-        }
+        } as any
     }
 
     static beforeActivate<T extends new (...p : any[]) => Effect<any>>(
         this : T, 
         f : (this : Effect<any>, ...p : Parameters<ObjAfterConstructor<T>["activate_final"]>) => void
-    ){
+    ) : typeof Effect {
         return class ExtendedEff extends this {
             override activate_final(...p : Parameters<ObjAfterConstructor<T>["activate_final"]>): Action[] {
                 const k = p as [any, any, any, any]
                 (f.bind(this))(...k as any)
                 return super.activate_final(...k);
             }
-        }
+        } as any
     }  
 
     /**then 
@@ -310,20 +310,20 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
     static then<T extends new (...p : any[]) => Effect<any>>(
         this : T, 
         f : (this : Effect<any>, res : Action[], ...p : Parameters<ObjAfterConstructor<T>["activate_final"]>) => Action[]
-    ){
+    ) : typeof Effect {
         return class ExtendedEff extends this {
             override activate_final(...p : Parameters<ObjAfterConstructor<T>["activate_final"]>): Action[] {
                 const k = p as [any, any, any, any]
                 const res = super.activate_final(...k);
                 return (f.bind(this))(res, ...k as any)
             }
-        }
+        } as any
     }  
     
     static thenShares<T extends new (...p : any[]) => Effect<any>>(
         this : T,
         f : (this : Effect<any>, res : Action[], ...p : [...Parameters<ObjAfterConstructor<T>["activate_final"]>, Effect<any>]) => [string, number]
-    ){
+    ) : typeof Effect {
         return class ExtendedEff extends this {
             override activate_final(...p : Parameters<ObjAfterConstructor<T>["activate_final"]>): Action[] {
                 const k = p as [any, any, any, any]
@@ -332,7 +332,7 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
                 p[0].addShareMemory(this, key, val);
                 return res
             }
-        }
+        } as any
     }
 
     static implyCondition<
@@ -412,44 +412,43 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
     static toOthersOfSameField(
         this : typeof Effect<inputData_card[]>,
         filter? : (c : dry_card, thisCard : dry_card, s : dry_system, a : Action) => boolean
-    ){
+    ) : typeof Effect {
         return this.removeInput(
             (c, s, a) => 
                 s.getZoneOf(c)!.cardArr_filtered.filter(
                     c1 => c1.id !== c.id && (!filter || filter(c1, c, s, a))
                 ).map(c1 => inputFormRegistry.card(s, c1))
-        )
+        ) as any
     }
 
     static toAllEnemies(
         this : typeof Effect<inputData_card[]>,
         filter? : (c : dry_card, thisCard : dry_card, s : dry_system, a : Action) => boolean
-    ){
+    ) : typeof Effect {
         return this.toAllOfZone(
             (c, s, a) => Request.oppositeZoneTo(s, c).once(),
             filter
-        )
+        ) as any
     }
 
     static toAllOfZone(
         this : typeof Effect<inputData_card[]>, 
         newInputFunc : Effect<[inputData_zone]>["createInputObj"],
         filter? : (c : dry_card, thisCard : dry_card, s : dry_system, a : Action) => boolean
-    ){
+    ) : typeof Effect {
         return this.retarget(
             newInputFunc, 
             (z, c, s, a) => 
                 filter ? 
                 z[0].data.zone.cardArr_filtered.filter(c1 => filter(c1, c, s, a)).map(c => inputFormRegistry.card(s, c)) :
                 z[0].data.zone.cardArr_filtered.map(c => inputFormRegistry.card(s, c))
-        )
+        ) as any
     }
 
     static toAllOfSpecificZone(
         this : typeof Effect<inputData_card[]>, 
         type : zoneRegistry,
         filter? : (c : dry_card, thisCard : dry_card, s : dry_system, a : Action) => boolean
-        
     ){
         return this.toAllOfZone(
             (c, s, a) => Request.specificType(s, c, type).once(),
@@ -459,17 +458,17 @@ class Effect<inputTupleType extends inputData[] = inputData[]> {
 
     static toThisCard(
         this : typeof Effect<inputData_card[]>
-    ){
+    ) : typeof Effect {
         return this.removeInput(
             (c, s, a) => [inputFormRegistry.card(s, c)]
-        )
+        ) as any
     }
 
     static moreInput<originalInput extends Exclude<inputData[], []>, extraInput extends Exclude<inputData[], []>>(
         this : typeof Effect<originalInput>,
         moreInputFunc : (this : Effect<any>, c : dry_card, s : dry_system, a : Action) => inputRequester<any, extraInput>,
         handler? : (this : Effect<any>, c : dry_card, s : dry_system, a : Action, input : [...originalInput, ...extraInput]) => Action[]
-    ){
+    ) : typeof Effect<[...originalInput, ...extraInput]> {
         const originalClass = this as unknown as typeof Effect<[...originalInput, ...extraInput]>
         return class ExtendedEff extends originalClass {
             ___input_original? : inputRequester<any, originalInput>

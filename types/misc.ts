@@ -196,5 +196,3 @@ export type Last<
   K extends any[] = []
 > = T extends K ? T[ sliceHead<K, [any]>["length"] ] : Last<T, [any, ...K]>
 
-type k = Last<[1, 2, 3]>
-

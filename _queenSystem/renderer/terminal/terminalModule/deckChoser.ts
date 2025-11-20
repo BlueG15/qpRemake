@@ -53,6 +53,13 @@ export class qpDeckChoser extends TerminalBufferModule {
         if(this.buffer.selected_pos.length > 1)
             this.buffer.selected_pos = [this.buffer.selected_pos.at(-1)!];
 
+        const h = this.buffer.calcPrintHeight()
+        const missing = this.terminalPtr.height - h
+
+        if(missing > 1){
+            this.buffer.pushCell(undefined, 1, missing - 1, false, "other")
+        }
+
         return this.buffer.print(this.terminalPtr)
     }
 }

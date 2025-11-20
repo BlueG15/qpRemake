@@ -3,11 +3,11 @@
 // import type { nestedTree } from "../../misc";
 import type { rarityRegistry } from "../../../data/rarityRegistry";
 import type { playerTypeID, zoneRegistry } from "../../../data/zoneRegistry";
-import type { component } from "../parser";
+import type { DisplayComponent } from "../parser";
 
-type LocalizedString = component[]
+type LocalizedString = DisplayComponent[]
 
-export class Localized_effect {
+export class LocalizedEffect {
     constructor(
         public id : number, //pid technically
         public text : LocalizedString,
@@ -18,13 +18,13 @@ export class Localized_effect {
     ){}
 }
 
-export class Localized_card {
+export class LocalizedCard {
     constructor(
         public id : string,
         public name : LocalizedString,
         public extensions : LocalizedString[],
-        public effects : Localized_effect[],
-        public statusEffects : Localized_effect[],
+        public effects : LocalizedEffect[],
+        public statusEffects : LocalizedEffect[],
         public zoneID : number,
         public pos : number[],
         //stat
@@ -39,14 +39,14 @@ export class Localized_card {
     ){}
 }
 
-export class Localized_zone {
+export class LocalizedZone {
     constructor(
         public id : number,
         public pid : number,
         public type : zoneRegistry[],
         public typeName : LocalizedString[],
         public name : LocalizedString,
-        public cards : (Localized_card | undefined)[],
+        public cards : (LocalizedCard | undefined)[],
         public shape : number[],
     ){
         while(cards.length && cards.at(-1) === undefined) cards.splice(-1, 1);
@@ -54,14 +54,14 @@ export class Localized_zone {
     }
 }
 
-export class Localized_action {
+export class LocalizedAction {
     constructor(
         public id : number,
         public name : LocalizedString,
     ){}
 }
 
-export class Localized_player {
+export class LocalizedPlayer {
     constructor(
         public id : number,
         public type : playerTypeID,
@@ -73,11 +73,11 @@ export class Localized_player {
     ){}
 }
 
-export class Localized_system {
+export class LocalizedSystem {
     constructor(
-        public players : Localized_player[],
-        public zones : Localized_zone[],
-        public action : Localized_action,
+        public players : LocalizedPlayer[],
+        public zones : LocalizedZone[],
+        public action : LocalizedAction,
         public phase : number,
         
         public turn : number,

@@ -3,7 +3,7 @@ import type { inputRequester } from "../handler/actionInputGenerator";
 import { gameState_stat, TurnPhase, dry_system, dry_zone, inputDataSpecific, inputType, validSetFormat } from "../../data/systemRegistry";
 import type { qpRenderer } from "./rendererInterface";
 import { playerTypeID } from "../../data/zoneRegistry";
-import { Localized_system, Localized_zone } from "../../types/abstract/serializedGameComponents/Localized";
+import { LocalizedSystem, LocalizedZone } from "../../types/abstract/serializedGameComponents/Localized";
 
 export class simpleRenderer implements qpRenderer {
 
@@ -39,7 +39,7 @@ export class simpleRenderer implements qpRenderer {
         k.forEach(line => console.log(line))
     }
 
-    formater_zone(z : Localized_zone){
+    formater_zone(z : LocalizedZone){
         ///okii, render 
         //[ ][ ][ ] ...
         //for zone shape
@@ -62,7 +62,7 @@ export class simpleRenderer implements qpRenderer {
         return ""
     }
 
-    gameStart(s: Localized_system, callback: () => any): void {
+    gameStart(s: LocalizedSystem, callback: () => any): void {
         //render only fields and hand, hide the rest
         const texts = s.zones.map(z => this.formater_zone(z)).reverse().join("\n")
         console.log(texts)

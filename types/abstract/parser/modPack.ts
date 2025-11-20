@@ -1,13 +1,13 @@
-import { component } from "./component";
-import { parserModule } from "../../mods/effectTextParserModule";
+import { DisplayComponent } from "./component";
+import { ParserModule } from "../../mods/effectTextParserModule";
 import moduleInputObject from "./moduleInputObject";
 import { parseOptions } from "./options";
 import type { nestedTree } from "../../misc";
 
-class modPack extends parserModule {
+class modPack extends ParserModule {
 
     private moduleMap = new Map<string, number>()
-    protected moduleArr : parserModule[] = []
+    protected moduleArr : ParserModule[] = []
 
     override cmdName : string[] = []
     override requiredAttr : string[][] = []
@@ -30,7 +30,7 @@ class modPack extends parserModule {
         })
     }
 
-    override generateInputObj(cmdIndex: number, attrObj: { [attr: string]: string; }, children: nestedTree<component>): moduleInputObject | undefined {
+    override generateInputObj(cmdIndex: number, attrObj: { [attr: string]: string; }, children: nestedTree<DisplayComponent>): moduleInputObject | undefined {
         const moduleIndex = this.moduleMap.get(this.cmdName[cmdIndex])
         if(moduleIndex === undefined) return undefined
         return this.moduleArr[moduleIndex].generateInputObj(this.cmdTrueIndex[cmdIndex], attrObj, children)
@@ -42,7 +42,7 @@ class modPack extends parserModule {
         return this.moduleArr[moduleIndex].isValidAttr(this.cmdTrueIndex[cmdIndex], attrName, attr)
     }
 
-    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<component> {
+    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<DisplayComponent> {
         const moduleIndex = this.moduleMap.get(cmd)
         if(moduleIndex === undefined) return []
         return this.moduleArr[moduleIndex].evaluate(cmd, args, option, raw)

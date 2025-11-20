@@ -1,7 +1,7 @@
-import { component, parserModule, moduleInputObject, parseOptions, mode, textComponent } from '../../types/abstract/parser';
+import { DisplayComponent, ParserModule, moduleInputObject, parseOptions, mode, TextComponent } from '../../types/abstract/parser';
 import type { nestedTree } from '../../types/misc';
 
-export default class variantCheckModule extends parserModule {
+export default class variantCheckModule extends ParserModule {
 
     override cmdName = [
         'variantInclude', 'variantExclude'
@@ -17,9 +17,9 @@ export default class variantCheckModule extends parserModule {
         return true
     }
 
-    private recurModify(tree : nestedTree<component>, sectionID : string) : void{
+    private recurModify(tree : nestedTree<DisplayComponent>, sectionID : string) : void{
         tree.forEach(i => {
-            if(i instanceof component) {
+            if(i instanceof DisplayComponent) {
                 i.addSectionID(sectionID)
             } else {
                 this.recurModify(i, sectionID)
@@ -27,7 +27,7 @@ export default class variantCheckModule extends parserModule {
         })
     }
 
-    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<component> {
+    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<DisplayComponent> {
         
         let k = args.getChilren()
 
@@ -44,9 +44,9 @@ export default class variantCheckModule extends parserModule {
         
         if(option.mode == mode.info){
             k = [
-                [new textComponent("[", undefined, cmd, raw)],
+                [new TextComponent("[", undefined, cmd, raw)],
                 k,
-                [new textComponent("]", undefined, cmd, raw)]
+                [new TextComponent("]", undefined, cmd, raw)]
             ]
         }
 

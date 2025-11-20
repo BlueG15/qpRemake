@@ -244,4 +244,4 @@ export default {
         const cardsInField = Request.field(s, c).ofSamePlayer(z).cards().ofArchtype("fruit").ofLevel(1).clean()
         return (new Set(cardsInField.map(c => c.dataID))).size >= 3
     })
-}
+} as Record<string, new (...p : any[]) => Effect<any>>

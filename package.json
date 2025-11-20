@@ -1,19 +1,19 @@
 {
   "name": "qpremake",
-  "version": "1.0.0",
-  "description": "remake of the qp engine, with moddability in mind",
-  "main": "./dist/main.js",
+  "version": "1.5.0",
+  "description": "Remake of the qp engine in ts / js, with moddability in mind",
+  "main": "build/index.js",
+  "types": "build/index.d.ts",
   "scripts": {
-    "test": "node ./build/main.js",
+    "test": "node ./build/testFile.js",
     "build": "tsc",
-    "dev": "npm run build && npm run test"
+    "dev": "npm run build && npm run test",
+    "prepublish": "npm run build && npm test"
   },
   "type": "commonjs",
   "author": "Blu",
   "license": "ISC",
   "devDependencies": {
-    "@rgrove/parse-xml": "^4.2.0",
-    "@types/node": "^22.18.8",
     "@typescript-eslint/eslint-plugin": "^8.40.0",
     "@typescript-eslint/parser": "^8.40.0",
     "chalk": "^5.6.2",
@@ -21,7 +21,11 @@
     "eslint": "^9.33.0",
     "eslint-plugin-jsdoc": "^54.1.1",
     "strip-ansi": "^7.1.2",
-    "ansi-regex": "^6.2.2",
+    "ansi-regex": "^6.2.2"
+  },
+  "dependencies": {
+    "@rgrove/parse-xml": "^4.2.0",
+    "@types/node": "^22.18.8",
     "typescript": "^5.9.2",
     "util": "^0.12.5"
   },

@@ -57,15 +57,15 @@ export enum componentID {
 }
 
 export type specificComponent<T extends keyof typeof componentID> = {
-    error : component,
-    number : numberComponent,
-    text : textComponent,
-    image : imageComponent,
-    reference : referenceComponent,
-    symbol : symbolComponent,
+    error : DisplayComponent,
+    number : NumberComponent,
+    text : TextComponent,
+    image : ImageComponent,
+    reference : ReferenceComponent,
+    symbol : SymbolComponent,
 }[T]
 
-export class component{
+export class DisplayComponent{
     id : componentID
 
     errorFlag : boolean;
@@ -104,7 +104,7 @@ export class component{
     }
 }
 
-export class textComponent extends component{
+export class TextComponent extends DisplayComponent{
     str : string
     private num = -100
     constructor(
@@ -123,7 +123,7 @@ export class textComponent extends component{
     }
 }
 
-export class numberComponent extends component{
+export class NumberComponent extends DisplayComponent{
     num : number
     constructor(
         num : number,
@@ -136,7 +136,7 @@ export class numberComponent extends component{
     }
 }
 
-export class imageComponent extends component{
+export class ImageComponent extends DisplayComponent{
     url : string
     constructor(
         url : string,
@@ -149,7 +149,7 @@ export class imageComponent extends component{
     }
 } 
 
-export class iconComponent extends imageComponent{
+export class IconComponent extends ImageComponent{
     iconID : iconID
     constructor(
         id : iconID,
@@ -167,7 +167,7 @@ export class iconComponent extends imageComponent{
     }
 }
 
-export class referenceComponent extends component {
+export class ReferenceComponent extends DisplayComponent {
     readonly ref : any
     constructor(
         ref : any,
@@ -180,7 +180,7 @@ export class referenceComponent extends component {
     }
 }
 
-export class symbolComponent extends component {
+export class SymbolComponent extends DisplayComponent {
     readonly symbolID : string
     constructor(
         id : string,

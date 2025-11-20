@@ -1,7 +1,7 @@
 //import zone from "../baseClass/zone";
 import zone_stack from "../abstract/gameComponents/zone_stackBased";
 
-class hand extends zone_stack {
+class Hand extends zone_stack {
     // constructor(){
     //     super("hand");
     // }
@@ -9,4 +9,4 @@ class hand extends zone_stack {
     setCapacity(newCapacity : number){this.posBound = [newCapacity];} 
 }
 
-export default hand
+export default Hand
