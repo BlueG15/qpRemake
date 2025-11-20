@@ -1,6 +1,275 @@
 # qpRemake 
-Alpha branch is finally ended and will be merged into main!!, only a renderer pending!
 
+This is a card processing system for the game "Quantum Protocol" remade in native Typescript.
+Quantum Protocol and Jkong reserves all rights to the game and all related assets.
+
+## Installation
+
+The system is available via npm.
+
+```bash
+npm i qpremake
+```
+
+And then can be imported via 
+
+```ts
+import { 
+   queenSystem, 
+   queenSystemComponents, 
+   queenSystemUtils 
+} from "qpremake"
+```
+
+or 
+
+```js
+const { 
+   queenSystem, 
+   queenSystemComponents, 
+   queenSystemUtils 
+} = require("qpremake")
+```
+
+There is also a default import for just the ```queenSystem```
+
+```ts
+import queenSystem from "qpRemake"
+```
+
+or
+
+```js
+const queenSystem = require("qpRemake")
+```
+
+## Basic usage
+
+This here is just a calculator for card effects. To have it renders out something visible, (like text or an HTML page), you have to hook it up to a ```Renderer```.
+
+This code binds a renderer of your choice to the system for rendering. More info on how the rendering life cycle work in later sections.
+
+```ts
+import {queenSystem, queenSystemComponents} from "qpRemake"
+
+const { operatorRegistry } = queenSystemComponents.registry
+
+let setting = new defaultSetting()
+let renderer = new YourRendererHere() 
+// Your renderer shoudld be here
+// What interface it follows is in the later sections.
+
+let s = new queenSystem(setting, renderer)
+renderer.bind(s)
+s.addPlayers("player", operatorRegistry.o_esper)
+s.addPlayers("enemy", operatorRegistry.o_null)
+await s.load()
+
+s.start();
+```
+
+## What the imported objects do
+
+### queenSystem
+
+The queenSystem is a class that handles card effect calculations. 
+
+It must first be loaded (async sadly cause file import is async) via ```load()```.
+
+You can then load players gradually by ```addPlayers```, this will only accept 2 type "player" and "enemy" at the moment. The appropriate zones will be added correctly to the internal zone list.
+
+With a renderer bound, the ```start``` method begins the communication loops between the queenSystem and the renderer.
+
+The procedure goes as follows:
+1. The queenSystem calls ```turnStart``` of the renderer to begin a turn play.
+2. Once the Renderer can continue with player's action for that turn, ```processTurn``` is called
+3. Inside ```processTurn```, certain events will cause the system to halt and return control to the renderer. The renderer can decide when to continue by calling ```continue```;
+4. This continues until the player loses or won the round.
+
+from the renderer's perspective, these functions are passed in so they need not remember what to call.
+
+Here is a cheatsheet of what this class does from the perspective of a renderer:
+
+1. ```load``` : required to run before starting the game, async
+2. ```addPlayers``` : for adding players
+3. ```addDeck``` : for adding decks
+4. ```start``` : start the game
+
+### queenSystemComponents
+
+Various classes used in the processing of card effects. 
+
+Use from the perspective of a modder who wants to add more cards / effects.
+Outside of this, one can read the data from the various registries (either enum or const key -> data pair).
+
+The structure of this object is as follows:
+
+```ts
+const queenSystemComponents = {
+    "gameComponent" : {
+         //Action class, stores what to do (move card, delete, execute, etc)
+        Action, 
+
+        //Card class, represents a card, all cards extends from this
+        Card,   
+
+        //Effect class, cards contain effects, all effects extends from this
+        Effect, 
+
+        //Two premade form of a zone class, mainly differ in how to store and interact with stored cards
+        Zone_grid, Zone_stack, 
+        "Zone" : {
+
+            //Zone class, mainly just here for instanceof, use the above Zone_grid and Zone_stack instead
+            "ParentClass" : Zone, 
+
+            //Below this are various premade zones
+            //To add your own, extend from one of Zone_grid or Zone_stack
+            //and implement zone methods to move cards and interupt events
+
+            //Zones initiates with a data structure
+            //to define capacity, shape, etc
+            //See zoneDataRegistry
+
+            Ability, 
+            Deck, 
+            Drop,
+            Field,
+            Grave,
+            Hand,
+            Storage,
+            System,
+            Void
+        },
+        "EffectSubType" : {
+
+            // Effects can have subtypes
+            // subtypes of an effect modifies an Effect's attribute
+            // and / or modifies the response
+            "ParentClass" : EffectSubtype,
+
+            //Below are various premade subtypes
+
+            Chained, 
+            Delayed, 
+            FieldLock, 
+            GraveLock, 
+            HandOrFieldLock, 
+            HardUnique, 
+            Instant, 
+            Once, 
+            Unique
+        },
+        "EffectType" : {
+
+            // Effects can also have a type
+            "ParentClass" : EffectType,
+            InitEffect, 
+            LockEffect,
+            ManualEffect,
+            PassiveEffect,
+            TriggerEffect
+        },
+        "Serialized" : {
+
+            // The serialized version of game components
+            // remove circular references and should be save to JSON stringify
+            // and save
+            SerializedCard,
+            Serialized_effect,
+            SerializedZone,
+            SerializedPlayer,
+            SerializedSystem,
+        },
+        "Localized" : {
+
+            // Localized versions of game components
+            // All texts of these objects is parsed through the localizer already
+            // should also have no circular refs
+            LocalizedAction,
+            LocalizedCard,
+            LocalizedEffect,
+            LocalizedZone,
+            LocalizedPlayer,
+            LocalizedSystem,
+        }
+    },
+    "systemComponent" : {
+
+         // Various short hand services
+
+         // This one parses effect text, see more in later sections
+         "effectTextParser" : Parser,
+
+         // This one localizes the objects
+         "localizer" : Localizer,
+
+         // This one generate actions from a quick hand format
+         "actionGenerator" : actionConstructorRegistry,
+
+         // This one generates quick input array
+         "inputRequester" : Request,
+    },
+    "displayComponent" : {
+
+         // The parsed text is in an array of DisplayComponents
+         // For adaptability with various renderer
+
+         "ParentClass" : DisplayComponent,
+         TextComponent,
+         IconComponent,
+         ReferenceComponent,
+         ImageComponent,
+         SymbolComponent,
+    },
+    "registry" : {
+         // Registries are hard coded data
+         // some are enums, some are const key -> value
+
+        actionRegistry,
+
+        cardDataRegistry,
+
+        effectDataRegistry,
+        effectTypeRegistry,
+
+        operatorRegistry,
+        operatorDataRegistry,
+
+        rarityRegistry,
+        rarityDataRegistry,
+
+        subtypeRegistry,
+
+        zoneRegistry,
+        zoneDataRegistry,
+    },
+    "defaultSetting" : settings,
+    "mod" : {
+
+         //These are the class a mod must follows
+         // and extends from
+
+        GameModule,
+        ParserModule,
+    },
+};
+```
+
+For a cheat sheet, here are the properties of systemComponent:
+
+1. gameComponent : holds various game component classes
+2. systemComponent : holds various services to operate on data
+3. displayComponent : holds display parsed segements
+4. registry : holds data
+5. defaultSetting : holds the default setting
+6. mod : holds what format mods must follows
+
+### Utils
+
+Utils is a custom util object which hodl various utility methods. ts should suggest what it has already. 
+
+## Pending Tasks
 
 1. make effects
 2. add more actions (if needed)
@@ -21,7 +290,7 @@ Alpha branch is finally ended and will be merged into main!!, only a renderer pe
 
 ( * ) : Fruit and Some of Generic
 
-## How to get and run the project
+## How to get and develop the project
 
 ### Clone the project:
 
@@ -165,7 +434,13 @@ There are only a handful of modules right now, allowing stuff like
 ```XML
 <if type = "number"><numeric> a + b > c </><string> A + B </><string> C + D </></>
 ```
-Check the GitHub repo for the parser for more info.
+
+Effect text now allow these short hand
+
+```
+=abc prints a, b, c out
+=<exprerssion>; inserts the expression
+```
 
 
 

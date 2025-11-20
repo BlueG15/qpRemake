@@ -1,4 +1,4 @@
-import queenSystem from "./_queenSystem/queenSystem";
+// import queenSystem from "./_queenSystem/queenSystem";
 import { defaultSetting } from "./types/abstract/gameComponents/settings";
 import testSuite from "./_queenSystem/testSuite";
 import globalLoader from "./global";
@@ -10,6 +10,9 @@ import Processor from "./_queenSystem/handler/oldDataProcessor";
 import { simpleRenderer } from "./_queenSystem/renderer/sampleRenderers/simpleRenderer";
 import { operatorRegistry } from "./data/operatorRegistry";
 import { qpTerminalRenderer } from "./_queenSystem/renderer/sampleRenderers/terminalRenderer";
+
+import { queenSystem, queenSystemComponents, queenSystemUtils } from "./index";
+// import queenSystem from "./index.ts"
 
 async function main(){
     let setting = new defaultSetting();

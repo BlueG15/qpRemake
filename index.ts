@@ -177,11 +177,8 @@ const queenSystemComponents = {
     },
 };
 
-export default {
-    queenSystem, 
-    queenSystemComponents, 
-    "queenSystemUtils" : Utils
-}
+export {queenSystem, queenSystemComponents, Utils as queenSystemUtils};
+export default queenSystem
 
 /**
  * Usage : 
