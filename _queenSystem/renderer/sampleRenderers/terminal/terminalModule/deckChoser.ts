@@ -1,7 +1,7 @@
-import type queenSystem from "../../../queenSystem";
-import { DeckData, deckDataRegistry, deckRegistry } from "../../../../data/deckRegistry";
+import type queenSystem from "../../../../queenSystem";
+import { DeckData, deckDataRegistry, deckRegistry } from "../../../../../data/deckRegistry";
 import { TerminalBufferModule } from "./buffer";
-import { operatorRegistry } from "../../../../data/operatorRegistry";
+import { operatorRegistry } from "../../../../../data/operatorRegistry";
 import chalk from "chalk";
 import stripAnsi from "strip-ansi";
 // import { parseMode } from "../../../../types/abstract/parser";

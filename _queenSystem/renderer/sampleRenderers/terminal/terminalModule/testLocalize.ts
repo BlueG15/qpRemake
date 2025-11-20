@@ -1,5 +1,5 @@
-import English from "../../../../_localizationFiles/English";
-import type queenSystem from "../../../queenSystem";
+import English from "../../../../../_localizationFiles/English";
+import type queenSystem from "../../../../queenSystem";
 import { TerminalModule } from "../terminal/utils";
 
 export class qpTestLocalizer extends TerminalModule {

@@ -7,9 +7,9 @@ globalLoader.load()
 
 import fs from "fs"
 import Processor from "./_queenSystem/handler/oldDataProcessor";
-import { simpleRenderer } from "./_queenSystem/renderer/simpleRenderer";
+import { simpleRenderer } from "./_queenSystem/renderer/sampleRenderers/simpleRenderer";
 import { operatorRegistry } from "./data/operatorRegistry";
-import { qpTerminalRenderer } from "./_queenSystem/renderer/terminalRenderer";
+import { qpTerminalRenderer } from "./_queenSystem/renderer/sampleRenderers/terminalRenderer";
 
 async function main(){
     let setting = new defaultSetting();

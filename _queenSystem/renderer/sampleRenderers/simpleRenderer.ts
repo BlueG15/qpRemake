@@ -1,9 +1,9 @@
-import type { Action } from "../handler/actionGenrator";
-import type { inputRequester } from "../handler/actionInputGenerator";
-import { gameState_stat, TurnPhase, dry_system, dry_zone, inputDataSpecific, inputType, validSetFormat } from "../../data/systemRegistry";
-import type { qpRenderer } from "./rendererInterface";
-import { playerTypeID } from "../../data/zoneRegistry";
-import { LocalizedSystem, LocalizedZone } from "../../types/abstract/serializedGameComponents/Localized";
+import type { Action } from "../../handler/actionGenrator";
+import type { inputRequester } from "../../handler/actionInputGenerator";
+import { gameState_stat, TurnPhase, dry_system, dry_zone, inputDataSpecific, inputType, validSetFormat } from "../../../data/systemRegistry";
+import type { qpRenderer } from "../rendererInterface";
+import { playerTypeID } from "../../../data/zoneRegistry";
+import { LocalizedSystem, LocalizedZone } from "../../../types/abstract/serializedGameComponents/Localized";
 
 export class simpleRenderer implements qpRenderer {
 

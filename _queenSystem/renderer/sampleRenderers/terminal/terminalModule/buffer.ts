@@ -1,15 +1,15 @@
-import type { DisplayComponent } from "../../../../types/abstract/parser";
-import type { dry_zone } from "../../../../data/systemRegistry";
-import type queenSystem from "../../../queenSystem";
-import { LocalizedSystem, LocalizedEffect, LocalizedCard, LocalizedPlayer, LocalizedZone, LocalizedAction } from "../../../../types/abstract/serializedGameComponents/Localized";
+import type { DisplayComponent } from "../../../../../types/abstract/parser";
+import type { dry_zone } from "../../../../../data/systemRegistry";
+import type queenSystem from "../../../../queenSystem";
+import { LocalizedSystem, LocalizedEffect, LocalizedCard, LocalizedPlayer, LocalizedZone, LocalizedAction } from "../../../../../types/abstract/serializedGameComponents/Localized";
 
 import chalk from "chalk";
 import { ChalkFormatKeys, I_Terminal, TerminalModule } from "../terminal/utils";
-import Card from "../../../../types/abstract/gameComponents/card";
-import Zone from "../../../../types/abstract/gameComponents/zone";
-import { rarityRegistry } from "../../../../data/rarityRegistry";
-import { DeckData, deckRegistry } from "../../../../data/deckRegistry";
-import { operatorRegistry } from "../../../../data/operatorRegistry";
+import Card from "../../../../../types/abstract/gameComponents/card";
+import Zone from "../../../../../types/abstract/gameComponents/zone";
+import { rarityRegistry } from "../../../../../data/rarityRegistry";
+import { DeckData, deckRegistry } from "../../../../../data/deckRegistry";
+import { operatorRegistry } from "../../../../../data/operatorRegistry";
 import stripAnsi from "strip-ansi";
 import { ANSI_String, isANSI } from "../terminal/ansi";
 

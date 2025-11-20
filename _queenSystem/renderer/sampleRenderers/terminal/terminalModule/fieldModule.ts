@@ -1,11 +1,11 @@
-import type queenSystem from "../../../queenSystem";
+import type queenSystem from "../../../../queenSystem";
 
-import { playerTypeID, zoneRegistry } from "../../../../data/zoneRegistry";
+import { playerTypeID, zoneRegistry } from "../../../../../data/zoneRegistry";
 import chalk from "chalk";
-import Zone from "../../../../types/abstract/gameComponents/zone";
+import Zone from "../../../../../types/abstract/gameComponents/zone";
 
 import { empty_pos_cell, execute_cell, TerminalBufferModule } from "./buffer";
-import { deckRegistry, type DeckData } from "../../../../data/deckRegistry";
+import { deckRegistry, type DeckData } from "../../../../../data/deckRegistry";
 
 //arrows to move to highlight stuff
 //then enter to lock them, it then jumps the cursor to that section

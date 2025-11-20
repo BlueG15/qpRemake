@@ -1,17 +1,17 @@
-import type { LocalizedSystem, LocalizedZone } from "../../types/abstract/serializedGameComponents/Localized";
-import { Action_class, type Action } from "../handler/actionGenrator";
+import type { LocalizedSystem, LocalizedZone } from "../../../types/abstract/serializedGameComponents/Localized";
+import { Action_class, type Action } from "../../handler/actionGenrator";
 import type { qpFieldModule } from "./terminal/terminalModule/fieldModule";
-import queenSystem from "../queenSystem";
-import type { qpRenderer } from "./rendererInterface";
+import queenSystem from "../../queenSystem";
+import type { qpRenderer } from "../rendererInterface";
 
-import { TurnPhase, inputType, inputDataSpecific } from "../../data/systemRegistry";
-import testSuite from "../testSuite";
+import { TurnPhase, inputType, inputDataSpecific } from "../../../data/systemRegistry";
+import testSuite from "../../testSuite";
 import { Terminal, TerminalModule } from "./terminal";
 import chalk from "chalk"
 import { TerminalSignals } from "./terminal/terminal";
-import Zone from "../../types/abstract/gameComponents/zone";
-import Card from "../../types/abstract/gameComponents/card";
-import Effect from "../../types/abstract/gameComponents/effect";
+import Zone from "../../../types/abstract/gameComponents/zone";
+import Card from "../../../types/abstract/gameComponents/card";
+import Effect from "../../../types/abstract/gameComponents/effect";
 
 export class qpTerminalRenderer extends Terminal implements qpRenderer {    
     private post = chalk.yellow('Press "b" to go back, "q" to quit, "Enter" to select')

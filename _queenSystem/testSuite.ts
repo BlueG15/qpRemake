@@ -16,7 +16,7 @@ import type { LocalizedCard, LocalizedEffect } from "../types/abstract/serialize
 import type { DisplayComponent } from "../types/abstract/parser"
 
 import chalk from "chalk"
-import { ChalkFormatKeys } from "./renderer/terminal/terminal/utils"
+import { ChalkFormatKeys } from "./renderer/sampleRenderers/terminal/terminal/utils"
 import { rarityRegistry } from "../data/rarityRegistry"
 const testSuite : Record<string, ((s : queenSystem, file? : typeof fs) => void)> = {
 
