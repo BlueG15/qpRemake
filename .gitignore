@@ -4,3 +4,6 @@
 /lib
 
 package-lock.json
+
+# compiled file by npm
+*.tgz
