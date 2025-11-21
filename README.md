@@ -1,9 +1,54 @@
-# qpRemake 
+# qpRemake
 
-This is a card processing system for the game "Quantum Protocol" remade in native Typescript.
-Quantum Protocol and Jkong reserves all rights to the game and all related assets.
+This is a card effect processing system for the game "Quantum Protocol" remade in native Typescript.
 
-## Installation
+> Quantum Protocol and Jkong reserves all rights to the game and all related assets.
+
+## Table of contents
+
+- [qpRemake](#qpremake)
+  - [Table of contents](#table-of-contents)
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Basic usage](#basic-usage)
+  - [What the imported objects do](#what-the-imported-objects-do)
+    - [**queenSystem**](#queensystem)
+    - [**queenSystemComponents**](#queensystemcomponents)
+      - [**gameComponent**:](#gamecomponent)
+      - [**systemComponent**](#systemcomponent)
+    - [**queenSystemUtils**](#queensystemutils)
+  - [Advanced usage:](#advanced-usage)
+    - [Making your own renderer](#making-your-own-renderer)
+    - [Saving and loading game state:](#saving-and-loading-game-state)
+    - [Display texts](#display-texts)
+    - [Handling inputs](#handling-inputs)
+- [Modding](#modding)
+  - [What is a mod?](#what-is-a-mod)
+  - [How mods are run](#how-mods-are-run)
+  - [How to make a mod](#how-to-make-a-mod)
+  - [Adding a mod](#adding-a-mod)
+  - [Example: Adding a custom effect](#example-adding-a-custom-effect)
+- [Project contribution](#project-contribution)
+  - [Current progress:](#current-progress)
+  - [How to get and develop the project](#how-to-get-and-develop-the-project)
+    - [Clone the project:](#clone-the-project)
+    - [Run the project](#run-the-project)
+  - [Game components](#game-components)
+  - [Main gameplay loop](#main-gameplay-loop)
+  - [Project structure](#project-structure)
+  - [Contribution workflow guide](#contribution-workflow-guide)
+    - [Make effects](#make-effects)
+    - [Add more actions (if needed)](#add-more-actions-if-needed)
+    - [Update effect registry](#update-effect-registry)
+    - [Update card registry](#update-card-registry)
+    - [Update defaultSetting](#update-defaultsetting)
+    - [Running tests](#running-tests)
+    - [Make renderers](#make-renderers)
+    - [Improving the text parser](#improving-the-text-parser)
+
+
+
+# Installation
 
 The system is available via npm.
 
@@ -14,8 +59,9 @@ npm i qpremake
 And then can be imported via 
 
 ```ts
+// ts
 import { 
-   queenSystem, 
+   queenSystem as s, 
    queenSystemComponents, 
    queenSystemUtils 
 } from "qpremake"
@@ -24,6 +70,7 @@ import {
 or 
 
 ```js
+// js
 const { 
    queenSystem, 
    queenSystemComponents, 
@@ -34,14 +81,20 @@ const {
 There is also a default import for just the ```queenSystem```
 
 ```ts
+// ts
 import queenSystem from "qpRemake"
 ```
 
 or
 
 ```js
+// js
 const queenSystem = require("qpRemake")
 ```
+
+# Usage
+
+This section is dedicated to thos who wish to use the system and render out a game, rather than modding stuff.
 
 ## Basic usage
 
@@ -53,13 +106,15 @@ This code binds a renderer of your choice to the system for rendering. More info
 import {queenSystem, queenSystemComponents} from "qpRemake"
 
 const { operatorRegistry } = queenSystemComponents.registry
+const sampleRenderer = queenSystemComponents.systemComponent.sampleRenderer
+const defaultSetting = { queenSystemComponents } 
 
 let setting = new defaultSetting()
 let renderer = new YourRendererHere() 
 // Your renderer shoudld be here
 // What interface it follows is in the later sections.
 
-let s = new queenSystem(setting, renderer)
+let s = new queenSystem(setting, sampleRenderer)
 renderer.bind(s)
 s.addPlayers("player", operatorRegistry.o_esper)
 s.addPlayers("enemy", operatorRegistry.o_null)
@@ -70,7 +125,7 @@ s.start();
 
 ## What the imported objects do
 
-### queenSystem
+### **queenSystem**
 
 The queenSystem is a class that handles card effect calculations. 
 
@@ -95,191 +150,289 @@ Here is a cheatsheet of what this class does from the perspective of a renderer:
 3. ```addDeck``` : for adding decks
 4. ```start``` : start the game
 
-### queenSystemComponents
+### **queenSystemComponents**
 
 Various classes used in the processing of card effects. 
 
 Use from the perspective of a modder who wants to add more cards / effects.
 Outside of this, one can read the data from the various registries (either enum or const key -> data pair).
 
-The structure of this object is as follows:
-
-```ts
-const queenSystemComponents = {
-    "gameComponent" : {
-         //Action class, stores what to do (move card, delete, execute, etc)
-        Action, 
-
-        //Card class, represents a card, all cards extends from this
-        Card,   
-
-        //Effect class, cards contain effects, all effects extends from this
-        Effect, 
-
-        //Two premade form of a zone class, mainly differ in how to store and interact with stored cards
-        Zone_grid, Zone_stack, 
-        "Zone" : {
-
-            //Zone class, mainly just here for instanceof, use the above Zone_grid and Zone_stack instead
-            "ParentClass" : Zone, 
-
-            //Below this are various premade zones
-            //To add your own, extend from one of Zone_grid or Zone_stack
-            //and implement zone methods to move cards and interupt events
-
-            //Zones initiates with a data structure
-            //to define capacity, shape, etc
-            //See zoneDataRegistry
-
-            Ability, 
-            Deck, 
-            Drop,
-            Field,
-            Grave,
-            Hand,
-            Storage,
-            System,
-            Void
-        },
-        "EffectSubType" : {
-
-            // Effects can have subtypes
-            // subtypes of an effect modifies an Effect's attribute
-            // and / or modifies the response
-            "ParentClass" : EffectSubtype,
-
-            //Below are various premade subtypes
-
-            Chained, 
-            Delayed, 
-            FieldLock, 
-            GraveLock, 
-            HandOrFieldLock, 
-            HardUnique, 
-            Instant, 
-            Once, 
-            Unique
-        },
-        "EffectType" : {
-
-            // Effects can also have a type
-            "ParentClass" : EffectType,
-            InitEffect, 
-            LockEffect,
-            ManualEffect,
-            PassiveEffect,
-            TriggerEffect
-        },
-        "Serialized" : {
-
-            // The serialized version of game components
-            // remove circular references and should be save to JSON stringify
-            // and save
-            SerializedCard,
-            Serialized_effect,
-            SerializedZone,
-            SerializedPlayer,
-            SerializedSystem,
-        },
-        "Localized" : {
-
-            // Localized versions of game components
-            // All texts of these objects is parsed through the localizer already
-            // should also have no circular refs
-            LocalizedAction,
-            LocalizedCard,
-            LocalizedEffect,
-            LocalizedZone,
-            LocalizedPlayer,
-            LocalizedSystem,
-        }
-    },
-    "systemComponent" : {
-
-         // Various short hand services
-
-         // This one parses effect text, see more in later sections
-         "effectTextParser" : Parser,
-
-         // This one localizes the objects
-         "localizer" : Localizer,
-
-         // This one generate actions from a quick hand format
-         "actionGenerator" : actionConstructorRegistry,
-
-         // This one generates quick input array
-         "inputRequester" : Request,
-    },
-    "displayComponent" : {
-
-         // The parsed text is in an array of DisplayComponents
-         // For adaptability with various renderer
-
-         "ParentClass" : DisplayComponent,
-         TextComponent,
-         IconComponent,
-         ReferenceComponent,
-         ImageComponent,
-         SymbolComponent,
-    },
-    "registry" : {
-         // Registries are hard coded data
-         // some are enums, some are const key -> value
-
-        actionRegistry,
-
-        cardDataRegistry,
-
-        effectDataRegistry,
-        effectTypeRegistry,
-
-        operatorRegistry,
-        operatorDataRegistry,
-
-        rarityRegistry,
-        rarityDataRegistry,
-
-        subtypeRegistry,
-
-        zoneRegistry,
-        zoneDataRegistry,
-    },
-    "defaultSetting" : settings,
-    "mod" : {
-
-         //These are the class a mod must follows
-         // and extends from
-
-        GameModule,
-        ParserModule,
-    },
-};
-```
-
 For a cheat sheet, here are the properties of systemComponent:
 
-1. gameComponent : holds various game component classes
-2. systemComponent : holds various services to operate on data
-3. displayComponent : holds display parsed segements
-4. registry : holds data
-5. defaultSetting : holds the default setting
-6. mod : holds what format mods must follows
+1. ```gameComponent``` : holds various game component classes. 
+2. ```systemComponent``` : holds various services to operate on data
+3. ```displayComponent``` : holds display parsed segements
+4. ```registry``` : holds data
+5. ```defaultSetting``` : holds the default setting
+6. ```mod``` : holds what format mods must follows
 
-### Utils
+#### **gameComponent**:
 
-Utils is a custom util object which hodl various utility methods. ts should suggest what it has already. 
+Holds various game component classes like ```Card, Effect, ...```.
 
-## Pending Tasks
+The complete list is:
 
-1. make effects
-2. add more actions (if needed)
-3. update the effect registry
-4. update the card registry
-5. add a deck registry
-6. make level / wave control
-7. make a good renderer
+*Class entries*
+1. ```Card```
+2. ```Effect```
+3. ```Zone_grid``` and ```Zone_stack``` : Default zone implementation
+4. ```Action```
+
+*Objects with classes inside*
+
+5. ```EffectType``` :Various effect types
+6. ```EffectSubType``` : Various effect subtypes
+7. ```Zone``` : Various default zones
+8. ```Serialized``` : Serialized components, for saving and loading
+9. ```Localized``` : Localized components, passed to the renderer
+
+#### **systemComponent**
+
+Hold various services outside of gameplay intepretations.
+
+The complete list is:
+
+1. ```EffectTextParser``` : parses effect text
+2. ```Localizer``` : localzied game components
+3. ```ActionGenerator``` : generates actions
+4. ```InputRequester``` : generates input requests
+5. ```Renderer``` : an abstract class to how a renderer linked to the system shoudll be formatted.
+6. ```SampleRenderer``` : an example renderer
+
+### **queenSystemUtils**
+
+Holds various utilities functions like rng or ID generation.
+
+This object is also available as a global object in ```Utils```.
+
+## Advanced usage:
+
+### Making your own renderer
+
+A renderer's job is to ..well render stuff.
+
+The work flow of a renderer in **qpRemake** is to receive API like requests during the turn, renders it, then return control to the system to process more stuff.
+
+The base abstract class / interface can be found in 
+
+```ts
+import {queenSystemComponents} from "qpremake"
+const {Renderer} = queenSystemComponents.systemComponent
+```
+
+This class is as follows:
+
+```ts
+abstract class Renderer {
+    abstract gameStart(
+            s: LocalizedSystem, 
+            callback: () => any
+        ) : void;
+
+    abstract turnStart(
+        s: LocalizedSystem, 
+        callback: (a? : Action) => any
+        ) : void;
+
+    abstract update(
+        phase: TurnPhase, 
+        s: LocalizedSystem, 
+        a: Action, 
+        callback: () => any
+        ) : void;
+
+    abstract requestInput(
+        inputSet: inputData[], 
+        phase: TurnPhase, 
+        s: LocalizedSystem, 
+        a: Action, 
+        callback: (
+            input : inputData
+            ) => any
+        ) : void;
+}
+```
+
+These methods are called appropriately. There shoudl be guide comments when one implement these.
+
+Notably, the system is paused after calling one of these. Sort of *"handing control over"* to the renderer. The system only resumes after **the provided callback()** is called.
+
+One can make a new renderer to whatever front end frame work one likes by implementing this class.
+
+### Saving and loading game state:
+
+Game state or more specifically is an instance of ```SerializedSystem```. 
+
+At any time, this is obtained via:
+
+```ts
+s.toSerialized()
+```
+
+This file can then be JSON and saved to a text file.
+
+Loading said file is possible via the normal ```load()``` functionn before start:
+
+```ts
+const data = fs.readFileSync(...) as SerializedSystem
+s.load(data)
+```
+
+### Display texts
+
+All texts provided via a ```Localized``` object is an array of ```Display components``` to guide the injection of icons and text formatting.
+
+Those objects are available via:
+
+```ts
+import {queenSystemComponents} from "qpremake"
+const {TextComponent, IconComponent, ImageComponent} = queenSystemComponents.displayComponent
+```
+
+### Handling inputs
+
+Whenever an action wants an input (say, when a card says choose a card, choose a space on the board, etc). The method ```requestInput``` of the renderer is called.
+
+All possible inputs is in the ```inputSet``` components, all these are in one specific type (a card, a spot on the field, a number, etc).
+
+Inputs if required multiple are done sequentially. If a card wants the player to select 2 spots in the field, the request input function will be called twice for each.
+
+At the start of the turn, there is also the need to select a **turn action**. Thus the ```turnStart``` method also have an option to continue with a player action.
 
 
+# Modding
+
+This section is dedicated to whomever wants to mod the system (add more cards, more localizations, etc).
+
+## What is a mod?
+
+Mods are ts files that changes the data od the system
+
+There are 2 types:
+
+1. gameplay mods, these can change what effects, cards, zones, characters, ... are possible
+2. parsing mods, these changes the behavior of how card text are parse and localized. (If one specifically target changing localization, look in a localization file.)
+
+## How mods are run
+
+In the loading step of the system, mods are loaded and can change various registries via an API interface.
+
+## How to make a mod
+
+There are 2 ways. One either can clone / fork [the github rerpo](https://github.com/BlueG15/qpRemake).
+Or add stuff after installing the system in the setting.
+
+Both are essentially the same but you appear on the npm of the project under contribution :). 
+
+## Adding a mod
+
+In the settings of the system, there is the field ```mods```, which stores an array of strings to code files inside the mod folder ("One can change this too").
+
+A mod file exports default an implementation to the class ```mod``` available via:
+
+```ts
+import {queenSystemComponents} from "qpremake"
+const {GameModule, ParserModule} = queenSystemComponents.mod
+```
+
+This game module is just this:
+
+```ts
+class GameModule {
+    //should override, call upon load
+    load(API : registryAPI) : void {}
+}
+```
+
+Very simple. That registryAPI looks like this:
+
+```ts
+interface registryAPI {
+    //SAFE registry edit
+    //There is also the registry for effectType and Action, but those doesnt need to be modified
+    registry_edit_card(key : string, value : cardData) : void;
+    registry_edit_effect_data(key : string, data : effectData) : void;
+    registry_edit_effect_class(
+        key : string, 
+        constructors : typeof Effect | Record<string, typeof Effect>
+    ) : void;
+    registry_edit_effect(
+        key : string,
+        data : effectData,
+        constructors : typeof Effect | Record<string, typeof Effect>
+    ): void
+    registry_edit_effect_subtype(
+        key : string, 
+        constructor : typeof EffectSubtype
+    ) : void;
+    
+    registry_edit_zone_data(key : string, data : zoneData) : void;
+    registry_edit_zone_class(
+        key : string,
+        constructor : typeof Zone 
+    ) : void;
+    registry_edit_zone(
+        key : string, 
+        data : zoneData,
+        constructor : typeof Zone 
+    ) : void;
+
+    //UNSFAFE registry edit
+    registry_edit_custom_action_handler(
+        actionIDs : number[],
+        handlerFunc : ((a : Action, system : queenSystem) => undefined | void | Action[])
+    ) : void;
+   
+    //localization edit
+    registry_edit_localization(language : string, key : string, val : string) : void;
+
+    //... more coming
+}
+```
+
+These methods are passed into the mod for editting. 
+
+## Example: Adding a custom effect
+
+Effect have 2 parts, like almost every other gameplay components.
+
+Those 2 parts are **Class part** and **Data part**
+
+Those 2 parts are available via ```registry_edit_effect_data``` and ```registry_edit_effect_class``` respectively.
+
+or both at the same time via ```registry_edit_effect```.
+
+For this simple example, we ignore the data for now and implements the class part (data can be hard coded via the specified **effectData**) type.
+
+We import the ```Effect``` class:
+
+```ts
+import {queenSystemComponents} from "qpremake"
+const {Effect} = queenSystemComponents.gameComponent
+```
+
+And add it in:
+
+```ts
+class CustomEffect extends Effect {
+    // Your implementation here
+}
+
+export default class customMod extends GameModule {
+    override load(API : registryAPI){
+        API.registry_edit_effect_class(
+            "customEffect1", 
+            CustomEffect
+        )
+    }
+}
+```
+
+What an effect does and how to implement its behavior is in the **make effect** section below.
+
+Importantly, one **MUST NOT** override the contructor.
+
+# Project contribution
 
 ## Current progress:
 

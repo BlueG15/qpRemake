@@ -1,9 +1,10 @@
-#node
+# node
 /node_modules
 /progress_tracker
-/lib
-
 package-lock.json
+
+# compilation folder
+/lib
 
 # compiled file by npm
 *.tgz

@@ -48,7 +48,7 @@ import PassiveEffect from "./types/effects/effectTypes/passiveEffect";
 import TriggerEffect from "./types/effects/effectTypes/triggerEffect";
 
 // default settings
-import settings from "./types/abstract/gameComponents/settings";
+import {defaultSetting, Setting} from "./types/abstract/gameComponents/settings";
 
 // serialized 
 import { SerializedCard, Serialized_effect, SerializedPlayer, SerializedSystem, SerializedZone } from "./types/abstract/serializedGameComponents/Gamestate";
@@ -82,6 +82,7 @@ import operatorDataRegistry, { operatorRegistry } from "./data/operatorRegistry"
 import rarityDataRegistry, { rarityRegistry } from "./data/rarityRegistry";
 import zoneDataRegistry, { zoneRegistry } from "./data/zoneRegistry";
 import subtypeRegistry from "./data/subtypeRegistry";
+import { qpRenderer, sampleRenderer } from "./_queenSystem/renderer/rendererInterface";
 
 const queenSystemComponents = {
     "gameComponent" : {
@@ -138,10 +139,12 @@ const queenSystemComponents = {
         }
     },
     "systemComponent" : {
-        "effectTextParser" : Parser,
-        "localizer" : Localizer,
-        "actionGenerator" : actionConstructorRegistry,
-        "inputRequester" : Request,
+        "EffectTextParser" : Parser,
+        "Localizer" : Localizer,
+        "ActionGenerator" : actionConstructorRegistry,
+        "InputRequester" : Request,
+        "Renderer" : qpRenderer,
+        "SampleRenderer" : sampleRenderer,
     },
     "displayComponent" : {
         "ParentClass" : DisplayComponent,
@@ -170,7 +173,10 @@ const queenSystemComponents = {
         zoneRegistry,
         zoneDataRegistry,
     },
-    "defaultSetting" : settings,
+    "setting" : {
+        defaultSetting,
+        "settingClass" : Setting,
+    },
     "mod" : {
         GameModule,
         ParserModule,
@@ -179,18 +185,4 @@ const queenSystemComponents = {
 
 export {queenSystem, queenSystemComponents, Utils as queenSystemUtils};
 export default queenSystem
-
-/**
- * Usage : 
- * 
- *  let setting = new defaultSetting()
-    let renderer = new qpTerminalRenderer()
-    let s = new queenSystem(setting, renderer)
-    renderer.bind(s)
-    s.addPlayers("player", operatorRegistry.o_esper)
-    s.addPlayers("enemy", operatorRegistry.o_null)
-    await s.load()
-
-    renderer.start();
- */
 

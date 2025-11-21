@@ -35,55 +35,55 @@ enum auto_input_option {
     random, //randomly pick one
 }
 
-interface Setting {
+abstract class Setting {
     //load settings
-    languageID : supporttedLanguages
+    abstract languageID : supporttedLanguages
     
     //id generation setting
-    dynamic_id_len : number
-    id_style : id_style
-    id_separator : string
-    max_id_count : number
+    abstract dynamic_id_len : number
+    abstract id_style : id_style
+    abstract id_separator : string
+    abstract max_id_count : number
     
     //dynamic load settings
-    effectFolder : string
-    effectFiles : string[]
-    mods : string[]
-    modFolder_game : string
-    modFolder_parser : string
-    localizationFolder : string
+    abstract effectFolder : string
+    abstract effectFiles : string[]
+    abstract mods : string[]
+    abstract modFolder_game : string
+    abstract modFolder_parser : string
+    abstract localizationFolder : string
 
     //load error handling
-    ignore_undefined_subtype : boolean
-    ignore_undefined_effect  : boolean
+    abstract ignore_undefined_subtype : boolean
+    abstract ignore_undefined_effect  : boolean
 
     //gameplay
-    show_negative_stat : boolean
+    abstract show_negative_stat : boolean
 
     //input handling
-    auto_input : auto_input_option
+    abstract auto_input : auto_input_option
 
     //gameplay error handling
-    ignore_invalid_partition_mapping : boolean
+    abstract ignore_invalid_partition_mapping : boolean
 
     //partition setting override
-    global_partition_setting : partitionSetting
-    default_partition_behavior : partitionActivationBehavior
+    abstract global_partition_setting : partitionSetting
+    abstract default_partition_behavior : partitionActivationBehavior
 
     //parser setting
-    parser_modules : string[]
+    abstract parser_modules : string[]
 
     //optimization setting
-    singleton_effect_subtype : boolean
-    singleton_effect_type : boolean
+    abstract singleton_effect_subtype : boolean
+    abstract singleton_effect_type : boolean
 
     //game setting
-    spawn_instanced_zones_per_player : boolean //enable this for multiplayer shenanigans
+    abstract spawn_instanced_zones_per_player : boolean //enable this for multiplayer shenanigans
     //this array dictates the order in which player plays / zone responses
     //enemies turn are skipped
 }
 
-class defaultSetting implements Setting {
+class defaultSetting extends Setting {
     languageID = supporttedLanguages.English
     mods = [] //no mods
     dynamic_id_len = 5
