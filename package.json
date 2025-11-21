@@ -1,12 +1,12 @@
 {
   "name": "qpremake",
-  "version": "1.5.2",
+  "version": "1.5.3",
   "description": "Remake of the qp engine in ts / js, with moddability in mind",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",
   "scripts": {
     "test": "node ./lib/testFile.js",
-    "build": "RD /S /Q \".\\lib\" && tsc",
+    "build": "IF EXIST \".\\lib\" RD /S /Q \".\\lib\" && tsc",
     "dev": "npm run build && npm run test",
     "prepublishOnly" : "npm run build"
   },
