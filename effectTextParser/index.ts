@@ -1,7 +1,7 @@
 import { parseXml } from '@rgrove/parse-xml';
 import {XmlProcessingInstruction, XmlElement} from '@rgrove/parse-xml'
 
-import { DisplayComponent, TextComponent, ParserModule, parseOptions, loadOptions, lib_parse_option } from '../types/abstract/parser';
+import { DisplayComponent, TextComponent, ParserModule, parseOptions, loadOptions, lib_parse_option } from '../types/parser';
 import type { nestedTree } from '../types/misc';
 
 type XMLTree =  XmlProcessingInstruction | XmlElement
@@ -228,7 +228,8 @@ export default class Parser {
         this.equationRegex(this.operationList_prefix, this.operationList_infix, [], this.elementRegex, "=", ";")
     ]
 
-    private preParseXML(XML: string) {
+    private preParseXML(XML: string, o : parseOptions) {
+        //shorthand for expr
         const [reg1, reg2] = this.preparse_regs;
 
         const segments: string[] = [];  // ordered pieces of the final output
@@ -254,7 +255,18 @@ export default class Parser {
             segments.push(this.applyReg1(chunk, reg1));
         }
 
-        return segments.join("");
+        let res = segments.join("");
+
+        //variable injection
+        //{n} -> replaced with variable index n
+
+        res = res.replace(/{(\d+)}/g, (s, n) => {
+            const number = Number(n)
+            if(isNaN(number)) return s;
+            return o.input[number]
+        })
+
+        return res
     }
 
     // Apply reg1 only to normal text (NOT inside reg2 results)
@@ -274,7 +286,7 @@ export default class Parser {
 
         //replace shorthands with actual tags
         //=abc...
-        XML = this.preParseXML(XML)
+        XML = this.preParseXML(XML, o)
 
         let tree
         try{

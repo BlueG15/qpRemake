@@ -1,16 +1,16 @@
-import _node from "../types/abstract/generics/node";
-import _tree from "../types/abstract/generics/tree";
-import zoneHandler from "./handler/zoneHandler";
+import _node from "../types/generics/node";
+import _tree from "../types/generics/tree";
+import zoneHandler, { Layout } from "./handler/zoneHandler";
 import actionRegistry, {actionName, actionID} from "../data/actionRegistry";
 
 import { Action, actionConstructionObj_variable, actionConstructorRegistry, actionFormRegistry, Action_class} from "./handler/actionGenrator";
-import type error from "../types/errors/error";
+import type error from "../defaultImplementation/errors/error";
 import { 
     unregisteredAction,
     cannotLoad,
-} from "../types/errors";
+} from "../defaultImplementation/errors";
 
-import { auto_input_option, Setting } from "../types/abstract/gameComponents/settings";
+import { auto_input_option, Setting } from "../types/gameComponents/settings";
 
 import cardHandler from "./handler/cardHandler";
 import registryHandler from "./handler/registryHandler";
@@ -18,13 +18,13 @@ import modHandler from "./handler/modHandler";
 import Localizer from "./handler/localizationHandler";
 
 import { operatorRegistry } from "../data/operatorRegistry";
-import { StatusEffect_base } from "../specificEffects/e_status";
+import { StatusEffect_base } from "../defaultImplementation/effects/e_status";
 import { playerTypeID, zoneRegistry } from "../data/zoneRegistry";
 
-import Card from "../types/abstract/gameComponents/card";
-import Zone from "../types/abstract/gameComponents/zone";
-import Effect from "../types/abstract/gameComponents/effect";
-import EffectSubtype from "../types/abstract/gameComponents/effectSubtype";
+import Card from "../types/gameComponents/card";
+import Zone from "../types/gameComponents/zone";
+import Effect from "../types/gameComponents/effect";
+import EffectSubtype from "../types/gameComponents/effectSubtype";
 
 import { 
     inputData,
@@ -39,32 +39,27 @@ import {
     dry_effectType,
     dry_effectSubType,
 
-    logInfoHasResponse,
     logInfoNormal,
     logInfoResolve,
     logInfo,
-    dry_system,
     inputType,
     inputData_bool,
     inputData_num,
     inputData_str,
-    inputData_card,
-    inputData_pos,
     inputDataSpecific,
-    inputData_zone,
-    inputData_effect,
-    inputData_subtype,
-    inputData_standard,
+    logInfoHasResponse,
+    identificationType,
+    identificationInfo_effect,
 } from "../data/systemRegistry";
 
 import { id_able, notFull, Player_specific, Positionable, StrictGenerator } from "../types/misc";
-import Position from "../types/abstract/generics/position";
+import Position from "../types/generics/position";
 
-import { inputFormRegistry, inputRequester } from "./handler/actionInputGenerator";
+import { inputFormRegistry, InputRequester } from "./handler/actionInputGenerator";
 import { qpRenderer } from "./renderer/rendererInterface";
 import { loadOptions } from "../effectTextParser";
-import { SerializedCard, Serialized_effect, SerializedPlayer, SerializedSystem, SerializedZone } from "../types/abstract/serializedGameComponents/Gamestate";
-import { parseMode } from "../types/abstract/parser";
+import { SerializedCard, Serialized_effect, SerializedPlayer, SerializedSystem, SerializedZone } from "../types/serializedGameComponents/Gamestate";
+import { parseMode } from "../types/parser";
 
 // import type dry_card from "../dryData/dry_card";
 // import position from "../baseClass/position";
@@ -74,7 +69,7 @@ type completed = boolean
 type cardID = string
 type effectID = string
 
-class queenSystem {
+class QueenSystem {
     //properties
     turnAction? : Action = undefined
     turnCount : number = 0
@@ -129,10 +124,12 @@ class queenSystem {
     }
 
     get maxThreatLevel() : number[] {return this.zoneHandler.system.map(i => i.maxThreat)}
+    getLayout() {return this.zoneHandler.layout}
 
     constructor(
-        s : Setting, 
-        public renderer : qpRenderer
+        s : Setting,
+        public renderer : qpRenderer,
+        layout? : Layout, 
     ){
         this.setting = s
 
@@ -142,15 +139,17 @@ class queenSystem {
         this.modHandler = new modHandler(s, this.registryFile)
         this.localizer = new Localizer(this, this.registryFile)
 
+        if(layout) this.zoneHandler.applyLayout(layout);
+
         this.actionTree = new _tree(
             actionConstructorRegistry.a_turn_end(actionFormRegistry.system(), {
                 doIncreaseTurnCount : true
             })
         )
 
-        this.forEach = this.zoneHandler.forEach
-        this.map = this.zoneHandler.map
-        this.filter = this.zoneHandler.filter
+        this.forEach = this.zoneHandler.forEach.bind(this.zoneHandler)
+        this.map = this.zoneHandler.map.bind(this.zoneHandler)
+        this.filter = this.zoneHandler.filter.bind(this.zoneHandler)
 
         const c = this.cardHandler.getCard("c_blank")
         c.pos = new Position(-1)
@@ -168,7 +167,7 @@ class queenSystem {
     }
 
     addPlayers(
-        type : keyof typeof playerTypeID,
+        type : playerTypeID,
         operatorID : operatorRegistry,
         //optional
         loadCardsInfo : player_stat["loadCardsInfo"] = [],
@@ -176,7 +175,7 @@ class queenSystem {
         maxHeart = heart,
     ){
         this.player_stat.push({
-            playerType : playerTypeID[type],
+            playerType : type,
             playerIndex : this.player_stat.length,
             heart,
             maxHeart,
@@ -185,34 +184,99 @@ class queenSystem {
         })    
     }
 
-    async load(gamestate? : SerializedSystem){
+    private loadActionHandlers(){
+        this.registryFile.add_action_handler("a_null", () => {})
+        this.registryFile.add_action_handler("error", (s, a) => {s.resolveError(a)})
+        this.registryFile.add_action_handler("a_turn_start", () => {})
+        this.registryFile.add_action_handler("a_turn_end", (s, a) => {
+            //merge statusEffects
+            s.zoneHandler.forEach(1, (c => {
+                c.mergeStatusEffect();
+            }))
 
+            if(a.getAttr("doIncreaseTurnCount")){
+                s.turnCount++
+            }
+
+            s.suspensionReason = suspensionReason.turn_finished
+        })
+        this.registryFile.add_action_handler("a_set_threat_level", (s, a) => {
+            s.threatLevel = a.getAttr("newThreatLevel")
+            if(s.threatLevel > s.maxThreatLevel) {
+                s.threatLevel = s.maxThreatLevel;
+                return [
+                    actionConstructorRegistry.a_do_threat_burn(actionFormRegistry.system())
+                ]
+            }
+        })
+        this.registryFile.add_action_handler("a_do_threat_burn", (s, a) => {
+            return s.zoneHandler.system.flatMap((i, index) => i.doThreatBurn(this, this.player_stat[index]))
+        })
+        this.registryFile.add_action_handler("a_force_end_game", (s, a) => {
+            //clear the tree
+            s.actionTree.clear()
+            s.suspensionReason = suspensionReason.game_ended
+            //am uhh not sure how to implememt this shit yet
+            //i think this is fine? for now?
+            s.suspend(s.actionTree.root.id)
+        })
+        this.registryFile.add_action_handler("a_reprogram_start", (s, a) => {
+            //to be implemented                
+    
+            //note to future me
+            //suspend and notify renderer here
+    
+            //plug it in here
+        })
+        this.registryFile.add_action_handler("a_reprogram_end", (s, a) => {
+            //to be implemented
+            //load the zones, shuffle, draw and stuff
+        })
+        this.registryFile.add_action_handler("a_modify_action", (s, a) => {
+            let target = a.targets[0].action
+            let modifyObj = a.flatAttr()
+
+            Object.entries(modifyObj).forEach(([key, val]) => {
+                if(key !== "type") target.modifyAttr(key, val);
+            })
+            return;
+        })
+        this.registryFile.add_action_handler("a_replace_action", () => {})
+        this.registryFile.add_action_handler("a_negate_action", () => {})
+        this.registryFile.add_action_handler("a_deal_heart_damage", (s, a) => {
+            let pid = a.targets[0].id
+            let dmg = a.getAttr("dmg")
+
+            if(s.player_stat[pid]) s.player_stat[pid].heart -= dmg;
+        })
+    }
+
+    async load(gamestate? : SerializedSystem){
         if(gamestate){
             this.loadGamestate(gamestate)
         }
         
-        
         if(this.player_stat.length === 0) console.warn("No player loaded, if this is unintended, make sure to call addPlayer(...) before load");
-        this.zoneHandler.loadZones(this.setting, this.player_stat)
+        this.zoneHandler.loadEffects(this.setting, this.player_stat)
+        this.loadActionHandlers()
         let arr = [
             this.localizer.load(new loadOptions(this.setting.modFolder_parser, this.setting.parser_modules)),
             this.modHandler.load(),
             this.registryFile.effectLoader.load(this.setting),
         ]
         await Promise.all(arr);
-
     }
 
     loadGamestate(gamestate : SerializedSystem){
-        function getEffectFromSerialized(s : queenSystem, serialized_e : Serialized_effect){
+        function getEffectFromSerialized(s : QueenSystem, serialized_e : Serialized_effect){
             const newEff = s.registryFile.effectLoader.getEffect(serialized_e.dataID, s.setting, {
                 typeID : serialized_e.typeID,
                 subTypeIDs : serialized_e.subTypeIDs,
-                displayID_default : serialized_e.displayID_default
+                localizationKey : serialized_e.displayID_default
             });
 
             if(!newEff) return newEff
-            newEff.attr = new Map(Object.entries(serialized_e.attr))
+            newEff._setAttr( new Map(Object.entries(serialized_e.attr)) )
             return newEff
         }
 
@@ -239,7 +303,6 @@ class queenSystem {
                 if(!c) return c
                 const newCard = this.registryFile.cardLoader.getCard(c.dataID, this.setting, c.variants)
                 if(!newCard) return undefined
-                newCard.partitionInfo = c.partitions
                 newCard.attr = new Map(Object.entries(c.attr))
                 newCard.statusEffects = c.statusEffects.map(e => getEffectFromSerialized(this, e) as any)
                 newCard.effects = c.effects.map(e => getEffectFromSerialized(this, e)!)
@@ -247,6 +310,12 @@ class queenSystem {
             newZone.types = z.types
             return newZone
         })
+
+        if(gamestate.zoneLayout){
+            this.zoneHandler.applySerializedLayout(gamestate.zoneLayout.oppositeZones, gamestate.zoneLayout.transforms)
+        } else {
+            delete this.zoneHandler.layout
+        }
         this.restartTurn()
     }
 
@@ -264,214 +333,13 @@ class queenSystem {
         this.phaseIdx = TurnPhase.declare
     }
 
-    resolveError(a : error){
+    resolveError(a : Action<"error"> | error){
         console.log(a.toString())
     }
 
-    ___testAction(id : actionRegistry) : boolean {
-        const oldF = this.registryFile.customActionLoader.___ObtainFunc(id)
-
-        let didCustomHandlerTriggered = false
-
-        this.registryFile.customActionLoader.load(id, () => {didCustomHandlerTriggered = true; throw 0})
-        try {
-            //Test forcing invaldi action to the handler
-            //if error or resolve normally without reaching custom action handler, we safe
-            const test = this.actionSwitch_resolve({typeID : id} as Action)
-            if(oldF) this.registryFile.customActionLoader.load(id, oldF);
-            else this.registryFile.customActionLoader.delete(id)
-            return true
-        }catch(e){
-            if(oldF) this.registryFile.customActionLoader.load(id, oldF);
-            else this.registryFile.customActionLoader.delete(id)
-            return !didCustomHandlerTriggered
-        }
-    }
-
-    private actionSwitch_resolve(a : Action) : undefined | Action[]{
-        //ok this is just a bunch of ifs
-        //lord forgive me for this
+    private resolveAction(a : Action) : undefined | Action[]{
         if(typeof a.typeID !== "number") return [new unregisteredAction(a)]
-        switch(a.typeID){
-            case actionRegistry.a_null : 
-                return
-            case actionRegistry.error : 
-                this.resolveError(a as error);
-                break; //break is intentional to access the default case
-            
-            case actionRegistry.a_turn_start : 
-                return; //turn start
-
-            case actionRegistry.a_turn_end : {
-                //turn end
-                
-                //merge statusEffects
-                this.zoneHandler.forEach(1, (c => {
-                    c.mergeStatusEffect();
-                }))
-
-                if((a as Action<"a_turn_end">).flatAttr().doIncreaseTurnCount){
-                    return [
-                        actionConstructorRegistry.a_increase_turn_count(actionFormRegistry.system())
-                    ]
-                }
-                return
-            }; 
-
-            case actionRegistry.a_turn_reset : 
-                return this.zoneHandler.handleTurnReset(this, a as Action<"a_turn_reset">)
-
-            //note : may move the resolution of 6, 7, 8 to zone/system
-            case actionRegistry.a_increase_turn_count : {
-                this.turnCount++;
-                return;
-            }
-
-            case actionRegistry.a_set_threat_level : {
-                this.threatLevel = (a as Action<"a_set_threat_level">).flatAttr().newThreatLevel
-                if(this.threatLevel > this.maxThreatLevel) {
-                    this.threatLevel = this.maxThreatLevel;
-                    return [
-                        actionConstructorRegistry.a_do_threat_burn(actionFormRegistry.system())
-                    ]
-                }
-                return
-            }
-
-            case actionRegistry.a_do_threat_burn : {
-                return this.zoneHandler.system.map((i, index) => i.doThreatBurn(this, this.player_stat[index])).reduce((res, ele) => res.concat(ele))
-            }
-
-            case actionRegistry.a_force_end_game : {
-                //end the game
-                //clear the tree
-                this.actionTree.clear()
-                this.suspensionReason = suspensionReason.game_finished
-                //am uhh not sure how to implememt this shit yet
-                //i think this is fine? for now?
-                this.suspend(this.actionTree.root.id)
-                return;
-            } 
-
-            case actionRegistry.a_activate_effect_internal : 
-            case actionRegistry.a_activate_effect : 
-                // 5 and 101 resolves the same, just has different control flow
-                return this.zoneHandler.handleEffectActivation(this, a as Action<"a_activate_effect">)
-
-            case actionRegistry.a_pos_change_force:
-            case actionRegistry.a_pos_change : 
-                return this.zoneHandler.handlePosChange(this, a as Action<"a_pos_change">)
-
-            case actionRegistry.a_draw : 
-                return this.zoneHandler.handleDraw(this, a as Action<"a_draw">)
-
-            case actionRegistry.a_shuffle : 
-                return this.zoneHandler.handleShuffle(this, a as Action<"a_shuffle">)
-
-            case actionRegistry.a_execute : 
-                return this.zoneHandler.handleExecute(this, a as Action<"a_execute">)
-
-            case actionRegistry.a_reprogram_start : {
-                //to be implemented                
-
-                //note to future me
-                //make some kinda input_interface object
-
-                //plug it in here
-                return;
-            }
-
-            case actionRegistry.a_reprogram_end : {
-                //to be implemented                
-                return;
-            }
-
-            case actionRegistry.a_add_status_effect :  {
-                let s = (a as Action<"a_add_status_effect">).flatAttr().typeID
-                let eff = this.registryFile.effectLoader.getEffect(s, this.setting);
-                if(!eff || !(eff instanceof StatusEffect_base)) return [
-                    new cannotLoad(s, "statusEffect")
-                ];
-                return this.zoneHandler.handleAddStatusEffect(this, (a as Action<"a_add_status_effect">), eff)               
-            }
-
-            case actionRegistry.a_remove_status_effect : 
-                return this.zoneHandler.handleRemoveStatusEffect(this, a as Action<"a_remove_status_effect">)
-            
-
-            case actionRegistry.a_activate_effect_subtype : 
-                return this.zoneHandler.handleActivateEffectSubtypeFunc(this, a as Action<"a_activate_effect_subtype">);               
-            
-            case actionRegistry.a_modify_action : {
-                let target = (a as Action<"a_modify_action">).targets[0].action
-                let modifyObj = (a as Action<"a_modify_action">).flatAttr()
-
-                Object.entries(modifyObj).forEach(([key, val]) => {
-                    if(key !== "type") target.modifyAttr(key, val);
-                })
-                return;
-            }
-            case actionRegistry.a_reset_card : 
-                return this.zoneHandler.handleCardReset(this, a as Action<"a_reset_card">);
-            
-            case actionRegistry.a_replace_action:
-            case actionRegistry.a_negate_action : return; //tecnically not possible
-                
-            case actionRegistry.a_clear_all_status_effect : 
-                return this.zoneHandler.handleClearAllStatusEffect(this, a as Action<"a_clear_all_status_effect">)
-            
-            case actionRegistry.a_reset_effect: 
-                return this.zoneHandler.handleEffectReset(this, a as Action<"a_reset_effect">)
-
-            case actionRegistry.a_enable_card: 
-                return this.zoneHandler.handleCardStatus(this, a as Action<"a_enable_card">)
-
-            case actionRegistry.a_disable_card:
-                return this.zoneHandler.handleCardStatus(this, a as Action<"a_disable_card">)
-
-            case actionRegistry.a_attack :
-                return this.zoneHandler.handleAttack(this, a as Action<"a_attack">)
-
-            case actionRegistry.a_deal_damage_internal:
-            case actionRegistry.a_deal_damage_card :
-                return this.zoneHandler.handleDealDamage_1(this, a as Action<"a_deal_damage_card">)
-
-            case actionRegistry.a_deal_damage_position:
-                return this.zoneHandler.handleDealDamage_2(this, a as Action<"a_deal_damage_position">)
-
-            case actionRegistry.a_deal_heart_damage: 
-                let pid = (a as Action<"a_deal_heart_damage">).targets[0].id
-                let dmg = (a as Action<"a_deal_heart_damage">).flatAttr().dmg
-
-                if(this.player_stat[pid]) this.player_stat[pid].heart -= dmg;
-                return;
-
-            case actionRegistry.a_decompile:
-            case actionRegistry.a_destroy: 
-                return this.zoneHandler.handleSendToTop(this, a as Action<"a_destroy"> | Action<"a_decompile">, zoneRegistry.z_grave)
-            
-            case actionRegistry.a_void:
-                return this.zoneHandler.handleSendToTop(this, a as Action<"a_void">, zoneRegistry.z_void)
-
-            case actionRegistry.a_zone_interact:
-                return this.zoneHandler.handleZoneInteract((a as Action<"a_zone_interact">).targets[0].zone as Zone, this, a)
-
-            //TODO : add the missing actions
-
-            default : {
-                //only should reach here iff effect is unregistered
-                //technically this is unreachable code but who knows
-                //let unhandledID = a.typeID //if this is never, we checked every cases
-
-                //new note
-                //mods may emit new undefined actions
-                //go to zone handler to fix this shit
-                // console.log("Unhandle case reached, ", a.typeID)
-                return this.registryFile.customActionLoader.handle(a.typeID, a, this);
-            }
-        }
-
-
+        return this.registryFile.actionLoader.handle(a.typeID, a, this);
     }
 
     start(){
@@ -537,11 +405,6 @@ class queenSystem {
         //technically 6 needs to go to 1 and loop through all again but screw it, 
         //we already resolved the dang thing, just mark it as complete and move on
         
-        // if(!n) {
-        //     console.log("finish processing turn, clearing tree");
-        //     this.restartTurn();
-        //     return;
-        // }
         switch(this.phaseIdx){
             case TurnPhase.declare: {
                 //declare step
@@ -571,12 +434,13 @@ class queenSystem {
             }
             case TurnPhase.chain: {
                 //chain step
-                let [actionArr, logInfo] = this.zoneHandler.respond(this, n.data, !n.data.canBeChainedTo)
-                this.fullLog.push({
-                    currentPhase : 3,
-                    currentAction : n.data,
-                    responses : Object.fromEntries(logInfo)
-                })
+                const log : logInfoHasResponse = {
+                    currentPhase: TurnPhase.chain,
+                    currentAction: n.data,
+                    responses: {}
+                }
+                this.fullLog.push(log)
+                let actionArr = this.zoneHandler.respond(this, n.data, !n.data.canBeChainedTo, log)
 
                 const forcedActions = actionArr.filter(a => a.isCost)
 
@@ -614,11 +478,12 @@ class queenSystem {
             case TurnPhase.resolve: {
                 //resolve
                 this.processStack.pop();
-                let x = this.actionSwitch_resolve(n.data)
+                let x = this.resolveAction(n.data)
                 if(x) {
                     x.forEach(i => {
                         if(i.isChain) this.actionTree.attachArbitrary(n.id, i);
                         else this.actionTree.attachArbitrary(this.actionTree.root.id, i);
+                        i.resolvedFrom = n.data
                     })
                 }
                 this.fullLog.push({
@@ -633,12 +498,13 @@ class queenSystem {
             }
             case TurnPhase.trigger: {
                 //trigger
-                let [actionArr, logInfo] = this.zoneHandler.respond(this, n.data, !n.data.canBeTriggeredTo)
-                this.fullLog.push({
-                    currentPhase : 6,
-                    currentAction : n.data,
-                    responses : Object.fromEntries(logInfo)
-                })
+                const log : logInfoHasResponse = {
+                    currentPhase: TurnPhase.trigger,
+                    currentAction: n.data,
+                    responses: {}
+                }
+                this.fullLog.push(log)
+                let actionArr = this.zoneHandler.respond(this, n.data, !n.data.canBeTriggeredTo, log)
                 
                 actionArr = actionArr.map(i => {
                     if(i.is("a_replace_action")) return i.targets[0].action;
@@ -648,6 +514,7 @@ class queenSystem {
                 actionArr.forEach(i => {
                     if(i.isChain) this.actionTree.attach_node(n, i);
                     else this.actionTree.attach_node(this.actionTree.root, i);
+                    i.resolvedFrom = n.data
                 })
                 this.phaseIdx = TurnPhase.complete;
                 return false 
@@ -671,7 +538,7 @@ class queenSystem {
         this.suspendID = nid;
     }
 
-    private verifyInput(i1 : inputData, i2 : inputData) : boolean {
+    private isInputDataEqual(i1 : inputData, i2 : inputData) : boolean {
         if(i1.type !== i2.type) return false;
 
         switch(i1.type){
@@ -681,9 +548,8 @@ class queenSystem {
             
             case inputType.card : return i1.data instanceof Card && i2.data instanceof Card && i2.data.is(i1.data);
             case inputType.effect : return i1.data instanceof Effect && i2.data instanceof Effect && i2.data.is(i1.data);
-            case inputType.effectSubtype : return i1.data instanceof EffectSubtype && i2.data instanceof EffectSubtype && i2.data.is(i1.data);
 
-            case inputType.player : return typeof i1.data.id === (i2.data as any).id;
+            case inputType.player : return i1.data === i2.data;
             case inputType.position : return i2.data instanceof Position && i1.data.is(i2.data);
             case inputType.zone : return i2.data instanceof Zone && i1.data.is(i2.data);
         }
@@ -711,7 +577,7 @@ class queenSystem {
         } else {
             let [i_type, i_set] = requester.next();
             //returns if break of not
-            function proceed(t : queenSystem, input : inputData) : Action[] | undefined {
+            function proceed(t : QueenSystem, input : inputData) : Action[] | undefined {
                 requester = requester.apply(t, input) as any
                 if(requester.isFinalized()) {
                     return applicator.apply(requester);
@@ -806,15 +672,15 @@ class queenSystem {
                 case inputType.boolean: return force ? [{
                     type : inputType.boolean,
                     data : Utils.rng(1, 0, true) === 1
-                }] as inputData_standard[] : undefined
+                }] as inputData[] : undefined
                 case inputType.number: return force ? [{
                     type : inputType.number,
                     data : Utils.rng(100, 0, true)
-                }] as inputData_standard[] : undefined
+                }] as inputData[] : undefined
                 case inputType.string: return force ? [{
                     type : inputType.string,
                     data : Utils.generateID()
-                } as const] as inputData_standard[] : undefined
+                } as const] as inputData[] : undefined
 
                 case inputType.zone: return this.map(0, z => inputFormRegistry.zone(this, z))
 
@@ -834,47 +700,44 @@ class queenSystem {
 
                     return inputFormRegistry.effect(this, c, e)
                 })
-
-                case inputType.effectSubtype : return this.map(3, (st, zid, cid, eid) => {
-                    const zone = this.zoneArr[zid];
-                    const c = zone.cardArr[cid]!;
-                    const e = c.totalEffects[eid]!;
-
-                    return inputFormRegistry.subtype(this, c, e, st)
-                })
             }
             throw new Error(`get all input failed, type = ${t}`)
     }
 
     generateSignature(a : inputData | undefined) : string {
-        if(a == undefined) return Utils.generateID()
+        if(a == undefined) return Utils.generateID();
+        const T = a.type + "_"
         switch(a.type){
-
             case inputType.number:
             case inputType.string:
-            case inputType.boolean: return String(a.data)
+            case inputType.boolean: return T + String(a.data)
 
-            case inputType.zone: return String(a.data.zone.id)
-            case inputType.card: return a.data.card.id
-            case inputType.effect: return a.data.eff.id
-            case inputType.effectSubtype: return a.data.eff.id + a.data.subtype.dataID
-            case inputType.player: return String(a.data.id)
-            case inputType.position: return a.data.pos.toString()
-            
+            case inputType.zone: return T + String(a.data.id)
+            case inputType.card: return T + a.data.id
+            case inputType.effect: return T + a.data.id
+            case inputType.player: return T + String(a.data)
+            case inputType.position: return T + a.data.toString()   
         }
     }    
 
-    continue(input? : inputData){
+    continue(a : Action) : ReturnType<QueenSystem["processTurn"]>;
+    continue(input? : inputData) : ReturnType<QueenSystem["processTurn"]>;
+    continue(input : undefined | inputData | Action) : ReturnType<QueenSystem["processTurn"]>{
+        if(input instanceof Action_class){
+            if(this.suspensionReason === suspensionReason.turn_finished) return this.processTurn(input);
+            else throw new Error("Cannot continue when turn not finished")
+        }
+
         let n = this.actionTree.getNode(this.suspendID)
         if(
             this.suspensionReason === suspensionReason.taking_input && n.data.is("a_get_input")
         ){
             if(this.curr_input_obj === undefined || input === undefined){
-                throw new Error("Cannot unsuspend, not enough input taken")
+                throw new Error("Cannot unsuspend on inpuit empty")
             }
 
             const requester = this.curr_input_obj.requester;
-            const applicator = this.curr_input_obj.applicator;
+            // const applicator = this.curr_input_obj.applicator;
             
             if(!requester.hasInput()){
                 throw new Error("Cannot unsuspend, invalid input object")
@@ -892,7 +755,7 @@ class queenSystem {
                 }
 
                 const flag = filter_set.some(i => {
-                    this.verifyInput(i, input)
+                    this.isInputDataEqual(i, input)
                 })
 
                 if(!flag) {
@@ -925,27 +788,6 @@ class queenSystem {
 
     //Parsing log API
 
-    //the weird reduce thiny is equivalent to .flat(2), done since .flat is not available for es6
-    getActivatedEffectIDs() : effectID[] {
-        return this.fullLog.map(i => {
-            if(i.currentPhase !== 3 && i.currentPhase !== 6) return [];
-            return Object.values(i.responses).reduce((accu, ele) => accu.concat(ele))
-        }).reduce((accu, ele) => accu.concat(ele))
-    }
-    getActivatedCardIDs() : cardID[] {
-        return this.fullLog.map(i => {
-            if(i.currentPhase !== 3 && i.currentPhase !== 6) return [];
-            return Object.values(i.responses).reduce((accu, ele) => accu.concat(ele))
-        }).reduce((accu, ele) => accu.concat(ele))
-    }
-    getResolvedActions() : Action[] {
-        return this.fullLog.map(i => {
-            if(i.currentPhase !== 5) return undefined;
-            return i.currentAction
-        }).filter(i => i !== undefined) as Action[]
-    }
-
-
     //more API ported from dry_system
     getCardWithID(cid : string) : dry_card | undefined{
         return this.zoneHandler.getCardWithID(cid);
@@ -969,16 +811,29 @@ class queenSystem {
         return this.fullLog.filter(i => i.currentPhase === TurnPhase.resolve) as logInfoResolve[]
     }
 
-    get chainLog() : logInfoHasResponse[]{
-        return this.fullLog.filter(i => i.currentPhase === TurnPhase.chain) as logInfoHasResponse[]
-    }
-
-    get triggerLog() : logInfoHasResponse[]{
-        return this.fullLog.filter(i => i.currentPhase === TurnPhase.trigger) as logInfoHasResponse[]
-    }
-
     get completionLog() : logInfoNormal[]{
         return this.fullLog.filter(i => i.currentPhase === TurnPhase.complete) as logInfoNormal[]
+    }
+
+    getActivatedEffectIDs() : effectID[] {
+        return this.fullLog.filter(
+                i => i.currentPhase === TurnPhase.complete &&
+                 i.currentAction.cause.type === identificationType.effect
+                ).map(i => (i.currentAction.cause as identificationInfo_effect).eff.id)
+    }
+
+    getActivatedCardIDs() : cardID[] {
+        return this.fullLog.filter(
+                i => i.currentPhase === TurnPhase.complete &&
+                 i.currentAction.cause.type === identificationType.effect
+                ).map(i => (i.currentAction.cause as identificationInfo_effect).card.id)
+    }
+
+    getResolvedActions() : Action[] {
+        return this.fullLog.map(i => {
+            if(i.currentPhase !== 5) return undefined;
+            return i.currentAction
+        }).filter(i => i !== undefined) as Action[]
     }
 
     hasActionCompleted(a : Action, startSearchingIndex : number = 0){
@@ -990,54 +845,14 @@ class queenSystem {
         return false;
     }
 
-
-    /**
-     * Finds a chain of action A -> resolved to B -> resolved to C -> ...
-     * @param typeArr : action types to search
-     * @returns  Action[] if success, unefined if not
-     * 
-     * 
-     * Search is first comes first serve, B is the first in the resoution log of A that has the wanted type (id 1 in the arr) 
-     */
-    findSpecificChainOfAction_resolve<
-        T extends actionName[]
-    >(typeArr : T) : Action[] | undefined {
-        if(!typeArr.length) return [] as any;
-        let res : Action[] = [];
-
-        let candidateResolveLog : logInfoResolve | undefined = this.resolutionLog.find(k => k.currentAction.type === typeArr[0]);
-        if(!candidateResolveLog) return undefined
-        res.push(candidateResolveLog.currentAction)
-        if(typeArr.length === 1) return res as any;
-
-        for(let i = 1; i < typeArr.length; i++){
-            let matchedNext : Action | undefined = candidateResolveLog.resolvedResult.find(k => k.type === typeArr[i]);
-            if(!matchedNext) return undefined;
-
-            candidateResolveLog = this.resolutionLog.find(k => k.currentAction.id === matchedNext.id);
-            if(!candidateResolveLog) return undefined;
-            res.push(candidateResolveLog.currentAction)
+    getResolveOrigin<T extends actionName>(a : Action, n : T) : undefined | Action<T> {
+        let maxDepth = 50
+        let trace = a.resolvedFrom
+        while(maxDepth--){
+            if(!trace) return;
+            if(trace.is(n)) return trace;
+            trace = trace.resolvedFrom
         }
-
-        return res as any;
-    }
-
-    /**
-     * Parses the whole log though the condition funciton, tally and returns the result
-     * @param condition a function that returns a thing parsable to a number
-     * @param stopEarlyCount a count that if reached, will return early
-     * @returns total count
-     * 
-     * 
-     */
-    count(condition : (log : logInfo) => number | boolean | undefined, stopEarlyCount? : number){
-        let c = 0;
-        if(stopEarlyCount === undefined) stopEarlyCount = Infinity
-        for(let i = 0; i < this.fullLog.length; i++){
-            c += Utils.toSafeNumber( condition(this.fullLog[i]), true )
-            if(c >= stopEarlyCount) return c;
-        }
-        return c
     }
 
     getAllZonesOfPlayer(pid : number) : Record<number, dry_zone[]>{
@@ -1066,87 +881,9 @@ class queenSystem {
     get isInTriggerPhase() {return this.phaseIdx === TurnPhase.trigger}
     get isInChainPhase() {return this.phaseIdx === TurnPhase.chain}
 
-    requestInput_zone_default(c : Positionable | Player_specific, zType : zoneRegistry, fz? : (s : dry_system, z : dry_zone) => boolean){
-        return this.posCheck(c) ? new inputRequester(inputType.zone, this.getAllInputs(inputType.zone, true).filter(i => i.is(zType) && i.of(this.getZoneOf(c)) && (!fz || fz(this, i.data.zone)))) :
-        new inputRequester(inputType.zone, this.getAllInputs(inputType.zone, true).filter(i => i.is(zType) && i.of(c) && (!fz || fz(this, i.data.zone))))
+    getWouldBeAttackTarget(c : dry_card){
+        return this.zoneHandler.getWouldBeAttackTarget(this, c)
     }
-
-    requestInput_card_default(c : Positionable, zType : zoneRegistry, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean){
-        return this.requestInput_zone_default(c, zType, fz).extend(this, (s : dry_system, prev : [inputData_zone]) => {
-            const z = prev[0].data.zone
-            return z.cardArr_filtered.filter(c => (!fc || fc(s, c, z))).map(c => inputFormRegistry.card(s, c))
-        })
-    }
-
-    requestInput_effect_default(c : Positionable, zType : zoneRegistry, getRealEffects : boolean, getStatusEffects : boolean, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean, feff? : (s : dry_system, eff : dry_effect, c : dry_card, z : dry_zone) => boolean){
-        return this.requestInput_card_default(c, zType, fz, fc).extend(this, (s : dry_system, prev : [inputData_zone, inputData_card]) => {
-            const z = prev[0].data.zone
-            const c = prev[1].data.card
-            let eArr = (getRealEffects ? c.effects : []).map(i => i)
-            if(getStatusEffects) eArr.push(...c.statusEffects);
-            return eArr.filter(e => (!feff || feff(s, e, c, z))).map(e => inputFormRegistry.effect(s, c, e))
-        })
-    }
-
-    requestInput_effectSubtype_default(c : Positionable, zType : zoneRegistry, getRealEffects : boolean, getStatusEffects : boolean, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean, feff? : (s : dry_system, eff : dry_effect, c : dry_card, z : dry_zone) => boolean, fst? : (s : dry_system, st : dry_effectSubType, eff : dry_effect, c : dry_card, z : dry_zone) => boolean){
-        return this.requestInput_effect_default(c, zType, getRealEffects, getStatusEffects, fz, fc, feff).extend(this, (s : dry_system, prev : [inputData_zone, inputData_card, inputData_effect]) => {
-            const z = prev[0].data.zone
-            const c = prev[2].data.card
-            const e = prev[2].data.eff
-            return e.subTypes.filter(st => (!fst || fst(s, st, e, c, z))).map(st => inputFormRegistry.subtype(s, c, e, st))
-        })
-    }
-
-    requestInput_pos_default(c : Positionable, zType : zoneRegistry, getFreeOnly : boolean, fz? : (s : dry_system, z : dry_zone) => boolean, fpos? : (s : dry_system, p : dry_position, z : dry_zone) => boolean){
-        return this.requestInput_zone_default(c, zType, fz).extend(this, (s : dry_system, prev : [inputData_zone]) => {
-            const z = prev[0].data.zone
-            const pArr = getFreeOnly ? (
-                z.getEmptyPosArr ? z.getEmptyPosArr() : [z.lastPos]
-            ) : z.getAllPos()
-            return pArr.filter(pos => (!fpos || fpos(s, pos, z))).map(pos => inputFormRegistry.pos(s, pos))
-        })
-    }
-
-    getWouldBeAttackTarget(a : Action<"a_attack"> | Action<"a_deal_damage_ahead">){
-        return this.zoneHandler.getWouldBeAttackTarget(this, a)
-    }
-
-    // hasValidInput(depth : 0, fz? : (s : dry_system, z : dry_zone) => boolean) : boolean;
-    // hasValidInput(depth : 1, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean) : boolean;
-    // hasValidInput(depth : 2, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean, fe? : (s : dry_system, e : dry_effect, c : dry_card, z : dry_zone) => boolean) : boolean;
-    // hasValidInput(depth : 3, fz? : (s : dry_system, z : dry_zone) => boolean, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean, fe? : (s : dry_system, e : dry_effect, c : dry_card, z : dry_zone) => boolean, fst? : (s : dry_system, st : dry_effectSubType, e : dry_effect, c : dry_card, z : dry_zone) => boolean) : boolean;
-    // hasValidInput(depth : 4, fz? : (s : dry_system, z : dry_zone) => boolean, fpos? : (s : dry_system, p : dry_position, z : dry_zone) => boolean) : boolean;
-    // hasValidInput(
-    //     depth : 0 | 1 | 2 | 3 | 4, 
-    //     fz? : (s : dry_system, z : dry_zone) => boolean, 
-    //     fc? : ((s : dry_system, c : dry_card, z : dry_zone) => boolean) | ((s : dry_system, p : dry_position, z : dry_zone) => boolean), 
-    //     fe? : (s : dry_system, e : dry_effect, c : dry_card, z : dry_zone) => boolean, 
-    //     fst? : (s : dry_system, st : dry_effectSubType, e : dry_effect, c : dry_card, z : dry_zone) => boolean
-    // ) : boolean {
-    //     const k = this.requestInput(depth as 3, fz, fc as any, fe, fst);
-    //     return k[0][1] === undefined || k[0][1].length !== 0
-    // }
-
-    // hasValidInput_zone_default(c : Positionable | Player_specific, zType : zoneRegistry, f? : (s : dry_system, z : dry_zone) => boolean){
-    //     return this.posCheck(c) ? this.hasValidInput(0, (s : dry_system, z : dry_zone) => z.is(zType) && z.of(s.getZoneOf(c)) && (f === undefined || f(s, z))) 
-    //     : this.hasValidInput(0, (s : dry_system, z : dry_zone) => z.is(zType) && z.playerIndex === c.playerIndex && (f === undefined || f(s, z)))
-    // }
-
-    // hasValidInput_card_default(c : Positionable, zType : zoneRegistry, fc? : (s : dry_system, c : dry_card, z : dry_zone) => boolean){
-    //     return this.hasValidInput(1, (s : dry_system, z : dry_zone) => z.is(zType) && z.of(s.getZoneOf(c)), fc)
-    // }
-
-    // hasValidInput_pos_default(c : Positionable, zType : zoneRegistry, getFreeOnly : boolean, fpos? : (s : dry_system, p : dry_position, z : dry_zone) => boolean){
-    //     return this.hasValidInput(
-    //         4, 
-    //         (s : dry_system, z : dry_zone) => z.is(zType) && z.of(s.getZoneOf(c)), 
-    //         (!getFreeOnly && fpos === undefined) ? undefined : (s : dry_system, p : dry_position, z : dry_zone) => {
-    //             const p1 = (!getFreeOnly || !z.isOccupied(p))
-    //             const p2 = fpos ? fpos(this, p, z) : true
-    //             return p1 && p2
-    //         }
-    //     )
-    //}
 
     private posCheck(a : any) : a is Positionable {
         return a.pos instanceof Position
@@ -1166,8 +903,8 @@ class queenSystem {
     readonly NULLPOS: dry_position = new Position(-1)
     readonly NULLCARD: dry_card
 
-    isPlayAction(a : Action) : a is Action<"a_pos_change"> | Action<"a_pos_change_force">{
-        if (!(a.is("a_pos_change") || a.is("a_pos_change_force"))) return false
+    isPlayAction(a : Action) : a is Action<"a_move"> | Action<"a_move_force">{
+        if (!(a.is("a_move") || a.is("a_move_force"))) return false
         const zoneTo = this.getZoneWithID(a.targets[1].pos.zoneID)
         const cond1 = zoneTo ? zoneTo.is(zoneRegistry.z_field) : false
         const cond2 = a.targets[0].card.isFrom(this, zoneRegistry.z_hand)
@@ -1180,14 +917,13 @@ class queenSystem {
             this.zoneArr.map(z => 
                 new SerializedZone(z.classID, z.dataID, z.cardArr.map(
                         c => c ? new SerializedCard(
-                            c.dataID, c.variants, 
+                            c.name, c.variants, 
                             c.effects.map(
-                                e => new Serialized_effect(e.dataID, e.type.dataID as any, e.subTypes.map(st => st.dataID) as any, e.displayID, e.attr)
+                                e => new Serialized_effect(e.dataID, e.type.dataID as any, e.subTypes.map(st => st.dataID) as any, e.displayID, e.attr.attr)
                             ), 
                             c.statusEffects.map(
-                                e => new Serialized_effect(e.dataID, e.type.dataID as any, e.subTypes.map(st => st.dataID) as any, e.displayID, e.attr)
+                                e => new Serialized_effect(e.dataID, e.type.dataID as any, e.subTypes.map(st => st.dataID) as any, e.displayID, e.attr.attr)
                             ),
-                            c.partitionInfo,
                             c.attr
                         ) : c
                     ), 
@@ -1195,6 +931,7 @@ class queenSystem {
                     z.attr
                 )
             ),
+            this.zoneHandler.layout?.toSerialized(),
             this.turnCount,
             this.waveCount
         )
@@ -1205,5 +942,5 @@ class queenSystem {
     }
 }
 
-export default queenSystem
+export default QueenSystem
 export {logInfo}

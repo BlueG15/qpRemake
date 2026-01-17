@@ -31,8 +31,8 @@ type rarityData_variable = {
 
 type rarityData = rarityData_fixxed | (rarityData_fixxed & rarityData_variable)
 
-const rarityDataRegistry : Record<rarityName, rarityData> = {
-    r_white : {
+const rarityDataRegistry : Record<rarityID, rarityData> = {
+    0 : {
         hex : "#FFF", 
         drop_weight : 10,
         backURL : {
@@ -40,7 +40,7 @@ const rarityDataRegistry : Record<rarityName, rarityData> = {
             upgrade_1 : "https://qpproject.github.io/cardbg/1/white.png"
         }
     },
-    r_blue : {
+    1 : {
         hex : "#00F",
         drop_weight : 7,
         backURL : {
@@ -48,7 +48,7 @@ const rarityDataRegistry : Record<rarityName, rarityData> = {
             upgrade_1 : "https://qpproject.github.io/cardbg/1/blue.png"
         }
     },
-    r_green : {
+    2 : {
         hex : "#0F0",
         drop_weight : 4,
         backURL : {
@@ -56,7 +56,7 @@ const rarityDataRegistry : Record<rarityName, rarityData> = {
             upgrade_1 : "https://qpproject.github.io/cardbg/1/green.png"
         }
     },
-    r_red : {
+    3 : {
         hex : "#F00",
         drop_weight : 1,
         backURL : {
@@ -64,7 +64,7 @@ const rarityDataRegistry : Record<rarityName, rarityData> = {
             upgrade_1 : "https://qpproject.github.io/cardbg/1/red.png"
         }
     },
-    r_ability : {
+    4 : {
         hex : "#FF0",
         drop_weight : -1,
         backURL : {
@@ -72,7 +72,7 @@ const rarityDataRegistry : Record<rarityName, rarityData> = {
             upgrade_1 : "https://qpproject.github.io/cardbg/1/yellow.png"
         }
     },
-    r_algo : {
+    5 : {
         hex : "#9F00A7",
         drop_weight : -1,
         backURL : {

@@ -7,54 +7,54 @@
 import globalLoader from "./global";
 globalLoader.load()
 
-import queenSystem from "./_queenSystem/queenSystem";
+import QueenSystem from "./_queenSystem/queenSystem";
 
 // game component
-import Card from "./types/abstract/gameComponents/card";
-import Effect from "./types/abstract/gameComponents/effect";
+import Card from "./types/gameComponents/card";
+import Effect from "./types/gameComponents/effect";
 
 // zones
-import Zone from "./types/abstract/gameComponents/zone";
-import Zone_grid from "./types/abstract/gameComponents/zone_gridBased";
-import Zone_stack from "./types/abstract/gameComponents/zone_stackBased";
-import Ability from "./types/defaultZones/ability";
-import Deck from "./types/defaultZones/deck";
-import Drop from "./types/defaultZones/drop";
-import Field from "./types/defaultZones/field";
-import Grave from "./types/defaultZones/grave";
-import Hand from "./types/defaultZones/hand";
-import Storage from "./types/defaultZones/storage";
-import System from "./types/defaultZones/system";
-import Void from "./types/defaultZones/void";
+import Zone from "./types/gameComponents/zone";
+import Zone_grid from "./types/gameComponents/zone_gridBased";
+import Zone_stack from "./types/gameComponents/zone_stackBased";
+import Ability from "./defaultImplementation/zones/ability";
+import Deck from "./defaultImplementation/zones/deck";
+import Drop from "./defaultImplementation/zones/drop";
+import Field from "./defaultImplementation/zones/field";
+import Grave from "./defaultImplementation/zones/grave";
+import Hand from "./defaultImplementation/zones/hand";
+import Storage from "./defaultImplementation/zones/storage";
+import System from "./defaultImplementation/zones/system";
+import Void from "./defaultImplementation/zones/void";
 
 // effect subtypes
-import EffectSubtype from "./types/abstract/gameComponents/effectSubtype";
-import Chained from "./types/effects/effectSubtypes/subtype_chained";
-import Delayed from "./types/effects/effectSubtypes/subtype_delayed";
-import FieldLock from "./types/effects/effectSubtypes/subtype_fieldLock";
-import GraveLock from "./types/effects/effectSubtypes/subtype_graveLock";
-import HandOrFieldLock from "./types/effects/effectSubtypes/subtype_hand_or_fieldLock";
-import HardUnique from "./types/effects/effectSubtypes/subtype_hardUnique";
-import Instant from "./types/effects/effectSubtypes/subtype_instant";
-import Once from "./types/effects/effectSubtypes/subtype_once";
-import Unique from "./types/effects/effectSubtypes/subtype_unique";
+import EffectSubtype from "./types/gameComponents/effectSubtype";
+import Chained from "./defaultImplementation/effectSubtypes/subtype_chained";
+import Delayed from "./defaultImplementation/effectSubtypes/subtype_delayed";
+import FieldLock from "./defaultImplementation/effectSubtypes/subtype_fieldLock";
+import GraveLock from "./defaultImplementation/effectSubtypes/subtype_graveLock";
+import HandOrFieldLock from "./defaultImplementation/effectSubtypes/subtype_hand_or_fieldLock";
+import HardUnique from "./defaultImplementation/effectSubtypes/subtype_hardUnique";
+import Instant from "./defaultImplementation/effectSubtypes/subtype_instant";
+import Once from "./defaultImplementation/effectSubtypes/subtype_once";
+import Unique from "./defaultImplementation/effectSubtypes/subtype_unique";
 
 // effect types
-import EffectType from "./types/abstract/gameComponents/effectType";
-import InitEffect from "./types/effects/effectTypes/initEffect";
-import LockEffect from "./types/effects/effectTypes/lockEffect";
-import ManualEffect from "./types/effects/effectTypes/manualEffect";
-import PassiveEffect from "./types/effects/effectTypes/passiveEffect";
-import TriggerEffect from "./types/effects/effectTypes/triggerEffect";
+import EffectType from "./types/gameComponents/effectType";
+import InitEffect from "./defaultImplementation/effectTypes/initEffect";
+import LockEffect from "./defaultImplementation/effectTypes/lockEffect";
+import ManualEffect from "./defaultImplementation/effectTypes/manualEffect";
+import PassiveEffect from "./defaultImplementation/effectTypes/passiveEffect";
+import TriggerEffect from "./defaultImplementation/effectTypes/triggerEffect";
 
 // default settings
-import {defaultSetting, Setting} from "./types/abstract/gameComponents/settings";
+import {defaultSetting, Setting} from "./types/gameComponents/settings";
 
 // serialized 
-import { SerializedCard, Serialized_effect, SerializedPlayer, SerializedSystem, SerializedZone } from "./types/abstract/serializedGameComponents/Gamestate";
+import { SerializedCard, Serialized_effect, SerializedPlayer, SerializedSystem, SerializedZone } from "./types/serializedGameComponents/Gamestate";
 
 // localized
-import { LocalizedAction, LocalizedCard, LocalizedEffect, LocalizedPlayer, LocalizedSystem, LocalizedZone } from "./types/abstract/serializedGameComponents/Localized";
+import { LocalizedAction, LocalizedCard, LocalizedEffect, LocalizedPlayer, LocalizedSystem, LocalizedZone } from "./types/serializedGameComponents/Localized";
 
 // parser
 import Parser from "./effectTextParser";
@@ -71,118 +71,129 @@ import Request from "./_queenSystem/handler/actionInputRequesterGenerator";
 // modules
 import GameModule from "./types/mods/gameModule";
 import { ParserModule } from "./types/mods/effectTextParserModule";
-import { DisplayComponent, IconComponent, ImageComponent, ReferenceComponent, SymbolComponent, TextComponent } from "./types/abstract/parser";
+import { DisplayComponent, IconComponent, ImageComponent, ReferenceComponent, SymbolComponent, TextComponent } from "./types/parser";
 
 // enums
 import actionRegistry from "./data/actionRegistry";
-import { cardDataRegistry } from "./data/cardRegistry";
-import effectDataRegistry from "./data/effectRegistry";
+import { cardDataRegistry, quickCardData } from "./data/cardRegistry";
+import effectDataRegistry, { quickEffectData } from "./data/effectRegistry";
 import effectTypeRegistry from "./data/effectTypeRegistry";
 import operatorDataRegistry, { operatorRegistry } from "./data/operatorRegistry";
 import rarityDataRegistry, { rarityRegistry } from "./data/rarityRegistry";
-import zoneDataRegistry, { zoneRegistry } from "./data/zoneRegistry";
+import zoneDataRegistry, { playerTypeID, zoneRegistry } from "./data/zoneRegistry";
 import subtypeRegistry from "./data/subtypeRegistry";
 import { qpRenderer, sampleRenderer } from "./_queenSystem/renderer/rendererInterface";
+import type { cardData, effectData } from "./data/cardRegistry";
+import registryHandler from "./_queenSystem/handler/registryHandler";
 
-const queenSystemComponents = {
-    "gameComponent" : {
-        "Action" : Action_class, 
-        Card, 
-        Effect, 
-        Zone_grid, Zone_stack,
-        "Zone" : {
-            "ParentClass" : Zone,
-            Ability, 
-            Deck, 
-            Drop,
-            Field,
-            Grave,
-            Hand,
-            Storage,
-            System,
-            Void
-        },
-        "EffectSubType" : {
-            "ParentClass" : EffectSubtype,
-            Chained, 
-            Delayed, 
-            FieldLock, 
-            GraveLock, 
-            HandOrFieldLock, 
-            HardUnique, 
-            Instant, 
-            Once, 
-            Unique
-        },
-        "EffectType" : {
-            "ParentClass" : EffectType,
-            InitEffect, 
-            LockEffect,
-            ManualEffect,
-            PassiveEffect,
-            TriggerEffect
-        },
-        "Serialized" : {
-            SerializedCard,
-            Serialized_effect,
-            SerializedZone,
-            SerializedPlayer,
-            SerializedSystem,
-        },
-        "Localized" : {
-            LocalizedAction,
-            LocalizedCard,
-            LocalizedEffect,
-            LocalizedZone,
-            LocalizedPlayer,
-            LocalizedSystem,
-        }
-    },
-    "systemComponent" : {
-        "EffectTextParser" : Parser,
-        "Localizer" : Localizer,
-        "ActionGenerator" : actionConstructorRegistry,
-        "InputRequester" : Request,
-        "Renderer" : qpRenderer,
-        "SampleRenderer" : sampleRenderer,
-    },
-    "displayComponent" : {
-        "ParentClass" : DisplayComponent,
-        TextComponent,
-        IconComponent,
-        ReferenceComponent,
-        ImageComponent,
-        SymbolComponent,
-    },
-    "registry" : {
-        actionRegistry,
+export {
+    //gameComponent
+    Card, 
+    Effect, 
 
-        cardDataRegistry,
+    Zone,
+    Zone_grid, Zone_stack,
 
-        effectDataRegistry,
-        effectTypeRegistry,
+    //Default zones
+    Ability, 
+    Deck, 
+    Drop,
+    Field,
+    Grave,
+    Hand,
+    Storage,
+    System,
+    Void,
 
-        operatorRegistry,
-        operatorDataRegistry,
+    //Effect subtypes
+    EffectSubtype,
+    Chained, 
+    Delayed, 
+    FieldLock, 
+    GraveLock, 
+    HandOrFieldLock, 
+    HardUnique, 
+    Instant, 
+    Once, 
+    Unique,
 
-        rarityRegistry,
-        rarityDataRegistry,
+    //Effect type
+    EffectType,
+    InitEffect, 
+    LockEffect,
+    ManualEffect,
+    PassiveEffect,
+    TriggerEffect,
 
-        subtypeRegistry,
+    //Serialized stuff
+    SerializedCard,
+    Serialized_effect,
+    SerializedZone,
+    SerializedPlayer,
+    SerializedSystem,
 
-        zoneRegistry,
-        zoneDataRegistry,
-    },
-    "setting" : {
-        defaultSetting,
-        "settingClass" : Setting,
-    },
-    "mod" : {
-        GameModule,
-        ParserModule,
-    },
+
+    //Localized stuff
+    LocalizedAction,
+    LocalizedCard,
+    LocalizedEffect,
+    LocalizedZone,
+    LocalizedPlayer,
+    LocalizedSystem,
+
+    //System components
+    Parser,
+    Localizer,
+    actionConstructorRegistry as ActionGenerator,
+    Request as Selector,
+    qpRenderer,
+    sampleRenderer,
+
+    //Display component
+    DisplayComponent,
+    TextComponent,
+    IconComponent,
+    ReferenceComponent,
+    ImageComponent,
+    SymbolComponent,
+    
+    //Registries
+    actionRegistry,
+    cardDataRegistry,
+    effectDataRegistry,
+    effectTypeRegistry,
+    operatorRegistry,
+    operatorDataRegistry,
+    rarityRegistry,
+    rarityDataRegistry,
+    subtypeRegistry,
+    zoneRegistry,
+    zoneDataRegistry,
+
+    defaultSetting,
+    Setting,
+
+    GameModule,
+    ParserModule,
+    quickEffectData,
+    quickCardData,
+
+    playerTypeID
 };
 
-export {queenSystem, queenSystemComponents, Utils as queenSystemUtils};
-export default queenSystem
+
+export type {cardData, effectData, registryHandler as registryAPI}
+
+export * from "./data/systemRegistry";
+
+//default effects 
+export * from "./defaultImplementation/effects/e_defense"
+export * from "./defaultImplementation/effects/e_generic"
+export * from "./defaultImplementation/effects/e_status"
+
+import type { Action } from "./_queenSystem/handler/actionGenrator";
+export type { Action }
+
+export {QueenSystem, Utils as queenSystemUtils};
+export default QueenSystem
 

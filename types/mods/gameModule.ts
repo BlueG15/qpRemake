@@ -1,8 +1,8 @@
-import type registryAPI from "../abstract/gameComponents/API";
+import type registryAPI from "../gameComponents/API";
 
-export default class GameModule {
+export default abstract class GameModule {
     constructor(){}
     
     //should override, call upon load
-    load(API : registryAPI) : void {}
+    abstract load(API : registryAPI) : void
 }

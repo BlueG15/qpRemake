@@ -4,7 +4,7 @@ import {
     moduleInputObject, 
     parseOptions, 
     SymbolComponent
-} from '../../types/abstract/parser';
+} from '../../types/parser';
 
 export default class addSymbolModule extends ParserModule {
 

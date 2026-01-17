@@ -1,36 +1,9 @@
-//update 1.2.9: changed the definitions of these
-//If changed in future to no longer be activating the entire partition if activate
-//change activatePartition in card
-export enum partitionActivationBehavior {
-    "strict" = 0, //one reject, all reject
-    "first", //first authoritatitve, first rejects, all rejects
-    "last", //last authoritative, ...
-}
-
-//unless otherwise state, all properties that are string are displayTokenID, NOT actual XML
-
-/*
-every effect has a default displayID, as well as every partition
-
-default display style for an effect:
-[effectType] [...effect subtypes] [fallback_displayID]
-
-partition overrides this info, takes in effect display info (type, subtype, effect's displayID) -> maps it to new data
-right now mapping IS required despite setting being auto
-
-I...have no idea why 
-
-consensus : card development NEEDS to specify a mapping
-partition setting specify to use this or to use one of the auto ones
-
-I granted the auto partitoning feature is a poorly coded one, not a great feature
-but the oportunity to mash every effect of a card into one huge ass one is very very funny
-*/
+import type { oldCardNames } from "./old/oldData/cards"
 
 type effectData_fixxed = {
     typeID : keyof typeof effectTypeRegistry,
     subTypeIDs : subtypeName[],
-    displayID_default? : string //undefined means use effectID
+    localizationKey? : string //used for looking up texts in localizer, undef = use effect dataID
 }
 
 type effectData_variable = {
@@ -50,27 +23,19 @@ export type statInfo = {
 
 export type displayInfo = {
     //display stuff
-    imgURL : string
+    imgURL? : string
 }
 
-import type { effectData_specific, effectName } from "./effectRegistry"
+// import { type effectData_specific, type effectName } from "./effectRegistry"
 import type effectTypeRegistry from "./effectTypeRegistry"
 
 export type effectInfo = {
-    effects : Partial<{
-        [K in effectName] : Partial<effectData_specific<K>> & {
-            __loadOptions? : {
-                ___internalMultipleLoadCount? : number,
-                __additionalPatches?: Partial<effectData_specific<K>>[]
-            }
-        }
-    }>;
-    partition : partitionData[],
+    effects : Record<string, Partial<effectData>>;
 }
 
 export type patchData_full = statInfo & effectInfo & displayInfo
 
-export type patchData = Partial<patchData_full>
+export type patchData = Partial<statInfo> & {effects? : Record<string, Partial<effectData>>} & Partial<displayInfo>
 
 export type cardData = {
     id : string; //specifically dataID
@@ -96,43 +61,17 @@ export enum type_and_or_subtype_inference_method {
     "all", //concat all, 
 }
 
-export interface partitionData {
-    behaviorID : partitionActivationBehavior
-    mapping : number[]
-
-    //override behavior:
-    //for display only
-    displayID? : string
-    typeID : string | type_and_or_subtype_inference_method.first | type_and_or_subtype_inference_method.most
-    subTypeID : string[] | type_and_or_subtype_inference_method
-}
-
 import { rarityRegistry } from "./rarityRegistry";
 import { subtypeName } from "./subtypeRegistry"
-
-export function defaultPartition(id? : string, num : number[] | number = 0) : partitionData{
-    num = Array.isArray(num) ? num : [num];
-    return {
-        behaviorID : partitionActivationBehavior.first,
-        mapping : num,
-        displayID : id,
-        typeID : type_and_or_subtype_inference_method.first,
-        subTypeID : type_and_or_subtype_inference_method.all
-    }
-}
+import type Effect from "../types/gameComponents/effect"
 
 type oldDataURL = "https://raw.githubusercontent.com/qpProject/qpProject.github.io/refs/heads/main/cards/"
 export function oldImgURL(oldID : string){
     return `https://raw.githubusercontent.com/qpProject/qpProject.github.io/refs/heads/main/cards/${oldID}.png`
 }
 
-import type { lastInfo, NumToLambda, LambdaToNum, Transplant, successor } from "../types/misc"
-type k = Transplant<cardData["variantData"]["base"], "atk", 5>
-
-import type { oldCardNames } from "./old/oldData/cards"
-
 //Welp am creating another system for this stuff
-class quickCardData<K extends Omit<cardData, "id"> = 
+export class quickCardData<K extends Omit<cardData, "id"> = 
 {
         variantData : {
             base : {
@@ -144,7 +83,6 @@ class quickCardData<K extends Omit<cardData, "id"> =
                 hp : 1,
                 effects : {},
                 imgURL : "",
-                partition : [],
             }
         }
 }> extends Function {
@@ -160,8 +98,7 @@ class quickCardData<K extends Omit<cardData, "id"> =
                 atk : 0,
                 hp : 1,
                 effects : {},
-                imgURL : "",
-                partition : [],
+                imgURL : undefined,
             }
         }
     }
@@ -307,7 +244,13 @@ class quickCardData<K extends Omit<cardData, "id"> =
             [K in newKey] : X
         }
     }>["T_this"]{
-        (this.data.variantData as any)[key] = data;
+        if(this.data.variantData[key]){
+            this.data.variantData[key] = {
+                ...data,
+                ...this.data.variantData[key],
+            }
+        }
+        else this.data.variantData[key] = data;
         return this as any 
     }
 
@@ -315,20 +258,39 @@ class quickCardData<K extends Omit<cardData, "id"> =
         return this.variant("upgrade_1", data)
     }
 
-    effect<X extends effectInfo>(
-        data : X
-    ) : quickCardData<{
-        variantData : {
-            [key in keyof K["variantData"]] : key extends "base" ? {
-                [key2 in keyof K["variantData"]["base"]] : 
-                    key2 extends "effects" | "partition"
-                    ? X[key2]
-                    : K["variantData"]["base"][key2]
-            } : K["variantData"][key]
-        }
-    }>["T_this"]{
-        this.data.variantData.base.effects = data.effects;
-        this.data.variantData.base.partition = data.partition;
+    upgradeStat(atk? : number, hp? : number){
+        return this.upgrade({atk, hp})
+    }
+
+    /**Adds effects to the base version of the card, then add to the upgrade version if getEffData -> upgrade exists*/
+    effect( 
+        ...effects : (T_hasEffData | [T_hasEffData, Partial<effectData>] | [T_hasEffData, Partial<effectData>, Partial<effectData>])[]
+    ) : quickCardData<K>["T_this"]{
+        effects.forEach(V => {
+            let e
+            let patchBase, patchUpgrade
+            if(Array.isArray(V)){
+                e = V[0]
+                patchBase = V[1]
+                patchUpgrade = V[2]
+            } else e = V;
+            const val = e.getEffData ? e.getEffData() : undefined
+            this.data.variantData.base.effects[e.name] = {}
+            if(!val) return
+
+            if(patchBase)
+                Utils.patchGeneric(val.base, patchBase);
+            
+            if(patchUpgrade){
+                if(!val.upgrade) val.upgrade = {};
+                Utils.patchGeneric(val.upgrade, patchUpgrade)
+            }
+
+            if(val.upgrade) {
+                this.upgrade({effects : {}})
+                this.data.variantData["upgrade_1"].effects![e.name] = val.upgrade
+            }
+        })
         return this as any
     }
 
@@ -383,694 +345,12 @@ class quickCardData<K extends Omit<cardData, "id"> =
     }
 }
 
-class quickEffectInfo<K extends effectInfo = {
-    effects : {},
-    partition : []
-}, effCountArr extends 0[] = []> extends Function{
-    private constructor(){super()}
-    data : effectInfo = {
-        effects : {},
-        partition : []
-    }
-    effCountArr : number = 0
-    currPartition : number = 0
+type T_hasEffData = {
+            name : string,
+            getEffData? : () => {base : effectData, upgrade? : Partial<effectData>}
+        }
 
-    private p_start<T_id extends string | undefined = undefined>(id? : T_id) : quickEffectInfo<{
-        effects : K["effects"],
-        partition : [...K["partition"], {
-            behaviorID : partitionActivationBehavior.first,
-            mapping : [],
-            displayID : T_id,
-            typeID : type_and_or_subtype_inference_method.first,
-            subTypeID : type_and_or_subtype_inference_method.all
-        }]
-    }, effCountArr>["T_this"]{
-        this.data.partition[this.currPartition] = defaultPartition(id)
-        return this as any
-    }
-
-    p<T_id extends string>(id? : T_id) : quickEffectInfo<{
-        effects : K["effects"],
-        partition : [...K["partition"], {
-            behaviorID : partitionActivationBehavior.first,
-            mapping : [],
-            displayID : T_id,
-            typeID : type_and_or_subtype_inference_method.first,
-            subTypeID : type_and_or_subtype_inference_method.all
-        }]
-    }, effCountArr>["T_this"]{
-        this.currPartition++;
-        this.data.partition[this.currPartition] = defaultPartition(id, this.effCountArr)
-        return this as any
-    }
-
-    e<
-        Key extends effectName, 
-        Data extends Partial<effectData_specific<Key>>,
-        L extends [partitionData[], partitionData[]] = lastInfo<K["partition"]>
-    >(key : Key, obj : Data): quickEffectInfo<{
-        effects : K["effects"] & {
-            [z in Key] : Data
-        },
-        partition : [...L[1], {
-            [key in keyof L[0][0]] 
-            : key extends "mapping" 
-            ? [...L[0][0][key], effCountArr["length"]] 
-            : L[0][0][key]
-        }]
-    }, [0, ...effCountArr] >["T_this"]{
-        this.data.effects[key] = obj as any
-        this.data.partition[this.currPartition].mapping.push(this.effCountArr)
-        this.data.partition[this.currPartition].mapping = Array.from(new Set(this.data.partition[this.currPartition].mapping))
-        this.effCountArr++
-        return this as any
-    }
-
-    displayID<
-        T_id extends string,
-        L extends [partitionData[], partitionData[]] = lastInfo<K["partition"]>,
-    >(id : T_id): quickEffectInfo<{
-        effects : K["effects"]
-        partition : [...L[1], {
-            [key in keyof L[0][0]] 
-            : key extends "displayID"
-            ? T_id
-            : L[0][0][key]
-        }]
-    }, effCountArr>["T_this"] {
-        this.data.partition[this.currPartition].displayID = id
-        return this as any
-    }
-
-    behavior<
-        newBahavior extends partitionActivationBehavior,
-        L extends [partitionData[], partitionData[]] = lastInfo<K["partition"]>,
-    >(be : newBahavior): quickEffectInfo<{
-        effects : K["effects"]
-        partition : [...L[1], {
-            [key in keyof L[0][0]] 
-            : key extends "behaviorID"
-            ? newBahavior
-            : L[0][0][key]
-        }]
-    }, effCountArr>["T_this"] {
-        this.data.partition[this.currPartition].behaviorID = be
-        return this as any
-    }
-
-    static def(displayID? : string){
-        return new quickEffectInfo().p_start(displayID).toFunc()
-    }
-
-    fin() : K{
-        return this.data as any
-    }
-
-    private T_this : (() => ReturnType<this["fin"]>) & this = 0 as any
-    private toFunc(){
-        return new Proxy(this, {
-            apply(target){
-                return target.fin()
-            }
-        }) as (() => ReturnType<this["fin"]>) & this
-    }
+const cardDataRegistry : {[key : string] : Omit<cardData, "id">} = {
+    c_blank : quickCardData.def()
 }
-
-//TODO : change to const later
-const cardDataRegistry //: {[key : string] : Omit<cardData, "id">}
-= {
-
-    //zero eff stuff
-    //removed the 2 unused nova card that wont work anyway
-
-    c_blank : quickCardData.def.img("puzzleBlank")(),
-    c_knife : quickCardData.def.extension(".hck").stat(3, 5).img("quantumKnifeTutorial")(),
-    c_quantum_sigil : quickCardData.def.img("quantumSigil")(),
-    c_sentry :  quickCardData.def.extension("sc").enemy().stat(1, 2).img("enemySentry")(),
-    c_stagemarker : quickCardData.def.img("stageMarker")(),
-    c_security : quickCardData.def.extension("x").img("securityLock")(),
-    c_objective_data : quickCardData.def.extension("txt").img("objectiveData1")(),
-    c_active : quickCardData.green.img("openingDungeonMark")(),
-    c_dummy : quickCardData.def.img("puzzleDummy")(),
-    c_loot_dummy : quickCardData.def.img("lootDummy")(),
-    c_lock_core : quickCardData.red.img("queenLockCore")(),
-    c_machine_block : quickCardData.def.stat(0, 2).img("machineBlock").variant(
-        "2",
-        {hp : 3, imgURL : oldImgURL("machineBlock2")}
-    )(),
-    c_machine_coin : quickCardData.def.img("machineCoin")(),
-    c_brain_queen : quickCardData.def.img("brainQueen")(),
-    c_story_oxygen : quickCardData.def.img("storyOxygen")(),
-    c_story_hydrogen: quickCardData.def.img("storyHydrogen")(),
-    c_story_backdoor: quickCardData.def.img("storyBackdoor")(),
-    c_flower_hologram: quickCardData.def.img("flowerHologram")(),
-    c_dark_power: quickCardData.stat(2, 2).img("bossB10MinionSpawn")(),
-    c_zira_defeat: quickCardData.red.l3.belongTo("boss").extension("z").img("bossCometDefeat")(),
-    c_bug_passive: quickCardData.stat(0, 4).enemy().extension("mw").img("enemyPassiveBug")(),
-    c_stagemark: quickCardData.def.enemy().img("enemyStageTarget")(),
-    c_strong_bug: quickCardData.stat(2, 3).enemy().extension("mw").img("enemyStrongBug").upgrade(
-        {atk : 3, hp : 5}
-    )(),
-    c_firewall: quickCardData.stat(0, 3).enemy().extension("sc").img("enemyWeakWall")(),
-    c_target: quickCardData.def.enemy().img("enemyWeakTarget")(),
-    c_curse: quickCardData.def.extension("x").belongTo("boss").img("miniboss1")(),
-    c_legion_token: quickCardData.stat(1, 1).archtype("legion").img("vampGen2_minion").upgrade(
-        {atk : 2} //check syka for stat info
-    )(),
-    c_nova_protean: quickCardData.stat(2, 2).archtype("nova").img("novaStandard").upgrade(
-        {atk : 3, hp : 3}
-    )(),
-
-    //generics
-
-    //white
-    c_after_burner : quickCardData.def.archtype("generic").effect(
-        quickEffectInfo
-        .def()
-        .e("e_draw_until", {count : 2})
-        .p()
-        .e("e_quick", {})
-        ()
-    ).upgrade(
-        {
-            effects : quickEffectInfo
-            .def()
-            .e("e_draw_until", {count : 3})
-            .e("e_quick", {})
-            ().effects
-        }
-    )(),
-
-    c_battery : quickCardData.def.archtype("generic").effect(
-        quickEffectInfo
-        .def("e_turn_draw")
-        .e("e_draw", {doTurnDraw : 1})
-        ()
-    ).upgrade(
-        quickEffectInfo
-        .def("e_turn_draw")
-        .e("e_draw", {doTurnDraw : 1})
-        .p()
-        .e("e_quick", {})
-        ()
-    )(),
-
-    c_flash_bang : quickCardData.def.archtype("generic").effect(
-        quickEffectInfo
-        .def()
-        .e("e_delay_all", {delayCount : 3})
-        .p()
-        .e("e_quick", {})
-        ()
-    ).upgrade({
-        effects : quickEffectInfo
-        .def()
-        .e("e_delay_all", {delayCount : 4})
-        .p()
-        .e("e_quick", {})
-        ().effects
-    })(),
-
-    c_cinder : quickCardData.def.archtype("generic").effect(
-        quickEffectInfo
-        .def()
-        .e("e_delay_all", {delayCount : 2})
-        .e("e_quick", {})
-        ()
-    ).upgrade({
-        effects : quickEffectInfo
-        .def()
-        .e("e_delay_all", {delayCount : 3})
-        .e("e_quick", {})
-        ().effects
-    })(),
-
-    c_ember : quickCardData.def.archtype("generic").effect(
-        quickEffectInfo
-        .def()
-        .e("e_draw", {count : 1})
-        ()
-    ).upgrade({
-        effects : quickEffectInfo
-        .def()
-        .e("e_draw", {count : 1})
-        ().effects
-    })(),
-    
-    //green
-    c_capacitor : quickCardData.def.archtype("generic").effect(
-        quickEffectInfo
-        .def()
-        .e("e_capacitor_1", {maxCount : 3})
-        .p()
-        .e("e_capacitor_2", {})
-        .p()
-        .e("e_reset_all_once_this", {})
-        ()
-    ).upgrade({
-        effects : quickEffectInfo
-        .def()
-        .e("e_capacitor_1", {maxCount : 5})
-        .p()
-        .e("e_capacitor_2", {})
-        .p()
-        .e("e_reset_all_once_this", {})
-        ().effects
-    })(),
-
-    //blue
-
-    //fruits 
-
-    //white
-    c_apple : {      
-        variantData : {
-            base : {
-                level : 1,
-                rarityID : rarityRegistry.r_white,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 2,
-                hp : 2,
-                effects : {
-                    e_apple : {
-                        count : 1
-                    }
-                },
-                imgURL : oldImgURL("naturalApple"),
-                partition : [defaultPartition()],
-            },
-            upgrade_1 : {
-                atk : 3,
-                hp : 3,
-                effects : {
-                    e_apple : {
-                        count : 2,
-                    }
-                }
-            }
-        }
-    },
-    c_banana : {
-        variantData : {
-            base : {
-                level : 1,
-                rarityID : rarityRegistry.r_white,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 0,
-                hp : 1,
-                effects : {
-                    e_banana : {
-                        doArchtypeCheck : 1
-                    }
-                },
-                imgURL : oldImgURL("naturalBanana"),
-                partition : [defaultPartition()]
-            },
-            upgrade_1 : {
-                effects : {
-                    e_banana : {
-                        doArchtypeCheck : 0
-                    }
-                }
-            },
-        }
-    },
-    c_cherry : {
-        variantData : {
-            base : {
-                level : 1,
-                rarityID : rarityRegistry.r_white,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 0,
-                hp : 1,
-                effects : {
-                    e_draw : {
-                        count : 1
-                    }
-                },
-                imgURL : oldImgURL("naturalCherry"),
-                partition : [defaultPartition()]
-            },
-            upgrade_1 : {
-                effects : {
-                    e_draw : {
-                        count : 2
-                    }
-                }
-            },
-        }
-    },
-    c_lemon : {
-        variantData : {
-            base : {
-                level : 1,
-                rarityID : rarityRegistry.r_white,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 1,
-                hp : 2,
-                effects : {
-                    e_lemon : {}
-                },
-                imgURL : oldImgURL("naturalLemon"),
-                partition : [defaultPartition()]
-            },
-            upgrade_1 : {
-                atk : 2
-            },
-        }
-    },
-    c_pomegranate : {
-        variantData : {
-            base : {
-                level : 1,
-                rarityID : rarityRegistry.r_white,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 0,
-                hp : 1,
-                effects : {
-                    e_pomegranate : {
-                        exposedDmg : 1,
-                        coveredDmg : 1,
-                    }
-                },
-                imgURL : oldImgURL("naturalPomegranate"),
-                partition : [defaultPartition()]
-            },
-            upgrade_1 : {
-                effects : {
-                    e_pomegranate : {
-                        exposedDmg : 2,
-                        coveredDmg : 1,
-                    }
-                }
-            },
-        }
-    },
-    c_pumpkin : {
-        variantData : {
-            base : {
-                level : 1,
-                rarityID : rarityRegistry.r_white,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 3,
-                hp : 2,
-                imgURL : oldImgURL("naturalPumpkin"),
-                partition : [
-                    defaultPartition(),
-                    defaultPartition(undefined, 1)
-                ],
-                effects : {
-                    e_pumpkin : {
-                        maxHp : 1,
-                    },
-                    e_fragile : {}
-                }
-            },
-            upgrade_1 : {
-                effects : {
-                    e_pumpkin : {
-                        maxHp : 2,
-                    },
-                    e_fragile : {}
-                }
-            }
-        }
-    },
-
-    //green
-    c_pollinate : {
-        
-        variantData : {
-            base : {
-                level : 1,
-                rarityID : rarityRegistry.r_green,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 0,
-                hp : 1,
-                imgURL : oldImgURL("naturalPollination"),
-                partition : [
-                    defaultPartition()
-                ],
-                effects : {
-                    e_pollinate : {
-                        doArchtypeCheck : 1
-                    },
-                }
-            },
-            upgrade_1 : {
-                effects : {
-                    e_pollinate : {
-                        doArchtypeCheck : 0
-                    }
-                }
-            }
-        }
-    },
-    c_greenhouse : {
-        
-        variantData : {
-            base : {
-                level : 2,
-                rarityID : rarityRegistry.r_green,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 0,
-                hp : 2,
-                imgURL : oldImgURL("naturalGreenhouse"),
-                partition : [
-                    defaultPartition()
-                ],
-                effects : {
-                    e_greenhouse : {
-                        checkLevel : 1
-                    }
-                }
-            },
-            upgrade_1 : {
-                effects : {
-                    e_greenhouse : {
-                        checkLevel : 2
-                    }
-                }
-            }
-        }
-    },
-
-    //blue
-    c_growth : {
-        
-        variantData : {
-            base : {
-                level : 1,
-                rarityID : rarityRegistry.r_blue,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 0,
-                hp : 1,
-                imgURL : oldImgURL("naturalGrowth"),
-                partition : [
-                    defaultPartition()
-                ],
-                effects : {
-                    e_growth : {
-                        doArchtypeCheck : 1
-                    }
-                }
-            },
-            upgrade_1 : {
-                effects : {
-                    e_growth : {
-                        doArchtypeCheck : 0
-                    }
-                }
-            }
-        }
-    },
-    
-    c_spring : {
-        
-        variantData : {
-            base : {
-                level : 2,
-                rarityID : rarityRegistry.r_blue,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 1,
-                hp : 2,
-                imgURL : oldImgURL("naturalSpring"),
-                partition : [
-                    defaultPartition()
-                ],
-                effects : {
-                    e_spring : {
-                        checkLevel : 1
-                    }
-                }
-            },
-            upgrade_1 : {
-                effects : {
-                    e_spring : {
-                        checkLevel : 2
-                    }
-                }
-            }
-        }
-    },
-    c_summer : {
-        
-        variantData : {
-            base : {
-                level : 2,
-                rarityID : rarityRegistry.r_blue,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 1,
-                hp : 2,
-                imgURL : oldImgURL("naturalSummer"),
-                partition : [
-                    defaultPartition()
-                ],
-                effects : {
-                    e_summer : {
-                        checkLevel : 1
-                    }
-                }
-            },
-            upgrade_1 : {
-                effects : {
-                    e_summer : {
-                        checkLevel : 3
-                    }
-                }
-            }
-        }
-    },
-    c_autumn : {
-        
-        variantData : {
-            base : {
-                level : 2,
-                rarityID : rarityRegistry.r_blue,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 1,
-                hp : 2,
-                imgURL : oldImgURL("naturalFall"),
-                partition : [
-                    defaultPartition()
-                ],
-                effects : {
-                    e_autumn : {
-                        // doIncAtk : 0
-                    }
-                }
-            },
-            upgrade_1 : {
-                effects : {
-                    e_autumn : {
-                        // doIncAtk : 1
-                    }
-                }
-            } 
-        }
-    },
-    c_winter : {
-        
-        variantData : {
-            base : {
-                level : 2,
-                rarityID : rarityRegistry.r_blue,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 1,
-                hp : 2,
-                imgURL : oldImgURL("naturalWinter"),
-                partition : [
-                    defaultPartition(undefined, [0, 1]),
-                    defaultPartition(undefined, 2)
-                ],
-                effects : {
-                    e_winter_1 : {
-                        mult : 1
-                    },
-                    e_winter_2 : {},
-                    e_dmg_reduction : {
-                        reductionAmmount : Infinity,
-                        minDmg : 1,
-                    }
-                }
-            },
-            upgrade_1 : {
-                effects : {
-                    e_winter_1 : {
-                        mult : 2
-                    },
-                    e_winter_2 : {},
-                    e_dmg_reduction : {
-                        reductionAmmount : Infinity,
-                        minDmg : 1,
-                    }
-                }
-            } 
-        }
-    },
-    
-    //red
-    c_persephone : {
-        
-        variantData : {
-            base : {
-                level : 3,
-                rarityID : rarityRegistry.r_red,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 0,
-                hp : 5,
-                imgURL : oldImgURL("naturalPersephone"),
-                partition : [
-                    defaultPartition("c_persephone"),
-                    defaultPartition("c_persephone", 1),
-                    defaultPartition("c_persephone", 2),
-                ],
-                effects : {
-                    e_persephone_1 : {},
-                    e_persephone_2 : {},
-                    e_persephone_3 : {},
-                }
-            }
-        }
-    },
-    c_demeter : {
-        
-        variantData : {
-            base : {
-                level : 3,
-                rarityID : rarityRegistry.r_red,
-                extensionArr : ["fruit"],
-                belongTo : ["fruit"],
-                atk : 2,
-                hp : 8,
-                imgURL : oldImgURL("naturalDemeter"),
-                partition : [
-                    defaultPartition("c_demeter"),
-                    defaultPartition("c_demeter", 1),
-                    defaultPartition("c_demeter", 2),
-                ],
-                effects : {
-                    e_demeter_1 : {},
-                    e_demeter_2 : {},
-                    e_demeter_3 : {},
-                }
-            }
-        }
-    },
-} as const
-
 export { cardDataRegistry }

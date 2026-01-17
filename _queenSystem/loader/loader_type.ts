@@ -1,18 +1,18 @@
-import type EffectType from "../../types/abstract/gameComponents/effectType";
-import type { Setting } from "../../types/abstract/gameComponents/settings";
+import type EffectType from "../../types/gameComponents/effectType";
+import type { Setting } from "../../types/gameComponents/settings";
 
 export default class typeLoader {
 
-    private classCache : Map<string, typeof EffectType> = new Map()
-    // private countCache : Map<string, number> = new Map()
+    private classCache : Map<number, typeof EffectType> = new Map()
+    // private countCache : Map<number, number> = new Map()
 
-    private instanceCache : Map<string, EffectType> = new Map()
+    private instanceCache : Map<number, EffectType> = new Map()
 
-    load(key : string, c : typeof EffectType){
+    load(key : number, c : typeof EffectType){
         this.classCache.set(key, c);
     };
 
-    private getType_manual(tid : string, s : Setting, eid? : string){
+    private getType_manual(tid : number, s : Setting, eid? : string){
         let stclass = this.classCache.get(tid);
         if(!stclass) return undefined
 
@@ -24,7 +24,7 @@ export default class typeLoader {
         return new stclass(tid)
     }
 
-    getType(tid : string, s : Setting, eid? : string){
+    getType(tid : number, s : Setting, eid? : string){
         if(s.singleton_effect_type){
             if(this.instanceCache.has(tid)) 
                 return this.instanceCache.get(tid);

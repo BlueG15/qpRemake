@@ -6,11 +6,6 @@ export type hexString3 = `#${hexChars}${hexChars2}`
 export type hexString4 = `#${hexChars2}${hexChars2}`
 export type hexString6 = string //5 is the limit
 
-export enum damageType {
-    "physical" = 0,
-    "magic",
-}
-
 export type typeSigatureSimple = "string" | "number" | "bigint" | "boolean" | "symbol" | "undefined" | "object" | "function"
 export type typeSigatureArray = `${typeSigatureSimple}[]` | "any[]" | "empty[]"
 export type typeSignature = typeSigatureSimple | typeSigatureArray

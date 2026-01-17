@@ -1,6 +1,6 @@
-import type { parseOptions } from "../abstract/parser/options";
-import { DisplayComponent, componentID, TextComponent } from "../abstract/parser/component";
-import moduleInputObject from "../abstract/parser/moduleInputObject";
+import type { parseOptions } from "../parser";
+import { DisplayComponent, componentID, TextComponent } from "../parser/component";
+import moduleInputObject from "../parser/moduleInputObject";
 import type { nestedTree } from "../misc";
 
 //abstract class

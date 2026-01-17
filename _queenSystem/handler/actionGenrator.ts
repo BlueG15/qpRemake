@@ -11,9 +11,8 @@ import type {
     inputData_card,
     inputData_effect,
     inputData_player,
-    inputData_subtype,
     inputData_pos,
-    identificationInfo_partition
+    logInfoHasResponse,
 } from "../../data/systemRegistry";
 
 import type { effectName, effectData_specific } from "../../data/effectRegistry";
@@ -23,8 +22,6 @@ import {
     safeSimpleTypes,
     singleTypedArray,
     ExtractReturn_any,
-    notFull,
-    StrictGenerator,
 } from "../../types/misc";
 
 import { 
@@ -37,16 +34,14 @@ import {
     identificationInfo_pos,
     identificationInfo_subtype,
     identificationInfo_zone,
+    identificationInfo_system,
     identificationType,
     inputType,
-    identificationInfo_system,
 } from "../../data/systemRegistry";
 
+import Position from "../../types/generics/position";
+import { inputApplicator, InputRequester } from "./actionInputGenerator";
 import { zoneRegistry } from "../../data/zoneRegistry";
-import Position from "../../types/abstract/generics/position";
-import type Card from "../../types/abstract/gameComponents/card";
-import type Effect from "../../types/abstract/gameComponents/effect";
-import { inputApplicator, inputRequester } from "./actionInputGenerator";
 
 export class Action_class<
     TargetType extends identificationInfo[] = identificationInfo[], 
@@ -68,6 +63,9 @@ export class Action_class<
     targets : TargetType
     cause : identificationInfo
 
+    resolvedFrom? : Action
+    responsedFrom? : Action
+
     originalCause : identificationInfo
     originalTargets : TargetType | []
 
@@ -88,11 +86,6 @@ export class Action_class<
         this.originalCause = a.originalCause;
         this.originalTargets = a.originalTargets as any;
         this.modifiedSinceLastAccessed = true;
-
-        this.checkers = a.checkers;
-        this.__inputs = a.__inputs;
-        // this.isInputsApplied_internal = a.isInputsApplied_internal;
-        
         this.attr = a.attr as any;
     }
 
@@ -102,8 +95,6 @@ export class Action_class<
         mapElementType | boolean
     >()
     modifiedSinceLastAccessed: boolean;
-
-    protected checkers : Required<checkerType>
 
     // protected isInputsApplied_internal = false;
     // get isInputsApplied() {
@@ -161,31 +152,6 @@ export class Action_class<
         return x
     }
 
-    resolvable(s : dry_system, z? : dry_zone, c? : dry_card, eff? : dry_effect, subtype? : dry_effectSubType) : boolean{
-        
-        //Oct 5th, i forgor what this is for but it breaks for stuff with multiple of the same type
-        //like a_draw
-        //no way the id check matches 2 times for 2 different zones man
-
-        //this now checks for at least 1 one per type thats in the target
-        //i.e if target has 2 zones, only 1 zone needs to match teh condition
-        //TODO : figure out what i was trying to do here
-
-        const seenTypes = new Set<identificationType>()
-
-        return this.targets.every(target => {
-            if(seenTypes.has(target.type)) return true
-            seenTypes.add(target.type)
-            switch(target.type){
-                case identificationType.zone : return z ? this.checkers.zone(target, z) : false;
-                case identificationType.card : return (c && z) ? this.checkers.card(target, c, z) : false;
-                case identificationType.effect : return (eff && c && z) ? this.checkers.effect(target, eff, c, z) : false;
-                case identificationType.effectSubtype : return (subtype && eff && c && z) ? this.checkers.effectSubtype(target, subtype, eff, c, z) : false;
-                default : return true;
-            }
-        })
-    }
-
     get isChain() : boolean {
         let t = this.attr.get("isChain")
         if (typeof t === "boolean") return t;
@@ -228,14 +194,6 @@ export class Action_class<
         this.modifyAttr("canBeChainedTo", (o.canBeChainTo === false) ? false : true)
         this.modifyAttr("canBeTriggeredTo", (o.canBeTriggeredTo === false) ? false : true)
         this.modifiedSinceLastAccessed = false;
-
-        //binding checker
-
-        this.checkers = defaultChecker
-
-        if(o.checkers) {
-            Utils.patchGeneric(this.checkers, o.checkers);
-        }
 
         Object.entries(o).forEach(([key, val]) => {
             if(
@@ -326,6 +284,13 @@ export class Action_class<
         this.attr.set(key as any, newVal)
     }
 
+    getAttr(key : "canBeChainedTo") : boolean;
+    getAttr(key : "canBeTriggeredTo") : boolean;
+    getAttr(key : keyof constructionObjType) : constructionObjType[typeof key];
+    getAttr(key: string | symbol | number){
+        return this.attr.get(key as any)
+    }
+
     protected verifyTarget(val : any, compareType : identificationType) : identificationInfo | undefined {
         if(typeof val !== "object") return undefined;
         if(typeof val.type !== "number") return undefined;
@@ -361,50 +326,6 @@ export class Action_class<
         }
     }
 
-    // private verifyInput_all(input : inputData[]){
-    //     const obj = this.inputs
-    //     if(!obj) return false
-    //     return input.length === obj.inputs.length && input.every((i, index) => i.type === obj.inputs[index])
-    // }
-
-    verifyInput_target_all(input : inputData[]){
-        return (
-                input.length === this.targets.length && 
-                input.every((i, index) => (
-                    typeof i.data === "object" && (!Array.isArray(i.data)) && i.data.type === this.targets[index].type
-                ))
-            )
-    }
-
-    private __inputs : inputData[] = []
-
-    //false : no restriction
-    //true : completed
-    //inputData[] : restricted to this set
-    // applyUserInput(system : dry_system, input?: inputData): boolean | inputData[]{
-    //     const obj = this.inputs
-    //     if(!obj) return true
-
-    //     let v : inputData[] | -1 | void = obj.getValid.next(input as any).value
-    //     let nextInputType = obj.inputs[this.__inputs.length]
-    //     if(input === undefined){
-    //         if(Array.isArray(v)) return v;
-    //         return this.__getAllInputs(system, nextInputType);
-    //     } //first next
-
-    //     if(this.__inputs.length >= obj.inputs.length) return true;
-    //     this.__inputs.push(input);
-    //     if(this.__inputs.length === obj.inputs.length) {
-    //         this.isInputsApplied_internal = true;
-    //         obj.applyInput(system, this, this.__inputs);
-    //         return true;
-    //     } else {
-    //         if(v === undefined) throw new Error(`try to apply input when input is finished taking`)
-    //         if(Array.isArray(v)) return v;
-    //         return this.__getAllInputs(system, nextInputType);
-    //     }
-    // }
-
     disable(){
         this.isDisabled = true
     }
@@ -413,8 +334,21 @@ export class Action_class<
         this.isDisabled = false
     }
 
-    is<T extends actionName>(type : T) : this is Action<T> {
-        return this.typeID === actionRegistry[type]
+    is<T extends actionName>(type : T) : this is Action<T>;
+    is(type : "a_play", s: dry_system, c : dry_card, from? : zoneRegistry, to? : zoneRegistry) : this is Action<"a_move"> 
+    is(type : actionName | "a_play", s? : dry_system, c? : dry_card, from? : zoneRegistry, to = zoneRegistry.z_field){
+        if(type === "a_play"){
+            if(!this.is("a_move") && !this.is("a_move_force")) return false;
+            if(!s || !c) return false;
+            const ownZone = s.getZoneOf(c)
+            const targetZone = s.getZoneOf(this.targets[1])
+            if(from !== undefined){
+                const fromZone = s.getZoneOf(this.targets[0].card)
+                if(!(fromZone && fromZone.is(from) && fromZone.of(ownZone))) return false;
+            }
+            return targetZone && targetZone.is(to) && targetZone.of(ownZone);
+        }
+        else return this.typeID === actionRegistry[type]
     }
 }
 
@@ -426,51 +360,6 @@ export type actionConstructionObj_fixxed_unstaged = {
     canBeChainTo? : boolean,
     canBeTriggeredTo? : boolean,
     inputs? : inputType[],
-
-    //so grounded check is if the state of the action's target has changed
-    //level is 0th indexing, here are details
-    // action -> target modified
-    // card -> same zone check -> same position check
-    // effect -> same card -> same zone check -> same position check
-    // effect subtype -> same effect -> same card -> same zone -> same position
-    // zone -> <none>
-    // position -> <none>
-    
-    //notes : any number not in range 0 -> inf is 0
-    // inf is the highest for that type
-    // a single number is the same level for everything
-    checkers? : checkerType
-}
-
-type checkerType = Partial<{
-        zone : (target : identificationInfo_zone, currZone : dry_zone) => boolean,
-        card : (target : identificationInfo_card, currCard : dry_card, currZone : dry_zone) => boolean,
-        effect : (target : identificationInfo_effect, currEffect : dry_effect, currCard : dry_card, currZone : dry_zone) => boolean,
-        effectSubtype : (target : identificationInfo_subtype, currSubtype : dry_effectSubType, currEffect : dry_effect, currCard : dry_card, currZone : dry_zone) => boolean
-    }>
-
-function defaultChecker_zone(target : identificationInfo_zone, currZone : dry_zone) : boolean {
-    return target.zone.id === currZone.id;
-}
-
-function defaultCheker_card(target : identificationInfo_card | identificationInfo_effect | identificationInfo_subtype, currCard : dry_card, currZone : dry_zone, strict = false){
-    return target.card.id === currCard.id && (!strict || target.card.pos.is(currCard.pos))
-}
-
-function defaultChecker_effect(target : identificationInfo_effect | identificationInfo_subtype, currEffect : dry_effect, currCard : dry_card, currZone : dry_zone, recur = true, strict = false){
-    return target.eff.id === currEffect.id && (!recur || defaultCheker_card(target, currCard, currZone, strict))
-}
-
-function defaultChecker_effectSubtype(target : identificationInfo_subtype, currSubtype : dry_effectSubType, currEffect : dry_effect, currCard : dry_card, currZone : dry_zone, recur = false, strict = false){
-    return target.subtype.dataID === currSubtype.dataID && defaultChecker_effect(target, currEffect, currCard, currZone, recur, strict)
-}
-
-const defaultChecker = 
-{
-    zone : defaultChecker_zone,
-    card : defaultCheker_card,
-    effect : defaultChecker_effect,
-    effectSubtype : defaultChecker_effectSubtype
 }
 
 export type actionConstructionObj_fixxed = {
@@ -543,15 +432,6 @@ function form_player(s : dry_system) {return (pid : number) => {return {
     },
 } as identificationInfo_player }}
 
-function form_partition(s : dry_system){return (pid : number) => {return {
-    type : identificationType.partition,
-    sys : s,
-    pid,
-    is(n : number){
-        return n === pid
-    }
-} as identificationInfo_partition }}
-
 function form_subtype(s : dry_system) {return (card : dry_card, eff : dry_effect, subtype : dry_effectSubType) => {return {
     type : identificationType.effectSubtype,
     sys : s,
@@ -577,11 +457,10 @@ function ActionAssembler_base<
     infoArr extends identificationInfo[],
     T extends actionConstructionObj_variable<any>, 
 >(name : actionName, targets : infoArr, cause : identificationInfo, info : T){
-    const o1 = getDefaultObjContructionObj(actionRegistry[name]);
     const o2 = {
+        type : actionRegistry[name],
         targets : targets,
         cause : cause,
-        ...o1,
         ...info
     }
     return new Action_class<infoArr, ExtractInnerType<T>, T>(o2);
@@ -731,93 +610,12 @@ function addEffectContructor<
         >((isStatus ? "a_add_status_effect" : "a_add_effect"), [form_card(s)(card)], cause, {...p, typeID : type})
 }
 
-
-//default restriction is the loosest possible restriction
-//card : none (practically)
-//zone : none (practically)
-//effect : same card
-//effect subtype : same effect
-
-export function getDefaultObjContructionObj(id : actionID) : actionConstructionObj_fixxed_unstaged{
-    let o : actionConstructionObj_fixxed_unstaged = {
-        type : id
-    }
-    switch(id){
-        case actionRegistry.a_activate_effect_internal : {
-            o.canBeChainTo = false,
-            o.canBeTriggeredTo = true
-            break;
-        }
-        case actionRegistry.a_turn_end : {
-            o.canBeTriggeredTo = false
-            break;
-        }
-        case actionRegistry.error : {
-            o.canBeChainTo = false,
-            o.canBeTriggeredTo = false
-            break;
-        }
-        case actionRegistry.a_deal_damage_internal : {
-            o.canBeChainTo = false,
-            o.canBeTriggeredTo = true;
-            break;
-        }
-        case actionRegistry.a_deal_damage_card : {
-            o.checkers = {
-                card : (target : identificationInfo_card, currCard : dry_card, currZone : dry_zone) => {
-                    //move whereever you want, if its still on the field, its damagable
-                    if(!defaultCheker_card(target, currCard, currZone)) return false;
-                    return currZone.types.some(i => {
-                        return i === zoneRegistry.z_deck || i === zoneRegistry.z_field || i === zoneRegistry.z_hand
-                    })
-                }
-            }
-            break;
-        }
-        case actionRegistry.a_destroy : {
-            o.checkers = {
-                card : (target : identificationInfo_card, currCard : dry_card, currZone : dry_zone) => {
-                    //move whereever you want, if its not in grave, its destroyable
-                    if(!defaultCheker_card(target, currCard, currZone)) return false;
-                    return currZone.types.some(i => {
-                        return i === zoneRegistry.z_deck || i === zoneRegistry.z_field || i === zoneRegistry.z_hand
-                    })
-                }
-            }
-            break;
-        }
-        case actionRegistry.a_execute : {
-            o.checkers = {
-                card : (target : identificationInfo_card, currCard : dry_card, currZone : dry_zone) => {
-                    //move whereever you want, if its still on the field, its damagable
-                    if(!defaultCheker_card(target, currCard, currZone)) return false;
-                    return currZone.types.some(i => {
-                        return i === zoneRegistry.z_deck || i === zoneRegistry.z_field || i === zoneRegistry.z_hand
-                    })
-                }
-            }
-            break;
-        }
-        case actionRegistry.a_pos_change : {
-            o.checkers = {
-                card : (target : identificationInfo_card, currCard : dry_card, currZone : dry_zone) => {
-                    //pos_change default is strict
-                    return defaultCheker_card(target, currCard, currZone, true)
-                }
-            }
-            break;
-        }
-    }
-    return o
-}
-
-const actionConstructorRegistry = {
+const ActionGenerator = {
     error: ActionAssembler("error"),
     a_null: ActionAssembler("a_null"),
     a_negate_action: ActionAssembler("a_negate_action"),
     a_do_threat_burn: ActionAssembler("a_do_threat_burn"),
     a_force_end_game: ActionAssembler("a_force_end_game"),
-    a_increase_turn_count: ActionAssembler("a_increase_turn_count"),
     a_set_threat_level: ActionAssembler("a_set_threat_level", {
         newThreatLevel : 0 as number | number[]
     }),
@@ -835,14 +633,7 @@ const actionConstructorRegistry = {
         dmg : 0,
         dmgType : 0
     }),
-    a_deal_damage_position: ActionAssembler("a_deal_damage_position", form_position, {
-        dmg : 0,
-        dmgType : 0
-    }),
-    a_deal_damage_internal: ActionAssembler("a_deal_damage_internal", form_card, {
-        dmg : 0,
-        dmgType : 0
-    }),
+
     a_deal_heart_damage : ActionAssembler("a_deal_heart_damage", form_player, {
         dmg : 0,
     }),
@@ -850,8 +641,8 @@ const actionConstructorRegistry = {
     a_disable_card: ActionAssembler("a_disable_card", form_card),
     a_enable_card: ActionAssembler("a_enable_card", form_card),
     a_execute: ActionAssembler("a_execute", form_card),
-    a_pos_change: ActionAssembler("a_pos_change", form_card, form_position),  
-    a_pos_change_force : ActionAssembler("a_pos_change_force", form_card, form_position),
+    a_move: ActionAssembler("a_move", form_card, form_position),  
+    a_move_force : ActionAssembler("a_move_force", form_card, form_position),
     a_attack: ActionAssembler("a_attack", form_card, {} as {
         dmg : number | undefined,
         dmgType : number | undefined
@@ -863,29 +654,29 @@ const actionConstructorRegistry = {
     a_reset_card: ActionAssembler("a_reset_card", form_card),
     a_decompile : ActionAssembler("a_decompile", form_card),
     a_void : ActionAssembler("a_void", form_card),
+
+    a_reset_once : ActionAssembler("a_reset_once", form_effect),
     a_reset_all_once : ActionAssembler("a_reset_all_once", form_card),
 
     a_declare_activation: ActionAssembler("a_declare_activation", form_effect),
     a_reset_effect: ActionAssembler("a_reset_effect", form_effect),
-    a_activate_effect: ActionAssembler("a_activate_effect", form_card, form_partition),
-    a_activate_effect_internal: ActionAssembler("a_activate_effect_internal", form_card, form_partition),
+    a_activate_effect: ActionAssembler("a_activate_effect", form_effect),
+    a_internal_try_activate: ActionAssembler("a_internal_try_activate", form_position, {} as {
+        log : logInfoHasResponse
+    }),
     a_add_status_effect: addEffectContructor,
     a_add_effect : addEffectContructor,
-    a_duplicate_effect : ActionAssembler("a_duplicate_effect", form_card, form_card, form_partition, {} as {
+    a_duplicate_effect : ActionAssembler("a_duplicate_effect", form_effect, form_card, {} as {
         addedSubtype : string[]
     }), //duplicate partition of card[1] into card[0]
     a_duplicate_card : ActionAssembler("a_duplicate_card", form_card, form_position, {} as {
         variantIDs? : string[]
         overrideData? : patchData
-        followUp? : (c : dry_card) => Action[]
+        callback? : (c : dry_card) => Action[]
     }), //duplicate card onto position
     a_remove_status_effect: ActionAssembler("a_remove_status_effect", form_effect),
-    a_remove_effect : ActionAssembler("a_remove_effect", form_card, form_partition),
+    a_remove_effect : ActionAssembler("a_remove_effect", form_card, form_effect),
     a_remove_all_effects : ActionAssembler("a_remove_all_effects", form_card),
-
-    a_activate_effect_subtype: ActionAssembler("a_activate_effect_subtype", form_subtype, {
-        newEffectData : 0 as undefined | Partial<effectData>
-    }),
     
     a_modify_action: modifyActionContructor,
     a_replace_action: ActionAssembler("a_replace_action", form_action),
@@ -902,7 +693,7 @@ const actionConstructorRegistry = {
     a_add_top : ActionAssembler("a_add_top", form_card, form_zone),
 
     a_get_input : ActionAssembler("a_get_input", {} as {
-        requester : inputRequester<any, inputData[]>
+        requester : InputRequester<any, inputData[]>
         applicator : inputApplicator<any, inputData[]>
     }),
 
@@ -911,23 +702,29 @@ const actionConstructorRegistry = {
         delayCID : string, //cid
         delayEID : string, //eid
     }),
-
 } as const;
+
+// use these to test if actionName !== keyof actionContructorReg and where
+type K = keyof typeof ActionGenerator
+type K2 = actionName
+type S = {
+    [Key in K2 as Key extends K ? never : Key] : 1
+}
 
 export type ConstructionExtraParamsType<name extends actionName> = 
     name extends "a_modify_action" ? {} :
     name extends "a_add_effect" | "a_add_status_effect" ? any :
-    ExtractReturn_any<typeof actionConstructorRegistry[name]> extends Action_class<any, any, infer T0> ? T0 : {}
+    ExtractReturn_any<typeof ActionGenerator[name]> extends Action_class<any, any, infer T0> ? T0 : {}
 
 export type AttrType<name extends actionName> = 
     name extends "a_modify_action" ? any :
     name extends "a_add_effect" | "a_add_status_effect" ? {typeID : string, [key : string] : any} :
-    ExtractReturn_any<typeof actionConstructorRegistry[name]> extends Action_class<any, infer T0, any> ? T0 : any
+    ExtractReturn_any<typeof ActionGenerator[name]> extends Action_class<any, infer T0, any> ? T0 : any
 
 export type TargetType<name extends actionName> = 
     name extends "a_modify_action" ? [identificationInfo_action] :
     name extends "a_add_effect" | "a_add_status_effect" ? [identificationInfo_card] :
-    ExtractReturn_any<typeof actionConstructorRegistry[name]> extends Action_class<infer T0, any, any> ? T0 : never
+    ExtractReturn_any<typeof ActionGenerator[name]> extends Action_class<infer T0, any, any> ? T0 : never
 
 const actionFormRegistry = {
     action : (s : dry_system, a : Action | Action_class) => form_action(s)(a),
@@ -984,4 +781,4 @@ export type hasTarget<target extends identificationInfo, searchSet extends actio
     [K in searchSet] : TargetType<K> extends [target] ? K : TargetType<K> extends [target, ...any[]] ? K : never
 }[searchSet]
 
-export {actionConstructorRegistry, actionFormRegistry}
+export {ActionGenerator as actionConstructorRegistry, actionFormRegistry}

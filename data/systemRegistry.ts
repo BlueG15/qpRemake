@@ -1,20 +1,25 @@
 import type { Action } from "../_queenSystem/handler/actionGenrator"
-import type { Setting } from "../types/abstract/gameComponents/settings"
+import type { Setting } from "../types/gameComponents/settings"
 import type { operatorID } from "./operatorRegistry"
 import type { actionName } from "./actionRegistry"
 import type { FunctionalKeys, id_able, Player_specific, UnFunctionalKeys } from "../types/misc"
 
-import type Card from "../types/abstract/gameComponents/card"
-import type Effect from "../types/abstract/gameComponents/effect"
-import type Zone from "../types/abstract/gameComponents/zone"
-import type Position from "../types/abstract/generics/position"
-import type EffectType from "../types/abstract/gameComponents/effectType"
-import type queenSystem from "../_queenSystem/queenSystem"
+import type Card from "../types/gameComponents/card"
+import type Effect from "../types/gameComponents/effect"
+import type Zone from "../types/gameComponents/zone"
+import type Position from "../types/generics/position"
+import type EffectType from "../types/gameComponents/effectType"
+import type QueenSystem from "../_queenSystem/queenSystem"
 
 import type { Readonly_recur, Transplant } from "../types/misc"
-import type EffectSubtype from "../types/abstract/gameComponents/effectSubtype"
+import type EffectSubtype from "../types/gameComponents/effectSubtype"
 import type { playerTypeID } from "./zoneRegistry"
 import type { deckRegistry } from "./deckRegistry"
+
+export enum damageType {
+    "physical" = 0,
+    "magic",
+}
 
 type universalOmit = "originalData" | "setting" | "toDry" | "arr" | "zoneArr" |
                      "actionTree" | "cardHandler" | "modHandler" | "zoneHandler" | "localizer" | "registryFile" | "takenInput" |
@@ -57,11 +62,11 @@ export type dry_effect = {
     "is" : Effect["is"]
 }
 
-export type dry_card = dry_parse<Card, "is" | "getAllPartitionsIDs" | "isInSamePartition" | "isFrom" | "addShareMemory" | "getFirstActualPartitionIndex">
+export type dry_card = dry_parse<Card, "is" | "isFrom">
 export type dry_zone = dry_parse<
     Zone, 
-    "count" | "findIndex" | "getAction_add" | "getAction_move" | "getAction_shuffle" | "getAction_remove" | "getOppositeCards" | 
-    "getCardByPosition" | "getOppositeZone" | "toString" | "validatePosition" | "isOpposite" | "isPositionOccupied" | 
+    "count" | "findIndex" | "getAction_add" | "getAction_move" | "getAction_shuffle" | "getAction_remove" |
+    "getCardByPosition" | "toString" | "validatePosition" | "isPositionOccupied" | 
     "is" | "getAllPos" | "of" |"getBackPos" | "getFrontPos" | "isC2Behind" | "isC2Infront" | "isOccupied" | "isExposed"
 > & {
     getEmptyPosArr? : () => dry_position[]
@@ -69,15 +74,20 @@ export type dry_zone = dry_parse<
     getAction_draw? : (s : dry_system, hand : dry_zone, cause : identificationInfo, isTurnDraw? : boolean) => Action<"a_draw">
 }
 export type dry_system = dry_parse<
-    Omit<queenSystem, "zoneArr">, 
-    "count" | "filter" | "map" | "forEach" | "filter" | 
-    "findSpecificChainOfAction_resolve" | "getActivatedCardIDs" | "getActivatedEffectIDs" |
-    "getAllZonesOfPlayer" | "getResolvedActions" | "getWouldBeAttackTarget" | "getCardWithDataID" | "getCardWithID" |
+    Omit<QueenSystem, "zoneArr">, 
+    "filter" | "map" | "forEach" | "filter" | 
+    "getAllZonesOfPlayer" |  "getWouldBeAttackTarget" | "getCardWithDataID" | "getCardWithID" |
     "getZoneOf" | "getZoneWithID" | "hasActionCompleted" | "getRootAction" | "is" | "getPIDof" | 
-    "generateSignature" |
     "isNotActionArr" |
+    "generateSignature" |
     "getAllInputs" |
-    "isPlayAction"
+    "isPlayAction" |
+    "getResolveOrigin" |
+    "getLayout" |
+
+    "getActivatedEffectIDs" | 
+    "getActivatedCardIDs" |
+    "getResolvedActions" 
 >
 
 export interface logInfoNormal {
@@ -97,9 +107,9 @@ export interface logInfoResolve {
     resolvedResult : Action[]
 }
 
-export type logInfo = logInfoNormal | logInfoHasResponse | logInfoResolve
+export type logInfo = logInfoNormal | logInfoResolve | logInfoHasResponse
 
-export enum TurnPhase {
+export const enum TurnPhase {
     declare = 1, 
     input,
     chain,
@@ -109,7 +119,7 @@ export enum TurnPhase {
     complete,
 }
 
-export enum GamePhase {
+export const enum GamePhase {
     idle = 0,
     resolving,
     infinite_loop,
@@ -150,13 +160,13 @@ export interface gameState_stat {
 export enum suspensionReason {
     taking_input = 1,
     infinite_loop,
-    game_finished,
+    turn_finished,
+    game_ended,
 }
 
 export enum identificationType {
     "zone",
     "card",
-    "partition",
     "effect",
     "effectSubtype",
     "position",
@@ -164,13 +174,7 @@ export enum identificationType {
     "player",
     "none",
     "system",
-}
-
-export interface identificationInfo_partition {
-    type : identificationType.partition,
-    sys : dry_system,
-    pid : number,
-    is(pid : number) : boolean
+    "log"
 }
 
 export interface identificationInfo_action {
@@ -228,20 +232,18 @@ export type identificationInfo_system = {
 export type identificationInfo = 
             identificationInfo_action | 
             identificationInfo_card | 
-            identificationInfo_partition | 
             identificationInfo_effect | 
             identificationInfo_none |
             identificationInfo_player |
             identificationInfo_pos |
             identificationInfo_subtype |
             identificationInfo_zone | 
-            identificationInfo_system 
+            identificationInfo_system
 
-export enum inputType {
+export const enum inputType {
     "zone",
     "card",
     "effect",
-    "effectSubtype",
     "position",
     "player",
     
@@ -264,34 +266,23 @@ export type inputData_num = {
 }
 export type inputData_pos = {
     type : inputType.position
-    data : Omit<identificationInfo_pos, "sys">
-    is : identificationInfo_pos["is"]
+    data : dry_position
 }
 export type inputData_zone = {
     type : inputType.zone
-    data : Omit<identificationInfo_zone, "sys">
-    is : identificationInfo_zone["is"]
-    of : identificationInfo_zone["of"]
+    data : dry_zone
 }
 export type inputData_card = {
     type : inputType.card
-    data : Omit<identificationInfo_card, "sys">
-    is : identificationInfo_card["is"]
+    data : dry_card
 }
 export type inputData_effect = {
     type : inputType.effect
-    data : Omit<identificationInfo_effect, "sys">
-    is : identificationInfo_effect["is"]
-}
-export type inputData_subtype = {
-    type : inputType.effectSubtype
-    data : Omit<identificationInfo_subtype, "sys">
-    is : identificationInfo_subtype["is"]
+    data : dry_effect
 }
 export type inputData_player = {
     type : inputType.player
-    data : Omit<identificationInfo_player, "sys">
-    is : identificationInfo_player["is"]
+    data : number //Omit<identificationInfo_player, "sys">
 }
 
 export type inputData_standard = inputData_str |
@@ -299,7 +290,6 @@ export type inputData_standard = inputData_str |
                         inputData_bool |
                         inputData_card |
                         inputData_effect |
-                        inputData_subtype |
                         inputData_zone |
                         inputData_player | 
                         inputData_pos
@@ -314,8 +304,7 @@ T extends inputType.player ? inputData_player :
 T extends inputType.position ? inputData_pos :
 T extends inputType.zone ? inputData_zone : 
 T extends inputType.card ? inputData_card :
-T extends inputType.effect ? inputData_effect : 
-T extends inputType.effectSubtype ? inputData_subtype : inputData
+T extends inputType.effect ? inputData_effect : inputData
 
 export type validSetFormat<T extends inputType = inputType> = Exclude<[T, inputDataSpecific<T>[] | undefined], []>
 // import type { StrictGenerator } from "../types/misc"

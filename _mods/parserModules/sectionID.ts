@@ -5,7 +5,7 @@ import {
     moduleInputObject, 
     parseOptions, 
     TextComponent, IconComponent, SymbolComponent 
-} from '../../types/abstract/parser';
+} from '../../types/parser';
 import type { nestedTree } from '../../types/misc';
 
 export default class sectionIDModule extends ParserModule {

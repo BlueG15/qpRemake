@@ -1,4 +1,4 @@
-import { DisplayComponent, ParserModule, moduleInputObject, parseOptions, mode, TextComponent } from '../../types/abstract/parser';
+import { DisplayComponent, ParserModule, moduleInputObject, parseOptions, mode, TextComponent } from '../../types/parser';
 import type { nestedTree } from '../../types/misc';
 
 export default class uadduminusModule extends ParserModule {
@@ -20,26 +20,27 @@ export default class uadduminusModule extends ParserModule {
     override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<DisplayComponent> {
         let k = args.getChilren()
 
+        this.recurModify(k, cmd)
+
         if(option.mode == mode.debug) 
             return k
             
         //remove bracket by default
         
-        let upgradeFlag = option.cardData && option.cardData.variants.join(" ").toLowerCase().includes("upgrade")
-        if((upgradeFlag && cmd == "uminus") || (!upgradeFlag && cmd == "uadd")){
-            return []
-        }
+        // let upgradeFlag = option.cardData && option.cardData.variants.join(" ").toLowerCase().includes("upgrade")
+        // if((upgradeFlag && cmd == "uminus") || (!upgradeFlag && cmd == "uadd")){
+        //     return []
+        // }
         
-        if(option.mode == mode.info){
-            k = [
-                [new TextComponent("[", undefined, cmd, raw)],
-                k,
-                [new TextComponent("]", undefined, cmd, raw)]
-            ]
+        if(option.mode == mode.catalog){
+            // k = [
+            //     [new TextComponent("[", undefined, cmd, raw)],
+            //     k,
+            //     [new TextComponent("]", undefined, cmd, raw)]
+            // ]
+            return k
         }
 
-        this.recurModify(k, cmd)
-
-        return k
+        return []
     }
 }

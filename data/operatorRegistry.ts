@@ -31,7 +31,7 @@ type operatorID = operatorRegistry
 
 const operatorDataRegistry = {
     //TODO : fill the images slot
-    o_null : {
+    "-1" : {
         name : "o_null",
         realName : "o_null",
         abilityCard : "c_null",
@@ -39,7 +39,7 @@ const operatorDataRegistry = {
         avatarURL : "",
         fullbodyURL : ""
     },
-    o_aurora : {
+    0 : {
         name : "o_aurora",
         realName : "o_real_aurora",
         abilityCard : "c_serenity",
@@ -48,7 +48,7 @@ const operatorDataRegistry = {
         avatarURL : "",
         fullbodyURL : "",
     },
-    o_esper : {
+    1 : {
         name : "o_esper",
         realName : "o_real_esper",
         abilityCard : "c_world_seed",
@@ -57,7 +57,7 @@ const operatorDataRegistry = {
         avatarURL : "",
         fullbodyURL : "",
     },
-    o_idol : {
+    2 : {
         name : "o_idol",
         realName : "o_real_idol",
         abilityCard : "c_encore",
@@ -66,7 +66,7 @@ const operatorDataRegistry = {
         avatarURL : "",
         fullbodyURL : "",
     },
-    o_leo : {
+    3 : {
         name : "o_leo",
         realName : "o_real_leo",
         abilityCard : "c_moutain",
@@ -75,7 +75,7 @@ const operatorDataRegistry = {
         avatarURL : "",
         fullbodyURL : "",
     },
-    o_queen : {
+    4 : {
         name : "o_queen",
         realName : "o_real_queen",
         abilityCard : "c_checkmate",
@@ -84,7 +84,7 @@ const operatorDataRegistry = {
         avatarURL : "",
         fullbodyURL : "",
     },
-    o_omega : {
+    5 : {
         name : "o_omega",
         realName : "o_real_omega",
         abilityCard : "c_paradox",
@@ -93,7 +93,7 @@ const operatorDataRegistry = {
         avatarURL : "",
         fullbodyURL : "",
     },
-    o_kaia : {
+    6 : {
         name : "o_kaia",
         realName : "o_real_kaia",
         abilityCard : "c_imagination",

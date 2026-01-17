@@ -6,7 +6,7 @@ import {
     iconID, 
     IconComponent, 
     ImageComponent 
-} from '../../types/abstract/parser';
+} from '../../types/parser';
 
 export default class imgModule extends ParserModule {
 

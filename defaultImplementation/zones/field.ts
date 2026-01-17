@@ -1,0 +1,39 @@
+//import zone from "../baseClass/zone";
+import Position from "../../types/generics/position";
+
+import zone_grid from "../../types/gameComponents/zone_gridBased";
+import type { dry_card, dry_position } from "../../data/systemRegistry";
+import { Positionable } from "../../types/misc";
+
+//[0][1][2][3][4]
+//[5][6][7][8][9]
+
+//flipped if enemy
+
+class Field extends zone_grid {
+    getEmptyPosArr(){
+        let res : Position[] = [];
+        for(let i = 0; i < this.capacity; i++){
+            if(this.cardArr[i]) continue;
+            let p = new Position(this.id, this.name, ...this.indexToPosition(i))
+            res.push(p);
+        }
+        return res;
+    }
+
+    getRandomEmptyPos(){
+        let posArr = this.getEmptyPosArr()
+        let idx = Utils.rng(posArr.length - 1, 0, true)
+        return posArr[idx]
+    }
+
+    override getFrontPos(c: Positionable): dry_position {
+        return new Position(this.id, this.name, c.pos.x, c.pos.y - 1)
+    }
+
+    override getBackPos(c: Positionable): dry_position {
+        return new Position(this.id, this.name, c.pos.x, c.pos.y + 1)
+    }
+}
+
+export default Field

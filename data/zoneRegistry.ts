@@ -1,9 +1,11 @@
 type zoneData_fixxed_entries = {
+    id : number,
     priority: number,
-    posBound: number[], //posBound for each dimension, also acts as capacity
+    boundX? : number,
+    boundY? : number,
     minCapacity : number, //defaults to 0
     attriutesArr: zoneAttributes[]
-    instancedFor: playerTypeID[]
+    instancedFor: playerType[]
     types? : number[] //zoneRegistry enum array
 }
 
@@ -27,7 +29,7 @@ enum zoneRegistry {
 }
 
 //booleans basically 
-enum zoneAttributes {
+const enum zoneAttributes {
     canReorderSelf = 0,
     canMoveFrom,
     canMoveTo,
@@ -37,22 +39,22 @@ enum zoneAttributes {
 type zoneName = keyof typeof zoneRegistry
 type zoneID = (typeof zoneRegistry)[zoneName] //data id
 
-enum playerTypeID {
+enum playerType {
     player = 1,
     enemy = 2,
 }
-type playerTypeName = keyof typeof playerTypeID
+type playerTypeName = keyof typeof playerType
 
 const playerOppositeMap = {
-    player : [playerTypeID.enemy],
-    enemy : [playerTypeID.player],
+    player : [playerType.enemy],
+    enemy : [playerType.player],
 } as const
 
 //priority high = act first
-const zoneDataRegistry : Record<zoneName, zoneData> =  {
-    z_system : {
+const zoneDataRegistry : Record<zoneID, zoneData> =  {
+    0 : {
+        id : zoneRegistry.z_system,
         priority: Infinity,
-        posBound: [],
         minCapacity : -Infinity,
         attriutesArr: [],
         instancedFor: [],
@@ -61,9 +63,10 @@ const zoneDataRegistry : Record<zoneName, zoneData> =  {
         maxThreat : 20,
         clearThreatWhenBurn : false,
     },
-    z_drop : {
+    1 : {
+        id : zoneRegistry.z_drop,
         priority: Infinity,
-        posBound: [Infinity],
+        boundX : Infinity,
 
         minCapacity : 0,
         attriutesArr : [
@@ -73,9 +76,22 @@ const zoneDataRegistry : Record<zoneName, zoneData> =  {
         ],
         instancedFor : [],
     },
-    z_deck : {
+    2 : {
+        id : zoneRegistry.z_void,
+        //void is temporary card storage when cards are voided
+        //or "dissapear"
+        priority: -2,
+        boundX : Infinity,
+        attriutesArr:[
+            zoneAttributes.canMoveTo,
+        ],
+        instancedFor : [],
+        minCapacity : 0,
+    },
+    3 : {
+        id : zoneRegistry.z_deck,
         priority: 1,
-        posBound: [Infinity],
+        boundX : Infinity,
 
         minCapacity : 0,
         attriutesArr : [
@@ -85,7 +101,7 @@ const zoneDataRegistry : Record<zoneName, zoneData> =  {
             zoneAttributes.moveToNeedPosition,
         ],
         instancedFor : [
-            playerTypeID.player
+            playerType.player
         ],
 
         startCoolDown : 10,
@@ -93,49 +109,11 @@ const zoneDataRegistry : Record<zoneName, zoneData> =  {
         maxLoad : 20,
         minLoad : 1,
     },
-    z_storage : {
-        priority: 0,
-        posBound: [Infinity],
-        minCapacity: 0,
-        attriutesArr:[
-            zoneAttributes.canMoveFrom,
-        ],
-        instancedFor : [
-            playerTypeID.player
-        ],
-    },
-    z_grave : {
-        priority: 2,
-        posBound: [Infinity],
-
-        minCapacity : 0,
-        attriutesArr : [
-            zoneAttributes.canMoveTo,
-            zoneAttributes.canMoveFrom,
-        ],
-        instancedFor : [
-            playerTypeID.player,
-            playerTypeID.enemy,
-        ]
-    },
-    z_hand : {
-        priority: 4,
-        posBound: [7],
-
-        minCapacity : 0,
-        attriutesArr:[
-            zoneAttributes.canReorderSelf,
-            zoneAttributes.canMoveFrom,
-            zoneAttributes.canMoveTo,
-            zoneAttributes.moveToNeedPosition,
-        ],
-        instancedFor : [
-            playerTypeID.player,
-        ],
-    },
-    z_field : {
+    4 : {
+        id : zoneRegistry.z_field,
         priority: 5,
-        posBound: [5, 2],
+        boundX : 5,
+        boundY : 2,
 
         canReorderSelf : true,
         canMoveTo : true,
@@ -150,40 +128,73 @@ const zoneDataRegistry : Record<zoneName, zoneData> =  {
             zoneAttributes.moveToNeedPosition,
         ],
         instancedFor : [
-            playerTypeID.player,
-            playerTypeID.enemy,
+            playerType.player,
+            playerType.enemy,
         ]
     },
-    z_ability : {
+    5 : {
+        id : zoneRegistry.z_grave,
+        priority: 2,
+        boundX : Infinity,
+
+        minCapacity : 0,
+        attriutesArr : [
+            zoneAttributes.canMoveTo,
+            zoneAttributes.canMoveFrom,
+        ],
+        instancedFor : [
+            playerType.player,
+            playerType.enemy,
+        ]
+    },
+    6 : {
+        id : zoneRegistry.z_hand,
+        priority: 4,
+        boundX : 7,
+
+        minCapacity : 0,
+        attriutesArr:[
+            zoneAttributes.canReorderSelf,
+            zoneAttributes.canMoveFrom,
+            zoneAttributes.canMoveTo,
+            zoneAttributes.moveToNeedPosition,
+        ],
+        instancedFor : [
+            playerType.player,
+        ],
+    },
+    7 : {
+        id : zoneRegistry.z_storage,
+        priority: 0,
+        boundX : Infinity,
+        minCapacity: 0,
+        attriutesArr:[
+            zoneAttributes.canMoveFrom,
+        ],
+        instancedFor : [
+            playerType.player
+        ],
+    },
+    8 : {
+        id : zoneRegistry.z_ability,
         priority: -1,
-        posBound: [1],
+        boundX : 1,
 
         canMoveFrom : true,
         minCapacity : 0,
         attriutesArr:[],
         instancedFor : [
-            playerTypeID.player
+            playerType.player
         ],
 
         maxCoolDown : 10,
     },
-    z_void : {
-        //void is temporary card storage when cards are voided
-        //or "dissapear"
-        priority: -2,
-        posBound: [Infinity],
-        attriutesArr:[
-            zoneAttributes.canMoveTo,
-        ],
-        instancedFor : [],
-        minCapacity : 0,
-    }
 }
 
 export default zoneDataRegistry
 export {
     zoneAttributes,
-    playerTypeID,
+    playerType as playerTypeID,
     playerTypeName,
     playerOppositeMap,
     zoneData, 

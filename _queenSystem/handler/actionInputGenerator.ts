@@ -1,71 +1,38 @@
-import { dry_position, identificationInfo, inputData_pos, inputData_standard, inputData_str, inputDataSpecific, inputType, type dry_card, type dry_effect, type dry_effectSubType, type dry_system, type dry_zone, type inputData, type inputData_bool, type inputData_card, type inputData_effect, type inputData_num, type inputData_player, type inputData_subtype, type inputData_zone } from "../../data/systemRegistry";
+import { dry_position, inputData_pos, inputData_standard, inputData_str, inputDataSpecific, inputType, type dry_card, type dry_effect, type dry_effectSubType, type dry_system, type dry_zone, type inputData, type inputData_bool, type inputData_card, type inputData_effect, type inputData_num, type inputData_player, type inputData_zone } from "../../data/systemRegistry";
 import { Action, actionFormRegistry  } from "./actionGenrator";
 import { validSetFormat } from "../../data/systemRegistry";
-import { Last, Tuple_any } from "../../types/misc";
-
-/**
- * Merge with signature example:
- * A has input [X, Y, Z, K]
- * B has input [X, Y, K, L, Z]
- * 
- * Merging these will yield C having input [...A, ...exclude B from A, stop at first not match in B]
- * the previous example will results to [X, Y, Z, K, L, Z] 
- * [X, Y, Z, K] from A
- * and [L, Z] from B after filling A's input into B as best as we can
- * well..not rlly but I do not want to recur try to apply every input every time we apply new inputs
- * 
- * oh also apply returns, please make sure to overwrite the val after apply
- */
+import { Tuple_any } from "../../types/misc";
 
 export const inputFormRegistry = {
     zone(s : dry_system, z : dry_zone){
-        const o = actionFormRegistry.zone(s, z)
         return {
             type : inputType.zone, 
-            data : o, 
-            is : o.is,
-            of : o.of,
+            data : z, 
         } as inputData_zone
     },
     card(s : dry_system, c : dry_card){
-        const o = actionFormRegistry.card(s, c);
         return {
             type : inputType.card, 
-            data : o,
-            is : o.is
+            data : c,
         } as inputData_card
     },
     effect(s : dry_system, c : dry_card, e : dry_effect){
-        const o = actionFormRegistry.effect(s, c, e)
         return {
             type : inputType.effect, 
-            data : o,
-            is : o.is
+            data : e,
         } as inputData_effect
     },
-    subtype(s : dry_system, c : dry_card, e : dry_effect, st : dry_effectSubType){
-        const o = actionFormRegistry.subtype(s, c, e, st);
-        return {
-            type : inputType.effectSubtype, 
-            data : o,
-            is : o.is
-        } as inputData_subtype
-    },
-
     player(s : dry_system, pid : number){
-        const o = actionFormRegistry.player(s, pid)
         return {
             type : inputType.player, 
-            data : o,
-            is : o.is,
+            data : pid,
         } as inputData_player
     },
     pos(s : dry_system, pos : dry_position){
-        const o = actionFormRegistry.position(s, pos)
         return {
             type : inputType.position, 
-            data : o,
-            is : o.is
+            data : pos,
+            // is : pos.is.bind(pos)
         } as inputData_pos
     },
 
@@ -78,7 +45,7 @@ export type inputRequester_finalized<T_accu extends Exclude<inputData[], []>> = 
     next : () => T_accu
 }
 
-export class inputRequester<
+export class InputRequester<
     K extends inputType = inputType, //initial type, for inference, useless after constructor is called
     T extends inputData[] = [inputDataSpecific<K>], //inputs tuple yet to apply, [] means finished
     T_accumulate extends Exclude<inputData[], []> = T, //inputs tuple as a whole, inference at first
@@ -90,7 +57,7 @@ export class inputRequester<
     protected __inner_res : inputData[] = []
     protected __func_arr : ((s : dry_system, prev : inputData[]) => Exclude<inputData[], []> | validSetFormat)[] = []
     protected __curr : validSetFormat | undefined
-    protected __queue : inputRequester<any, inputData[], inputData[], any, any>[] = []
+    protected __queue : InputRequester<any, inputData[], inputData[], any, any>[] = []
     protected __valid_flag : boolean
     protected __do_pre_fill_when_merge : boolean = false
     protected __len : number = 1
@@ -142,7 +109,7 @@ export class inputRequester<
         return c1 && c2 && c3
     }
 
-    protected copyToNext(next : inputRequester<any, inputData[], inputData[], any, any>){
+    protected copyToNext(next : InputRequester<any, inputData[], inputData[], any, any>){
         next.__queue.unshift(...this.__queue)
         next.__inner_res = this.__inner_res
     }
@@ -167,7 +134,7 @@ export class inputRequester<
     apply(s : dry_system, input : T_head) 
     : T_tail extends [] 
     ? inputRequester_finalized<T_accumulate>
-    : inputRequester<inputType, T_tail, T_accumulate, T_data_last>
+    : InputRequester<inputType, T_tail, T_accumulate, T_data_last>
     {
         let f = this.__func_arr[this.__cursor_f_arr]
         this.__cursor_f_arr++
@@ -240,7 +207,7 @@ export class inputRequester<
         s : dry_system, 
         f : (s : dry_system, prev : T_accumulate) => T2[] | validSetFormat<T2["type"]>
     ) 
-    : inputRequester<inputType, [...T, T2], [...T_accumulate, T2], T2>
+    : InputRequester<inputType, [...T, T2], [...T_accumulate, T2], T2>
     {
         this.__func_arr.push(f as any)
         this.__len++;
@@ -254,7 +221,7 @@ export class inputRequester<
         len : Len,
         f : (s : dry_system, prev : T_accumulate) => T2[]
     )
-    : inputRequester<K, [...T, ...X], [...T_accumulate, ...X], T2>
+    : InputRequester<K, [...T, ...X], [...T_accumulate, ...X], T2>
     {
         if(len <= 0) {
             this.__valid_flag = false;
@@ -279,10 +246,10 @@ export class inputRequester<
     }
 
     //merge DO NOT check for chained validity
-    merge<T2 extends inputData[], T_accumulate2 extends Exclude<inputData[], []>, T_data_last_2 extends inputData>(
-        requester : inputRequester<inputType, T2, T_accumulate2, T_data_last_2>
+    then<T2 extends inputData[], T_accumulate2 extends Exclude<inputData[], []>, T_data_last_2 extends inputData>(
+        requester : InputRequester<inputType, T2, T_accumulate2, T_data_last_2>
     )
-    : inputRequester<inputType, [...T, ...T2], [...T_accumulate, ...T_accumulate2], T_data_last_2>
+    : InputRequester<inputType, [...T, ...T2], [...T_accumulate, ...T_accumulate2], T_data_last_2>
     {
         this.__queue.push(requester)
         if(requester.__valid_flag === false) this.__valid_flag = false;
@@ -291,13 +258,13 @@ export class inputRequester<
         return this as any
     }
 
-    merge_with_signature(requester : inputRequester<any, inputData[], inputData[]>) : this {
+    then_with_signature(requester : InputRequester<any, inputData[], inputData[]>) : this {
         requester.__do_pre_fill_when_merge = true;
-        this.merge(requester)
+        this.then(requester)
         return this
     }
 
-    fill(s : dry_system, requester : inputRequester<any, inputData[], inputData[]>) : this {
+    fill(s : dry_system, requester : InputRequester<any, inputData[], inputData[]>) : this {
         this.applyMultiple(s, Array.from(requester.__inner_res.values()));
         return this
     }
@@ -322,7 +289,7 @@ export class inputRequester<
 
         const oldCond = this.__func_arr.pop()!
         
-        const newCond = function(f : typeof oldCond, f2 : typeof cond, thisParam : inputRequester<any, any>){
+        const newCond = function(f : typeof oldCond, f2 : typeof cond, thisParam : InputRequester<any, any>){
             return function(s : dry_system, prev : T_accumulate){
                 const res = f(s, prev);
                 const res2 = thisParam.verify(res) ? res[1] : res
@@ -340,11 +307,11 @@ export class inputRequester<
     }
 }
 
-export class inputRequester_multiple<
+export class InputRequester_multiple<
     K extends inputType,
     Len extends number
-> extends inputRequester<K, Tuple_any<inputDataSpecific<K>, Len>>{
-
+> extends InputRequester<K, Tuple_any<inputDataSpecific<K>, Len>>{
+    T : InputRequester<K, Tuple_any<inputDataSpecific<K>, Len>> = undefined as any
     __multiple_len : Len
 
     constructor(len : Len, type : K, validSet : Exclude<inputDataSpecific<K>[], []>){

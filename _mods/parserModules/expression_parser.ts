@@ -341,7 +341,7 @@ class PostfixExpression extends Expression {
     }
 }
 
-enum TokenType {
+const enum TokenType {
 
     //immutable is specicial, 
     //for keeping refs in the expression tree
@@ -390,7 +390,7 @@ enum TokenType {
     EOF,
 }
 
-enum StringEncapsulation {
+const enum StringEncapsulation {
     double_quote = -100, 
     single_quote,
     tick_mark,
@@ -856,7 +856,7 @@ class Parse_rule_immutable_prefix implements I_ParseRule_No_Pre {
  * a) next(precedence of sum) -> everything lower than sum is consumed into the return result
  * b) next(parser.nextPrecedence()) -> everything lower than the next expression's precedence is consumed
  * */
-enum Precedence {
+const enum Precedence {
     min = 0,
     immutable,
 

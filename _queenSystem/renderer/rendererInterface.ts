@@ -1,6 +1,6 @@
 import type { Action } from "../handler/actionGenrator";
 import type { dry_system, gameState_stat, inputData, inputDataSpecific, inputType, TurnPhase, validSetFormat } from "../../data/systemRegistry";
-import type { LocalizedSystem } from "../../types/abstract/serializedGameComponents/Localized";
+import type { LocalizedSystem } from "../../types/serializedGameComponents/Localized";
 
 export abstract class qpRenderer {
     //**game start is called upon game start, call callback() to continue */

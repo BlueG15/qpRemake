@@ -1,5 +1,5 @@
 import DefParser from './expression_parser';
-import { ParserModule, moduleInputObject, parseOptions, TextComponent, DisplayComponent } from '../../types/abstract/parser';
+import { ParserModule, moduleInputObject, parseOptions, TextComponent, DisplayComponent } from '../../types/parser';
 import utils from "util"
 import type { nestedTree } from '../../types/misc'
 

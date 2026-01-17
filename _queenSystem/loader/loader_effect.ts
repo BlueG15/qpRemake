@@ -1,11 +1,15 @@
-import Effect from "../../types/abstract/gameComponents/effect";
+import Effect from "../../types/gameComponents/effect";
 import type { cardData_unified, effectData } from "../../data/cardRegistry";
-import type { Setting } from "../../types/abstract/gameComponents/settings";
+import type { Setting } from "../../types/gameComponents/settings";
 import type subtypeLoader from "./loader_subtype";
 import type typeLoader from "./loader_type";
-import type EffectSubtype from "../../types/abstract/gameComponents/effectSubtype";
+import type EffectSubtype from "../../types/gameComponents/effectSubtype";
 import type effectDataRegistry from "../../data/effectRegistry";
+import effectTypeRegistry from "../../data/effectTypeRegistry";
+import subtypeRegistry from "../../data/subtypeRegistry";
 
+
+type EffectContructor = new (...p : ConstructorParameters<typeof Effect>) => Effect
 //Cards have 2 parts
 
 //Data and Code
@@ -17,7 +21,7 @@ import type effectDataRegistry from "../../data/effectRegistry";
 export default class effectLoader {
 
     private dataCache : Map<string, effectData>
-    private classCache : Map<string, typeof Effect | Function> = new Map()
+    private classCache : Map<string, EffectContructor> = new Map()
     private countCache : Map<string, number> = new Map()
 
     private subtypeLoader : subtypeLoader
@@ -48,10 +52,20 @@ export default class effectLoader {
             this.classCache.set(
                 eid, obj
             )
+            if((obj as typeof Effect).getEffData){
+                this.dataCache.set(
+                    eid, (obj as typeof Effect).getEffData!().base
+                )
+            }
         } else if (typeof obj === "object"){
             Object.keys(obj).forEach(k => {
                 if(typeof obj[k] === "function") {
                     this.classCache.set(k, obj[k]);
+                }
+                if((obj[k] as typeof Effect).getEffData){
+                    this.dataCache.set(
+                        eid, (obj[k] as typeof Effect).getEffData!().base
+                    )
                 }
             })
         }
@@ -70,8 +84,8 @@ export default class effectLoader {
     };
 
     add(key : string, data : effectData) : void;
-    add(key : string, constructor : typeof Effect) : void;
-    add(key : string, param : effectData | typeof Effect){
+    add(key : string, constructor : EffectContructor) : void;
+    add(key : string, param : effectData | EffectContructor){
         if(typeof param == "function"){
             this.classCache.set(key, param)
         } else {
@@ -82,7 +96,7 @@ export default class effectLoader {
     //most hacky fix ever
     //ahhhh
     //TODO : find a better solution
-    private validator(x : Function) : x is typeof Effect {
+    private validator(x : Function) : x is EffectContructor {
         try {
             x()
             return false
@@ -122,7 +136,7 @@ export default class effectLoader {
         this.countCache.set(eid, c); 
 
         //load type
-        let type = this.typeLoader.getType(data.typeID, s, eid)
+        let type = this.typeLoader.getType(effectTypeRegistry[data.typeID], s, eid)
         if(!type) return undefined
 
         let runID = Utils.dataIDToUniqueID(eid, c, s, ...data.subTypeIDs)
@@ -130,7 +144,7 @@ export default class effectLoader {
         //load subtypes
         let k : EffectSubtype[] = []
         data.subTypeIDs.forEach(i => {
-            let st = this.subtypeLoader.getSubtype(i, s, eid)
+            let st = this.subtypeLoader.getSubtype(subtypeRegistry[i], s, eid)
             if(st) k.push(st);
         })
 

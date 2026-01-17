@@ -4,6 +4,8 @@ This is a card effect processing system for the game "Quantum Protocol" remade i
 
 > Quantum Protocol and Jkong reserves all rights to the game and all related assets.
 
+This README is outdated (not correspoinding to the latest commit's project structure) and will be update soon, stay tuned
+
 ## Table of contents
 
 - [qpRemake](#qpremake)
@@ -529,7 +531,7 @@ If anyone knows how to write a better version of this rule, pls help
 
 If you need more actions, please uhhh, notify me and skip that effect
 
-Actions also have inputs with weird handling, I have made a template class for any effect that specifically wants the inputs for an a_pos_change but anything else is albeit possible, not short enough to be put on here so skip any effects that wants it
+Actions also have inputs with weird handling, I have made a template class for any effect that specifically wants the inputs for an a_move but anything else is albeit possible, not short enough to be put on here so skip any effects that wants it
 
 For me in the future, this requires updating actionConstructorRegistry and changing the handling logic over in queenSystem
 

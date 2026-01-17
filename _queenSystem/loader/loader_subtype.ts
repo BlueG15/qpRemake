@@ -1,18 +1,18 @@
-import type EffectSubtype from "../../types/abstract/gameComponents/effectSubtype";
-import type { Setting } from "../../types/abstract/gameComponents/settings";
+import type EffectSubtype from "../../types/gameComponents/effectSubtype";
+import type { Setting } from "../../types/gameComponents/settings";
 
 export default class subtypeLoader {
 
-    private classCache : Map<string, typeof EffectSubtype> = new Map()
+    private classCache : Map<number, typeof EffectSubtype> = new Map()
     // private countCache : Map<string, number> = new Map()
 
-    private instanceCache : Map<string, EffectSubtype> = new Map()
+    private instanceCache : Map<number, EffectSubtype> = new Map()
 
-    load(key : string, c : typeof EffectSubtype){
+    load(key : number, c : typeof EffectSubtype){
         this.classCache.set(key, c);
     };
 
-    private getSubtype_manual(stid : string, s : Setting, eid? : string){
+    private getSubtype_manual(stid : number, s : Setting, eid? : string){
         let stclass = this.classCache.get(stid);
         if(!stclass) return undefined
 
@@ -24,7 +24,7 @@ export default class subtypeLoader {
         return new stclass(stid)
     }
 
-    getSubtype(stid : string, s : Setting, eid? : string){
+    getSubtype(stid : number, s : Setting, eid? : string){
         if(s.singleton_effect_subtype){
             if(this.instanceCache.has(stid)) 
                 return this.instanceCache.get(stid);

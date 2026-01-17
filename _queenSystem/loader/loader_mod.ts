@@ -1,4 +1,4 @@
-import type { Setting } from "../../types/abstract/gameComponents/settings";
+import type { Setting } from "../../types/gameComponents/settings";
 
 //mods have empty constructor
 export default class modLoader<T> {

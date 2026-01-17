@@ -1,16 +1,13 @@
-import type { dry_card, dry_position, dry_system, dry_zone } from "../../data/systemRegistry";
-import type Effect from "../../types/abstract/gameComponents/effect";
+import type { dry_card, dry_position, dry_system, dry_zone, inputData_card, inputData_num, inputData_pos, inputData_zone } from "../../data/systemRegistry";
 import { zoneRegistry } from "../../data/zoneRegistry";
-import Position from "../../types/abstract/generics/position";
-import type { id_able, Player_specific, Positionable } from "../../types/misc";
-import type { Action } from "./actionGenrator";
+import type { Player_specific, Positionable, Tuple_any } from "../../types/misc";
 import { 
     inputFormRegistry,
-    inputRequester, 
-    inputRequester_multiple,
+    InputRequester, 
+    InputRequester_multiple,
 } from "./actionInputGenerator";
 import { inputType } from "../../data/systemRegistry";
-import { e_automate_base } from "../../specificEffects/e_status";
+import { e_automate_base } from "../../defaultImplementation/effects/e_status";
 
 
 //regen = short for RequesterGenerator
@@ -39,6 +36,11 @@ class regen_cards {
         return this
     }
 
+    hasEffects(){
+        this.cards = this.cards.filter(c => c.effects.length)
+        return this
+    }
+
     hasStatus(){
         this.cards = this.cards.filter(c => c.hasStatusEffect)
         return this
@@ -63,7 +65,7 @@ class regen_cards {
         this.cards = this.cards.filter(c => {
             //a card is in the back if its back pos is out of bounds
             const back = c.___zone.getBackPos(c);
-            return Utils.isPositionOutOfBounds(back.flat(), c.___zone.shape)
+            return !c.___zone.validatePosition(back)
         })
         return this
     }
@@ -72,7 +74,7 @@ class regen_cards {
         this.cards = this.cards.filter(c => {
             //a card is in the front if its front pos is out of bounds
             const front = c.___zone.getFrontPos(c);
-            return Utils.isPositionOutOfBounds(front.flat(), c.___zone.shape)
+            return !c.___zone.validatePosition(front)
         })
         return this
     }
@@ -83,17 +85,26 @@ class regen_cards {
     }
 
     ofAtLeastLevel(l : number){
+        this.cards = this.cards.filter(c => c.level >= l)
+        return this
+    }
+
+    ofLevelOrBelow(l : number){
         this.cards = this.cards.filter(c => c.level <= l)
         return this
     }
 
-    ofDataID(s : string){
-        this.cards = this.cards.filter(c => c.dataID === s)
+    ofName(s : string){
+        this.cards = this.cards.filter(c => c.name === s)
         return this
     }
 
-    ofSameDataID(c_ : dry_card){
-        this.cards = this.cards.filter(c => c.dataID === c_.dataID)
+    ofSameName(c_ : dry_card){
+        this.cards = this.cards.filter(c => c.name === c_.name)
+        return this
+    }
+    ofDifferentName(c_ : dry_card){
+        this.cards = this.cards.filter(c => c.name !== c_.name)
         return this
     }
 
@@ -120,14 +131,13 @@ class regen_cards {
         )
     }
 
-    filter(f? : (c : Internal_regen_card) => boolean){
-        if(f) this.cards.filter(f);
-        return this
+    filter(f? : (c : Internal_regen_card) => boolean, thisArg? : Object){
+        if(f) this.cards = this.cards.filter(f.bind(thisArg));
+        return this as regen_cards
     }
 
-    once(e? : Effect<any>) {
-        if(e) this.filter(e.addedInputConditionMap.c);        
-        return new inputRequester(
+    once() {       
+        return new InputRequester(
             inputType.card,
             this.cards.map(c => {
                 delete (c as any).___zone
@@ -136,36 +146,22 @@ class regen_cards {
         )
     }
 
-    many<L extends number>(l : L, e? : Effect<any>) {
-        if(e) this.filter(e.addedInputConditionMap.c);
-        return new inputRequester_multiple(
+    many<L extends number>(l : L) {
+        return new InputRequester_multiple(
             l,
             inputType.card,
             this.cards.map(c => {
                 delete (c as any).___zone
                 return inputFormRegistry.card(this.s, c)
             })
-        )
+        ) as InputRequester<inputType.card, Tuple_any<inputData_card, L>>
     }
 
-    // all(e? : Effect<any>){
-    //     if(e) this.filter(e.addedInputConditionMap.c);
-    //     return new inputRequester_multiple(
-    //         this.cards.length,
-    //         inputType.card,
-    //         this.cards.map(c => {
-    //             delete (c as any).___zone
-    //             return inputFormRegistry.card(this.s, c)
-    //         })
-    //     )
-    // }
-
-    clean(e? : Effect<any>) : dry_card[] {
-        if(e) this.filter(e.addedInputConditionMap.c);
+    all() : dry_card[] {
         return this.cards.map(p => {
-                delete (p as any).___zone
-                return p
-            })
+            delete (p as any).___zone
+            return p
+        })
     }
 }
 
@@ -199,7 +195,7 @@ class regen_pos {
         this.pos = this.pos.filter(p => {
             //a card is in the back if its back pos is out of bounds
             const back = p.___zone.getBackPos({pos : p});
-            return Utils.isPositionOutOfBounds(back.flat(), p.___zone.shape)
+            return !p.___zone.validatePosition(back)
         })
         return this
     }
@@ -208,7 +204,7 @@ class regen_pos {
         this.pos = this.pos.filter(p => {
             //a card is in the front if its front pos is out of bounds
             const front = p.___zone.getFrontPos({pos : p});
-            return Utils.isPositionOutOfBounds(front.flat(), p.___zone.shape)
+            return !p.___zone.validatePosition(front)
         })
         return this
     }
@@ -217,12 +213,12 @@ class regen_pos {
         return new regen_cards(
             this.s, 
             this.pos.map(p => {
-                const card = p.___zone.cardArr[Utils.positionToIndex(p.flat(), p.___zone.shape)]
+                const card = p.___zone.getCardByPosition(p as any)
                 if(!card) {
                     delete (p as any).___zone
                     return
                 };
-                const c1 = card as Internal_regen_card
+                const c1 = card as any as Internal_regen_card
                 c1.___zone = p.___zone
                 delete (p as any).___zone
                 return c1
@@ -241,14 +237,13 @@ class regen_pos {
         )
     }
 
-    filter(f? : (p : Internal_regen_pos) => boolean){
-        if(f) this.pos.filter(f)
-        return this
+    filter(f? : (p : Internal_regen_pos) => boolean, thisArg? : Object){
+        if(f) this.pos = this.pos.filter(f.bind(thisArg))
+        return this as regen_pos
     }
 
-    once(e? : Effect<any>){
-        if(e) this.filter(e.addedInputConditionMap.p);
-        return new inputRequester(
+    once(){
+        return new InputRequester(
             inputType.position,
             this.pos.map(p => {
                 delete (p as any).___zone
@@ -257,32 +252,18 @@ class regen_pos {
         )
     }
 
-    many<L extends number>(l : L, e? : Effect<any>){
-        if(e) this.filter(e.addedInputConditionMap.p);
-        return new inputRequester_multiple(
+    many<L extends number>(l : L){
+        return new InputRequester_multiple(
             l,
             inputType.position,
             this.pos.map(p => {
                 delete (p as any).___zone
                 return inputFormRegistry.pos(this.s, p)
             })
-        )
+        ) as InputRequester<inputType.position, Tuple_any<inputData_pos, L>>
     }
 
-    // all(e? : Effect<any>){
-    //     if(e) this.filter(e.addedInputConditionMap.p);
-    //     return new inputRequester_multiple(
-    //         this.pos.length,
-    //         inputType.position,
-    //         this.pos.map(p => {
-    //             delete (p as any).___zone
-    //             return inputFormRegistry.pos(this.s, p)
-    //         })
-    //     )
-    // }
-
-    clean(e? : Effect<any>) : dry_position[] {
-        if(e) this.filter(e.addedInputConditionMap.p);
+    all() : dry_position[] {
         return this.pos.map(p => {
                 delete (p as any).___zone
                 return p
@@ -334,39 +315,27 @@ class regen_zone {
         return this
     }
 
-    filter(f? : (z : dry_zone) => boolean){
-        if(f) this.zones = this.zones.filter(f)
-        return this
+    filter(f : (z : dry_zone) => boolean, thisArg? : Object){
+        if(f) this.zones = this.zones.filter(f.bind(thisArg))
+        return this as regen_zone
     }
 
-    once(e? : Effect<any>) {
-        if(e) this.filter(e.addedInputConditionMap.z);
-        return new inputRequester(
+    once() {
+        return new InputRequester(
             inputType.zone,
             this.zones.map(z => inputFormRegistry.zone(this.s, z))
         )
     }
 
-    many<L extends number>(l : L, e? : Effect<any>){
-        if(e) this.filter(e.addedInputConditionMap.z);
-        return new inputRequester_multiple(
+    many<L extends number>(l : L, ){
+        return new InputRequester_multiple(
             l,
             inputType.zone,
             this.zones.map(z => inputFormRegistry.zone(this.s, z))
-        )
+        ) as InputRequester<inputType.zone, Tuple_any<inputData_zone, L>>
     }
 
-    // all(e? : Effect<any>){
-    //     if(e) this.filter(e.addedInputConditionMap.z);
-    //     return new inputRequester_multiple(
-    //         this.zones.length,
-    //         inputType.zone,
-    //         this.zones.map(z => inputFormRegistry.zone(this.s, z))
-    //     )
-    // }
-
-    clean(e? : Effect<any>){
-        if(e) this.filter(e.addedInputConditionMap.z);
+    all(){
         return this.zones
     }
 }
@@ -377,67 +346,74 @@ class regen_nums {
         public nums : number[]
     ){}
 
-    filter(f? : (n : number) => boolean){
-        if(f) this.nums = this.nums.filter(f)
+    filter(f? : (n : number) => boolean, thisArg? : Object){
+        if(f) this.nums = this.nums.filter(f.bind(thisArg));
+        return this as regen_nums;
     }
 
-    once(e? : Effect<any>) {
-        if(e) this.filter(e.addedInputConditionMap.n);
-        return new inputRequester(
+    once() {
+        return new InputRequester(
             inputType.number,
             this.nums.map(n => inputFormRegistry.num(n))
         )
     }
 
-    many<L extends number>(l : L, e? : Effect<any>){
-        if(e) this.filter(e.addedInputConditionMap.n);
-        return new inputRequester_multiple(
+    many<L extends number>(l : L){
+        return new InputRequester_multiple(
             l,
             inputType.number,
             this.nums.map(n => inputFormRegistry.num(n))
-        )
+        ) as InputRequester<inputType.number, Tuple_any<inputData_num, L>>
     }
 
-    // all(e? : Effect<any>){
-    //     if(e) this.filter(e.addedInputConditionMap.n);
-    //     return new inputRequester_multiple(
-    //         this.nums.length,
-    //         inputType.number,
-    //         this.nums.map(n => inputFormRegistry.num(n))
-    //     )
-    // }
+    all(){
+        return this.nums
+    }
 }
 
 
 
 class inputRequesterGenerator {
     //zones
-    field(s : dry_system, c : Player_specific | Positionable){
-        return new regen_zone(s, s.filter(0, z => z.is(zoneRegistry.z_field)))
+    field(s : dry_system, c : dry_card){
+        return new regen_zone(s, s.filter(0, z => z.is(zoneRegistry.z_field))).ofSamePlayer(s.getZoneOf(c))
     }
 
-    grave(s : dry_system, c : Player_specific | Positionable){
-        return new regen_zone(s, s.filter(0, z => z.is(zoneRegistry.z_grave)))
+    grave(s : dry_system, c : dry_card){
+        return new regen_zone(s, s.filter(0, z => z.is(zoneRegistry.z_grave))).ofSamePlayer(s.getZoneOf(c))
     }
 
-    deck(s : dry_system, c : Player_specific | Positionable){
-        return new regen_zone(s, s.filter(0, z => z.is(zoneRegistry.z_deck)))
+    deck(s : dry_system, c : dry_card){
+        return new regen_zone(s, s.filter(0, z => z.is(zoneRegistry.z_deck))).ofSamePlayer(s.getZoneOf(c))
     }
 
-    hand(s : dry_system, c : Player_specific | Positionable){
-        return new regen_zone(s, s.filter(0, z => z.is(zoneRegistry.z_hand)))
+    hand(s : dry_system, c : dry_card){
+        return new regen_zone(s, s.filter(0, z => z.is(zoneRegistry.z_hand))).ofSamePlayer(s.getZoneOf(c))
     }
 
-    specificType(s : dry_system, c : Player_specific | Positionable, zType : zoneRegistry){
-        return new regen_zone(s, s.filter(0, z => z.is(zType)))
+    specificType(s : dry_system, c : dry_card | Player_specific, zType : zoneRegistry){
+        return new regen_zone(s, s.filter(0, z => z.is(zType))).ofSamePlayer(Utils.isPlayerSpecific(c) ? c : s.getZoneOf(c))
     }
 
     oppositeZoneTo(s : dry_system, c : dry_card){
-        return new regen_zone(s, s.getZoneOf(c)!.getOppositeZone(this.field(s, c).clean()))
+        const layout = s.getLayout()
+        if(!layout) return new regen_zone(s, []);
+
+        const oppositeZoneID = layout.getOppositeZoneID(s.getZoneOf(c) as any)
+        if(oppositeZoneID === undefined) return new regen_zone(s, []);
+
+        const oppositeZone = s.getZoneWithID(oppositeZoneID)
+        if(!oppositeZone) return new regen_zone(s, []);
+
+        return new regen_zone(s, [oppositeZone])
     }
 
-    allZones(s : dry_system, c : Player_specific | Positionable){
-        return new regen_zone(s, s.filter(0, () => true))
+    enemy(s : dry_system, c : dry_card){
+        return this.oppositeZoneTo(s, c).cards()
+    }
+
+    allZones(s : dry_system, c : dry_card){
+        return new regen_zone(s, s.filter(0, () => true)).ofSamePlayer(s.getZoneOf(c))
     }
 
     //misc

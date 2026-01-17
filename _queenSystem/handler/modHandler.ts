@@ -1,7 +1,7 @@
 import GameModule from "../../types/mods/gameModule"
 import modLoader from "../loader/loader_mod"
 import type registryHandler from "./registryHandler";
-import type { Setting } from "../../types/abstract/gameComponents/settings"
+import type { Setting } from "../../types/gameComponents/settings"
 
 export default class modHandler {
     private loader : modLoader<GameModule>

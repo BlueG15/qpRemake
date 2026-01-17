@@ -1,4 +1,4 @@
-import { DisplayComponent, ParserModule, moduleInputObject, parseOptions } from '../../types/abstract/parser';
+import { DisplayComponent, ParserModule, moduleInputObject, parseOptions } from '../../types/parser';
 import type { nestedTree } from '../../types/misc';
 
 export default class tagsModule extends ParserModule {

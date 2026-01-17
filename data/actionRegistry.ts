@@ -1,3 +1,4 @@
+//this cannot be const due to the ingrained design decsion of usinng action name to create and check equality
 enum actionRegistry {
     //special
     "error" = -1,
@@ -7,8 +8,7 @@ enum actionRegistry {
     "a_turn_start" = 1,
     "a_turn_end",
     "a_turn_reset",
-    "a_activate_effect_internal", //partition
-    "a_increase_turn_count",
+    "a_internal_try_activate", //internal call to check can activate -> add a_activate (1st check)
     "a_set_threat_level",
     "a_do_threat_burn",
     "a_force_end_game",  
@@ -16,8 +16,7 @@ enum actionRegistry {
     "a_disable_card",
     "a_reset_card",
     "a_reset_effect", //effect
-    "a_pos_change_force",
-    "a_deal_damage_internal",
+    "a_move_force", 
     "a_get_input",
 
     //control flow redirection
@@ -27,7 +26,7 @@ enum actionRegistry {
     //1xx = API related actions
     "a_activate_effect" = 100, //partition
     "a_zone_interact",
-    "a_pos_change",
+    "a_move",
     "a_draw",
     "a_shuffle",
     "a_execute", //not implemented
@@ -45,14 +44,13 @@ enum actionRegistry {
     "a_clear_all_status_effect",
     "a_clear_all_counters",
     
-    "a_activate_effect_subtype", //effect
+    "a_reset_once",
     "a_reset_all_once",
     "a_modify_action",
 
     "a_attack",
     "a_deal_damage_ahead",
     "a_deal_damage_card",
-    "a_deal_damage_position",
     "a_deal_heart_damage",
     
     "a_destroy",
@@ -68,8 +66,7 @@ enum actionRegistry {
 
 type actionName = keyof typeof actionRegistry
 type actionID = (typeof actionRegistry)[actionName]
+type actionIDSpecific<T extends actionName> = (typeof actionRegistry)[T]
 
 export default actionRegistry
-export type {actionName, actionID}
-
-
+export type {actionName, actionID, actionIDSpecific}

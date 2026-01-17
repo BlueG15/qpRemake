@@ -1,8 +1,8 @@
-import Card from "../../types/abstract/gameComponents/card";
+import Card from "../../types/gameComponents/card";
 import type { cardData, cardData_unified, effectData } from "../../data/cardRegistry";
 import type effectLoader from "./loader_effect";
-import type { Setting } from "../../types/abstract/gameComponents/settings";
-import Effect from "../../types/abstract/gameComponents/effect";
+import type { Setting } from "../../types/gameComponents/settings";
+import Effect from "../../types/gameComponents/effect";
 
 //Cards have 2 parts
 
@@ -140,7 +140,7 @@ export default class cardLoader {
         //     debug log: loading card ${cid}, loaded ${effArr.length} effects\n`)
     
         if(dataOnly) {
-            const res = d as Omit<cardData_unified, "effects"> & {effects : effectData[]}
+            const res = d as any as Omit<cardData_unified, "effects"> & {effects : effectData[]}
             res.effects = effDataArr
             return res
         }
@@ -168,9 +168,6 @@ export default class cardLoader {
         }
 
         d.effects = Object.fromEntries( eff.map(e => [e.dataID, e.originalData]) )
-        d.partition[0].mapping = Utils.range(eff.length)
-        d.partition[0].displayID = cid
-
         return new Card(s, d, eff)
     }
 }

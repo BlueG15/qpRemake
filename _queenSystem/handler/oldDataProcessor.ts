@@ -1,5 +1,5 @@
 import cardData from "../../data/old/oldData/cards";
-import { defaultPartition, oldImgURL } from "../../data/cardRegistry";
+import { oldImgURL } from "../../data/cardRegistry";
 
 type CSVString = string
 class dataProcessor {

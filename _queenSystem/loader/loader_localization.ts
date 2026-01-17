@@ -1,4 +1,4 @@
-import { supporttedLanguages, type Setting } from "../../types/abstract/gameComponents/settings";
+import { supporttedLanguages, type Setting } from "../../types/gameComponents/settings";
 
 export default class localizationLoader {
     private setting : Setting

@@ -4,13 +4,14 @@ import { operatorRegistry } from "../../data/operatorRegistry";
 import { rarityRegistry } from "../../data/rarityRegistry";
 import { playerTypeID, zoneRegistry } from "../../data/zoneRegistry";
 import Parser, { loadOptions, parseOptions } from "../../effectTextParser";
-import Card from "../../types/abstract/gameComponents/card";
-import type Zone from "../../types/abstract/gameComponents/zone";
-import type queenSystem from "../queenSystem";
+import Card from "../../types/gameComponents/card";
+import type Zone from "../../types/gameComponents/zone";
+import type QueenSystem from "../queenSystem";
 import type { dry_system, player_stat } from "../../data/systemRegistry";
+import type Effect from "../../types/gameComponents/effect";
 
-import { parseMode, DisplayComponent, TextComponent } from "../../types/abstract/parser";
-import { LocalizedCard, LocalizedAction, LocalizedEffect, LocalizedPlayer, LocalizedSystem, LocalizedZone } from "../../types/abstract/serializedGameComponents/Localized";
+import { parseMode, DisplayComponent, TextComponent } from "../../types/parser";
+import { LocalizedCard, LocalizedAction, LocalizedEffect, LocalizedPlayer, LocalizedSystem, LocalizedZone } from "../../types/serializedGameComponents/Localized";
 import localizationLoader from "../loader/loader_localization";
 import registryHandler from "./registryHandler";
 
@@ -18,13 +19,13 @@ export default class Localizer {
     private loader : localizationLoader
     private parser = new Parser()
     private loaded = false
-    private __s : dry_system
+    private boundSystem : dry_system
     get languageID() {return this.loader.currentLanguageID}
     get languageStr() {return this.loader.currentLanguageStr}
     get currLanguageData() {return this.loader.getSymbolMap()}
     
     constructor(s : dry_system, regs : registryHandler){
-        this.__s = s
+        this.boundSystem = s
         this.loader = regs.localizationLoader
     }
 
@@ -50,15 +51,15 @@ export default class Localizer {
     getAndParseLocalizedSymbol(
         s : string,
         mode : parseMode = parseMode.gameplay, 
-        card? : Card, pid : number = 0, 
+        c? : Card, e? : Effect, 
     ){
         if(!this.loaded) return;
         const res = this.getLocalizedSymbol(s)
         if(res === undefined) return [
             new TextComponent(s, `Unknown key`)
         ];
-        const i = card ? card.getPartitionDisplayInputs(this.__s, pid) : []
-        const o = new parseOptions(mode, i, true, card)
+        const i = (e && c) ? e.getDisplayInput(c, this.boundSystem) : []
+        const o = new parseOptions(mode, i, true, c)
         const ret = this.parser.parse(res, o) as DisplayComponent[]
 
         let addSpaceStart = false
@@ -78,27 +79,30 @@ export default class Localizer {
     localizeCard(c? : Card, mode : parseMode = parseMode.gameplay) : LocalizedCard | undefined {
         if(!this.loaded) return;
         if(!c) return;
-        const eArr = c.getAllDisplayEffects().map(
-            p => new LocalizedEffect(
-                p.pid,
-                this.getAndParseLocalizedSymbol(p.key, mode, c, p.pid)!,
-                this.getAndParseLocalizedSymbol(p.type, mode, c, p.pid)!,
-                p.subtypes.map(st => this.getAndParseLocalizedSymbol(st, mode, c, p.pid)!),
-                this.getAndParseLocalizedSymbol(p.type + "_desc", mode, c, p.pid),
-                p.subtypes.map(st => this.getAndParseLocalizedSymbol(st + "_desc", mode, c, p.pid))
+        const eArr1 = c.effects.map(
+            e =>new LocalizedEffect(
+                e.id,
+                this.getAndParseLocalizedSymbol("e_" + e.displayID, mode, c, e)!,
+                this.getAndParseLocalizedSymbol("e_t_" + e.type, mode, c, e)!,
+                e.subTypes.map(st => this.getAndParseLocalizedSymbol("e_st_" + st.dataID, mode, c, e)!),
+                this.getAndParseLocalizedSymbol("e_t_" + e.type + "_desc", mode, c, e),
+                e.subTypes.map(st => this.getAndParseLocalizedSymbol("e_st_" + st + "_desc", mode, c, e))
+            )
+        )
+        const eArr2 = c.statusEffects.map(
+            e =>new LocalizedEffect(
+                e.id,
+                this.getAndParseLocalizedSymbol("e_" + e.displayID, mode, c, e)!,
+                this.getAndParseLocalizedSymbol("e_t_" + e.type, mode, c, e)!,
+                e.subTypes.map(st => this.getAndParseLocalizedSymbol("e_st_" + st.dataID, mode, c, e)!),
+                this.getAndParseLocalizedSymbol("e_t_" + e.type + "_desc", mode, c, e),
+                e.subTypes.map(st => this.getAndParseLocalizedSymbol("e_st_" + st + "_desc", mode, c, e))
             )
         )
 
-        const eArr1 : typeof eArr = []
-        const eArr2 : typeof eArr = []
-        for(const p of eArr){
-            if(c.isStatusPartition(p.id)) eArr2.push(p);
-            else eArr1.push(p)
-        }
-
         const testObj = new LocalizedCard(
             c.id,
-            this.getAndParseLocalizedSymbol(c.dataID, mode, c)!,
+            this.getAndParseLocalizedSymbol("c_" + c.dataID, mode, c)!,
             c.extensionArr.map(ex => this.getAndParseLocalizedSymbol("ex_" + ex, mode, c)!),
             eArr1, eArr2,
             c.pos.zoneID,
@@ -124,10 +128,11 @@ export default class Localizer {
             z.id,
             z.playerIndex,
             z.types as any,
-            z.types.map(t => this.getAndParseLocalizedSymbol(zoneRegistry[t], mode)!),
-            this.getAndParseLocalizedSymbol(z.classID, mode)!,
+            z.types.map(t => this.getAndParseLocalizedSymbol("z_t_" + zoneRegistry[t], mode)!),
+            this.getAndParseLocalizedSymbol("z_" + z.classID, mode)!,
             z.cardArr.map(c => c ? this.localizeCard(c) : c),
-            z.shape.map(c => c),
+            z.boundX,
+            z.boundY
         )
         if( Object.values(testObj).some(v => v === undefined) ) return undefined;
         return testObj
@@ -145,7 +150,7 @@ export default class Localizer {
                 )
     }
 
-    localizeSystem(s? : queenSystem, mode : parseMode = parseMode.gameplay){
+    localizeSystem(s? : QueenSystem, mode : parseMode = parseMode.gameplay){
         if(!this.loaded) return undefined;
         if(!s) return;
 
@@ -170,7 +175,7 @@ export default class Localizer {
         return testObj
     }
 
-    localizeCardFromKey(s : queenSystem | undefined, c_key : string, variants : string[] = [], mode : parseMode = parseMode.gameplay){
+    localizeCardFromKey(s : QueenSystem | undefined, c_key : string, variants : string[] = [], mode : parseMode = parseMode.gameplay){
         if(!this.loaded) return undefined;
         if(!s) return;
 

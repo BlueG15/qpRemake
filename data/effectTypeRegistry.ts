@@ -7,6 +7,8 @@ enum effectTypeRegistry {
     e_t_lock,
     e_t_counter,
     e_t_status,
+    e_t_defense,
+    e_t_instant,
 }
 
 type effectTypeName = keyof typeof effectTypeRegistry

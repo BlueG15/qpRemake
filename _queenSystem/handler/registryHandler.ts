@@ -1,5 +1,5 @@
 // import { registryRegistry } from "../../types/data/registryRegistry";
-import registryAPI from "../../types/abstract/gameComponents/API";
+import registryAPI from "../../types/gameComponents/API";
 
 //importing loaders
 import cardLoader from "../loader/loader_card";
@@ -7,18 +7,22 @@ import effectLoader from "../loader/loader_effect";
 import subtypeLoader from "../loader/loader_subtype";
 import typeLoader from "../loader/loader_type";
 import zoneLoader from "../loader/loader_zone";
-import customHandlerLoader from "../loader/loader_handler";
+import HandlerLoader from "../loader/loader_action";
 import localizationLoader from "../loader/loader_localization";
 
 import { cardDataRegistry, type cardData, type effectData } from "../../data/cardRegistry";
 import effectDataRegistry from "../../data/effectRegistry";
-import type { Setting } from "../../types/abstract/gameComponents/settings";
+import type { Setting } from "../../types/gameComponents/settings";
 import type { Action } from "./actionGenrator";
-import type queenSystem from "../queenSystem";
-import type Effect from "../../types/abstract/gameComponents/effect";
-import type EffectSubtype from "../../types/abstract/gameComponents/effectSubtype";
+import type QueenSystem from "../queenSystem";
+import type Effect from "../../types/gameComponents/effect";
+import type EffectSubtype from "../../types/gameComponents/effectSubtype";
 import type { zoneData } from "../../data/zoneRegistry";
-import type Zone from "../../types/abstract/gameComponents/zone";
+import type { Zone_T } from "../../types/gameComponents/zone";
+import { DeckData } from "../../data/deckRegistry";
+import { rarityData } from "../../data/rarityRegistry";
+import EffectType from "../../types/gameComponents/effectType";
+import type { actionName } from "../../data/actionRegistry";
 
 export default class registryHandler implements registryAPI {
     cardLoader : cardLoader
@@ -26,13 +30,13 @@ export default class registryHandler implements registryAPI {
     typeLoader : typeLoader
     subTypeLoader : subtypeLoader
     zoneLoader : zoneLoader
-    customActionLoader : customHandlerLoader
+    actionLoader : HandlerLoader
     localizationLoader : localizationLoader
 
     constructor(s : Setting){
         this.subTypeLoader = new subtypeLoader();
         this.zoneLoader = new zoneLoader();
-        this.customActionLoader = new customHandlerLoader();
+        this.actionLoader = new HandlerLoader();
         this.localizationLoader = new localizationLoader(s);
         this.typeLoader = new typeLoader();
 
@@ -40,52 +44,46 @@ export default class registryHandler implements registryAPI {
         this.cardLoader = new cardLoader(this.effectLoader);
     }
 
-    registry_edit_card(key: string, value: cardData): void {
-        this.cardLoader.load(key, value);
+    //TODO : implement these
+    add_effect_type(constructor: typeof EffectType): void {
+        throw new Error("Method not implemented.");
+    }
+    add_rarity(key: string, rarity: rarityData): number {
+        throw new Error("Method not implemented.");
+    }
+    add_operator(name: string): number {
+        throw new Error("Method not implemented.");
+    }
+    add_deck(name: string, content: DeckData): number {
+        throw new Error("Method not implemented.");
     }
 
-    registry_edit_custom_action_handler(actionIDs: number[], handlerFunc: ((a: Action, system: queenSystem) => undefined | Action[])): void {
-        actionIDs.forEach(i => this.customActionLoader.load(i, handlerFunc));
+    add_effect(e: (new (...p : ConstructorParameters<typeof Effect>) => Effect) & { getEffData: () => { base: effectData; upgrade?: Partial<effectData>; }; }): void {
+        this.effectLoader.add(e.name, e.getEffData().base)
     }
-
-    registry_edit_effect_data(key: string, val: effectData): void {
-        this.effectLoader.add(key, val);
+    add_card(key : string, cardData: cardData): void {;
+        this.cardLoader.load(key, cardData)
     }
-
-    registry_edit_effect_class(key: string, constructor: typeof Effect): void {
-        this.effectLoader.add(key, constructor);
+    
+    add_action_handler<T extends actionName>(actionName : T, handlerFunc: ((system: QueenSystem, a: Action<T>) => undefined | void | Action[])): void {
+        this.actionLoader.load(actionName, handlerFunc as any);
     }
-
-    registry_edit_effect(key: string, data: effectData, constructor: typeof Effect): void {
-        this.effectLoader.add(key, data);
-        this.effectLoader.add(key, constructor);
+    
+    add_effect_subtype(id : number, constructor: typeof EffectSubtype): void {
+        this.subTypeLoader.load(id, constructor);
     }
-
-    registry_edit_effect_subtype(key: string, constructor: typeof EffectSubtype): void {
-        this.subTypeLoader.load(key, constructor);
-    }
-
-    registry_edit_localization(language: string, key: string, val: string): void {
+    
+    add_localization(language: string, key: string, val: string): void {
         this.localizationLoader.add(language, key, val);
     }
-
-    // registry_edit_rarity(key: number, data: rarityData): void {
-    //     (operatorDataRegistry as any)[key] = data
-    //     if(operatorRegistry[key] === undefined){
-    //         operatorRegistry[key]
-    //     }
-    // }
-
-    registry_edit_zone_data(key: string, data: zoneData): void {
-        this.zoneLoader.load(key, data);
+    add_localization_bulk(language : string, obj: Record<string, string>): void {
+        Object.entries(obj).forEach(([key, val]) => {
+            this.add_localization(language, key, val)
+        })
     }
 
-    registry_edit_zone_class(key: string, constructor: typeof Zone): void {
-        this.zoneLoader.load(key, undefined, constructor)
-    }
-
-    registry_edit_zone(key: string, data: zoneData, constructor: typeof Zone): void {
-        this.zoneLoader.load(key, data, constructor)
+    add_zone(data: zoneData, constructor: new (...p : any) => Zone_T): void {
+        this.zoneLoader.load(data.id, data, constructor)
     }
 
 }

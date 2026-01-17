@@ -1,11 +1,8 @@
 import type { cardData_unified, patchData } from "../data/cardRegistry";
-import { type Setting, id_style } from "../types/abstract/gameComponents/settings";
+import { type Setting, id_style } from "../types/gameComponents/settings";
 // import { partitionData } from "../types/data/cardRegistry";
-import { partitionSetting } from "../types/abstract/gameComponents/settings";
-import Position from "../types/abstract/generics/position";
+import Position from "../types/generics/position";
 import type { nestedTree, Player_specific, Positionable, safeSimpleTypes, typeSignature } from "../types/misc";
-
-type recursiveGenerator<T> = Generator<any, T | recursiveGenerator<T>, any>
 
 class utils {
 
@@ -134,58 +131,6 @@ class utils {
         })
     }
 
-    static indexToPosition(index : number, shapeArr : ReadonlyArray<number>) {
-        const position : number[] = new Array(shapeArr.length);
-        let remainingIndex = index;
-        const l = shapeArr.length - 1
-    
-        for (let i = l; i >= 0; i--) {
-            position[l - i] = remainingIndex % (shapeArr[l - i] as number);
-            remainingIndex = Math.floor(remainingIndex / (shapeArr[l - i] as number));
-        }
-    
-        return position;
-    }
-
-    /**
-     * 
-     * @param position 
-     * @param shapeArr the base
-     * @returns 
-     * Imagine counting up in the base [2, 2]
-     * That would go: [0, 0], [1, 0], [0, 1], [1, 1] [x, y]
-     * Once the previous index hits the limit, the next count up and this index is back to 0
-     * so Pos -> index of [1, 0] is 1 (0 indexing)
-     * 
-     * Invalid indexes like [0, 3] in base [2, 2] would be disallow but i didnt code this part in
-     */
-    static positionToIndex(position : ReadonlyArray<number>, shapeArr :  ReadonlyArray<number>) {
-        if(!shapeArr.length || !position.length) return -1;
-
-        let flatIndex = 0;
-        let stride = 1;
-        const l = shapeArr.length - 1 
-    
-        for (let i = l; i >= 0; i--) {
-            flatIndex += (position[l - i] as number) * stride;
-            stride *= (shapeArr[l - i] as number);
-        }
-    
-        return flatIndex;
-    }
-
-    static isPositionOutOfBounds(position : ReadonlyArray<number>, shapeArr : ReadonlyArray<number>){
-        return position.some((i, index) => i >= shapeArr[index] || i < 0)
-    }
-
-    static isPartitioningManual(ps : partitionSetting){
-        return ps === partitionSetting.manual_mapping_no_ghost || ps === partitionSetting.manual_mapping_with_ghost || ps === partitionSetting.manual_mapping_with_ghost_spread
-    }
-
-    static isPartitioningAuto(ps : partitionSetting){
-        return ps === partitionSetting.auto_mapping_one_to_one || ps === partitionSetting.auto_mapping_types || ps === partitionSetting.auto_mapping_subtypes || ps === partitionSetting.auto_mapping_ygo
-    }
-
     static patchCardData(cData : cardData_unified, patchData : patchData){
         Object.keys(patchData).forEach(i => {
             if(
@@ -299,61 +244,6 @@ class utils {
         if(arr.length === 1) return arr[0]
         const n = this.rng(arr.length - 1, 0, true);
         return arr[n];
-    }
-
-    //generators API
-    static *mergeGeneratorReturn<T>(gen1 : recursiveGenerator<T[]>, gen2 : recursiveGenerator<T[]>) : Generator<any, T[], any>{
-        let input1 : any = undefined
-        let input2 : any = undefined
-
-        while(true){
-            let n = gen1.next(input1);
-            if(n.done) {
-                if(Array.isArray(n.value)){
-                    input1 = n.value; break;
-                } else {
-                    gen1 = n.value;
-                    input1 = undefined;
-                }
-            }
-            else input1 = yield n.value;
-        }
-
-        while(true){
-            let n = gen2.next(input2);
-            if(n.done) {
-                if(Array.isArray(n.value)){
-                    input2 = n.value; break;
-                } else {
-                    gen2 = n.value;
-                    input2 = undefined;
-                }
-            }
-            else input2 = yield n.value;
-        }
-
-        return [...input1, ...input2]
-    }
-
-    static *addFinalToGenerator<T>(gen : recursiveGenerator<T[]>, f : (arr : T[]) => T[] | void) : Generator<any, T[], any>{
-        let input : any = undefined
-
-        while(true){
-            let n = gen.next(input);
-            if(n.done) {
-                if(Array.isArray(n.value)){
-                    input = n.value; break;
-                } else {
-                    gen = n.value;
-                    input = undefined;
-                }
-            }
-            else input = yield n.value;
-        }
-
-        const res = f(input);
-        if(res === undefined) return input;
-        return res;
     }
 
     static getRandomNumberArr(len : number) : number[]{
