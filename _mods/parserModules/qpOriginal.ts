@@ -4,7 +4,7 @@ import sectionIDModule from "./sectionID";
 import tagsModule from "./tags";
 import uadduminusModule from "./uaddminus";
 import variantCheckModule from "./variantCheck";
-import { modPack } from "../../types/parser";
+import { modPack } from "../../system-components/localization/xml-text-parser";
 
 class qpOriginalPack extends modPack {
     constructor(){

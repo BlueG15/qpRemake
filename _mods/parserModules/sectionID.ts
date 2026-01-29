@@ -5,8 +5,8 @@ import {
     moduleInputObject, 
     parseOptions, 
     TextComponent, IconComponent, SymbolComponent 
-} from '../../types/parser';
-import type { nestedTree } from '../../types/misc';
+} from '../../system-components/localization/xml-text-parser';
+import type { nestedTree } from '../../core/misc';
 
 export default class sectionIDModule extends ParserModule {
 

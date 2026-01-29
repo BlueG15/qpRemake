@@ -29,11 +29,6 @@
     "typescript": "^5.9.2",
     "util": "^0.12.5"
   },
-  "eslintConfig": {
-    "plugins": [
-      "local"
-    ]
-  },
   "files": [
     "lib",
     "README.md",

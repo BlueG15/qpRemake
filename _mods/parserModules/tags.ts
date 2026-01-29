@@ -1,5 +1,5 @@
-import { DisplayComponent, ParserModule, moduleInputObject, parseOptions } from '../../types/parser';
-import type { nestedTree } from '../../types/misc';
+import { DisplayComponent, ParserModule, moduleInputObject, parseOptions } from '../../system-components/localization/xml-text-parser';
+import type { nestedTree } from '../../core/misc';
 
 export default class tagsModule extends ParserModule {
 

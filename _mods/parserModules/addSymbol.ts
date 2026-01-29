@@ -4,7 +4,7 @@ import {
     moduleInputObject, 
     parseOptions, 
     SymbolComponent
-} from '../../types/parser';
+} from '../../system-components/localization/xml-text-parser';
 
 export default class addSymbolModule extends ParserModule {
 

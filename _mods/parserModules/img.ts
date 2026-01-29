@@ -6,7 +6,7 @@ import {
     iconID, 
     IconComponent, 
     ImageComponent 
-} from '../../types/parser';
+} from '../../system-components/localization/xml-text-parser';
 
 export default class imgModule extends ParserModule {
 

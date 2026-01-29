@@ -1,5 +1,5 @@
-import { DisplayComponent, ParserModule, moduleInputObject, parseOptions, mode, TextComponent } from '../../types/parser';
-import type { nestedTree } from '../../types/misc';
+import { DisplayComponent, ParserModule, moduleInputObject, parseOptions, mode, TextComponent } from '../../system-components/localization/xml-text-parser';
+import type { nestedTree } from '../../core/misc';
 
 export default class variantCheckModule extends ParserModule {
 

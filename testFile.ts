@@ -1,6 +1,6 @@
 
 import { QueenSystem, operatorRegistry, defaultSetting, sampleRenderer, playerTypeID } from "./index";
-import testSuite from "./_queenSystem/testSuite";
+import testSuite from "./queen-system/testSuite";
 
 async function main(){
     let setting = new defaultSetting();

@@ -520,7 +520,7 @@ This child class has 5 jobs :
    
 5. Return some parameters to inject into the effect text by overriding the ```getDisplayInput``` function.
 
-Going over how to make an action, you need to invoke the const ```actionConstructorRegistry```, hopefully ts takes over the rest of the guiding process if i do my magic correctly
+Going over how to make an action, you need to invoke the const ```ActionGenerator```, hopefully ts takes over the rest of the guiding process if i do my magic correctly
 
 
 Update 1.2.9:
@@ -533,7 +533,7 @@ If you need more actions, please uhhh, notify me and skip that effect
 
 Actions also have inputs with weird handling, I have made a template class for any effect that specifically wants the inputs for an a_move but anything else is albeit possible, not short enough to be put on here so skip any effects that wants it
 
-For me in the future, this requires updating actionConstructorRegistry and changing the handling logic over in queenSystem
+For me in the future, this requires updating ActionGenerator and changing the handling logic over in queenSystem
 
 ### Update effect registry
 
