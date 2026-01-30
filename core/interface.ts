@@ -114,7 +114,7 @@ export interface CardDry extends IdAble {
 
 export interface ZoneLayoutDry {
     localToGlobal(p : PositionDry) : PositionDry
-    getOppositeZoneID(z : ZoneDry) : number
+    getOppositeZoneID(z : ZoneDry) : number | undefined
 }
 
 export interface ZoneDry extends IdAble, PlayerSpecific {
@@ -183,6 +183,10 @@ export interface ZoneDry extends IdAble, PlayerSpecific {
 }
 
 export interface SystemDry {
+    //propeerties
+    readonly threatLevel : number
+    readonly maxThreatLevel : number
+
     //log API
     hasEffectActivated(e : EffectDry) : boolean
     hasCardActivated(c : CardDry) : boolean
@@ -193,7 +197,7 @@ export interface SystemDry {
     getResolveOrigin<T extends ActionName>(a : Action, n : T) : undefined | Action<T>
     readonly isInTriggerPhase : boolean
     readonly isInChainPhase : boolean
-    readonly turnAction : Readonly<Action>
+    readonly turnAction : Readonly<Action> | undefined
 
     //zone APIs
     zoneArr : ReadonlyArray<ZoneDry>

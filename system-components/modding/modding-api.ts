@@ -7,14 +7,10 @@ import type { Zone } from "../../game-components/zones";
 import type QueenSystem from "../../queen-system";
 
 //TODO : implement this class, make it global, mods only needs to import this to add stuff
-export class ModdingAPI {
-    constructor(private boundSystem : QueenSystem){}
+export interface ModdingAPI {
     //add stuff
-    addCard          (name : string, constructor : (new (...p : ConstructorParameters<typeof Card>) => Card) & {getCardData?() : CardData}, data? : CardData) : CardDataID {
-        
-    }
-
-    addEffect        (name : string, constructor : (new (...p : ConstructorParameters<typeof Effect>) => Effect) & {getEffData?() : EffectData}, data? : EffectData) : EffectDataID
+    addCard          (name : string, constructor : (new (...p : ConstructorParameters<typeof Card>) => Card) & {getCardData?() : CardData}, data : CardData) : CardDataID
+    addEffect        (name : string, constructor : (new (...p : ConstructorParameters<typeof Effect>) => Effect) & {getEffData?() : EffectData}, data : EffectData) : EffectDataID
     addEffectType    (name : string, constructor : (new (...p : ConstructorParameters<typeof EffectModifier>) => EffectModifier)) : EffectTypeID
     addEffectSubtype (name : string, constructor : (new (...p : ConstructorParameters<typeof EffectModifier>) => EffectModifier)) : EffectSubtypeID
     addZone          (name : string, data : ZoneData, constructor : (new (...p : ConstructorParameters<typeof Zone>) => Zone)) : ZoneTypeID

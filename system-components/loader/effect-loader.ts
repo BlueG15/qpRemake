@@ -16,7 +16,7 @@ type EffectContructor = new (...p : ConstructorParameters<typeof Effect>) => Eff
 // naive -> load everything into mem
 // dynamic -> async load both class and data if needed
 // fixxed size cache -> use some kind of eviction scheme, similar to paging  
-export default class effectLoader {
+export default class EffectLoader {
     private classCache : Map<EffectDataID, EffectContructor> = new Map()
     private countCache : Map<EffectDataID, number> = new Map()
 

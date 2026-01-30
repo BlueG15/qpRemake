@@ -93,12 +93,12 @@ class utils {
         let randID = this.generateID(s.dynamic_id_len);
         let arr : safeSimpleTypes[] = [randID, num]
         switch(s.id_style){
-            case id_style.MINIMAL: return arr.join(s.id_separator);
-            case id_style.REDUCED: {
+            case id_style.minimal: return arr.join(s.id_separator);
+            case id_style.reduced: {
                 arr.unshift(id);
                 return arr.join(s.id_separator);
             }
-            case id_style.FULL: {
+            case id_style.full: {
                 arr.unshift(...append);
                 arr.unshift(id);
                 return arr.join(s.id_separator);

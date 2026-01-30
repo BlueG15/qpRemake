@@ -3,24 +3,24 @@ import type { Action } from "./registry/action";
 import type { StatPlayer } from "./interface";
 import type { Setting } from "./settings";
 
-export interface logInfoNormal {
+export interface LogInfoNormal {
     currentPhase : TurnPhase.declare | TurnPhase.input | TurnPhase.recur | TurnPhase.complete,
     currentAction : Action,
 }
 
-export interface logInfoHasResponse {
+export interface LogInfoHasResponse {
     currentPhase : TurnPhase.chain | TurnPhase.trigger,
     currentAction : Action,
     responses : Record<string, string[]> //cardID -> effectID[]
 }
 
-export interface logInfoResolve {
+export interface LogInfoResolve {
     currentPhase : TurnPhase.resolve,
     currentAction : Action,
     resolvedResult : Action[]
 }
 
-export type logInfo = logInfoNormal | logInfoResolve | logInfoHasResponse
+export type LogInfo = LogInfoNormal | LogInfoResolve | LogInfoHasResponse
 
 export const enum DamageType {
     "physical" = 0,

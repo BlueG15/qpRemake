@@ -1,6 +1,6 @@
 // import { ActionID as actionID, ActionName as actionName, ActionIDRegistry as ActionRegistry } from "./action";
 import { errorID } from "./error";
-import type { logInfoHasResponse } from "../system";
+import type { LogInfoHasResponse } from "../system";
 
 import type { 
     PositionDry,
@@ -592,7 +592,7 @@ let DefaultActionGenerator = {
     a_reset_effect: ActionAssembler("a_reset_effect", Target.effect),
     a_activate_effect: ActionAssembler("a_activate_effect", Target.effect),
     a_internal_try_activate: ActionAssembler("a_internal_try_activate", Target.pos, {} as {
-        log : logInfoHasResponse
+        log : LogInfoHasResponse
     }),
     a_add_status_effect: addEffectContructor,
     a_add_effect : addEffectContructor,

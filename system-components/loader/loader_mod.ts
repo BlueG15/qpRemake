@@ -1,7 +1,7 @@
 import type { Setting } from "../../core/settings";
 
 //mods have empty constructor
-export default class modLoader<T> {
+export default class ModLoader<T = void> {
     private objectCache = new Map<string, T>()
     private setting : Setting
 

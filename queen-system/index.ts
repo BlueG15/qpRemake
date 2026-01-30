@@ -1,65 +1,64 @@
-import _node from "../types/generics/node";
-import _tree from "../types/generics/tree";
-import zoneHandler, { Layout } from "../aboutZones/zoneHandler";
-import actionID, {actionName, actionID} from "../aboutActions/actionID";
+import _node from "../system-components/action-tree/node";
+import _tree from "../system-components/action-tree/tree";
+import ZoneLoader from "../system-components/loader/loader_zone";
+import { ActionGenerator, ActionID, Action, ActionName, type LogInfo } from "../core";
 
-import { Action, actionConstructionObj_variable, ActionGenerator, Identification, Action_class} from "../aboutActions/actionGenrator";
-import type Error from "../defaultImplementation/errors";
+import { AutoInputOption, Setting } from "../core/settings";
+
+import CardLoader from "../system-components/loader/card-loader";
+import ModLoader from "../system-components/loader/loader_mod";
+import Localizer from "../system-components/localization/localizer";
+
 import { 
-    unregisteredAction,
-    cannotLoad,
-} from "../defaultImplementation/errors";
-
-import { auto_input_option, Setting } from "../core/settings";
-
-import cardHandler from "./handler/cardHandler";
-import registryHandler from "./handler/registryHandler";
-import modHandler from "./handler/modHandler";
-import Localizer from "../system-components/localization/localizationHandler";
-
-import { operatorRegistry } from "../game-components/operators/type";
+    OperatorRegistry,
+    PlayerTypeID,
+    ZoneRegistry
+} from "../core";
 import { StatusEffect_base } from "../game-components/effects/default/e_status";
-import { playerTypeID, zoneRegistry } from "../aboutZones/zoneData";
 
-import Card from "../game-components/cards/card";
-import __Zone__ from "../aboutZones/zone";
-import Effect from "../types/gameComponents/effect";
-import EffectSubtype from "../effectSubtypes/effectSubtype";
+import { Position } from "../game-components/positions";
+import { Card } from "../game-components/cards";
+import { Zone } from "../game-components/zones";
+import { Effect } from "../game-components/effects";
+import { EffectModifier } from "../core";
 
+import { InputRequestData, InputRequest } from "../system-components/inputs";
 import { 
-    inputData,
-    player_stat,
-    suspensionReason,
-    TurnPhase,
+    Target,
+    TargetSystem,
+    TargetAction,
+    TargetZone,
+    TargetCard,
+    TargetEffect,
+    TargetEffectType,
+    TargetEffectSubType,
+    TargetNull,
+    TargetPlayer,
+    TargetPos,
+    TargetBool,
+    TargetStr,
+    TargetNumber,
+    TargetSpecific,
+} from "../core";
+import { 
+    SystemDry,
+    ZoneDry,
+    CardDry, 
+    EffectDry,
+} from "../core";
 
-    dry_card,
-    dry_effect,
-    dry_position,
-    dry_zone,
-    dry_effectType,
-    dry_effectSubType,
+import { StatPlayer, SuspensionReason, TurnPhase } from "../core";
+import { IdAble, notFull, PlayerSpecific, Positionable } from "../core";
 
-    logInfoNormal,
-    logInfoResolve,
-    logInfo,
-    inputType,
-    inputData_bool,
-    inputData_num,
-    inputData_str,
-    inputDataSpecific,
-    logInfoHasResponse,
-    identificationType,
-    identificationInfo_effect,
-} from "../data/systemRegistry";
-
-import { id_able, notFull, Player_specific, Positionable, StrictGenerator } from "../core/misc";
-import Position from "../game-components/positions";
-
-import { inputFormRegistry, InputRequester } from "../system-components/inputs/actionInputGenerator";
-import { qpRenderer } from "./renderer/rendererInterface";
-import { loadOptions } from "../effectTextParser";
-import { SerializedCard, Serialized_effect, SerializedPlayer, SerializedSystem, SerializedZone } from "../system-components/serialization/serializedGameComponents/Gamestate";
-import { parseMode } from "../system-components/localization/xml-text-parser";
+import { qpRenderer } from "../system-components/renderer";
+import { LoadOptions, ParseMode } from "../system-components/localization/xml-text-parser";
+import { 
+    SerializedCard, 
+    SerializedEffect, 
+    SerializedPlayer, 
+    SerializedSystem, 
+    SerializedZone 
+} from "../core/serialized";
 
 // import type dry_card from "../dryData/dry_card";
 // import position from "../baseClass/position";
@@ -69,24 +68,25 @@ type completed = boolean
 type cardID = string
 type effectID = string
 
-class QueenSystem {
+class QueenSystem implements SystemDry {
     //properties
     turnAction? : Action = undefined
     turnCount : number = 0
     waveCount : number = 0
+    threatLevel : number = 0
+    maxThreatLevel : number = 20
 
     //handlers
-    zoneHandler : zoneHandler
-    cardHandler : cardHandler
-    registryFile : registryHandler
-    modHandler : modHandler
+    zoneHandler : ZoneLoader
+    cardHandler : CardLoader
+    modHandler : ModLoader
     localizer : Localizer
 
     //setting
     setting : Setting
 
     //
-    player_stat : player_stat[] = []
+    player_stat : StatPlayer[] = []
     
     private processStack : number[] = [] 
     //stores id of node before step "recur until meet this again"
@@ -94,13 +94,13 @@ class QueenSystem {
     //^ node id of the node before suspended, 
     //when unsuspended, continue processing this node from current phase ID
     
-    private suspensionReason : suspensionReason | false = false
+    private suspensionReason : SuspensionReason | false = false
 
     private curr_input_obj : ReturnType<Action<"a_get_input">["flatAttr"]> | undefined = undefined
 
     get isSuspended() {return this.suspensionReason !== false}
 
-    fullLog : logInfo[] = []
+    fullLog : LogInfo[] = []
 
     phaseIdx : TurnPhase = TurnPhase.declare
     actionTree : _tree<Action<"a_turn_end">>
@@ -108,22 +108,6 @@ class QueenSystem {
     //cardID, effectIDs[]
     get rootID() : number {return this.actionTree.root.id}
     getRootAction() {return this.actionTree.root.data}
-    
-    get threatLevel() : number[] {return this.zoneHandler.system.map(i => i.threat)}
-    set threatLevel(val : number | number[]){
-        if(typeof val === "number"){
-            if(isNaN(val) || val < 0) val = 0;
-            // if(val > this.zoneHandler.system.maxThreat) val = this.zoneHandler.system.maxThreat
-            this.zoneHandler.system.forEach(i => i.threat = val as number);
-        } else {
-            const s = this.zoneHandler.system
-            val.forEach((t, index) => {
-                s[index].threat = t
-            })
-        }
-    }
-
-    get maxThreatLevel() : number[] {return this.zoneHandler.system.map(i => i.maxThreat)}
     getLayout() {return this.zoneHandler.layout}
 
     constructor(
@@ -592,7 +576,7 @@ class QueenSystem {
             }
             
             switch(this.setting.auto_input){
-                case auto_input_option.first : {
+                case AutoInputOption.first : {
                     while(true){
                         let input : inputData = i_set ? i_set[0] : this.getAllInputs(i_type, true)[0]
                         const k = proceed(this, input)
@@ -603,7 +587,7 @@ class QueenSystem {
                     }
                     break;
                 }
-                case auto_input_option.last : {
+                case AutoInputOption.last : {
                     while(true){
                         let input : inputData = i_set ? i_set.at(-1)! : this.getAllInputs(i_type, true).at(-1)!
                         const k = proceed(this, input)
@@ -614,7 +598,7 @@ class QueenSystem {
                     }
                     break;
                 }
-                case auto_input_option.random : {
+                case AutoInputOption.random : {
                     while(true){
                         let input : inputData = i_set ? Utils.getRandomElement(i_set)! : Utils.getRandomElement(this.getAllInputs(i_type, true))!
                         const k = proceed(this, input)
@@ -624,7 +608,7 @@ class QueenSystem {
                         };
                     }
                 }
-                case auto_input_option.default : {
+                case AutoInputOption.default : {
                     while(true){
                         //Because of this condition, inputRequester_multiple is NOT applied automatically
                         //i.e input wants 2 zones, we have 2 zones, but we aint apply any cause its not 1
@@ -943,4 +927,4 @@ class QueenSystem {
 }
 
 export default QueenSystem
-export {logInfo}
+export {LogInfo as logInfo}

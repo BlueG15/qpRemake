@@ -4,7 +4,7 @@ import { PlayerTypeID, ZoneData, ZoneRegistry, ZoneTypeID } from "../../core";
 
 type ZoneContructor = new (...p : ConstructorParameters<typeof Zone>) => Zone
 
-export default class zoneLoader {
+export default class ZoneLoader {
 
     private storage : Map<ZoneTypeID, {class? : ZoneContructor, data? : ZoneData}> = new Map()
     private counter = 0

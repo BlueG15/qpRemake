@@ -1,9 +1,8 @@
 import { Zone } from "./zone"
-import { Field } from "./zone_default"
-import { Position, PositionDry } from "../positions"
-import { PlayerTypeID } from "../players"
-import { SerializedTransform, SerializedLayout } from "./serialized"
-import { ZoneDry } from "."
+import { Position } from "../positions"
+import { PlayerTypeID } from "../../core"
+import { SerializedTransform, SerializedLayout } from "../../core/serialized"
+import { ZoneDry, PositionDry, ZoneLayoutDry } from "../../core"
 
 class TransformInfo {
     constructor(
@@ -110,7 +109,7 @@ export abstract class ZoneLayout implements ZoneLayoutDry {
     protected zoneMap = new Map<Zone["id"], TransformInfo>()
     protected oppositeZones : number[][] = []
 
-    abstract load(Fields : Field[]) : void
+    abstract load(Fields : Zone[]) : void
 
     private getTransform(z : Zone | TransformInfo){
         if(z instanceof Zone){
@@ -212,7 +211,7 @@ export class DefaultLayout extends ZoneLayout {
         this.setAsOpposite(z1, z2)
         return super.statckVertically(z1, z2)
     }
-    override load(Fields: Field[]): void {
+    override load(Fields: Zone[]): void {
         const playerField = Fields.find(f => f.of(PlayerTypeID.player))
         const enemyField = Fields.find(f => f.of(PlayerTypeID.enemy))
         if(!playerField || !enemyField) return;

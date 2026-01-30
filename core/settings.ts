@@ -1,19 +1,22 @@
 const enum LanguageID {
-    "en", //English
-    "fr", //France
-    "ja", //Japanese
-    "ko", //Korean
-    "zh-Hans", //Simplified Chinese
-    "zh-Hant", //Traditional Chinese
+    en, //English
+    fr, //France
+    ja, //Japanese
+    ko, //Korean
+    zh_Hans, //Simplified Chinese
+    zh_Hant, //Traditional Chinese
 }
 
-const enum id_style {
-    "MINIMAL" = 0, //absolute bare minimum for everything to function (randID + count)
-    "REDUCED", // dataID + minimal
-    "FULL", //dataID + minimal + additional info (subtypeID, effectID, etc)
+
+//Note: to see actual implementatuion on these styles, see Utils, the id creation funnction
+// since every ID acquisition is done through there
+const enum IDStyle {
+    minimal = 0, //absolute bare minimum for everything to function (randID + count)
+    reduced, // dataID + minimal
+    full, //dataID + minimal + additional info (subtypeID, effectID, etc)
 }
 
-const enum auto_input_option {
+const enum AutoInputOption {
     none, //no assumtion, prompt input even if valid choices is only one
     default, //if valid choices is one, skip that input
 
@@ -29,7 +32,7 @@ interface Setting {
     
     //id generation setting
     dynamic_id_len : number
-    id_style : id_style
+    id_style : IDStyle
     id_separator : string
     max_id_count : number
     
@@ -46,7 +49,7 @@ interface Setting {
     show_negative_stat : boolean
 
     //input handling
-    auto_input : auto_input_option
+    auto_input : AutoInputOption
 
     //gameplay error handling
 
@@ -66,7 +69,7 @@ class defaultSetting implements Setting {
     languageID = LanguageID.en
     mods = [] //no mods
     dynamic_id_len = 5
-    id_style = id_style.MINIMAL
+    id_style = IDStyle.minimal
     id_separator = ''
     max_id_count = 65536
     modFolder_game = "../_mods/gameModules"
@@ -77,7 +80,7 @@ class defaultSetting implements Setting {
     parser_modules = ["qpOriginal"]
     singleton_effect_subtype = true
     singleton_effect_type = true
-    auto_input = auto_input_option.default
+    auto_input = AutoInputOption.default
 } 
 
 const SettingDefault = new defaultSetting()
@@ -86,6 +89,6 @@ export {
     Setting,
     SettingDefault,
     LanguageID,
-    auto_input_option,
-    id_style,
+    AutoInputOption,
+    IDStyle as id_style,
 }

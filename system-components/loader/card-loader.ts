@@ -1,6 +1,6 @@
 import { Card } from "../../game-components/cards";
-import { EffectDataRegistry, type CardData, type CardDataUnified, type EffectData, type EffectDataID, type Setting } from "../../core";
-import type effectLoader from "./effect-loader";
+import { CardDataRegistry, EffectDataRegistry, type CardData, type CardDataID, type CardDataUnified, type EffectData, type EffectDataID, type Setting } from "../../core";
+import type EffectLoader from "./effect-loader";
 import { Effect } from "../../game-components/effects";
 
 //Cards have 2 parts
@@ -11,46 +11,32 @@ import { Effect } from "../../game-components/effects";
 // naive -> load everything into mem
 // dynamic -> async load both class and data if needed
 // fixxed size cache -> use some kind of eviction sheme, similar to paging  
-export default class cardLoader {
+export default class CardLoader {
 
-    private dataCache : Map<string, CardData> = new Map()
-    private customClassCache : Map<string, typeof Card> = new Map()
-    private countCache : Map<string, number> = new Map() 
-    private effectHandler : effectLoader
+    private classCache = new Map<CardDataID, new (...p : ConstructorParameters<typeof Card>) => Card>()
+    private countCache = new Map<CardDataID, number>() 
+    private effectHandler : EffectLoader
 
-    constructor(effectHandler : effectLoader){
+    constructor(effectHandler : EffectLoader){
         this.effectHandler = effectHandler
     }
 
-    get classkeys() {
-        return Array.from(this.customClassCache.keys())
-    }
-
-    get datakeys() {
-        return Array.from(this.dataCache.keys())
-    }
-
-    load(key : string, data : CardData, c? : typeof Card | Record<string, typeof Card>){
-        this.dataCache.set(key, data)
+    load(key : string, data : CardData, c? : new (...p : ConstructorParameters<typeof Card>) => Card){
+        const id = CardDataRegistry.add(key, data)
         if(c) {
-            if(typeof c === "function") this.customClassCache.set(key, c);
-            else {
-                for(const key in Object.keys(c)){
-                    this.customClassCache.set(key, c[key]);
-                }
-            }
+            this.classCache.set(id, c);
         }
     }
 
     getCard(
-        cid : string, 
+        cid : CardDataID, 
         s : Setting, 
         variantid? : string[],
     ) : Card | undefined {
-        let data = this.dataCache.get(cid)
+        let data = CardDataRegistry.getData(cid)
         if(!data) return undefined
 
-        let cclass = this.customClassCache.get(cid)
+        let cclass = this.classCache.get(cid)
         if(!cclass) cclass = Card
 
         let c = this.countCache.get(cid);

@@ -1,7 +1,7 @@
 //For saving / loading
 import type { DeckID, EffectTypeID, OperatorID, EffectSubtypeName, PlayerTypeID } from "./registry";
 
-export class Serialized_effect {
+export class SerializedEffect {
     attr : Record<string, number> = {}
     constructor(
         // public id : string, //generated again
@@ -24,8 +24,8 @@ export class SerializedCard {
         public dataID : string,
         public variants : string[] = [],
         //I have to save partition too ahhh
-        public effects : Serialized_effect[],
-        public statusEffects : Serialized_effect[],
+        public effects : SerializedEffect[],
+        public statusEffects : SerializedEffect[],
         attr : Map<string, any>,
     ){
         attr.forEach((val, key) => {
