@@ -5,7 +5,8 @@ const DefaultExtensions = [
     "generic",
     "debug",
     "nknwn",
-    "enm"
+    "enm",
+    "sys"
 ] as const
 
 type Extensions = typeof DefaultExtensions

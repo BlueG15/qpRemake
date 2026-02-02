@@ -21,7 +21,7 @@ export class e_attack extends Effect<[]> {
         let atkCount = this.count
         const res : Action[] = []
         while(atkCount--) res.push(
-            ActionGenerator.a_attack(s, c)(this.identity, {
+            ActionGenerator.attack(s, c)(this.identity, {
                 dmg : c.atk,
                 dmgType : damageType.physical
             })
@@ -48,7 +48,7 @@ export class e_destroy_self extends Effect<[]> {
     }
     protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
         return [
-            ActionGenerator.a_destroy(s, c)(this.identity)
+            ActionGenerator.destroy(s, c)(this.identity)
         ]
     }
     override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
@@ -161,7 +161,7 @@ export class e_revenge extends Effect<[]> {
     }
     protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
         return [
-            ActionGenerator.a_attack(s, c)(this.identity, {
+            ActionGenerator.attack(s, c)(this.identity, {
                 dmg : c.atk,
                 dmgType : damageType.physical
             })
@@ -187,7 +187,7 @@ export class e_reflect extends Effect<[]> {
     }
     protected override activate(c: CardDry, s: SystemDry, a: Action<"a_deal_damage_card">, input: undefined): Action[] {
         return [
-            ActionGenerator.a_attack(s, c)(this.identity, {
+            ActionGenerator.attack(s, c)(this.identity, {
                 dmg : a.flatAttr().dmg,
                 dmgType : damageType.physical
             })
@@ -239,7 +239,7 @@ export class e_grave_to_hand extends Effect<[InputDataZone]> {
     protected override activate(c: CardDry, s: SystemDry, a: Action<"a_deal_damage_card">, input: [ZoneDry]): Action[] {
         const hand = input[0]
         return [
-            ActionGenerator.a_move(s, c)(hand.top)(this.identity)
+            ActionGenerator.move(s, c)(hand.top)(this.identity)
         ]
     }
     override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {

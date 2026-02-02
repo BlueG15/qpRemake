@@ -49,6 +49,10 @@ const DefaultRarityData = {
     algo : {
         color : ColorRegistry.purple,
         drop_weight : 0,
+    },
+    system : {
+        color : ColorRegistry.pink,
+        drop_weight : 0
     }
 } as const
 

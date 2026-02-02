@@ -230,7 +230,7 @@ export class e_automate_base extends StatusEffect_base {
 export class e_automate_attack extends e_automate_base {
     protected override act(c: CardDry, s: SystemDry, a: Action<"a_turn_end">): Action[] {
         return [
-            ActionGenerator.a_attack(s, c)(this.identity, {
+            ActionGenerator.attack(s, c)(this.identity, {
                 dmg : c.atk,
                 dmgType : damageType.physical
             })

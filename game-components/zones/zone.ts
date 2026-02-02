@@ -4,6 +4,7 @@ import type { Card } from "../cards";
 import { Position } from "../positions";
 import { PositionLike, Positionable, PlayerTypeID, PlayerSpecific, CardDry, SystemDry, ZoneDry, ZoneData, Action, errorID, PositionDry, ZoneTypeID, IdAble, TargetZone } from "../../core";
 import { ZoneAttrRegistry, ZoneRegistry, Target, ActionGenerator } from "../../core";
+import type QueenSystem from "../../queen-system";
 
 export abstract class Zone implements ZoneDry {
     //list of boolean attributes:
@@ -14,15 +15,15 @@ export abstract class Zone implements ZoneDry {
         return this.cardArrInternal
     }
 
-    types : ReadonlyArray<number>
-    readonly dataID: number;    
+    types : ReadonlyArray<ZoneTypeID>
+    readonly dataID: ZoneTypeID;    
     readonly name : string
     
     constructor(
         id : number, //changes on insert
         name : string, //fixxed identifier
-        dataID: number, 
-        classID? : number, 
+        dataID: ZoneTypeID, 
+        classID? : ZoneTypeID, 
         playerType : PlayerTypeID | -1 = -1, 
         playerIndex = -1, 
         data?: ZoneData
@@ -30,7 +31,7 @@ export abstract class Zone implements ZoneDry {
         this.name = name;
         this.dataID = dataID;
 
-        let t : number[] | undefined = undefined
+        let t : ZoneTypeID[] | undefined = undefined
         if (data) {
             this.attr = new Map(Object.entries(data));
             t = data.types
@@ -40,9 +41,7 @@ export abstract class Zone implements ZoneDry {
         if(t){
             this.types = t;
         } else {
-            let t : string | undefined | number = dataID
-            if(typeof t === "number") this.types = [t];
-            else this.types = []      
+            this.types = [dataID];   
         }
         this.attr.set("index", id);
         this.attr.set("playerIndex", playerIndex);
@@ -52,8 +51,8 @@ export abstract class Zone implements ZoneDry {
 
     get attrArr() : number[] {return this.attr.get("attriutesArr") ?? []}
     get playerIndex() : number {return this.attr.get("playerIndex") ?? -1}
-    get playerType() : number {return this.attr.get("playerType") ?? -1}
-    get classID() : number {return this.attr.get("classID") ?? this.dataID}
+    get playerType() : number {return this.attr.get("playerType") ?? ZoneRegistry.null}
+    get classID() : ZoneTypeID {return this.attr.get("classID") ?? this.dataID}
     get identity() : TargetZone {return Target.zone(this)}
 
     //helper properties
@@ -512,7 +511,7 @@ export abstract class Zone implements ZoneDry {
         return this.handleOccupiedSwap(cause, c, index);
     }
 
-    forceCardArrContent(newCardArr: Card[], shuffle = false) {
+    forceCardArrContent(permission : QueenSystem, newCardArr: (Card | undefined)[], shuffle = false) {
         this.cardArrInternal = newCardArr;
         if(shuffle) this.cardArrInternal = this.cardArr.sort((_, __) => Math.random() - 0.5)
         this.cardArr.forEach((i, index) => {
@@ -570,7 +569,7 @@ export abstract class Zone implements ZoneDry {
         return p.playerIndex === this.playerIndex
     }
 
-    get cardArrFiltered() : CardDry[] {return this.cardArr.filter(i => i !== undefined) as CardDry[]}
+    get cardArrFiltered() : Card[] {return this.cardArr.filter(i => i !== undefined) as Card[]}
 
     getAllPos() : PositionDry[] {
         return this.cardArr.map((_, index) => new Position(this.id, ...this.indexToPosition(index)))

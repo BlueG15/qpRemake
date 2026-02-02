@@ -71,12 +71,6 @@ export class Registry<
     getData(id : T_ID){
         return this.storage[id][1]
     }
-
-    set(id : T_ID, key? : string, data? : T_Data){
-        const obj = this.storage[id]
-        if(key) obj[0] = key as T_Key;
-        if(data) obj[1] = data;
-    }
 }
 
 export class IDRegistry<
@@ -117,13 +111,4 @@ export class IDRegistry<
 
     getKey(id : T_ID){return this.get(id)}
     getData(id : T_ID){return this.get(id)}
-
-    set(id : T_ID, key : string){
-        this.keyMap[id] = key as T_Key;
-    }
-}
-
-export class StaticRegistry {
-    protected constructor(){}
-
 }

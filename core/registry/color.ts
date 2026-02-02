@@ -29,7 +29,8 @@ const DefaultColorData = {
     green  : getColorData(void 0, "FF", void 0),
     blue   : getColorData(void 0, void 0, "FF"),
     yellow : getColorData("FF", "FF", void 0),
-    purple : getColorData("9F", void 0, "A7")
+    purple : getColorData("9F", void 0, "A7"),
+    pink   : getColorData("FF", "00", "6F")
 } as const
 
 const ColorRegistry = Registry.from<ColorID, ColorName, ColorData, typeof DefaultColorData>(DefaultColorData)

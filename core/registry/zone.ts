@@ -1,9 +1,10 @@
 import type { BrandedNumber, BrandedString, safeSimpleTypes } from ".."
 import { IDRegistry, Registry } from "./base"
 import { PlayerTypeID } from "."
-import { ZoneData } from "../../game-components/zones/type"
+import { ZoneData } from "../data-type"
 
 const enum ZoneType {
+    null,
     system,
     drop,
     void,
@@ -38,6 +39,12 @@ type ZoneAttrName = BrandedString<ZoneAttribute>
 const ZoneAttrRegistry = IDRegistry.from<ZoneAttrID, ZoneAttrName, typeof ZoneAttributeArr>(ZoneAttributeArr)
 
 const DefaultZoneData = {
+    null : {
+        priority: Infinity,
+        minCapacity : -Infinity,
+        attriutesArr: [],
+        instancedFor: [], 
+    },
     system : {
         priority: Infinity,
         minCapacity : -Infinity,

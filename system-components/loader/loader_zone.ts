@@ -1,18 +1,35 @@
 import type { Zone } from "../../game-components/zones";
 import type { Setting } from "../../core/settings";
 import { PlayerTypeID, ZoneData, ZoneRegistry, ZoneTypeID } from "../../core";
+import ZoneStack from "../../game-components/zones/zone-stack";
+import ZoneGrid from "../../game-components/zones/zone-grid";
 
 type ZoneContructor = new (...p : ConstructorParameters<typeof Zone>) => Zone
 
 export default class ZoneLoader {
-
+    zoneArr : Zone[] =  []
     private storage : Map<ZoneTypeID, {class? : ZoneContructor, data? : ZoneData}> = new Map()
     private counter = 0
+
+    constructor(){
+        this.loadDefault(ZoneRegistry.ability, )
+        this.loadDefault(ZoneRegistry.deck,    )
+        this.loadDefault(ZoneRegistry.drop,    )
+        this.loadDefault(ZoneRegistry.grave,   )
+        this.loadDefault(ZoneRegistry.hand,    )
+        this.loadDefault(ZoneRegistry.void,    )
+        this.loadDefault(ZoneRegistry.field,   ZoneGrid )
+    }
+
     get nextID(){
         return this.counter++
     }
     
     //private instanceCache : Map<string, Zone> = new Map()
+    
+    private loadDefault(type : ZoneTypeID, constructor : ZoneContructor = ZoneStack){
+        this.load(type, constructor, ZoneRegistry.getData(type))
+    }
 
     load(key : ZoneTypeID, c? : ZoneContructor, data? : ZoneData, ){
         if(!c && !data) return; //error

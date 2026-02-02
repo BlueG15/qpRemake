@@ -9,12 +9,12 @@ const DefaultCards = {
         atk : 0,
         hp : 1,
         level : 0,
-        rarityID : RarityRegistry.white,
+        rarity : RarityRegistry.white,
         extensionArr : [],
         archtype : [ArchtypeRegistry.null],
         effects : []
     }}}
-}
+} 
 
 type CardData = typeof DefaultCards
 type CardDataID = BrandedNumber<CardData>

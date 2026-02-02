@@ -1,6 +1,6 @@
 import { genericCounter, StatusEffect_base } from "../effects/default/e_status";
 import { Position } from "../positions";
-import type { Effect } from "../effects";
+import { Effect } from "../effects";
 
 import { 
     type CardDry, 

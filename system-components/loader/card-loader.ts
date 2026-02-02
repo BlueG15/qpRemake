@@ -26,6 +26,7 @@ export default class CardLoader {
         if(c) {
             this.classCache.set(id, c);
         }
+        return id
     }
 
     getCard(

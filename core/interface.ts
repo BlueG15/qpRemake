@@ -1,9 +1,15 @@
+import type { safeSimpleTypes } from "./misc"
 import type { OperatorID, DeckID, ZoneTypeID, PlayerTypeID, EffectControlCode, ActionName, ArchtypeID, EffectTypeID, EffectSubtypeID, CardDataID, EffectDataID } from "./registry"
 import type { Action } from "./registry/action"
+import type { Setting } from "./settings"
 import type { TargetEffect, Target, TargetCard, TargetPos, TargetZone } from "./target-type"
 
 export interface IdAble {
     id : string | number
+}
+
+export interface hasIdentity {
+    readonly identity : Target
 }
 
 export interface PlayerSpecific {
@@ -11,7 +17,7 @@ export interface PlayerSpecific {
     playerType : PlayerTypeID
 }
 
-export interface StatPlayer {
+export interface PlayerStat {
     playerType : PlayerTypeID
     playerIndex : number
     heart : number
@@ -25,12 +31,11 @@ export interface StatPlayer {
     }[]
 }
 
-export interface PositionDry {
+export interface PositionDry extends hasIdentity {
     readonly x : number,
     readonly y : number,
     readonly zoneID : number,
     readonly length : number,
-    readonly identity : TargetPos
 
     //safe methods
     flat() : ReadonlyArray<number>,
@@ -48,11 +53,10 @@ export interface Positionable {
     pos : PositionDry
 }
 
-export interface EffectDry extends IdAble {
+export interface EffectDry extends IdAble, hasIdentity {
     readonly id: string
     readonly dataID : EffectDataID
     readonly canAct: boolean
-    readonly identity : TargetEffect
     readonly attr : {
         get(key : string) : number | undefined,
         number(key : string) : number,
@@ -66,12 +70,12 @@ export interface EffectModifierDry {
 
 export abstract class EffectModifier implements EffectModifierDry {
     isDisabled : boolean = false;
-    constructor(public dataID : EffectTypeID | EffectSubtypeID){}
+    constructor(public id : safeSimpleTypes, public dataID : EffectTypeID | EffectSubtypeID){}
     abstract canRespondAndActivate(eff : EffectDry, c : CardDry, system : SystemDry, a : Action) : EffectControlCode
     abstract overrideActivateResults(eff : EffectDry, c : CardDry, system : SystemDry, res : Action[]) : Action[]
 }
 
-export interface CardDry extends IdAble {
+export interface CardDry extends IdAble, hasIdentity {
     readonly id : string
     readonly dataID : CardDataID
     readonly variants : ReadonlyArray<string>
@@ -98,8 +102,6 @@ export interface CardDry extends IdAble {
     readonly isDead : boolean
     readonly canAct : boolean
 
-    readonly identity : TargetCard
-
     toString(spaces? : number, simplify? : boolean) : string
 
     is(c : IdAble) : boolean;
@@ -113,18 +115,18 @@ export interface CardDry extends IdAble {
 }
 
 export interface ZoneLayoutDry {
-    localToGlobal(p : PositionDry) : PositionDry
+    localToGlobal(p : PositionLike) : PositionLike
     getOppositeZoneID(z : ZoneDry) : number | undefined
+    isOpposite(c1 : Positionable, c2 : Positionable) : boolean;
+    distance(c1 : Positionable, c2 : Positionable) : number;
 }
 
-export interface ZoneDry extends IdAble, PlayerSpecific {
+export interface ZoneDry extends IdAble, PlayerSpecific, hasIdentity {
     //identifiers
     readonly id : number
     readonly dataID : number
     readonly classID : number
     readonly name : string
-
-    readonly identity : TargetZone
 
     //player identifier
     readonly playerIndex : number
@@ -183,13 +185,20 @@ export interface ZoneDry extends IdAble, PlayerSpecific {
 }
 
 export interface SystemDry {
-    //propeerties
+    //properties
     readonly threatLevel : number
     readonly maxThreatLevel : number
+    readonly turnCount : number
+    readonly waveCount : number
+    readonly setting : Readonly<Setting>
+    readonly playerData : ReadonlyArray<Readonly<PlayerStat>>
+    readonly NULLPOS : PositionDry
+    readonly NULLCARD : CardDry
 
     //log API
     hasEffectActivated(e : EffectDry) : boolean
     hasCardActivated(c : CardDry) : boolean
+    getActivatedEffectIDs() : string[]
 
     //action APIs
     getRootAction() : Action<"a_turn_end">
@@ -199,9 +208,33 @@ export interface SystemDry {
     readonly isInChainPhase : boolean
     readonly turnAction : Readonly<Action> | undefined
 
-    //zone APIs
-    zoneArr : ReadonlyArray<ZoneDry>
-    getZoneOf(c : Positionable) : ZoneDry
-    getZoneWithID(id : number) : ZoneDry
-    getLayout() : ZoneLayoutDry
+    //zone
+    readonly zoneArr : ReadonlyArray<ZoneDry>
+    readonly layout : ZoneLayoutDry | undefined
+
+    //player
+    getPlayerWithID(pid : number) : PlayerStat | undefined
+    getPIDof(c : Positionable) : number
+
+    //zone & card query APIs 
+    getAllZonesOfPlayer(pid : number) : Record<number, ZoneDry[]>
+    getCardWithDataID(cid : string) : CardDry[]
+    getWouldBeAttackTargets(c : CardDry) : CardDry[] | undefined
+    is(c : Positionable, type : ZoneTypeID) : boolean
+
+    getZoneOf(c : Positionable) : ZoneDry | undefined
+    getZoneWithID(id : ZoneDry["id"]) : ZoneDry | undefined
+
+    //iteration APIs 
+    forEach(depth : 0, f : (z : ZoneDry, index : number) => any) : void
+    forEach(depth : 1, f : (c : CardDry, z : ZoneDry, cindex : number, zindex : number) => any) : void
+    forEach(depth : 2, f : (e : EffectDry, c : CardDry, z : ZoneDry, eindex : number, cindex : number, zindex : number) => any) : void
+
+    map<T>(depth : 0, f : (z : ZoneDry, index : number) => T) : T[]
+    map<T>(depth : 1, f : (c : CardDry, z : ZoneDry, cindex : number, zindex : number) => T) : T[]
+    map<T>(depth : 2, f : (e : EffectDry, c : CardDry, z : ZoneDry, eindex : number, cindex : number, zindex : number) => T) : T[]
+
+    filter(depth : 0, f : (z : ZoneDry, index : number) => boolean) : ZoneDry[]
+    filter(depth : 1, f : (c : CardDry, z : ZoneDry, cindex : number, zindex : number) => boolean) : CardDry[]
+    filter(depth : 2, f : (e : EffectDry, c : CardDry, z : ZoneDry, eindex : number, cindex : number, zindex : number) => boolean) : EffectDry[]
 }

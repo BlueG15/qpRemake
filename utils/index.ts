@@ -344,5 +344,32 @@ class utils {
         if(returns) return false;
         throw new Error(`Assertion error: ${a} is not ${b}, objects not have the same values.`)
     }
+
+    static * mergeSort<T>(
+        arr1: readonly T[],
+        arr2: readonly T[],
+        compare: (a: T, b: T) => number = (a, b) => (a < b ? -1 : a > b ? 1 : 0)
+    ): Iterable<T, void, void> {
+        let i = 0;
+        let j = 0;
+
+        while (i < arr1.length && j < arr2.length) {
+            if (compare(arr1[i], arr2[j]) <= 0) {
+                yield arr1[i++];
+            } else {
+                yield arr2[j++];
+            }
+        }
+
+        // Drain remaining elements
+        while (i < arr1.length) {
+            yield arr1[i++];
+        }
+
+        while (j < arr2.length) {
+            yield arr2[j++];
+        }
+    }
+
 }
 export default utils

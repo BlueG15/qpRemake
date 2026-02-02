@@ -1,5 +1,5 @@
 import type { safeSimpleTypes } from "./misc"
-import type { EffectTypeID, EffectSubtypeID, DeckID, CardDataID, OperatorID, ZoneAttrID, PlayerTypeID, EffectDataID, RarityID, ExtensionID } from "./registry"
+import type { EffectTypeID, EffectSubtypeID, DeckID, CardDataID, OperatorID, ZoneAttrID, PlayerTypeID, EffectDataID, RarityID, ExtensionID, ZoneTypeID } from "./registry"
 import type { ArchtypeID } from "./registry/archtype"
 
 //Effect
@@ -69,7 +69,7 @@ type ZoneDataFixxed = {
     minCapacity : number, //defaults to 0
     attriutesArr: ZoneAttrID[]
     instancedFor: PlayerTypeID[]
-    types? : ZoneAttrID[]
+    types? : ZoneTypeID[]
 }
 
 type ZoneDataVariable = {

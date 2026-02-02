@@ -5,6 +5,7 @@ import { ExtensionRegistry, type ExtensionID } from "./extension";
 const DefaultArchtypes = {
     null : ExtensionRegistry.nknwn,
     enemy : ExtensionRegistry.enm,
+    system : ExtensionRegistry.sys
 } as const
 
 type ArchtypeExtension = ExtensionID

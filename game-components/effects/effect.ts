@@ -23,7 +23,8 @@ class EffectAttr {
 
 export abstract class Effect<T_InputTuple extends Target[] = Target[] | []> implements EffectDry {
     id: string;
-    dataID : EffectDataID;
+    private _dataID : EffectDataID;
+    get dataID(){return this._dataID}
     type: EffectModifier;
     subTypes: EffectModifier[]
     originalData : EffectData
@@ -36,7 +37,7 @@ export abstract class Effect<T_InputTuple extends Target[] = Target[] | []> impl
         this.id = id
         this.type = type
         this.subTypes = subTypes
-        this.dataID = dataID;
+        this._dataID = dataID;
         this.originalData = data;
 
         const k = Object.entries(data).filter(([_, val]) => typeof val === "number") as [string, number][]

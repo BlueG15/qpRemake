@@ -16,7 +16,7 @@ abstract class e_defense_base extends Effect<[]>{
     protected abstract getNewDmg(a : Action<"a_deal_damage_card">) : number;
     protected override activate(c: CardDry, s: SystemDry, a: Action<"a_deal_damage_card">): Action[] {
         return [
-            ActionGenerator.a_modify_action("a_deal_damage_card")(s, a)(this.identity)({
+            ActionGenerator.modify_action("a_deal_damage_card")(s, a)(this.identity)({
                 dmg : Math.max(this.getNewDmg(a), 0)
             })
         ]

@@ -1,20 +1,38 @@
+import {
+  QueenSystem,
+  OperatorRegistry,
+  DefaultSetting,
+  DefaultLayout,
+  PlayerTypeID,
+  DefaultRenderer,
+  ActionGenerator,
+  ZoneRegistry,
+  Target,
+} from "./index";
 
-import { QueenSystem, operatorRegistry, defaultSetting, sampleRenderer, playerTypeID } from "./index";
-import testSuite from "./queen-system/testSuite";
+async function main() {
+  let setting = new DefaultSetting();
+  let renderer = new DefaultRenderer();
+  let layout = new DefaultLayout();
 
-async function main(){
-    let setting = new defaultSetting();
-    let renderer = new sampleRenderer()
-    let s = new QueenSystem(setting, renderer);
-    s.addPlayers(playerTypeID.player, operatorRegistry.o_esper)
-    s.addPlayers(playerTypeID.enemy, operatorRegistry.o_null)
-    await s.load();
+  let s = new QueenSystem(setting, layout, renderer);
 
-    //test stuff
-    Object.entries(testSuite).forEach(([key, val]) => {
-        console.log("Runng test", key)
-        val(s)
-    })
+  const pid1 = s.addPlayers(PlayerTypeID.player, OperatorRegistry.esper);
+  const pid2 = s.addPlayers(PlayerTypeID.enemy, OperatorRegistry.null);
+  await s.load();
+
+  const playerZones = s.getAllZonesOfPlayer(pid1);
+
+  //process a simple action
+  s.processTurn(
+    ActionGenerator.a_draw(
+        playerZones[ZoneRegistry.deck][0]
+    )(
+      playerZones[ZoneRegistry.hand][0],
+    )(
+        Target.player(pid1), { isTurnDraw: false }
+    ),
+  );
 }
 
-main()
+main();

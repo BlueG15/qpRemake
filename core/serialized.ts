@@ -1,14 +1,14 @@
 //For saving / loading
-import type { DeckID, EffectTypeID, OperatorID, EffectSubtypeName, PlayerTypeID } from "./registry";
+import type { DeckID, EffectTypeID, OperatorID, PlayerTypeID, EffectDataID, EffectSubtypeID, ZoneTypeID, CardDataID } from "./registry";
 
 export class SerializedEffect {
     attr : Record<string, number> = {}
     constructor(
         // public id : string, //generated again
-        public dataID : string,
+        public dataID : EffectDataID,
         public typeID : EffectTypeID,
-        public subTypeIDs : EffectSubtypeName[],
-        public displayID_default : string = dataID, //undefined means use effectID
+        public subTypeIDs : EffectSubtypeID[],
+        public displayID : string, //undefined means use effectID
         attr : Map<string, any>,
     ){
         attr.forEach((val, key) => {
@@ -21,9 +21,8 @@ export class SerializedCard {
     attr : Record<string, any> = {}
     constructor(
         // public id : string, //generated again
-        public dataID : string,
+        public dataID : CardDataID,
         public variants : string[] = [],
-        //I have to save partition too ahhh
         public effects : SerializedEffect[],
         public statusEffects : SerializedEffect[],
         attr : Map<string, any>,
@@ -37,10 +36,12 @@ export class SerializedCard {
 export class SerializedZone {
     attr : Record<string, any> = {}
     constructor(
-        public classID : number,
-        public dataID: number,
+        public classID : ZoneTypeID,
+        public dataID: ZoneTypeID,
         public cardArr: (SerializedCard | undefined)[],
-        public types : number[],
+        public types : ZoneTypeID[],
+        public pType : PlayerTypeID,
+        public pid : number,
         attr: Map<string, any>,
     ){
         attr.forEach((val, key) => {
@@ -60,6 +61,7 @@ export class SerializedPlayer {
 
 export class SerializedTransform {
     constructor(
+        //origin either references another transformation or a number
         public originX : {type : "transform", id : number} | {type : "number", num : number},
         public originY : {type : "transform", id : number} | {type : "number", num : number},
         public flipHoz: boolean,

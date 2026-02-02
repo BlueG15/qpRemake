@@ -61,11 +61,12 @@ interface Setting {
     singleton_effect_type : boolean
 
     //game setting
+    display_default_gamerules : boolean
 }
 
 
 //TODO : move this into a static method over on system
-class defaultSetting implements Setting {
+class DefaultSetting implements Setting {
     languageID = LanguageID.en
     mods = [] //no mods
     dynamic_id_len = 5
@@ -81,13 +82,12 @@ class defaultSetting implements Setting {
     singleton_effect_subtype = true
     singleton_effect_type = true
     auto_input = AutoInputOption.default
+    display_default_gamerules = false
 } 
-
-const SettingDefault = new defaultSetting()
 
 export {
     Setting,
-    SettingDefault,
+    DefaultSetting,
     LanguageID,
     AutoInputOption,
     IDStyle as id_style,

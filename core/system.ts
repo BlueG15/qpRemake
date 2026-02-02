@@ -1,6 +1,6 @@
 import type { ZoneDry } from "./interface";
 import type { Action } from "./registry/action";
-import type { StatPlayer } from "./interface";
+import type { PlayerStat } from "./interface";
 import type { Setting } from "./settings";
 
 export interface LogInfoNormal {
@@ -62,7 +62,7 @@ export interface StatGameState {
     turnactionID : number,
     gamePhase : GamePhase,
     turnPhase : TurnPhase,
-    stat_player : StatPlayer,
+    stat_player : PlayerStat,
     stat_system : StatSystem
     zones : ZoneDry[]
     setting : Setting

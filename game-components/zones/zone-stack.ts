@@ -4,7 +4,7 @@ import type { Card } from "../cards";
 import type { Positionable } from "../../core";
 import { Target } from "../../core";
 
-class Zone_stack extends Zone {
+class ZoneStack extends Zone {
     // constructor(dataID: string, data?: zoneData){
     //     super(dataID, data)
     //     this.cardArr = []
@@ -48,5 +48,5 @@ class Zone_stack extends Zone {
     }
 }
 
-export default Zone_stack
+export default ZoneStack
 

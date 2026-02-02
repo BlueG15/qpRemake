@@ -20,12 +20,12 @@ import {
     Init
 } from "../../game-components/effects";
 
-type T_EffectTypeOrSubtypeConstructor = new (dataID : EffectTypeID | EffectSubtypeID) => EffectModifier 
+type T_EffectTypeOrSubtypeConstructor = new (...p : ConstructorParameters<typeof EffectModifier>) => EffectModifier 
 
 export default class EffectTypeOrSubtypeLoader {
 
-    private classCacheType    = new Map<EffectTypeID, {class : T_EffectTypeOrSubtypeConstructor, instance? : EffectModifier}>()
-    private classCacheSubType = new Map<EffectSubtypeID, {class : T_EffectTypeOrSubtypeConstructor, instance? : EffectModifier}>()
+    private classCacheType    = new Map<EffectTypeID, {class : T_EffectTypeOrSubtypeConstructor, instance? : EffectModifier, count? : number}>()
+    private classCacheSubType = new Map<EffectSubtypeID, {class : T_EffectTypeOrSubtypeConstructor, instance? : EffectModifier, count? : number}>()
     
     constructor(){
         //add default types
@@ -59,27 +59,31 @@ export default class EffectTypeOrSubtypeLoader {
         const data = this.classCacheType.get(tid)
         if(!data) return;
 
+        const c = (data.count ?? 0) + 1
         if(s.singleton_effect_type){
             if(data.instance) return data.instance;
-            const res = new data.class(tid)
+            const res = new data.class(c, tid)
             data.instance = res
             return res
         }
 
-        return new data.class(tid)
+        data.count = c
+        return new data.class(c, tid)
     }
 
     getSubType(tid : EffectSubtypeID, s : Setting){
         const data = this.classCacheSubType.get(tid)
         if(!data) return;
 
+        const c = (data.count ?? 0) + 1
         if(s.singleton_effect_subtype){
             if(data.instance) return data.instance;
-            const res = new data.class(tid)
+            const res = new data.class(c, tid)
             data.instance = res
             return res
         }
 
-        return new data.class(tid)
+        data.count = c
+        return new data.class(c, tid)
     }
 }

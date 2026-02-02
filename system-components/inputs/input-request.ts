@@ -1,7 +1,7 @@
-import type { InputData } from "../../core/target-type";
-import type { SystemDry } from "../../core/system";
+import type { Target } from "../../core";
+import type { SystemDry } from "../../core";
 
-export class InputRequestData<T extends InputData = any>{
+export class InputRequestData<T extends Target = any>{
     choices : T[]
     numTargets : number = 1
     private signatureSet : Set<string>
@@ -29,7 +29,7 @@ export class InputRequestData<T extends InputData = any>{
         return this.length >= this.numTargets
     }
 
-    isValidInput(s : SystemDry, i : InputData[]){
+    isValidInput(s : SystemDry, i : Target[]){
         return i.length === this.numTargets && i.every(x => this.signatureSet.has(s.generateSignature(x)))
     }
 
@@ -39,12 +39,12 @@ export class InputRequestData<T extends InputData = any>{
 } 
 
 export class InputRequest<
-    T_Arr extends InputData[] = InputData[],
-    T_Head extends InputData = T_Arr[0],
-    T_Tails extends InputData[] = T_Arr extends [any, ...infer T] ? T : never
+    T_Arr extends Target[] = Target[],
+    T_Head extends Target = T_Arr[0],
+    T_Tails extends Target[] = T_Arr extends [any, ...infer T] ? T : never
 > {
     private chain : InputRequestData[]
-    private applied : InputData[] = []
+    protected applied : Target[] = []
     next() : InputRequestData<T_Head> | undefined {
         return this.chain[0] as any
     }
@@ -53,7 +53,7 @@ export class InputRequest<
         this.chain = requests
     }
 
-    isFinalized() : this is {applied : InputData[]} {
+    isFinalized() : this is {applied : Target[]} {
         return this.next() === undefined
     }
 
@@ -61,11 +61,11 @@ export class InputRequest<
         return !this.isFinalized()
     }
 
-    isApplicable(s : SystemDry, i : InputData[]) : i is T_Head[] {
+    isApplicable(s : SystemDry, i : Target[]) : i is T_Head[] {
         return !!this.next()?.isValidInput(s, i)
     }
 
-    then<T_Arr2 extends InputData[]>(r : InputRequest<T_Arr>) {
+    then<T_Arr2 extends Target[]>(r : InputRequest<T_Arr>) {
         this.chain.push(...r.chain)
         return this as InputRequest<[...T_Arr, ...T_Arr2]>
     }

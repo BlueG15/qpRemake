@@ -1,6 +1,6 @@
 {
   "name": "qpremake",
-  "version": "1.6.0",
+  "version": "1.6.3.unstable",
   "description": "Remake of the qp engine in ts / js, with moddability in mind",
   "main": "lib/index.js",
   "types": "lib/index.d.ts",

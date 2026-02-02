@@ -4,7 +4,7 @@ import type { Card } from "../cards";
 import type { Positionable, PositionDry } from "../../core";
 import { Position } from "../positions";
 
-class Zone_grid extends Zone {
+class ZoneGrid extends Zone {
 
     override cardArrInternal = (isFinite(this.capacity) && !isNaN(this.capacity)) ? new Array(this.capacity).fill(undefined) : []
 
@@ -42,7 +42,7 @@ class Zone_grid extends Zone {
         return new Position(this.id, c.pos.x, c.pos.y + 1)
     }
 
-    override forceCardArrContent(newCardArr: Card[]): void {
+    override forceCardArrContent(perm : any, newCardArr: (Card | undefined)[]): void {
         const oldLen = this.cardArr.length;
         this.cardArrInternal = newCardArr;
         if(isNaN(this.capacity) || !isFinite(this.capacity)) return;
@@ -61,5 +61,5 @@ class Zone_grid extends Zone {
     }
 }
 
-export default Zone_grid
+export default ZoneGrid
 

@@ -1,6 +1,8 @@
 import { EffectModifier } from "./interface"
 import { PositionDry, EffectDry, CardDry, ZoneDry } from "./interface"
-import { Action } from "./registry/action"
+
+//TODO : refactor this file, this is probably bad code imo
+// not high priority tho
 
 export const enum TargetTypeID {
     none = -1,
@@ -14,6 +16,7 @@ export const enum TargetTypeID {
     player,
 
     action,
+    gameRule,
     system,
     
     string,
@@ -33,6 +36,13 @@ export const Target = {
         return {
             type : TargetTypeID.action,
             data : a,
+        } as const
+    },
+
+    gameRule(){
+        return {
+            type : TargetTypeID.gameRule,
+            data : undefined
         } as const
     },
 
@@ -94,6 +104,7 @@ export const Target = {
 export type TargetNull           =  ReturnType<typeof Target["none"]>
 export type TargetAction         =  ReturnType<typeof Target["action"]>
 export type TargetSystem         =  ReturnType<typeof Target["system"]>
+export type TargetGameRule       =  ReturnType<typeof Target["gameRule"]>
 export type TargetStr            =  ReturnType<typeof Target["str"]>
 export type TargetBool           =  ReturnType<typeof Target["bool"]>
 export type TargetNumber         =  ReturnType<typeof Target["num"]>
@@ -109,6 +120,7 @@ export type Target = (
     TargetNull           |
     TargetAction         |
     TargetSystem         |
+    TargetGameRule       |
     TargetStr            |
     TargetBool           |
     TargetNumber         |
@@ -122,6 +134,12 @@ export type Target = (
 )
 
 export type TargetSpecific<T extends TargetTypeID> =
+    T extends TargetTypeID.none ? TargetNull : 
+    T extends TargetTypeID.action ? TargetAction :
+    T extends TargetTypeID.system ? TargetSystem :
+    T extends TargetTypeID.gameRule ? TargetGameRule :
+    T extends TargetTypeID.effectType ? TargetEffectType :
+    T extends TargetTypeID.effectSubtype ? TargetEffectSubType :
     T extends TargetTypeID.number ? TargetNumber :
     T extends TargetTypeID.string ? TargetStr :
     T extends TargetTypeID.boolean ? TargetBool :

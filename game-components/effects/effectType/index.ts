@@ -60,7 +60,7 @@ export class Lock extends Passive {
 
     override overrideActivateResults(e : EffectDry, c: CardDry, system: SystemDry, res: Action[]) {
         return [
-            ActionGenerator.a_negate_action(e.identity),
+            ActionGenerator.a_negate_action(e.identity, {}),
             ...res
         ]
     }

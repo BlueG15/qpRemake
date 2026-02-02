@@ -1,5 +1,5 @@
 import { ActionRegistry, ArchtypeRegistry, CardDataRegistry, DeckDataRegistry, EffectDataRegistry, EffectSubtypeRegistry, EffectTypeRegistry, ExtensionRegistry, OperatorRegistry, RarityRegistry, ZoneRegistry } from "../../core";
-import type { SystemDry, CardDry, EffectDry, ZoneDry, PositionDry, StatPlayer } from "../../core";
+import type { SystemDry, CardDry, EffectDry, ZoneDry, PositionDry, PlayerStat } from "../../core";
 import { LocalizedSystem, LocalizedAction, LocalizedCard, LocalizedEffect, LocalizedPlayer, LocalizedZone } from "../../core/localized";
 import type QueenSystem from "../../queen-system";
 import type { Card } from "../../game-components/cards";
@@ -221,7 +221,7 @@ export default class Localizer {
         return testObj
     }
 
-    localizePlayer(stat : StatPlayer, mode : ParseMode = ParseMode.gameplay){
+    localizePlayer(stat : PlayerStat, mode : ParseMode = ParseMode.gameplay){
         return new LocalizedPlayer(
             stat.playerIndex, 
             stat.playerType, 
@@ -238,7 +238,7 @@ export default class Localizer {
 
         // this.__s = s
         const testObj = new LocalizedSystem(
-            s.player_stat.map(
+            s.playerData.map(
                 player => this.localizePlayer(player, mode)
             ),
             s.zoneArr.map((z: any) => this.localizeZone(z, mode)!),
@@ -261,7 +261,7 @@ export default class Localizer {
         if(!this.loaded) return undefined;
         if(!s) return;
 
-        const card = s.cardHandler.getCard(c_key, variants)
+        const card = s.cardLoader.getCard(c_key, variants)
         return this.localizeCard(card)
     }
     get isLoaded(){

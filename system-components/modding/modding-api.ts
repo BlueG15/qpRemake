@@ -10,7 +10,7 @@ import type QueenSystem from "../../queen-system";
 export interface ModdingAPI {
     //add stuff
     addCard          (name : string, constructor : (new (...p : ConstructorParameters<typeof Card>) => Card) & {getCardData?() : CardData}, data : CardData) : CardDataID
-    addEffect        (name : string, constructor : (new (...p : ConstructorParameters<typeof Effect>) => Effect) & {getEffData?() : EffectData}, data : EffectData) : EffectDataID
+    addEffect        (name : string, constructor : (new (...p : ConstructorParameters<typeof Effect>) => Effect) & {getEffData?() : {base : EffectData}}, data? : EffectData) : EffectDataID
     addEffectType    (name : string, constructor : (new (...p : ConstructorParameters<typeof EffectModifier>) => EffectModifier)) : EffectTypeID
     addEffectSubtype (name : string, constructor : (new (...p : ConstructorParameters<typeof EffectModifier>) => EffectModifier)) : EffectSubtypeID
     addZone          (name : string, data : ZoneData, constructor : (new (...p : ConstructorParameters<typeof Zone>) => Zone)) : ZoneTypeID

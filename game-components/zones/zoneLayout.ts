@@ -1,6 +1,6 @@
 import { Zone } from "./zone"
 import { Position } from "../positions"
-import { PlayerTypeID } from "../../core"
+import { PlayerTypeID, ZoneRegistry, type IdAble, type Positionable, type PositionLike, type ZoneTypeID } from "../../core"
 import { SerializedTransform, SerializedLayout } from "../../core/serialized"
 import { ZoneDry, PositionDry, ZoneLayoutDry } from "../../core"
 
@@ -160,11 +160,15 @@ export abstract class ZoneLayout implements ZoneLayoutDry {
         z1.originX = z2
     }
 
-    getOppositeZoneID(z : Zone) : number | undefined {
-        return this.oppositeZones.find(s => s.includes(z.id))?.find(id => id !== z.id)
+    getOppositeZoneID(z : IdAble) : number | undefined {
+        return this.oppositeZones.find(s => s.includes(+z.id))?.find(id => id !== z.id)
     }
+    
+    abstract isOpposite(c1 : Positionable, c2 : Positionable) : boolean;
+    abstract distance(c1: Positionable, c2: Positionable): number;
+    abstract loadWhat() : ZoneTypeID[];
 
-    localToGlobal(p : Position) : Position {
+    localToGlobal(p : PositionLike) : PositionLike {
         const zid = p.zoneID
         const T = this.zoneMap.get(zid)
         if(!T) return p;
@@ -204,6 +208,15 @@ export abstract class ZoneLayout implements ZoneLayoutDry {
 
 export class EmptyLayout extends ZoneLayout {
     override load(): void {}
+    override isOpposite(){
+        return false
+    }
+    override distance(){
+        return 0
+    }
+    override loadWhat(): ZoneTypeID[] {
+        return []
+    }
 }
 
 export class DefaultLayout extends ZoneLayout {
@@ -216,5 +229,26 @@ export class DefaultLayout extends ZoneLayout {
         const enemyField = Fields.find(f => f.of(PlayerTypeID.enemy))
         if(!playerField || !enemyField) return;
         this.statckVertically(this.transform(enemyField).flipVertically(), playerField)
+    }
+    override isOpposite(c1: Positionable, c2: Positionable): boolean {
+        const p1 = this.localToGlobal(c1.pos)
+        const p2 = this.localToGlobal(c2.pos)
+        return p1.x === p2.x
+    }
+    override distance(c1: Positionable, c2: Positionable): number {
+        const p1 = this.localToGlobal(c1.pos)
+        const p2 = this.localToGlobal(c2.pos)
+        return Math.abs(p1.x - p2.x) + Math.abs(p1.y - p2.y)
+    }
+    override loadWhat(): ZoneTypeID[] {
+        return [
+            ZoneRegistry.ability,
+            ZoneRegistry.deck,
+            ZoneRegistry.drop,
+            ZoneRegistry.field,
+            ZoneRegistry.grave,
+            ZoneRegistry.hand,
+            ZoneRegistry.void
+        ]
     }
 }

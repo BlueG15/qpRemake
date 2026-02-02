@@ -44,6 +44,7 @@ import {
 import { ZoneRegistry, ZoneTypeID } from "./zone";
 import { EffectDataID, EffectDataName } from ".";
 import { Registry } from "./base";
+import type { InputRequest } from "../../system-components/inputs";
 
 class ActionBase<
     TargetType extends Target[] = Target[], 
@@ -68,7 +69,6 @@ class ActionBase<
     resolvedFrom? : Action
     responsedFrom? : Action
 
-    originalCause : Target
     originalTargets : TargetType | []
 
     deleteInputObj(){
@@ -85,7 +85,6 @@ class ActionBase<
         this.isDisabled = a.isDisabled;
         this.targets = a.targets as any;
         this.cause = a.cause;
-        this.originalCause = a.originalCause;
         this.originalTargets = a.originalTargets as any;
         this.modifiedSinceLastAccessed = true;
         this.attr = a.attr as any;
@@ -116,7 +115,6 @@ class ActionBase<
             cause : this.cause,
 
             originalTargets : this.originalTargets,
-            originalCause : this.originalCause,
 
             modifiedSinceLastAccessed : this.modifiedSinceLastAccessed,
             isDisabled : this.isDisabled,
@@ -190,7 +188,6 @@ class ActionBase<
             type : TargetTypeID.none
         })
 
-        this.originalCause = this.cause
         this.originalTargets = this.targets as TargetType | []
 
         this.modifyAttr("canBeChainedTo", (o.canBeChainTo === false) ? false : true)
@@ -536,6 +533,10 @@ function addEffectContructor<
         >((isStatus ? "a_add_status_effect" : "a_add_effect"), [Target.card(card)], cause, {...p, typeID : type})
 }
 
+//Note : I tried to remove the prefix a_, it broke everything else
+    // saying depth too deep in other files for the check a.is(...)
+    // weird af
+
 let DefaultActionGenerator = {
     error: function(cause : Target, errorType : errorID){
         return ActionAssembler_base<[], {
@@ -545,11 +546,13 @@ let DefaultActionGenerator = {
         })
     },
     a_null: ActionAssembler("a_null"),
-    a_negate_action: ActionAssembler("a_negate_action"),
-    a_do_threat_burn: ActionAssembler("a_do_threat_burn"),
+    a_negate_action: ActionAssembler("a_negate_action", {} as Partial<{
+        replaceWith : Action[]
+    }>),
+    a_do_threat_burn: ActionAssembler("a_do_threat_burn", Target.player),
     a_force_end_game: ActionAssembler("a_force_end_game"),
     a_set_threat_level: ActionAssembler("a_set_threat_level", {
-        newThreatLevel : 0 as number | number[]
+        newThreatLevel : 0 as number
     }),
     a_turn_end: ActionAssembler("a_turn_end", {
         doIncreaseTurnCount : true
@@ -590,7 +593,7 @@ let DefaultActionGenerator = {
     a_reset_all_once : ActionAssembler("a_reset_all_once", Target.card),
 
     a_reset_effect: ActionAssembler("a_reset_effect", Target.effect),
-    a_activate_effect: ActionAssembler("a_activate_effect", Target.effect),
+    a_activate_effect: ActionAssembler("a_activate_effect", Target.effect, Target.card),
     a_internal_try_activate: ActionAssembler("a_internal_try_activate", Target.pos, {} as {
         log : LogInfoHasResponse
     }),
@@ -604,27 +607,27 @@ let DefaultActionGenerator = {
         overrideData? : CardPatchData,
         callback? : (c : CardDry) => Action[]
     }), //duplicate card onto position
-    a_remove_status_effect: ActionAssembler("a_remove_status_effect", Target.effect),
+    a_remove_status_effect: ActionAssembler("a_remove_status_effect", Target.effect, Target.card),
     a_remove_effect : ActionAssembler("a_remove_effect", Target.card, Target.effect),
     a_remove_all_effects : ActionAssembler("a_remove_all_effects", Target.card),
     
     a_modify_action: modifyActionContructor,
-    a_replace_action: ActionAssembler("a_replace_action", Target.action),
     
-    a_zone_interact: ActionAssembler("a_zone_interact", Target.zone),
     a_shuffle: ActionAssembler("a_shuffle", Target.zone, {
         shuffleMap : {} as Map<number, number>
     }),
-    a_draw: ActionAssembler("a_draw", Target.zone, Target.zone, { //the deck, then the hand
-        cooldown : 0,
-        doTurnReset : true,
-        actuallyDraw : true,
-    }),
-    a_add_top : ActionAssembler("a_add_top", Target.card, Target.zone),
+    a_draw: ActionAssembler(
+        "a_draw", 
+        Target.zone as (deck : ZoneDry) => TargetZone, 
+        Target.zone as (hand : ZoneDry) => TargetZone, 
+        { //the deck, then the hand
+            isTurnDraw : true,
+        }
+    ),
 
     a_get_input : ActionAssembler("a_get_input", {} as {
-        requester : any //InputRequester<any, Target[]>
-        applicator : any //inputApplicator<any, Target[]>
+        requester : InputRequest
+        applicator : (i : Target[]) => Action[]
     }),
 
     a_delay : ActionAssembler("a_delay", {} as {
@@ -655,11 +658,9 @@ type ActionName = [
 
     // Control flow redirection
     "a_negate_action", //only resolves in the chain phase,  go straight to complete step
-    "a_replace_action", //only resolves in the chain phase, only attach the replaced action and go straight to complete step
 
     // API related actions
     "a_activate_effect",
-    "a_zone_interact",
     "a_move",
     "a_draw",
     "a_shuffle",
@@ -691,7 +692,6 @@ type ActionName = [
     "a_decompile",
     "a_void",
 
-    "a_add_top",
     "a_duplicate_card",
 
     "a_delay",

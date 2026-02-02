@@ -37,7 +37,7 @@ export class Instant extends EffectModifier {
     }
     override overrideActivateResults(e: EffectDry, c: CardDry, system: SystemDry, a: Action[]){
         return [
-            ActionGenerator.a_modify_action("a_turn_end")(system, system.getRootAction())(
+            ActionGenerator.modify_action("a_turn_end")(system, system.getRootAction())(
                 Target.effectSubType(this))({
                     doIncreaseTurnCount : false
             }),
