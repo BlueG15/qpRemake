@@ -1,4 +1,4 @@
-import { DisplayComponent, ParserModule, moduleInputObject, parseOptions, mode, TextComponent } from '../../system-components/localization/xml-text-parser';
+import { DisplayComponent, ParserModule, ModuleInputObject, ParseOptions, ParseMode, TextComponent } from '../../system-components/localization/xml-text-parser';
 import type { nestedTree } from '../../core/misc';
 
 export default class variantCheckModule extends ParserModule {
@@ -27,31 +27,30 @@ export default class variantCheckModule extends ParserModule {
         })
     }
 
-    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<DisplayComponent> {
-        
+    override evaluate(cmd: string, args: ModuleInputObject, option: ParseOptions, raw: string): nestedTree<DisplayComponent> {
         let k = args.getChilren()
 
-        if(option.mode == mode.debug) 
+        this.recurModify(k, cmd)
+
+        if(option.mode == ParseMode.debug) 
             return k
             
         //remove bracket by default
         
-        const checkVariant = (args.getAttr("expr") as string).split(' ')
-        let correctVariantFlag = option.cardData && option.cardData.variants.some(i => checkVariant.includes(i))
-        if((correctVariantFlag && cmd == "variantExclude") || (!correctVariantFlag && cmd == "variantInclude")){
-            return []
-        }
+        // let upgradeFlag = option.cardData && option.cardData.variants.join(" ").toLowerCase().includes("upgrade")
+        // if((upgradeFlag && cmd == "uminus") || (!upgradeFlag && cmd == "uadd")){
+        //     return []
+        // }
         
-        if(option.mode == mode.info){
-            k = [
-                [new TextComponent("[", undefined, cmd, raw)],
-                k,
-                [new TextComponent("]", undefined, cmd, raw)]
-            ]
+        if(option.mode == ParseMode.catalog){
+            // k = [
+            //     [new TextComponent("[", undefined, cmd, raw)],
+            //     k,
+            //     [new TextComponent("]", undefined, cmd, raw)]
+            // ]
+            return k
         }
 
-        this.recurModify(k, cmd)
-
-        return k
+        return []
     }
 }

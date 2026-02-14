@@ -1,6 +1,6 @@
 import DefParser from './expression_parser';
-import { ParserModule, moduleInputObject, parseOptions, TextComponent, DisplayComponent } from '../../system-components/localization/xml-text-parser';
-import utils from "util"
+import { ParserModule, ModuleInputObject, ParseOptions, TextComponent, DisplayComponent } from '../../system-components/localization/xml-text-parser';
+import utils from "node:util"
 import type { nestedTree } from '../../core/misc'
 
 export default class expressionModule extends ParserModule {
@@ -9,7 +9,7 @@ export default class expressionModule extends ParserModule {
     override requiredAttr = [["expr"]];
     override doCheckRequiredAttr = false;
 
-    override evaluate(cmd : string, args: moduleInputObject, option: parseOptions, raw : string){
+    override evaluate(cmd : string, args: ModuleInputObject, option: ParseOptions, raw : string){
         let expr : undefined | string | ReturnType<ParserModule["childToStr"]> = args.getAttr("expr");
         if(!expr) expr = this.childToStr(args);
         if(!expr) return [new TextComponent("", "No expr", cmd, raw)]

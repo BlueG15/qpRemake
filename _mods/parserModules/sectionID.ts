@@ -1,9 +1,9 @@
 import { 
     DisplayComponent, 
     ParserModule, 
-    componentID, iconID, 
-    moduleInputObject, 
-    parseOptions, 
+    ComponentID, IconID, 
+    ModuleInputObject, 
+    ParseOptions, 
     TextComponent, IconComponent, SymbolComponent 
 } from '../../system-components/localization/xml-text-parser';
 import type { nestedTree } from '../../core/misc';
@@ -29,7 +29,7 @@ export default class sectionIDModule extends ParserModule {
         tree.forEach(i => {
             if(i instanceof DisplayComponent) {
                 i.addSectionID(sectionID)
-                if(i.id == componentID.text && upperCase){
+                if(i.id == ComponentID.text && upperCase){
                     (i as TextComponent).str = (i as TextComponent).str.toUpperCase();
                 }
             } else {
@@ -38,7 +38,7 @@ export default class sectionIDModule extends ParserModule {
         })
     }
 
-    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<DisplayComponent> {
+    override evaluate(cmd: string, args: ModuleInputObject, option: ParseOptions, raw: string): nestedTree<DisplayComponent> {
         let quickFlag = this.quickKeyword.includes(cmd)
         let addIconFlag = cmd.endsWith('2')
 
@@ -62,7 +62,7 @@ export default class sectionIDModule extends ParserModule {
         
         if(addIconFlag){
             final = [final, [new IconComponent(
-                (x == "physical") ? iconID.dmg_phys : iconID.dmg_magic,
+                (x == "physical") ? IconID.dmg_phys : IconID.dmg_magic,
                 undefined,
                 cmd, 
                 raw

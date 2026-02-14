@@ -1,4 +1,5 @@
-import { type EffectTypeID, type EffectSubtypeID, type EffectModifier, EffectTypeRegistry, EffectSubtypeRegistry } from "../../core";
+import { type EffectTypeID, type EffectSubtypeID, EffectModifier, EffectTypeRegistry, EffectSubtypeRegistry } from "../../core";
+import { IDRegistry } from "../../core/registry/base";
 import type { Setting } from "../../core/settings";
 
 import { 
@@ -17,7 +18,8 @@ import {
     Passive,
     Manual,
     Lock,
-    Init
+    Init,
+    BlankEffectModifier
 } from "../../game-components/effects";
 
 type T_EffectTypeOrSubtypeConstructor = new (...p : ConstructorParameters<typeof EffectModifier>) => EffectModifier 
@@ -25,7 +27,7 @@ type T_EffectTypeOrSubtypeConstructor = new (...p : ConstructorParameters<typeof
 export default class EffectTypeOrSubtypeLoader {
 
     private classCacheType    = new Map<EffectTypeID, {class : T_EffectTypeOrSubtypeConstructor, instance? : EffectModifier, count? : number}>()
-    private classCacheSubType = new Map<EffectSubtypeID, {class : T_EffectTypeOrSubtypeConstructor, instance? : EffectModifier, count? : number}>()
+    private classCacheSubtype = new Map<EffectSubtypeID, {class : T_EffectTypeOrSubtypeConstructor, instance? : EffectModifier, count? : number}>()
     
     constructor(){
         //add default types
@@ -34,25 +36,42 @@ export default class EffectTypeOrSubtypeLoader {
         this.loadType(EffectTypeRegistry.manual,  Manual  )
         this.loadType(EffectTypeRegistry.lock,    Lock    )
         this.loadType(EffectTypeRegistry.init,    Init    )
+        this.loadType(EffectTypeRegistry.defense, Passive )
+        this.loadType(EffectTypeRegistry.instant, Instant )
+        this.loadType(EffectTypeRegistry.status,  BlankEffectModifier )
+        this.loadType(EffectTypeRegistry.counter, BlankEffectModifier )
+        this.loadType(EffectTypeRegistry.none,    BlankEffectModifier )
 
         //add default subtypes
-        this.loadSubType(EffectSubtypeRegistry.unique,          Unique          )
-        this.loadSubType(EffectSubtypeRegistry.once,            Once            )
-        this.loadSubType(EffectSubtypeRegistry.instant,         Instant         )
-        this.loadSubType(EffectSubtypeRegistry.chained,         Chained         )
-        this.loadSubType(EffectSubtypeRegistry.delayed,         Delayed         )
-        this.loadSubType(EffectSubtypeRegistry.fieldLock,       FieldLock       )
-        this.loadSubType(EffectSubtypeRegistry.graveLock,       GraveLock       )
-        this.loadSubType(EffectSubtypeRegistry.handOrFieldLock, HandOrFieldLock )
-        this.loadSubType(EffectSubtypeRegistry.hardUnique,      HardUnique      )
+        this.loadSubtype(EffectSubtypeRegistry.unique,          Unique          )
+        this.loadSubtype(EffectSubtypeRegistry.once,            Once            )
+        this.loadSubtype(EffectSubtypeRegistry.instant,         Instant         )
+        this.loadSubtype(EffectSubtypeRegistry.chained,         Chained         )
+        this.loadSubtype(EffectSubtypeRegistry.delayed,         Delayed         )
+        this.loadSubtype(EffectSubtypeRegistry.fieldLock,       FieldLock       )
+        this.loadSubtype(EffectSubtypeRegistry.graveLock,       GraveLock       )
+        this.loadSubtype(EffectSubtypeRegistry.handOrFieldLock, HandOrFieldLock )
+        this.loadSubtype(EffectSubtypeRegistry.hardUnique,      HardUnique      )
     }
 
-    loadType(key : EffectTypeID, c : T_EffectTypeOrSubtypeConstructor){
-        this.classCacheType.set(key, {class : c});
+    loadType(key : EffectTypeID | string, c : T_EffectTypeOrSubtypeConstructor){
+        if(typeof key === "number") {
+            this.classCacheType.set(key, {class : c}); 
+            return key;
+        }
+        const id = IDRegistry.add(EffectTypeRegistry, key)
+        this.classCacheType.set(id, {class : c}); 
+        return id
     };
 
-    loadSubType(key : EffectSubtypeID, c : T_EffectTypeOrSubtypeConstructor){
-        this.classCacheSubType.set(key, {class : c});
+    loadSubtype(key : EffectSubtypeID | string, c : T_EffectTypeOrSubtypeConstructor){
+        if(typeof key === "number") {
+            this.classCacheSubtype.set(key, {class : c}); 
+            return key;
+        }
+        const id = IDRegistry.add(EffectSubtypeRegistry, key)
+        this.classCacheSubtype.set(id, {class : c}); 
+        return id
     };
 
     getType(tid : EffectTypeID, s : Setting){
@@ -72,7 +91,7 @@ export default class EffectTypeOrSubtypeLoader {
     }
 
     getSubType(tid : EffectSubtypeID, s : Setting){
-        const data = this.classCacheSubType.get(tid)
+        const data = this.classCacheSubtype.get(tid)
         if(!data) return;
 
         const c = (data.count ?? 0) + 1

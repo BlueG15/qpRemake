@@ -1,6 +1,7 @@
-import type { BrandedNumber, BrandedString } from ".."
-import type { EffectData } from "../data-type"
-import { IDRegistry, Registry } from "./base"
+import { CardVariantName, type BrandedNumber, type BrandedString } from ".."
+import type { EffectData, EffectDataPartial } from "../effectData"
+import { DoubleKeyRegistry, IDRegistry, Registry } from "./base"
+import type { Effect } from "../../game-components/effects"
 
 //control code
 const enum EffectControlCode {
@@ -73,36 +74,12 @@ const EffectSubtypeArr = [
 
 const EffectSubtypeRegistry = IDRegistry.from<EffectSubtypeID, EffectSubtypeName, typeof EffectSubtypeArr>(EffectSubtypeArr)
 
-//Effect section
-const enum Effect {
-    e_generic_stat_change_diff,
-    e_generic_stat_change_override
-}
-
-const DefaultEffectData : Record<string, EffectData> = {
-    e_generic_stat_change_diff : {
-        typeID : EffectTypeRegistry.status,
-        subTypeIDs : [],
-
-        maxAtk : 0,
-        maxHp  : 0,
-        level  : 0,
-    },
-    e_generic_stat_change_override : {
-        typeID : EffectTypeRegistry.status,
-        subTypeIDs : [],
-
-        maxAtk : 0,
-        maxHp  : 0,
-        level  : 0,
-    }, 
-} as const
-
-
 type EffectDataID = BrandedNumber<Effect>
-type EffectDataName = BrandedString<Effect>
+type EffectName = BrandedString<Effect>
 
-const EffectDataRegistry = Registry.from<EffectDataID, EffectDataName, EffectData, typeof DefaultEffectData>(DefaultEffectData)
+const EffectDataRegistry = DoubleKeyRegistry.from<
+    EffectDataID, EffectName, EffectData, EffectDataPartial, {}, [CardVariantName.upgrade_1]
+>({}, CardVariantName.base, CardVariantName.upgrade_1)
 
 export {
     EffectControlCode,
@@ -116,6 +93,6 @@ export {
     EffectSubtypeRegistry,
 
     EffectDataID,
-    EffectDataName,
+    EffectName,
     EffectDataRegistry
 }

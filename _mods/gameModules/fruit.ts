@@ -1,629 +1,631 @@
-import type { inputData_card, inputData_zone, inputData_pos } from "../../index"
-import type { dry_card, dry_system, dry_zone, dry_position } from "../../index"
-import type {registryAPI, effectData, cardData} from "../../index"
-import type { Action } from "../../index"
-import { damageType, e_dmgcap } from "../../index"
+import type { 
+    Action,
 
-import {ActionGenerator, Selector, Effect, zoneRegistry, GameModule, quickEffectData, quickCardData} from "../../index" 
+    TargetCard,
+    TargetZone,
+    TargetPos,
 
-class e_apple extends Effect<[inputData_card, inputData_zone]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+    CardDry,
+    SystemDry,
+    ZoneDry,
+    PositionDry,
+    CardDataWithVariantKeys,
+} from "../../index"
+
+import {
+    ActionGenerator, 
+    
+    Effect,
+    EffectData,
+    CardData,
+
+    DamageType,
+    e_dmgcap,
+
+    Request,
+    ModdingAPI,
+    ZoneRegistry,
+    generic_stat_change_diff,
+    generic_stat_change_override,
+} from "../../index" 
+
+const FRUIT_ARCHTYPEID = ModdingAPI.addArchtype("fruit", "fruit")
+
+class apple extends Effect<[TargetCard, TargetZone]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return this.count !== 0
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: [dry_card, dry_zone]): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: [CardDry, ZoneDry]): Action[] {
         const [target, z] = input
-        return [ActionGenerator.a_move(s, target)(z.top)(this.toCause(s, c))]
+        return [ActionGenerator.a_move(target)(z.top)(this.identity)]
     }
-    protected override getInputObj(ThisCard: dry_card, s: dry_system, a: Action){
-        const i1 = Selector.deck(s, ThisCard).cards().ofSameName(ThisCard).once()
-        const i2 = Selector.hand(s, ThisCard).once()
+    protected override getInputObj(ThisCard: CardDry, s: SystemDry, a: Action){
+        const i1 = Request.deck(s, ThisCard).cards().ofSameName(ThisCard).once()
+        const i2 = Request.hand(s, ThisCard).once()
         return i1.then(i2)
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
 
     static override getEffData() {
-        return {
-            base : quickEffectData.init.num("count", 1).localizationKey("e_natural_apple")(),
-            upgrade : quickEffectData.init.num("count", 2).localizationKey("e_natural_apple_upgrade")(),
-        }
+        return EffectData.init.num("count", 1).localizationKey("e_natural_apple").upgrade(
+            EffectData.init.num("count", 2).localizationKey("e_natural_apple_upgrade"),
+        )
     }
 }
 
-class e_banana extends Effect<[inputData_card, inputData_pos]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class banana extends Effect<[TargetCard, TargetPos]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true //actual check in type
     }
-    protected override getInputObj(ThisCard: dry_card, s: dry_system, a: Action){
-        const temp = Selector.grave(s, ThisCard).cards().ofDifferentName(ThisCard)
-        const i1 = this.doArchtypeCheck ? temp.ofArchtype("a_fruit").once() : temp.once()
-        const i2 = Selector.field(s, ThisCard).pos().isEmpty().once()
+    protected override getInputObj(ThisCard: CardDry, s: SystemDry, a: Action){
+        const temp = Request.grave(s, ThisCard).cards().ofDifferentName(ThisCard)
+        const i1 = this.doArchtypeCheck ? temp.ofArchtype(FRUIT_ARCHTYPEID).once() : temp.once()
+        const i2 = Request.field(s, ThisCard).pos().isEmpty().once()
         return i1.then(i2) 
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: [dry_card, dry_position]): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: [CardDry, PositionDry]): Action[] {
         const [card, pos] = input
-        return [ActionGenerator.a_move(s, card)(pos)(this.toCause(s, c))]
+        return [ActionGenerator.a_move(card)(pos)(this.identity)]
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
 
     static override getEffData(){
-        return {
-            base : quickEffectData.init.bool("doArchtypeCheck", 1).localizationKey("e_natural_banana")(),
-            upgrade : quickEffectData.init.bool("doArchtypeCheck", 0).localizationKey("e_natural_banana_upgrade")(),
-        }
+        return EffectData.init.bool("doArchtypeCheck", 1).localizationKey("e_natural_banana").upgrade(
+            EffectData.partial.bool("doArchtypeCheck", 0).localizationKey("e_natural_banana_upgrade"),
+        )
     }
 }
 
-class e_cherry extends Effect<[inputData_zone, inputData_zone]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class cherry extends Effect<[TargetZone, TargetZone]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return this.count !== 0;
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action){
-        const i1 = Selector.deck(s, c).once()
-        const i2 = Selector.hand(s, c).once()
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action){
+        const i1 = Request.deck(s, c).once()
+        const i2 = Request.hand(s, c).once()
         return i1.then(i2)
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: [dry_zone, dry_zone]): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: [ZoneDry, ZoneDry]): Action[] {
         const [deck, hand] = input
         const res : Action[] = []
 
         for(let i = 0; i < this.count; i++){
             res.push(
-                deck.getAction_draw!(s, hand, this.toCause(s, c), false)
+                ActionGenerator.a_draw(deck)(hand)(this.identity, {
+                    isTurnDraw : false
+                })
             )
         }  
         
         return res
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return [this.count]
     }
     
     static override getEffData(){
-        return {
-            base : quickEffectData.init.count(1).localizationKey("e_natural_cherry")()
-        }
+        return EffectData.init.count(1).localizationKey("e_natural_cherry")
     }
 }
 
-class e_lemon extends Effect<[]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class lemon extends Effect<[]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true;
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action): void | undefined {
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: undefined): Action[] {
-        const allTargets = Selector.field(s, c).cards().ofName(c.name).all()
-        return allTargets.map(t => ActionGenerator.a_attack(s, t)(this.toCause(s, c), {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
+        const allTargets = Request.field(s, c).cards().ofSameName(c).all()
+        return allTargets.map(t => ActionGenerator.a_attack(t)(this.identity, {
             dmg : t.atk,
-            dmgType : damageType.physical
+            dmgType : DamageType.physical
         }))
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
     
     static override getEffData(){
-        return {
-            base : quickEffectData.init.localizationKey("e_natural_lemon")()
-        }
+        return EffectData.init.localizationKey("e_natural_lemon")
     }
 }
 
-class e_pom extends Effect<[]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
-        return a.is("a_play", s, c, undefined, zoneRegistry.z_grave) && a.targets[0].is(c)
+class pom extends Effect<[]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
+        return a.is("a_play", s, c, undefined, ZoneRegistry.grave) && a.targets[0].is(c)
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action): void | undefined {
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: undefined): Action[] {
-        const allEnemies_exposed = Selector.enemy(s, c).isExposed().all()
-        const allEnemies_covered = Selector.enemy(s, c).isCoverred().all()
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
+        const allEnemies_exposed = Request.enemy(s, c).isExposed().all()
+        const allEnemies_covered = Request.enemy(s, c).isCoverred().all()
 
         const d_exposed = this.attr.number("exposedDmg")
         const d_covered = this.attr.number("coveredDmg")
 
         const res : Action[] = []
         allEnemies_exposed.forEach(t => {
-            res.push(ActionGenerator.a_deal_damage_card(s, t)(this.toCause(s, c), {
+            res.push(ActionGenerator.a_deal_damage_card(t)(this.identity, {
                 dmg : d_exposed,
-                dmgType : damageType.magic
+                dmgType : DamageType.magic
             }))
         })
         allEnemies_covered.forEach(t => {
-            res.push(ActionGenerator.a_deal_damage_card(s, t)(this.toCause(s, c), {
+            res.push(ActionGenerator.a_deal_damage_card(t)(this.identity, {
                 dmg : d_covered,
-                dmgType : damageType.magic
+                dmgType : DamageType.magic
             }))
         })
         return res
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
 
     static override getEffData(){
-        return {
-            base : quickEffectData.init.num("exposedDmg", 1).num("coveredDmg", 1).localizationKey("e_natural_pomegranate")(),
-            upgrade : quickEffectData.init.num("exposedDmg", 2).num("coveredDmg", 1).localizationKey("e_natural_pomegranate_upgrade")(),
-        }
+        return EffectData.init.num("exposedDmg", 1).num("coveredDmg", 1).localizationKey("e_natural_pomegranate").upgrade(
+            EffectData.partial.num("exposedDmg", 2).localizationKey("e_natural_pomegranate_upgrade"),
+        )
     }
 }
 
-class e_pumpkin_init extends Effect<[]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class pumpkin_init extends Effect<[]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action): void | undefined {
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: undefined): Action[] {
-        const allTargets = Selector.field(s, c).cards().ofName(c.name).all()
-        return allTargets.map(t => ActionGenerator.a_add_status_effect("e_generic_stat_change_diff", true)(s, t)(this.toCause(s, c), {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
+        const allTargets = Request.field(s, c).cards().ofName(c.name).all()
+        return allTargets.map(t => ActionGenerator.a_add_status_effect(generic_stat_change_diff)(t)(this.identity, {
             maxHp : this.attr.number("hpInc")
         }))
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return [this.attr.number("hpInc")]
     }
 
     static override getEffData(){
-        return {
-            base : quickEffectData.init.num("hpInc", 1).localizationKey("e_natural_pumpkin")(),
-            upgrade : quickEffectData.init.num("hpInc", 2).localizationKey("e_natural_pumpkin")(),
-        } as const
+        return EffectData.init.num("hpInc", 1).localizationKey("e_natural_pumpkin").upgrade({
+            hpInc : 2
+        })
     }
 }
 
-class e_pumpkin_trigger extends Effect<[]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
-        return a.is("a_attack") && a.targets[0].is(c)
+class pumpkin_trigger extends Effect<[]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
+        return a.is("a_attack") && a.targets[0].data.is(c)
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action): void | undefined {
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: undefined): Action[] {
-        return [ActionGenerator.a_destroy(s, c)(this.toCause(s, c))]
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
+        return [ActionGenerator.a_destroy(c)(this.identity)]
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
     
     static override getEffData(){
-        return {
-            base : quickEffectData.trigger.localizationKey("e_natural_pumpkin_trigger")()
-        }
+        return EffectData.trigger.localizationKey("e_natural_pumpkin_trigger")
     }
 }
 
-class e_demeter_condition extends Effect<[]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class demeter_condition extends Effect<[]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         if(!a.is("a_play", s, c)) return false;
-        const targets = Selector.grave(s, c).cards().ofLevel(1).ofArchtype("a_fruit").all()
+        const targets = Request.grave(s, c).cards().ofLevel(1).ofArchtype(FRUIT_ARCHTYPEID).all()
         return targets.length < this.count
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action): void | undefined {
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action): Action[] {
         return []
     }
-    override getDisplayInput(c: dry_card, s: dry_system): (string | number)[] {
-        const targets = Selector.grave(s, c).cards().ofLevel(1).ofArchtype("a_fruit").all()
+    override getDisplayInput(c: CardDry, s: SystemDry): (string | number)[] {
+        const targets = Request.grave(s, c).cards().ofLevel(1).ofArchtype(FRUIT_ARCHTYPEID).all()
         return [this.count, targets.length]
     }
     
     static override getEffData(){
-        return {
-            base : quickEffectData.lock.count(1).localizationKey("e_natural_demeter_condition")()
-        } as const
+        return EffectData.lock.count(1).localizationKey("e_natural_demeter_condition")
     }
 }
 
-class e_demeter_trigger extends Effect<[]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
-        return a.is("a_play", s, c, zoneRegistry.z_hand);
+class demeter_trigger extends Effect<[]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
+        return a.is("a_play", s, c, ZoneRegistry.hand);
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action): void | undefined {
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action): Action[] {
-        return [ActionGenerator.a_deal_damage_ahead(s, c)(this.toCause(s, c), {
+    protected override activate(c: CardDry, s: SystemDry, a: Action): Action[] {
+        return [ActionGenerator.a_deal_damage_ahead(c)(this.identity, {
             dmg : c.atk,
-            dmgType : damageType.magic
+            dmgType : DamageType.magic
         })]
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
     
     static override getEffData(){
-        return {
-            base : quickEffectData.trigger.fieldLock.unique.localizationKey("e_natural_demeter_trigger")()
-        } as const
+        return EffectData.trigger.fieldLock.unique.localizationKey("e_natural_demeter_trigger")
     }
 }
 
-class e_demeter_init extends Effect<[inputData_card, inputData_zone]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class demeter_init extends Effect<[TargetCard, TargetZone]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true;
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action){
-        const i1 = Selector.grave(s, c).cards().ofLevel(1).once()
-        const i2 = Selector.hand(s, c).once()
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action){
+        const i1 = Request.grave(s, c).cards().ofLevel(1).once()
+        const i2 = Request.hand(s, c).once()
         return i1.then(i2)
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: [dry_card, dry_zone]): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: [CardDry, ZoneDry]): Action[] {
         const [targetCard, hand] = input
-        const allTargets = Selector.grave(s, c).cards().ofName(targetCard.name).all()
-        return allTargets.map(t => ActionGenerator.a_move(s, t)(hand.top)(this.toCause(s, c)))
+        const allTargets = Request.grave(s, c).cards().ofName(targetCard.name).all()
+        return allTargets.map(t => ActionGenerator.a_move(t)(hand.top)(this.identity))
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
 
     static override getEffData(){
-        return {
-            base : quickEffectData.init.localizationKey("e_natural_demeter")()
-        } as const
+        return EffectData.init.localizationKey("e_natural_demeter")
     }   
 }
 
-class e_autumn extends Effect<[inputData_zone, inputData_zone]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class autumn extends Effect<[TargetZone, TargetZone]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true;
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action){
-        const i1 = Selector.deck(s, c).once()
-        const i2 = Selector.hand(s, c).once()
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action){
+        const i1 = Request.deck(s, c).once()
+        const i2 = Request.hand(s, c).once()
         return i1.then(i2)
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: [dry_zone, dry_zone]): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: [ZoneDry, ZoneDry]): Action[] {
         const [deck, hand] = input
-        const targets = Selector.field(s, c).cards().ofLevel(1).ofArchtype("a_fruit").all()
+        const targets = Request.field(s, c).cards().ofLevel(1).ofArchtype(FRUIT_ARCHTYPEID).all()
         let drawCount = targets.length
-        const res : Action[] = targets.map(t => ActionGenerator.a_remove_all_effects(s, t)(this.toCause(s, c)))
+        const res : Action[] = targets.map(t => ActionGenerator.a_remove_all_effects(t)(this.identity))
         while(drawCount--)
-            res.push(deck.getAction_draw!(s, hand, this.toCause(s, c), false));
+            // res.push(deck.getAction_draw!(s, hand, this.identity, false));
+            res.push(ActionGenerator.a_draw(deck)(hand)(this.identity, {
+                isTurnDraw : false
+            }))
         
         if(this.attr.number("atkInc") > 0){
-            res.push(...targets.map(t => ActionGenerator.a_add_status_effect("e_generic_stat_change_diff", true)(s, t)(this.toCause(s, c), {
+            res.push(...targets.map(t => ActionGenerator.a_add_status_effect(generic_stat_change_diff)(t)(this.identity, {
                 maxAtk : this.attr.number("atkInc")
             })))
         }
         return res
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
 
     static override getEffData(){
-        return {
-            base : quickEffectData.init.num("atkInc", 0).localizationKey("e_natural_fall")(),
-            upgrade : quickEffectData.init.num("atkInc", 1).localizationKey("e_natural_fall_upgrade")(),
-        } as const
+        return EffectData.init.num("atkInc", 0).localizationKey("e_natural_fall").upgrade(
+            EffectData.partial.num("atkInc", 1).localizationKey("e_natural_fall_upgrade"),
+        )
     }
 }
 
-class e_spring extends Effect<[inputData_card, inputData_pos]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class spring extends Effect<[TargetCard, TargetPos]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true;
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action){
-        const i1 = Selector.grave(s, c).cards().ofLevelOrBelow(this.attr.number("targetLevel")).ofDifferentName(c).once()
-        const i2 = Selector.field(s, c).pos().isEmpty().once()
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action){
+        const i1 = Request.grave(s, c).cards().ofLevelOrBelow(this.attr.number("targetLevel")).ofDifferentName(c).once()
+        const i2 = Request.field(s, c).pos().isEmpty().once()
         return i1.then(i2)
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: [dry_card, dry_position]): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: [CardDry, PositionDry]): Action[] {
         const [t, pos] = input
-        const incAtk = Math.min(Selector.grave(s, c).cards().ofName(t.name).all().length - 1, 3)
-        const cause = this.toCause(s, c)
+        const incAtk = Math.min(Request.grave(s, c).cards().ofName(t.name).all().length - 1, 3)
+        const cause = this.identity
         return [
-            ActionGenerator.a_duplicate_card(s, t)(pos)(cause, {
+            ActionGenerator.a_duplicate_card(t)(pos)(cause, {
                 callback(c) {
-                    return incAtk ? [ActionGenerator.a_add_status_effect("e_generic_stat_change_diff", true)(s, c)(cause, {
+                    return incAtk ? [ActionGenerator.a_add_status_effect(generic_stat_change_diff)(c)(cause, {
                         maxAtk : incAtk
                     })] : []
                 },
             })
         ]
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return [this.attr.number("targetLevel")]
     }
 
     static override getEffData(){
-        return {
-            base : quickEffectData.init.num("targetLevel", 1).localizationKey("e_natural_spring")(),
-            upgrade : quickEffectData.init.num("targetLevel", 2).localizationKey("e_natural_spring")(),
-        } as const
+        return EffectData.init.num("targetLevel", 1).localizationKey("e_natural_spring").upgrade(
+            EffectData.partial.num("targetLevel", 2).localizationKey("e_natural_spring"),
+        )
     }
 }
 
-class e_summer extends Effect<[inputData_card, inputData_zone]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class summer extends Effect<[TargetCard, TargetZone]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true;
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action){
-        const i1 = Selector.deck(s, c).cards().ofLevelOrBelow(this.attr.number("targetLevel")).ofArchtype("a_fruit").ofDifferentName(c).once()
-        const i2 = Selector.hand(s, c).once()
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action){
+        const i1 = Request.deck(s, c).cards().ofLevelOrBelow(this.attr.number("targetLevel")).ofArchtype(FRUIT_ARCHTYPEID).ofDifferentName(c).once()
+        const i2 = Request.hand(s, c).once()
         return i1.then(i2)
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: [dry_card, dry_zone]): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: [CardDry, ZoneDry]): Action[] {
         const [t, hand] = input
-        return [ActionGenerator.a_move(s, t)(hand.top)(this.toCause(s, c))]
+        return [ActionGenerator.a_move(t)(hand.top)(this.identity)]
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return [this.attr.number("targetLevel")]
     }
     
     static override getEffData(){
-        return {
-            base : quickEffectData.init.num("targetLevel", 1).localizationKey("e_natural_summer")(),
-            upgrade : quickEffectData.init.num("targetLevel", 3).localizationKey("e_natural_summer")(),
-        } as const
+        return EffectData.init.num("targetLevel", 1).localizationKey("e_natural_summer").upgrade(
+            EffectData.partial.num("targetLevel", 3).localizationKey("e_natural_summer"),
+        )
     }
 }
 
-class e_winter_init extends Effect<[inputData_card, inputData_zone]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class winter_init extends Effect<[TargetCard, TargetZone]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true;
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action){
-        const i1 = Selector.deck(s, c).cards().ofArchtype("a_fruit").ofDifferentName(c).once()
-        const i2 = Selector.grave(s, c).once()
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action){
+        const i1 = Request.deck(s, c).cards().ofArchtype(FRUIT_ARCHTYPEID).ofDifferentName(c).once()
+        const i2 = Request.grave(s, c).once()
         return i1.then(i2)
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: [dry_card, dry_zone]): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: [CardDry, ZoneDry]): Action[] {
         const [t, grave] = input
-        const allCardsToSendToGrave = Selector.deck(s, c).cards().ofName(t.name).all()
-        const res : Action[] = allCardsToSendToGrave.map(t => ActionGenerator.a_move(s, t)(grave.top)(this.toCause(s, c)))
+        const allCardsToSendToGrave = Request.deck(s, c).cards().ofName(t.name).all()
+        const res : Action[] = allCardsToSendToGrave.map(t => ActionGenerator.a_move(t)(grave.top)(this.identity))
         let count = allCardsToSendToGrave.length * this.attr.number("hpInc");
-        const allCardsOnField = Selector.field(s, c).cards().all()
+        const allCardsOnField = Request.field(s, c).cards().all()
         allCardsOnField.forEach(t => {
-            res.push(ActionGenerator.a_add_status_effect("e_generic_stat_change_diff", true)(s, t)(this.toCause(s, c), {
+            res.push(ActionGenerator.a_add_status_effect(generic_stat_change_diff)(t)(this.identity, {
                 maxHp : count
             }))
         })
         return res
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return [this.attr.number("hpInc")]
     }
 
     static override getEffData(){
-        return {
-            base : quickEffectData.init.num("hpInc", 1).localizationKey("e_natural_winter")(),
-            upgrade : quickEffectData.init.num("hpInc", 2).localizationKey("e_natural_winter")()
-        } as const
+        return EffectData.init.num("hpInc", 1).localizationKey("e_natural_winter").upgrade(
+            EffectData.partial.num("hpInc", 2).localizationKey("e_natural_winter")
+        )
     }
 }
 
-class e_greenhouse extends Effect<[inputData_card, inputData_zone]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class greenhouse extends Effect<[TargetCard, TargetZone]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         const thisField = s.getZoneOf(c)
         return (
             !!thisField && 
-            thisField.is(zoneRegistry.z_field) && 
+            thisField.is(ZoneRegistry.field) && 
             a.is("a_play", s, c) && 
-            thisField.isC2Behind(c, a.targets[0].card) &&
-            a.targets[0].card.level <= this.attr.number("checkLevel")
+            thisField.isC2Behind(c, a.targets[0]) &&
+            a.targets[0].data.level <= this.attr.number("checkLevel")
         )
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action<"a_move">) {
-        const i1 = Selector.grave(s, c).cards().ofName(a.targets[0].card.name).once()
-        const i2 = Selector.hand(s, c).once()
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action<"a_move">) {
+        const i1 = Request.grave(s, c).cards().ofName(a.targets[0].data.name).once()
+        const i2 = Request.hand(s, c).once()
         return i1.then(i2)
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: [dry_card, dry_zone]): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: [CardDry, ZoneDry]): Action[] {
         const [t, hand] = input
-        return [ActionGenerator.a_move(s, t)(hand.top)(this.toCause(s, c))]
+        return [ActionGenerator.a_move(t)(hand.top)(this.identity)]
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return [this.attr.number("checkLevel")]
     }
     
     static override getEffData(){
-        return {
-            base : quickEffectData.trigger.fieldLock.unique.num("checkLevel", 1).localizationKey("e_natural_greenhouse")(),
-            upgrade : quickEffectData.trigger.fieldLock.unique.num("checkLevel", 2).localizationKey("e_natural_greenhouse")(),
-        } as const
+        return EffectData.trigger.fieldLock.unique.num("checkLevel", 1).localizationKey("e_natural_greenhouse").upgrade(
+            EffectData.partial.num("checkLevel", 2).localizationKey("e_natural_greenhouse")
+        )
     }
 }
 
-class e_growth extends Effect<[inputData_card, inputData_zone, inputData_zone]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class growth extends Effect<[TargetCard, TargetZone, TargetZone]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true;
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action){
-        const temp = Selector.grave(s, c).cards()
-        const i1 = this.doArchtypeCheck ? temp.ofArchtype("a_fruit").once() : temp.once()
-        const i2 = Selector.deck(s, c).once()
-        const i3 = Selector.hand(s, c).once()
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action){
+        const temp = Request.grave(s, c).cards()
+        const i1 = this.doArchtypeCheck ? temp.ofArchtype(FRUIT_ARCHTYPEID).once() : temp.once()
+        const i2 = Request.deck(s, c).once()
+        const i3 = Request.hand(s, c).once()
         return i1.then(i2).then(i3)
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: [dry_card, dry_zone, dry_zone]): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: [CardDry, ZoneDry, ZoneDry]): Action[] {
         const [t, deck, hand] = input
-        const allTargets = Selector.grave(s, c).cards().ofName(t.name).all();
-        const res : Action[] = allTargets.map(t => ActionGenerator.a_move(s, t)(deck.top)(this.toCause(s, c)))
+        const allTargets = Request.grave(s, c).cards().ofName(t.name).all();
+        const res : Action[] = allTargets.map(t => ActionGenerator.a_move(t)(deck.top)(this.identity))
         let count = allTargets.length;
         while(count--){
-            res.push(deck.getAction_draw!(s, hand, this.toCause(s, c), false))
+            res.push(ActionGenerator.a_draw(deck)(hand)(this.identity, {
+                isTurnDraw : false
+            }))
         }
         return res
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return [];
     }
 
     static override getEffData(){
-        return {
-            base : quickEffectData.init.bool("doArchtypeCheck", 1).localizationKey("e_natural_growth")(),
-            upgrade : quickEffectData.init.bool("doArchtypeCheck", 0).localizationKey("e_natural_growth_upgrade")(),
-        } as const
+        return EffectData.init.bool("doArchtypeCheck", 1).localizationKey("e_natural_growth").upgrade(
+            EffectData.partial.bool("doArchtypeCheck", 0).localizationKey("e_natural_growth_upgrade"),
+        )
     }
 }
 
-class e_polination extends Effect<[inputData_card, inputData_zone]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class polination extends Effect<[TargetCard, TargetZone]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true;
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action){
-        const i1 = Selector.deck(s, c).cards().ofLevel(1).ofArchtype("a_fruit").hasEffects().once()
-        const i2 = Selector.grave(s, c).once()
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action){
+        const i1 = Request.deck(s, c).cards().ofLevel(1).ofArchtype(FRUIT_ARCHTYPEID).hasEffects().once()
+        const i2 = Request.grave(s, c).once()
         return i1.then(i2)
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: [dry_card, dry_zone]): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: [CardDry, ZoneDry]): Action[] {
         const [t, grave] = input
         const targetEffect = t.effects[0]
-        const temp = Selector.hand(s, c).cards().ofLevel(1)
-        const allCardsInHand = this.doArchtypeCheck ? temp.ofArchtype("a_fruit").all() : temp.all()
+        const temp = Request.hand(s, c).cards().ofLevel(1)
+        const allCardsInHand = this.doArchtypeCheck ? temp.ofArchtype(FRUIT_ARCHTYPEID).all() : temp.all()
         return [
-            ActionGenerator.a_move(s, t)(grave.top)(this.toCause(s, c)),
-            ...allCardsInHand.map(t2 => ActionGenerator.a_duplicate_effect(s, t, targetEffect)(t2)(this.toCause(s, c), {
+            ActionGenerator.a_move(t)(grave.top)(this.identity),
+            ...allCardsInHand.map(t2 => ActionGenerator.a_duplicate_effect(targetEffect, t)(t2)(this.identity, {
                 addedSubtype : ["e_st_once"]
             }))
         ]
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
     
     static override getEffData(){
-        return {
-            base : quickEffectData.init.bool("doArchtypeCheck", 1).localizationKey("e_natural_pollination")(),
-            upgrade : quickEffectData.init.bool("doArchtypeCheck", 0).localizationKey("e_natural_pollination_upgrade")(),
-        } as const
+        return EffectData.init.bool("doArchtypeCheck", 1).localizationKey("e_natural_pollination").upgrade(
+            EffectData.partial.bool("doArchtypeCheck", 0).localizationKey("e_natural_pollination_upgrade"),
+        )
     }
 }
 
-class e_presephone_condition extends Effect<[]> {
-    protected countDistinctName(c: dry_card, s: dry_system){
-        const x = Selector.field(s, c).cards().ofArchtype("a_fruit").ofLevel(1).all()
+class presephone_condition extends Effect<[]> {
+    protected countDistinctName(c: CardDry, s: SystemDry){
+        const x = Request.field(s, c).cards().ofArchtype(FRUIT_ARCHTYPEID).ofLevel(1).all()
         return new Set(x.map(x => x.name)).size
     }
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return this.countDistinctName(c, s) < 3
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action): void | undefined {
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: undefined): Action[] {
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
         return []
     }
-    override getDisplayInput(c: dry_card, s: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, s: SystemDry): (string | number)[] {
         return [this.countDistinctName(c, s)]
     }
     
     static override getEffData(){
-        return {
-            base : quickEffectData.lock.localizationKey("e_natural_persephone_condition")()
-        } as const
+        return EffectData.lock.localizationKey("e_natural_persephone_condition")
     }
 }
 
-class e_persephone_init extends Effect<[]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class persephone_init extends Effect<[]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true;
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action): void | undefined {
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: undefined): Action[] {
-        const allCardsOnField = Selector.field(s, c).cards().ofDifferentName(c).all()
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
+        const allCardsOnField = Request.field(s, c).cards().ofDifferentName(c).all()
         const count = allCardsOnField.length * 2
         return [
-            ...allCardsOnField.map(t => ActionGenerator.a_void(s, t)(this.toCause(s, c))),
-            ActionGenerator.a_add_status_effect("e_generic_stat_change_override", true)(s, c)(this.toCause(s, c), {
+            ...allCardsOnField.map(t => ActionGenerator.a_void(t)(this.identity)),
+            ActionGenerator.a_add_status_effect(generic_stat_change_override)(c)(this.identity, {
                 maxAtk : count
             })
         ]
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
     
     static override getEffData(){
-        return {
-            base : quickEffectData.init.fieldLock.localizationKey("e_natural_persephone_init")()
-        } as const
+        return EffectData.init.fieldLock.localizationKey("e_natural_persephone_init")
     }
 }
 
-class e_persephone_passive extends Effect<[]> {
-    protected override canRespondAndActivate(c: dry_card, s: dry_system, a: Action): boolean {
+class persephone_passive extends Effect<[]> {
+    protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return c.atk > 0 && a.is("a_attack") && a.targets[0].is(c);
     }
-    protected override getInputObj(c: dry_card, s: dry_system, a: Action): void | undefined {
+    protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
-    protected override activate(c: dry_card, s: dry_system, a: Action, input: undefined): Action[] {
-        const allEnemies = Selector.enemy(s, c).all()
+    protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
+        const allEnemies = Request.enemy(s, c).all()
         let ammt = (c.atk >= 2) ? 2 : 1;
         return [
-            ActionGenerator.a_add_status_effect("e_generic_stat_change_diff", true)(s, c)(this.toCause(s, c), {
+            ActionGenerator.a_add_status_effect(generic_stat_change_diff)(c)(this.identity, {
                 maxAtk : -ammt
             }),
-            ...allEnemies.map(t => ActionGenerator.a_deal_damage_card(s, t)(this.toCause(s, c), {
+            ...allEnemies.map(t => ActionGenerator.a_deal_damage_card(t)(this.identity, {
                 dmg : ammt,
-                dmgType : damageType.magic
+                dmgType : DamageType.magic
             }))
         ]
     }
-    override getDisplayInput(c: dry_card, system: dry_system): (string | number)[] {
+    override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
     
     static override getEffData(){
-        return {
-            base : quickEffectData.passive.fieldLock.localizationKey("e_natural_persephone_passive")()
-        }
+        return EffectData.passive.fieldLock.localizationKey("e_natural_persephone_passive")
     }
-}
-
-const cards : Record<string, Omit<cardData, "id">> = {
-    //white
-    c_apple   : quickCardData.def.stat(2, 2).archtype("a_fruit").upgradeStat(3, 3).effect(e_apple).img("naturalApple")(),
-    c_banana  : quickCardData.def.archtype("a_fruit").effect(e_banana).img("naturalBanana")(),
-    c_cherry  : quickCardData.def.archtype("a_fruit").effect(e_cherry).img("naturalCherry")(),
-    c_lemon   : quickCardData.def.stat(1, 2).archtype("a_fruit").upgradeStat(2, 2).effect(e_lemon).img("naturalLemon")(),
-    c_pom     : quickCardData.def.archtype("a_fruit").effect(e_pom).img("naturalPomegranate")(),
-    c_pumpkin : quickCardData.def.stat(3, 2).archtype("a_fruit").effect(e_pumpkin_init, e_pumpkin_trigger).img("naturalPumpkin")(),
-
-    //green
-    c_greenhouse : quickCardData.green.stat(0, 2).level(2).archtype("a_fruit").effect(e_greenhouse).img("naturalGreenhouse")(),
-    c_pollination : quickCardData.green.archtype("a_fruit").effect(e_polination).img("naturalPollination")(),
-
-    //blue
-    c_growth : quickCardData.blue.archtype("a_fruit").effect(e_growth).img("naturalGrowth")(),
-    c_spring : quickCardData.blue.stat(1, 2).archtype("a_fruit").effect(e_spring).img("naturalSpring")(),
-    c_summer : quickCardData.blue.stat(1, 2).archtype("a_fruit").effect(e_summer).img("naturalSummer")(),
-    c_autumn : quickCardData.blue.stat(1, 2).archtype("a_fruit").effect(e_autumn).img("naturalFall")(),
-    c_winter : quickCardData.blue.stat(1, 2).archtype("a_fruit").upgradeStat(1, 3).effect(e_winter_init, [e_dmgcap, {dmgCap : 1}, {}]).img("naturalWinter")(),
-
-    //red
-    c_demeter : quickCardData.red.stat(2, 8).archtype("a_fruit").effect(e_demeter_init, e_demeter_trigger, e_demeter_condition).img("naturalDemeter")(),
-    c_persephone : quickCardData.red.stat(0, 5).archtype("a_fruit").effect(e_persephone_init, e_persephone_passive, e_presephone_condition).img("naturalPersephone")(),
 }
 
 const allEffects = [
-    e_apple, e_banana, e_cherry, e_lemon, e_pom, e_pumpkin_init, e_pumpkin_trigger, 
-    e_greenhouse, e_polination,
-    e_spring, e_summer, e_autumn, e_winter_init, e_growth,
-    e_demeter_condition, e_demeter_init, e_demeter_trigger,
-    e_persephone_init, e_persephone_passive, e_presephone_condition
+    apple, banana, cherry, lemon, pom, pumpkin_init, pumpkin_trigger, 
+    greenhouse, polination,
+    spring, summer, autumn, winter_init, growth,
+    demeter_condition, demeter_init, demeter_trigger,
+    persephone_init, persephone_passive, presephone_condition
 ]
 
-export default class FruitModule extends GameModule {
-    override load(API: registryAPI): void {
-        allEffects.forEach(e => API.add_effect(e))
-        Object.entries(cards).forEach(([key, data]) => {
-            API.add_card(key, {id : key, ...data})
-        })
-    }
+//add all effects
+allEffects.forEach(e => ModdingAPI.addEffect(e))
+
+const cards : Record<string, () => CardDataWithVariantKeys> = {
+    // def used to be stat(0, 1) rarity white, level 1 
+    //white
+    apple   : CardData.white.level(1).stat(2, 2).ofArchtype(FRUIT_ARCHTYPEID).effects(apple).img("naturalApple").upgradeStat(3, 3),
+    banana  : CardData.white.level(1).stat(0, 1).ofArchtype(FRUIT_ARCHTYPEID).effects(banana).img("naturalBanana"),
+    cherry  : CardData.white.level(1).stat(0, 1).ofArchtype(FRUIT_ARCHTYPEID).effects(cherry).img("naturalCherry"),
+    lemon   : CardData.white.level(1).stat(0, 1).ofArchtype(FRUIT_ARCHTYPEID).effects(lemon).img("naturalLemon").upgradeStat(2, 2),
+    pom     : CardData.white.level(1).stat(0, 1).ofArchtype(FRUIT_ARCHTYPEID).effects(pom).img("naturalPomegranate"),
+    pumpkin : CardData.white.level(1).stat(3, 2).ofArchtype(FRUIT_ARCHTYPEID).effects(pumpkin_init, pumpkin_trigger).img("naturalPumpkin"),
+
+    //green
+    greenhouse  : CardData.green.level(2).stat(0, 2).ofArchtype(FRUIT_ARCHTYPEID).effects(greenhouse).img("naturalGreenhouse"),
+    pollination : CardData.green.level(1).stat(0, 1).ofArchtype(FRUIT_ARCHTYPEID).effects(polination).img("naturalPollination"),
+
+    //blue
+    growth : CardData.blue.stat(0, 1).ofArchtype(FRUIT_ARCHTYPEID).effects(growth).img("naturalGrowth"),
+    spring : CardData.blue.stat(1, 2).ofArchtype(FRUIT_ARCHTYPEID).effects(spring).img("naturalSpring"),
+    summer : CardData.blue.stat(1, 2).ofArchtype(FRUIT_ARCHTYPEID).effects(summer).img("naturalSummer"),
+    autumn : CardData.blue.stat(1, 2).ofArchtype(FRUIT_ARCHTYPEID).effects(autumn).img("naturalFall"),
+    winter : CardData.blue.stat(1, 2).ofArchtype(FRUIT_ARCHTYPEID).effects(winter_init, [e_dmgcap, {dmgCap : 1}]).img("naturalWinter").upgradeStat(1, 3),
+
+    //red
+    demeter    : CardData.red.stat(2, 8).ofArchtype(FRUIT_ARCHTYPEID).effects(demeter_init, demeter_trigger, demeter_condition).img("naturalDemeter"),
+    persephone : CardData.red.stat(0, 5).ofArchtype(FRUIT_ARCHTYPEID).effects(persephone_init, persephone_passive, presephone_condition).img("naturalPersephone"),
 }
+
+Object.entries(cards).forEach(([name, data]) => {
+    ModdingAPI.addCard(name, data)
+})

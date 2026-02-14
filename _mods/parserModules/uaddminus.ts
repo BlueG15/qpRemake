@@ -1,4 +1,4 @@
-import { DisplayComponent, ParserModule, moduleInputObject, parseOptions, mode, TextComponent } from '../../system-components/localization/xml-text-parser';
+import { DisplayComponent, ParserModule, ModuleInputObject, ParseOptions, ParseMode } from '../../system-components/localization/xml-text-parser';
 import type { nestedTree } from '../../core/misc';
 
 export default class uadduminusModule extends ParserModule {
@@ -17,12 +17,18 @@ export default class uadduminusModule extends ParserModule {
         })
     }
 
-    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<DisplayComponent> {
+    /** SO this is weird, I want this to work for both new and old styles of writing
+     * Yet, jkong use uadd and uminus for....the bracket
+     * Not the content
+     * This code below is supporting the "bracket" style of writing
+     * fix later mayber
+     */
+    override evaluate(cmd: string, args: ModuleInputObject, option: ParseOptions, raw: string): nestedTree<DisplayComponent> {
         let k = args.getChilren()
 
         this.recurModify(k, cmd)
 
-        if(option.mode == mode.debug) 
+        if(option.mode == ParseMode.debug) 
             return k
             
         //remove bracket by default
@@ -32,7 +38,7 @@ export default class uadduminusModule extends ParserModule {
         //     return []
         // }
         
-        if(option.mode == mode.catalog){
+        if(option.mode == ParseMode.catalog){
             // k = [
             //     [new TextComponent("[", undefined, cmd, raw)],
             //     k,

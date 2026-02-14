@@ -8,7 +8,8 @@ const enum Rarity {
     green,
     blue,
     ability,
-    algo
+    algo,
+    system
 }
 
 type RarityID = BrandedNumber<Rarity>

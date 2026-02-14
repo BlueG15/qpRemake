@@ -1,7 +1,7 @@
 import { ActionRegistry, ArchtypeRegistry, CardDataRegistry, DeckDataRegistry, EffectDataRegistry, EffectSubtypeRegistry, EffectTypeRegistry, ExtensionRegistry, OperatorRegistry, RarityRegistry, ZoneRegistry } from "../../core";
-import type { SystemDry, CardDry, EffectDry, ZoneDry, PositionDry, PlayerStat } from "../../core";
+import type { SystemDry, CardDry, EffectDry, ZoneDry, PositionDry, PlayerStat, CardDataID } from "../../core";
 import { LocalizedSystem, LocalizedAction, LocalizedCard, LocalizedEffect, LocalizedPlayer, LocalizedZone } from "../../core/localized";
-import type QueenSystem from "../../queen-system";
+import type {QueenSystem} from "../../queen-system";
 import type { Card } from "../../game-components/cards";
 import type { Effect } from "../../game-components/effects";
 import type { Zone } from "../../game-components/zones";
@@ -100,17 +100,22 @@ export default class Localizer {
         }
     }
 
-    private getLocalizedXML(keyOrID : string | number, type : SymbolType, mode : ParseMode = ParseMode.gameplay, lang? : LanguageID){
+    isCurrentLanguageHasKey(id : number, type : SymbolType){
+        return this.getLocalizedXML(id, type) !== undefined
+    }
+
+    private getLocalizedXML(KeyOrID : string | number, type : SymbolType, mode : ParseMode = ParseMode.gameplay, lang? : LanguageID){
         let key : string | undefined;
         let map : Record<string, string> | undefined;
 
-        if(typeof keyOrID === "number"){
-            const id = keyOrID
-            const temp = this.localizationMap.get(lang ?? this.languageID)
-            if(!temp) return;
+        const temp = this.localizationMap.get(lang ?? this.languageID)
+        if(!temp) return;
+        map = temp
+
+        if(typeof KeyOrID === "number"){
+            const id = KeyOrID
             key = RegistryTranslator[type].getKey(id as any)
-            map = temp
-        } else key = keyOrID;
+        } else key = KeyOrID;
         
         if(!key) return;
         if(!map) return;
@@ -118,7 +123,7 @@ export default class Localizer {
         return map[key]
     }
 
-    localizeStandaloneString(s : string, input : (number | string)[], mode = ParseMode.gameplay){
+    localizeStandaloneXML(s : string, input : (number | string)[], mode = ParseMode.gameplay){
         if(!this.loaded) return;
         const o = new ParseOptions(mode, input)
         return this.parser.parse(s, o)
@@ -222,13 +227,15 @@ export default class Localizer {
     }
 
     localizePlayer(stat : PlayerStat, mode : ParseMode = ParseMode.gameplay){
+        const deckData = DeckDataRegistry.get(stat.deck)
         return new LocalizedPlayer(
             stat.playerIndex, 
             stat.playerType, 
             stat.heart, 
             stat.maxHeart,
-            this.getAndParseLocalizedSymbol(stat.operator, "operator", mode)!,
-            this.getAndParseLocalizedSymbol(stat.deck ?? "null_deck", "deck", mode)!
+            this.getAndParseLocalizedSymbol(deckData.operator, "operator", mode)!,
+            this.getAndParseLocalizedSymbol(stat.deck ?? "null_deck", "deck", mode)!,
+            deckData.img ? CardDataRegistry.getData(deckData.img, CardDataRegistry.getBaseKey()).imgURL : undefined
         )
     }
 
@@ -257,13 +264,14 @@ export default class Localizer {
         return testObj
     }
 
-    localizeCardFromKey(s : QueenSystem | undefined, c_key : string, variants : string[] = [], mode : string = "gameplay"){
+    localizeCardFromKey(s : QueenSystem | undefined, c_key : CardDataID, variants : string[] = [], mode : ParseMode = ParseMode.gameplay){
         if(!this.loaded) return undefined;
         if(!s) return;
 
-        const card = s.cardLoader.getCard(c_key, variants)
-        return this.localizeCard(card)
+        const card = s.cardLoader.getCard(c_key, s.setting, variants)
+        return this.localizeCard(card, mode)
     }
+
     get isLoaded(){
         return this.loaded
     }

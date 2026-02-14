@@ -42,7 +42,7 @@ export class DefaultRenderer implements qpRenderer {
         return callback();
     }
     update(phase: TurnPhase, s: LocalizedSystem, a: Action, callback: () => any): void {
-        console.log(`Update called on phase ${phase}, on action ${a.type}`)
+        console.log(`Update called on phase ${s.phase}, on action ${a.name}`)
         return callback();
     }
     requestInput(inputSet : any, phase : TurnPhase, s : LocalizedSystem, a : Action, callback : (input : Target[]) => any) : void {

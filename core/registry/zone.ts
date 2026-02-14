@@ -1,7 +1,7 @@
 import type { BrandedNumber, BrandedString, safeSimpleTypes } from ".."
 import { IDRegistry, Registry } from "./base"
 import { PlayerTypeID } from "."
-import { ZoneData } from "../data-type"
+import { ZoneData } from "../zoneData"
 
 const enum ZoneType {
     null,

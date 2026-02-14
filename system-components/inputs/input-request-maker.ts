@@ -1,5 +1,5 @@
 // import type { dry_system, dry_zone, inputData_card, inputData_num, inputData_pos, inputData_zone } from "../../data/systemRegistry";
-import type { SystemDry, ZoneDry, CardDry, PositionDry, ZoneTypeID, TargetCard, TargetPos, TargetZone, ArchtypeID, PlayerSpecific, TargetNumber } from "../../core";
+import type { SystemDry, ZoneDry, CardDry, PositionDry, ZoneTypeID, TargetCard, TargetPos, TargetZone, ArchtypeID, PlayerSpecific, TargetNumber, CardName, CardDataID } from "../../core";
 import type { Tuple_any } from "../../core/misc";
 import { Target, ZoneRegistry } from "../../core";
 
@@ -11,6 +11,8 @@ import { e_automate_base } from "../../game-components/effects/default/e_status"
 
 type Internal_regen_card = CardDry & {___zone : ZoneDry}
 type Internal_regen_pos = PositionDry & {___zone : ZoneDry}
+
+//TODO : add EffectRequester with similarly good shorthands
 
 class CardRequester {
     constructor(
@@ -91,17 +93,18 @@ class CardRequester {
         return this
     }
 
-    ofName(s : string){
-        this.cards = this.cards.filter(c => c.name === s)
+    ofName(s : CardName | CardDataID){
+        this.cards = this.cards.filter(c => c.name === s || c.dataID === s)
         return this
     }
 
-    ofSameName(c_ : CardDry){
-        this.cards = this.cards.filter(c => c.name === c_.name)
+    ofSameName(c_ : {name? : CardName, dataID? : CardDataID}){
+        this.cards = this.cards.filter(c => c.name === c_.name || c.dataID === c_.dataID)
         return this
     }
-    ofDifferentName(c_ : CardDry){
-        this.cards = this.cards.filter(c => c.name !== c_.name)
+
+    ofDifferentName(c_ : {name? : CardName, dataID? : CardDataID}){
+        this.cards = this.cards.filter(c => c.name !== c.name && c.dataID !== c_.dataID)
         return this
     }
 
@@ -344,7 +347,7 @@ class NumberRequester {
     }
 }
 
-const Request = {
+export const Request = {
     //zones
     field(s : SystemDry, c : CardDry){
         return new ZoneRequester(s, s.zoneArr.filter(z => z.is(ZoneRegistry.field))).ofSamePlayer(s.getZoneOf(c))
@@ -367,7 +370,7 @@ const Request = {
     },
 
     oppositeZoneTo(s : SystemDry, c : CardDry){
-        const layout = s.getLayout()
+        const layout = s.layout
         if(!layout) return new ZoneRequester(s, []);
 
         const oppositeZoneID = layout.getOppositeZoneID(s.getZoneOf(c) as any)
@@ -395,5 +398,3 @@ const Request = {
         return new NumberRequester(s, merged)
     },
 }
-
-export default Request

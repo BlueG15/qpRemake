@@ -3,6 +3,7 @@ import type { Setting } from "../../core/settings";
 import { PlayerTypeID, ZoneData, ZoneRegistry, ZoneTypeID } from "../../core";
 import ZoneStack from "../../game-components/zones/zone-stack";
 import ZoneGrid from "../../game-components/zones/zone-grid";
+import { Registry } from "../../core/registry/base";
 
 type ZoneContructor = new (...p : ConstructorParameters<typeof Zone>) => Zone
 
@@ -18,6 +19,8 @@ export default class ZoneLoader {
         this.loadDefault(ZoneRegistry.grave,   )
         this.loadDefault(ZoneRegistry.hand,    )
         this.loadDefault(ZoneRegistry.void,    )
+        this.loadDefault(ZoneRegistry.storage, )
+        // this.loadDefault(ZoneRegistry.system,  )
         this.loadDefault(ZoneRegistry.field,   ZoneGrid )
     }
 
@@ -28,12 +31,15 @@ export default class ZoneLoader {
     //private instanceCache : Map<string, Zone> = new Map()
     
     private loadDefault(type : ZoneTypeID, constructor : ZoneContructor = ZoneStack){
-        this.load(type, constructor, ZoneRegistry.getData(type))
+        this.load(type, ZoneRegistry.getData(type), constructor)
     }
 
-    load(key : ZoneTypeID, c? : ZoneContructor, data? : ZoneData, ){
-        if(!c && !data) return; //error
+    load(key : ZoneTypeID | string, data : ZoneData, c : ZoneContructor){
+        if(typeof key === "string"){
+            key = Registry.add(ZoneRegistry, key, data)
+        }
         this.storage.set(key, {class : c, data})
+        return key
     };
 
     get(key : ZoneTypeID){
@@ -58,7 +64,7 @@ export default class ZoneLoader {
         let data = this.getData(zDataID)
         if(!data) return;
         
-        let runID = Utils.dataIDToUniqueID(zClassID, this.nextID, s, zDataID, playerType, pid)
-        return new zclass(-1, runID, zDataID, zClassID, playerType, pid, data)
+        let runID = Utils.formatDataIDtoUniqueID(zClassID, this.nextID, s, zDataID, playerType, pid)
+        return new zclass(-1, zDataID, zClassID, playerType, pid, data)
     }
 } 

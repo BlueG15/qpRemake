@@ -1,5 +1,15 @@
 import type { Action, SystemDry, EffectDry, CardDry } from "../../../core";
-import { EffectControlCode, EffectModifier, ActionGenerator, ZoneRegistry } from "../../../core";
+import { EffectControlCode, ActionGenerator, ZoneRegistry, Target } from "../../../core";
+import { EffectModifier } from "../../../core/interface";
+
+export class BlankEffectModifier extends EffectModifier {
+    override canRespondAndActivate(eff: EffectDry, c: CardDry, system: SystemDry, a: Action): EffectControlCode {
+        return EffectControlCode.DoNothingAndPass
+    }
+    override overrideActivateResults(eff: EffectDry, c: CardDry, system: SystemDry, res: Action[]): Action[] {
+        return res
+    }
+}
 
 export class Trigger extends EffectModifier {
     canRespondAndActivate(e : EffectDry, c: CardDry, system: SystemDry, a: Action){

@@ -26,6 +26,8 @@ const lib_parse_option = {
  * but is extendable worth it?
  */
 
+const PathFromThisFileToRoot = "../../../"
+
 export class Parser {
     private loaded = false;
     private moduleArr : ParserModule[] = []
@@ -34,13 +36,18 @@ export class Parser {
 
     //
     async load(l : LoadOptions){
-        let path = l.modulePath
+        let path = PathFromThisFileToRoot + l.modulePath
         if(!path.endsWith("/")) path += "/";
         // console.log(`load triggered, ab to load ${l.modulesInUse.length} modules`)
         for(let x = 0; x < l.modulesInUse.length; x++){
             let i = l.modulesInUse[x]
             //start dynamic importing
-            let moduleClass = await import(path + i);
+            let moduleClass : undefined | {default? : new (...p : ConstructorParameters<typeof ParserModule>) => ParserModule}
+            try {
+                moduleClass = await import(path + i);
+            }catch(err){
+                //console.warn(`WARN: Cannot import module ${i} in path ${path + i}`);
+            }
             if(!moduleClass || !moduleClass.default){
                 console.warn(`WARN: Cannot import module ${i} in path ${path + i}`);
             } else {

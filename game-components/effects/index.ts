@@ -1,5 +1,5 @@
 export * from "./effect"
-export * from "./effectData"
+export * from "../../core/effectData"
 
 export * from "./default/e_defense"
 export * from "./default/e_generic"

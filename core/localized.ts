@@ -67,6 +67,7 @@ export class LocalizedPlayer {
         public maxHeart : number,
         public operator : LocalizedString,
         public deckName : LocalizedString,
+        public deckImg? : string,
     ){}
 }
 

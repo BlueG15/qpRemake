@@ -11,7 +11,8 @@ import type {
 } from "../interface"
 
 // import type { effectName, effectData_specific } from "../data/effectRegistry";
-import type { CardData, EffectData, CardPatchData } from "../data-type";
+import type { CardPatchData } from "../cardData";
+import type { EffectData, EffectDataPartial } from "../effectData";
 
 import type {
     safeSimpleTypes,
@@ -42,8 +43,8 @@ import {
 // import Position from "../../_components/positions";
 // import { inputApplicator, InputRequester } from "../inputs/actionInputGenerator";
 import { ZoneRegistry, ZoneTypeID } from "./zone";
-import { EffectDataID, EffectDataName } from ".";
-import { Registry } from "./base";
+import { EffectDataID, EffectName } from ".";
+import { IDRegistry, Registry } from "./base";
 import type { InputRequest } from "../../system-components/inputs";
 
 class ActionBase<
@@ -285,7 +286,7 @@ class ActionBase<
 
     getAttr(key : "canBeChainedTo") : boolean;
     getAttr(key : "canBeTriggeredTo") : boolean;
-    getAttr(key : keyof constructionObjType) : constructionObjType[typeof key];
+    getAttr<T_Key extends keyof constructionObjType>(key : T_Key) : constructionObjType[T_Key];
     getAttr(key: string | symbol | number){
         return this.attr.get(key as any)
     }
@@ -379,7 +380,7 @@ function ActionAssembler_base<
     T extends actionConstructionObj_variable<any>, 
 >(name : ActionName, targets : infoArr, cause : Target, info : T){
     const o2 = {
-        type : ActionRegistry[name] ?? -1,
+        type : ActionRegistry.getID(name) ?? ActionRegistry.a_null,
         targets : targets,
         cause : cause,
         ...info
@@ -502,42 +503,27 @@ function modifyActionContructor<
     targetType extends Exclude<ActionName, "a_modify_action">,
 >(type : targetType){
     return (s : SystemDry, action : Action<targetType>) => (cause : Target) => 
-        (p : Partial<ConstructionExtraParamsType<targetType>> & Partial<{
-                targets : TargetType<targetType>,
-                cause : Target,
-
-                canBeChainedTo : boolean,
-                canBeTriggeredTo : boolean
-            }>) => ActionAssembler_base<
+        (p : Partial<ConstructionExtraParamsType<targetType>>) => ActionAssembler_base<
                 [TargetAction], 
-                Partial<ConstructionExtraParamsType<targetType>> & Partial<{
-                    targets : TargetType<targetType>,
-                    cause : Target,
-
-                    canBeChainedTo : boolean,
-                    canBeTriggeredTo : boolean
-                }>
+                Partial<ConstructionExtraParamsType<targetType>>
             >("a_modify_action", [Target.action(action)], cause, p)
 }
 
 
-function addEffectContructor<
-    targetType extends EffectDataName,
-    isStatus_t extends boolean,
->(type : targetType, isStatus : isStatus_t){
-    return (s : SystemDry, card : CardDry) => 
-        (cause : Target, p : Partial<Omit<EffectData, "typeID" | "subTypeIDs">>) => 
+function addEffectContructor(isStatus : boolean){
+    return (type : EffectDataID | {dataID : EffectDataID}) => (card : CardDry) => 
+        (cause : Target, p? : EffectDataPartial) => 
         ActionAssembler_base<
-            [TargetCard],
-            Partial<Omit<EffectData, "typeID" | "subTypeIDs">> & {typeID : string}
-        >((isStatus ? "a_add_status_effect" : "a_add_effect"), [Target.card(card)], cause, {...p, typeID : type})
+            [TargetCard, TargetEffect],
+            {typeID : EffectDataID, patchData : EffectDataPartial | undefined}
+        >((isStatus ? "a_add_status_effect" : "a_add_effect"), [Target.card(card)] as any, cause, {typeID : typeof type === "number" ? type : type.dataID, patchData : p})
 }
 
 //Note : I tried to remove the prefix a_, it broke everything else
     // saying depth too deep in other files for the check a.is(...)
     // weird af
 
-let DefaultActionGenerator = {
+let ActionGenerator = {
     error: function(cause : Target, errorType : errorID){
         return ActionAssembler_base<[], {
             errorType : errorID
@@ -574,7 +560,6 @@ let DefaultActionGenerator = {
     }),
     a_destroy: ActionAssembler("a_destroy", Target.card),
     a_disable_card: ActionAssembler("a_disable_card", Target.card),
-    a_enable_card: ActionAssembler("a_enable_card", Target.card),
     a_execute: ActionAssembler("a_execute", Target.card),
     a_move: ActionAssembler("a_move", Target.card, Target.pos),  
     a_attack: ActionAssembler("a_attack", Target.card, {} as {
@@ -593,12 +578,12 @@ let DefaultActionGenerator = {
     a_reset_all_once : ActionAssembler("a_reset_all_once", Target.card),
 
     a_reset_effect: ActionAssembler("a_reset_effect", Target.effect),
-    a_activate_effect: ActionAssembler("a_activate_effect", Target.effect, Target.card),
+    a_activate_effect: ActionAssembler("a_activate_effect", Target.effect),
     a_internal_try_activate: ActionAssembler("a_internal_try_activate", Target.pos, {} as {
         log : LogInfoHasResponse
     }),
-    a_add_status_effect: addEffectContructor,
-    a_add_effect : addEffectContructor,
+    a_add_status_effect: addEffectContructor(true),
+    a_add_effect : addEffectContructor(false),
     a_duplicate_effect : ActionAssembler("a_duplicate_effect", Target.effect, Target.card, {} as {
         addedSubtype : string[]
     }), //duplicate partition of card[1] into card[0]
@@ -607,8 +592,8 @@ let DefaultActionGenerator = {
         overrideData? : CardPatchData,
         callback? : (c : CardDry) => Action[]
     }), //duplicate card onto position
-    a_remove_status_effect: ActionAssembler("a_remove_status_effect", Target.effect, Target.card),
-    a_remove_effect : ActionAssembler("a_remove_effect", Target.card, Target.effect),
+    a_remove_status_effect: ActionAssembler("a_remove_status_effect", Target.effect),
+    a_remove_effect : ActionAssembler("a_remove_effect", Target.effect),
     a_remove_all_effects : ActionAssembler("a_remove_all_effects", Target.card),
     
     a_modify_action: modifyActionContructor,
@@ -616,6 +601,8 @@ let DefaultActionGenerator = {
     a_shuffle: ActionAssembler("a_shuffle", Target.zone, {
         shuffleMap : {} as Map<number, number>
     }),
+
+    //do this as a typed reminder that the 2 input zones is deck and hand
     a_draw: ActionAssembler(
         "a_draw", 
         Target.zone as (deck : ZoneDry) => TargetZone, 
@@ -630,14 +617,12 @@ let DefaultActionGenerator = {
         applicator : (i : Target[]) => Action[]
     }),
 
-    a_delay : ActionAssembler("a_delay", {} as {
+    a_delay : ActionAssembler("a_delay", Target.card, {} as {
         delayAmmount : number,
-        delayCID : string, //cid
-        delayEID : string, //eid
     }),
 } as const;
 
-type ActionName = [
+type ActionNameArr = [
     //special
     "error",
     "a_null",
@@ -650,7 +635,6 @@ type ActionName = [
     "a_set_threat_level",
     "a_do_threat_burn",
     "a_force_end_game",  
-    "a_enable_card",
     "a_disable_card",
     "a_reset_card",
     "a_reset_effect",
@@ -695,31 +679,33 @@ type ActionName = [
     "a_duplicate_card",
 
     "a_delay",
-][number]
+]
+
+type ActionName = ActionNameArr[number]
 
 type ActionIDs = {[K in ActionName] : number}
 type ActionID = BrandedNumber<ActionIDs>
-const [ActionRegistry, ActionGenerator] = Registry.twoViews<ActionID, BrandedSpecific<ActionName, ActionIDs>, typeof DefaultActionGenerator>(DefaultActionGenerator)
+const ActionRegistry = IDRegistry.from<ActionID, BrandedSpecific<ActionName, ActionIDs>, ActionNameArr>(Object.keys(ActionGenerator) as any)
 
 export type ConstructionExtraParamsType<name extends ActionName> = 
     name extends "a_modify_action" ? {} :
-    name extends "a_add_effect" | "a_add_status_effect" ? any :
-    ExtractReturn_any<(typeof DefaultActionGenerator)[name]> extends ActionBase<any, any, infer T0> ? T0 : {}
+    // name extends "a_add_effect" | "a_add_status_effect" ? any :
+    ExtractReturn_any<(typeof ActionGenerator)[name]> extends ActionBase<any, any, infer T0> ? T0 : {}
 
 export type AttrType<name extends ActionName> = 
     name extends "a_modify_action" ? any :
-    name extends "a_add_effect" | "a_add_status_effect" ? {typeID : string, [key : string] : any} :
-    ExtractReturn_any<(typeof DefaultActionGenerator)[name]> extends ActionBase<any, infer T0, any> ? T0 : any
+    // name extends "a_add_effect" | "a_add_status_effect" ? {typeID : string, [key : string] : any} :
+    ExtractReturn_any<(typeof ActionGenerator)[name]> extends ActionBase<any, infer T0, any> ? T0 : any
 
 export type TargetType<name extends ActionName> = 
     name extends "a_modify_action" ? [TargetAction] :
-    name extends "a_add_effect" | "a_add_status_effect" ? [TargetCard] :
-    ExtractReturn_any<(typeof DefaultActionGenerator)[name]> extends ActionBase<infer T0, any, any> ? T0 : never
+    // name extends "a_add_effect" | "a_add_status_effect" ? [TargetCard] :
+    ExtractReturn_any<(typeof ActionGenerator)[name]> extends ActionBase<infer T0, any, any> ? T0 : never
 
 export type Action<
     name extends ActionName | undefined = undefined, 
     name2 extends (name extends "a_modify_action" ? Exclude<ActionName, "a_modify_action"> : undefined) | 
-                  (name extends "a_add_effect" | "a_add_status_effect" ? EffectDataName : undefined) | 
+                  (name extends "a_add_effect" | "a_add_status_effect" ? EffectName : undefined) | 
                   undefined = undefined
 > = name extends ActionName ? (
     name extends "a_modify_action" ? (
@@ -735,13 +721,15 @@ export type Action<
                 canBeTriggeredTo : boolean
             }>
         > : Action<"a_modify_action", "a_null">
-    ) : name2 extends EffectDataName ? (
-        ActionBase<
-            [TargetCard], 
-            ExtractInnerType<Partial<Omit<EffectData, "typeID" | "subTypeIDs">>> | string, 
-            Partial<Omit<EffectData, "typeID" | "subTypeIDs">> & {typeID : string}
-        >
-    ) : ActionBase<TargetType<name>, AttrType<name>, ConstructionExtraParamsType<name>>
+    ) 
+    // : name2 extends EffectName ? (
+    //     ActionBase<
+    //         [TargetCard], 
+    //         ExtractInnerType<Partial<Omit<EffectData, "typeID" | "subTypeIDs">>> | string, 
+    //         Partial<Omit<EffectData, "typeID" | "subTypeIDs">> & {typeID : string}
+    //     >
+    // ) 
+    : ActionBase<TargetType<name>, AttrType<name>, ConstructionExtraParamsType<name>>
 ) : ActionBase
 
 //filtering types

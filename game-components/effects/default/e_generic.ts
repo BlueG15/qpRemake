@@ -1,14 +1,13 @@
 import { ActionGenerator, type Action } from "../../../core/registry/action";
-import { damageType } from "../../../data/systemRegistry";
+import { DamageType } from "../../../core";
 import { Effect } from "../effect";
-import type { CardDry } from "../../cards/type";
+import type { CardDry } from "../../../core";
 import type { SystemDry } from "../../../core";
-import type { EffectData } from "..";
-import type { ZoneDry } from "../../zones";
-import { EffectDataGenerator } from "..";
+import type { ZoneDry } from "../../../core";
+import { EffectData } from "../../../core";
 import { ZoneRegistry } from "../../../core/registry/zone";
-import { InputDataZone } from "../../../system-components/inputs";
-import Request from "../../../system-components/inputs/input-request-maker";
+import { TargetZone } from "../../../core";
+import { Request } from "../../../system-components/inputs";
 
 export class e_attack extends Effect<[]> {
     protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
@@ -21,9 +20,9 @@ export class e_attack extends Effect<[]> {
         let atkCount = this.count
         const res : Action[] = []
         while(atkCount--) res.push(
-            ActionGenerator.attack(s, c)(this.identity, {
+            ActionGenerator.a_attack(c)(this.identity, {
                 dmg : c.atk,
-                dmgType : damageType.physical
+                dmgType : DamageType.physical
             })
         )
         return res
@@ -32,10 +31,8 @@ export class e_attack extends Effect<[]> {
         return [this.count]
     }
 
-    static override getEffData(): { base: EffectData; upgrade?: Partial<EffectData>; } {
-        return {
-            base : EffectDataGenerator.manual.num("count", 1)()
-        }
+    static override getEffData(){
+        return EffectData.manual.num("count", 1)
     }
 }
 
@@ -48,17 +45,15 @@ export class e_destroy_self extends Effect<[]> {
     }
     protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
         return [
-            ActionGenerator.destroy(s, c)(this.identity)
+            ActionGenerator.a_destroy(c)(this.identity)
         ]
     }
     override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
 
-    static override getEffData(): { base: EffectData; upgrade?: Partial<EffectData>; } {
-        return {
-            base : EffectDataGenerator.manual()
-        }
+    static override getEffData(){
+        return EffectData.manual
     }
 }
 
@@ -71,17 +66,15 @@ export class e_void_self extends Effect<[]> {
     }
     protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
         return [
-            ActionGenerator.a_void(s, c)(this.identity)
+            ActionGenerator.a_void(c)(this.identity)
         ]
     }
     override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
 
-    static override getEffData(): { base: EffectData; upgrade?: Partial<EffectData>; } {
-        return {
-            base : EffectDataGenerator.manual()
-        }
+    static override getEffData() {
+        return EffectData.manual
     }
 }
 
@@ -94,17 +87,15 @@ export class e_decompile_self extends Effect<[]> {
     }
     protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
         return [
-            ActionGenerator.a_decompile(s, c)(this.identity)
+            ActionGenerator.a_decompile(c)(this.identity)
         ]
     }
     override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
 
-    static override getEffData(): { base: EffectData; upgrade?: Partial<EffectData>; } {
-        return {
-            base : EffectDataGenerator.manual()
-        }
+    static override getEffData() {
+        return EffectData.manual
     }
 }
 
@@ -122,48 +113,44 @@ export class e_quick extends Effect<[]> {
         return []
     }
 
-    static override getEffData(): { base: EffectData; upgrade?: Partial<EffectData>; } {
-        return {
-            base : EffectDataGenerator.instant()
-        }
+    static override getEffData() {
+        return EffectData.instant
     }
 }
 
 export class e_deathcrave extends Effect<[]> {
     protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
-        return a.is("a_destroy") && !!s.getResolveOrigin(a, "a_attack")?.targets[0].is(c)
+        return a.is("a_destroy") && !!s.getResolveOrigin(a, "a_attack")?.targets[0].data.is(c)
     }
     protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
     protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
         return [
-            ActionGenerator.a_reset_card(s, c)(this.identity)
+            ActionGenerator.a_reset_card(c)(this.identity)
         ]
     }
     override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
 
-    static override getEffData(): { base: EffectData; upgrade?: Partial<EffectData>; } {
-        return {
-            base : EffectDataGenerator.trigger()
-        }
+    static override getEffData() {
+        return EffectData.trigger
     }
 }
 
 export class e_revenge extends Effect<[]> {
     protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
-        return a.is("a_deal_damage_card") && a.targets[0].is(c)
+        return a.is("a_deal_damage_card") && a.targets[0].data.is(c)
     }
     protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
     protected override activate(c: CardDry, s: SystemDry, a: Action, input: undefined): Action[] {
         return [
-            ActionGenerator.attack(s, c)(this.identity, {
+            ActionGenerator.a_attack(c)(this.identity, {
                 dmg : c.atk,
-                dmgType : damageType.physical
+                dmgType : DamageType.physical
             })
         ]
     }
@@ -171,25 +158,23 @@ export class e_revenge extends Effect<[]> {
         return []
     }
 
-    static override getEffData(): { base: EffectData; upgrade?: Partial<EffectData>; } {
-        return {
-            base : EffectDataGenerator.trigger()
-        }
+    static override getEffData() {
+        return EffectData.trigger
     }
 }
 
 export class e_reflect extends Effect<[]> {
     protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
-        return a.is("a_deal_damage_card") && a.targets[0].is(c)
+        return a.is("a_deal_damage_card") && a.targets[0].data.is(c)
     }
     protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
     protected override activate(c: CardDry, s: SystemDry, a: Action<"a_deal_damage_card">, input: undefined): Action[] {
         return [
-            ActionGenerator.attack(s, c)(this.identity, {
+            ActionGenerator.a_attack(c)(this.identity, {
                 dmg : a.flatAttr().dmg,
-                dmgType : damageType.physical
+                dmgType : DamageType.physical
             })
         ]
     }
@@ -197,39 +182,35 @@ export class e_reflect extends Effect<[]> {
         return []
     }
 
-    static override getEffData(): { base: EffectData; upgrade?: Partial<EffectData>; } {
-        return {
-            base : EffectDataGenerator.trigger()
-        }
+    static override getEffData() {
+        return EffectData.trigger
     }
 }
 
 export class e_volatile extends Effect<[]> {
     protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
-        return a.is("a_play", s, c, ZoneRegistry.z_field)
+        return a.is("a_play", s, c, ZoneRegistry.field)
     }
     protected override getInputObj(c: CardDry, s: SystemDry, a: Action): void | undefined {
         return;
     }
     protected override activate(c: CardDry, s: SystemDry, a: Action<"a_deal_damage_card">, input: undefined): Action[] {
         return [
-            ActionGenerator.a_replace_action(s, (
-                ActionGenerator.a_void(s, c)(this.identity)
-            ))(this.identity)
+            ActionGenerator.a_negate_action(this.identity, {
+                replaceWith : [ActionGenerator.a_void(c)(this.identity)]
+            })
         ]
     }
     override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
 
-    static override getEffData(): { base: EffectData; upgrade?: Partial<EffectData>; } {
-        return {
-            base : EffectDataGenerator.passive()
-        }
+    static override getEffData() {
+        return EffectData.passive
     }
 }
 
-export class e_grave_to_hand extends Effect<[InputDataZone]> {
+export class e_grave_to_hand extends Effect<[TargetZone]> {
     protected override canRespondAndActivate(c: CardDry, s: SystemDry, a: Action): boolean {
         return true;
     }
@@ -239,17 +220,15 @@ export class e_grave_to_hand extends Effect<[InputDataZone]> {
     protected override activate(c: CardDry, s: SystemDry, a: Action<"a_deal_damage_card">, input: [ZoneDry]): Action[] {
         const hand = input[0]
         return [
-            ActionGenerator.move(s, c)(hand.top)(this.identity)
+            ActionGenerator.a_move(c)(hand.top)(this.identity)
         ]
     }
     override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
         return []
     }
 
-    static override getEffData(): { base: EffectData; upgrade?: Partial<EffectData>; } {
-        return {
-            base : EffectDataGenerator.manual()
-        }
+    static override getEffData() {
+        return EffectData.manual
     }
 }
 

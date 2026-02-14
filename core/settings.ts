@@ -68,13 +68,13 @@ interface Setting {
 //TODO : move this into a static method over on system
 class DefaultSetting implements Setting {
     languageID = LanguageID.en
-    mods = [] //no mods
+    mods = ["fruit"]
     dynamic_id_len = 5
     id_style = IDStyle.minimal
     id_separator = ''
     max_id_count = 65536
-    modFolder_game = "../_mods/gameModules"
-    modFolder_parser = "../_mods/parserModules"
+    modFolder_game = "_mods/gameModules"
+    modFolder_parser = "_mods/parserModules"
     ignore_undefined_subtype = true
     ignore_undefined_effect  = true
     show_negative_stat = true

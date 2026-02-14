@@ -1,2 +1,2 @@
 export * from "./card"
-export * from "./dataGenerator"
+export * from "../../core/cardData"

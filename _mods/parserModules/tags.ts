@@ -1,4 +1,4 @@
-import { DisplayComponent, ParserModule, moduleInputObject, parseOptions } from '../../system-components/localization/xml-text-parser';
+import { DisplayComponent, ParserModule, ModuleInputObject, ParseOptions } from '../../system-components/localization/xml-text-parser';
 import type { nestedTree } from '../../core/misc';
 
 export default class tagsModule extends ParserModule {
@@ -17,7 +17,7 @@ export default class tagsModule extends ParserModule {
         })
     }
 
-    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): nestedTree<DisplayComponent> {
+    override evaluate(cmd: string, args: ModuleInputObject, option: ParseOptions, raw: string): nestedTree<DisplayComponent> {
         let IDs = (args.getAttr("ID") as string).split(" ")
         let final = args.getChilren()
 

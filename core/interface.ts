@@ -1,8 +1,9 @@
+import { DeckData } from "./cardData"
 import type { safeSimpleTypes } from "./misc"
-import type { OperatorID, DeckID, ZoneTypeID, PlayerTypeID, EffectControlCode, ActionName, ArchtypeID, EffectTypeID, EffectSubtypeID, CardDataID, EffectDataID } from "./registry"
+import type { OperatorID, DeckID, ZoneTypeID, PlayerTypeID, EffectControlCode, ActionName, ArchtypeID, EffectTypeID, EffectSubtypeID, CardDataID, EffectDataID, CardName, ZoneTypeName, EffectName } from "./registry"
 import type { Action } from "./registry/action"
 import type { Setting } from "./settings"
-import type { TargetEffect, Target, TargetCard, TargetPos, TargetZone } from "./target-type"
+import { Target } from "./target-type"
 
 export interface IdAble {
     id : string | number
@@ -22,13 +23,7 @@ export interface PlayerStat {
     playerIndex : number
     heart : number
     maxHeart : number
-    operator : OperatorID
-    deck? : DeckID
-    loadCardsInfo : {
-        dataID : string
-        variant : string[]
-        count : number
-    }[]
+    deck : DeckID
 }
 
 export interface PositionDry extends hasIdentity {
@@ -56,12 +51,14 @@ export interface Positionable {
 export interface EffectDry extends IdAble, hasIdentity {
     readonly id: string
     readonly dataID : EffectDataID
+    readonly name : EffectName,
     readonly canAct: boolean
     readonly attr : {
         get(key : string) : number | undefined,
         number(key : string) : number,
         bool(key : string) : boolean,
     }
+    is(obj : IdAble) : boolean
 }
 
 export interface EffectModifierDry {
@@ -78,6 +75,7 @@ export abstract class EffectModifier implements EffectModifierDry {
 export interface CardDry extends IdAble, hasIdentity {
     readonly id : string
     readonly dataID : CardDataID
+    readonly name : CardName,
     readonly variants : ReadonlyArray<string>
 
     readonly level : number
@@ -126,7 +124,7 @@ export interface ZoneDry extends IdAble, PlayerSpecific, hasIdentity {
     readonly id : number
     readonly dataID : number
     readonly classID : number
-    readonly name : string
+    readonly name : ZoneTypeName
 
     //player identifier
     readonly playerIndex : number
@@ -171,6 +169,8 @@ export interface ZoneDry extends IdAble, PlayerSpecific, hasIdentity {
     isExposed(c : Positionable) : boolean
     isOccupied(p : PositionLike) : boolean
     getAllPos() : PositionDry[]
+    isC2Behind(c1 : Positionable, c2 : Positionable) : boolean
+    isC2Infront(c1 : Positionable, c2 : Positionable): boolean
 
     //card API
     getCardByPosition(p : PositionLike) : CardDry | undefined
@@ -182,6 +182,8 @@ export interface ZoneDry extends IdAble, PlayerSpecific, hasIdentity {
 
     of(pid : number) : boolean;
     of(obj : PlayerSpecific | undefined) : boolean;
+
+    has(obj : Positionable) : boolean;
 }
 
 export interface SystemDry {

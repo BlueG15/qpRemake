@@ -1,8 +1,10 @@
 //For saving / loading
+import type { PlayerStat } from "./interface";
 import type { DeckID, EffectTypeID, OperatorID, PlayerTypeID, EffectDataID, EffectSubtypeID, ZoneTypeID, CardDataID } from "./registry";
 
 export class SerializedEffect {
     attr : Record<string, number> = {}
+    variants : string[] = []
     constructor(
         // public id : string, //generated again
         public dataID : EffectDataID,
@@ -30,6 +32,8 @@ export class SerializedCard {
         attr.forEach((val, key) => {
             this.attr[key] = val //Hopefully serializable
         })
+        effects.forEach(e => e.variants = this.variants)
+        statusEffects.forEach(e => e.variants = this.variants)
     }
 }
 
@@ -50,14 +54,7 @@ export class SerializedZone {
     }
 }
 
-export class SerializedPlayer {
-    constructor(
-        public pType : PlayerTypeID,
-        public heart : number,
-        public operator : OperatorID,
-        public deckName? : DeckID,
-    ){}
-}
+export type SerializedPlayer = PlayerStat
 
 export class SerializedTransform {
     constructor(

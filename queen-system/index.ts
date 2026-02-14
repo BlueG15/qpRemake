@@ -1,7 +1,7 @@
 import _node from "../system-components/action-tree/node";
 import _tree from "../system-components/action-tree/tree";
 import ZoneLoader from "../system-components/loader/loader_zone";
-import { ActionGenerator, ActionID, Action, ActionName, type LogInfo, CardDataRegistry, type OperatorID, TargetTypeID, type LogInfoHasResponse, ActionRegistry, GameRule, type PositionDry, ActionBase, type LogInfoNormal, type LogInfoResolve, type ZoneTypeID, type ZoneAttrID, GameRule_actions_can_be_modified, GameRule_actions_can_be_negated, GameRule_allow_add_status_effect, GameRule_allow_card_reset, GameRule_allow_turn_reset, GameRule_allow_dealing_damage_ahead, GameRule_allow_dealing_damage_to_cards, GameRule_allow_dealing_heart_damnage, GameRule_allow_decompile_card, GameRule_allow_destroy_card, GameRule_allow_draw, GameRule_allow_effect_reset, GameRule_allow_execute_card, GameRule_allow_move_cards, GameRule_allow_remove_all_effects, GameRule_allow_remove_all_status_effects, GameRule_allow_remove_status_effect, GameRule_allow_set_threat, GameRule_allow_shuffle, GameRule_threat_burn, GameRule_increment_threat_on_turn_end, GameRule_asks_effect_can_activate_twice, GameRule_allow_void_card, GameRule_attack_deals_damage_straight_ahead, GameRule_effects_can_be_activated, GameRule_cards_on_field_destroy_at_0_hp, GameRule_dealing_damage_ahead_when_no_target_deals_heart_dmg_equals_to_atk, GameRule_execute_also_do_physical_attack, GameRule_force_loss_on_heart_at_0, GameRule_turn_draw_also_do_turn_reset, GameRule_turn_start_also_do_turn_reset, type BrandedNumber } from "../core";
+import { ActionGenerator, ActionID, Action, ActionName, type LogInfo, CardDataRegistry, type OperatorID, TargetTypeID, type LogInfoHasResponse, ActionRegistry, GameRule, type PositionDry, ActionBase, type LogInfoNormal, type LogInfoResolve, type ZoneTypeID, type ZoneAttrID, GameRule_actions_can_be_modified, GameRule_actions_can_be_negated, GameRule_allow_add_status_effect, GameRule_allow_card_reset, GameRule_allow_turn_reset, GameRule_allow_dealing_damage_ahead, GameRule_allow_dealing_damage_to_cards, GameRule_allow_dealing_heart_damnage, GameRule_allow_decompile_card, GameRule_allow_destroy_card, GameRule_allow_draw, GameRule_allow_effect_reset, GameRule_allow_execute_card, GameRule_allow_move_cards, GameRule_allow_remove_all_effects, GameRule_allow_remove_all_status_effects, GameRule_allow_remove_status_effect, GameRule_allow_set_threat, GameRule_allow_shuffle, GameRule_threat_burn, GameRule_increment_threat_on_turn_end, GameRule_asks_effect_can_activate_twice, GameRule_allow_void_card, GameRule_attack_deals_damage_straight_ahead, GameRule_effects_can_be_activated, GameRule_cards_on_field_destroy_at_0_hp, GameRule_dealing_damage_ahead_when_no_target_deals_heart_dmg_equals_to_atk, GameRule_execute_also_do_physical_attack, GameRule_force_loss_on_heart_at_0, GameRule_turn_draw_also_do_turn_reset, GameRule_turn_start_also_do_turn_reset, type BrandedNumber, DeckID, DeckDataRegistry, GameRule_allow_add_effect, GameRule_card_can_be_disabled, GameRule_once_can_be_reset, GameRule_all_once_reset_reverts_to_single_reset, GameRule_effects_can_be_duplicated, GameRule_cards_can_be_duplicated, GameRule_effects_can_be_remove, GameRule_cards_can_be_delay, GameRule_clear_all_counters_reverts_to_remove_status_eff } from "../core";
 
 import { AutoInputOption, Setting } from "../core/settings";
 
@@ -30,8 +30,6 @@ import {
     TargetZone,
     TargetCard,
     TargetEffect,
-    TargetEffectType,
-    TargetEffectSubType,
     TargetNull,
     TargetPlayer,
     TargetPos,
@@ -62,7 +60,7 @@ import {
 import { ZoneLayout } from "../game-components/zones/zoneLayout";
 import EffectLoader from "../system-components/loader/effect-loader";
 import EffectTypeOrSubtypeLoader from "../system-components/loader/loader_type_subtype";
-import type { ModdingAPI } from "../system-components/modding/modding-api";
+import { loadModdingAPI } from "../system-components/modding/modding-api";
 
 // import type CardDry from "../dryData/CardDry";
 // import position from "../baseClass/position";
@@ -122,7 +120,7 @@ export class QueenSystem implements SystemDry {
         public setting : Setting,
         public layout : ZoneLayout | undefined = undefined, 
         public renderer : qpRenderer,
-        public gamerules : GameRule[] = QueenSystem.DEFAULTGAMERULES,
+        public gamerules : GameRule[] = QueenSystem.DEFAULT_GAMERULES,
     ){
         this.zoneLoader = new ZoneLoader()
         this.effectModifierLoader = new EffectTypeOrSubtypeLoader()
@@ -147,7 +145,7 @@ export class QueenSystem implements SystemDry {
 
     // load sections
 
-    static get DEFAULTGAMERULES() : GameRule[] {
+    static get DEFAULT_GAMERULES() : GameRule[] {
         return [ 
             new GameRule_allow_turn_reset(),
             new GameRule_allow_card_reset(),
@@ -162,12 +160,22 @@ export class QueenSystem implements SystemDry {
             new GameRule_allow_execute_card(),
             new GameRule_allow_move_cards(),
             new GameRule_allow_void_card(),
+
+            new GameRule_card_can_be_disabled(),
+            new GameRule_once_can_be_reset(),
+            new GameRule_all_once_reset_reverts_to_single_reset(),
+            new GameRule_effects_can_be_duplicated(),
+            new GameRule_cards_can_be_duplicated(),
+            new GameRule_effects_can_be_remove(),
+            new GameRule_cards_can_be_delay(),
+
+            new GameRule_clear_all_counters_reverts_to_remove_status_eff(),
             
             new GameRule_allow_add_status_effect(),
+            new GameRule_allow_add_effect(),
             new GameRule_allow_remove_all_effects(),
             new GameRule_allow_remove_all_status_effects(),
             new GameRule_allow_remove_status_effect(),
-            
 
             new GameRule_effects_can_be_activated(),
             new GameRule_asks_effect_can_activate_twice(),
@@ -205,20 +213,9 @@ export class QueenSystem implements SystemDry {
         this.gameRulesMap.set(rule.phase, map)
     }
 
-    addDeck(
-        loadCardsInfo : PlayerStat["loadCardsInfo"],
-        merge = false
-    ){
-        const p = this.playerData.at(-1)
-        if(!p) throw new Error("Tried to load deck info into a none-existent player")
-        merge ? p.loadCardsInfo.concat(loadCardsInfo) : p.loadCardsInfo = loadCardsInfo
-    }
-
     addPlayers(
         type : PlayerTypeID,
-        operator : OperatorID,
-        //optional
-        loadCardsInfo : PlayerStat["loadCardsInfo"] = [],
+        deck : DeckID,
         heart = 20, 
         maxHeart = heart,
     ){
@@ -228,8 +225,7 @@ export class QueenSystem implements SystemDry {
             playerIndex : pid,
             heart,
             maxHeart,
-            operator,
-            loadCardsInfo
+            deck,
         })   
         return pid as PlayerID
     }
@@ -288,6 +284,7 @@ export class QueenSystem implements SystemDry {
     }
 
     async load(gamestate? : SerializedSystem){
+        //TODO : figure out the proper load order for stuff from mods to load properly, I have no clue tbh
         if(gamestate){
             this.loadGamestate(gamestate)
         } else if(this.layout){
@@ -317,8 +314,11 @@ export class QueenSystem implements SystemDry {
             })
         }
         
-        if(this.playerData.length === 0) console.warn("No player loaded, if this is unintended, make sure to call addPlayer(...) before load");
-        this.loadSystemGameRules()        
+        if(this.playerData.length === 0) console.warn("No player loaded, if this is unintended, make sure to call queenSystem.addPlayer(...) before load");
+        this.loadSystemGameRules()   
+        
+        //initiate mod utils
+        loadModdingAPI(this)
 
         let arr = [
             this.localizer.load(new LoadOptions(this.setting.modFolder_parser, this.setting.parser_modules)),
@@ -329,7 +329,7 @@ export class QueenSystem implements SystemDry {
 
     loadGamestate(gamestate : SerializedSystem){
         function getEffectFromSerialized(s : QueenSystem, serialized_e : SerializedEffect){
-            const newEff = s.effectLoader.getEffect(serialized_e.dataID, s.setting, {
+            const newEff = s.effectLoader.getEffect(serialized_e.dataID, serialized_e.variants, s.setting, {
                 typeID : serialized_e.typeID,
                 subTypeIDs : serialized_e.subTypeIDs,
                 localizationKey : serialized_e.displayID
@@ -340,17 +340,7 @@ export class QueenSystem implements SystemDry {
             return newEff
         }
 
-        this.playerData = gamestate.players.map(
-            (p, index) => {return {
-                playerType : p.pType,
-                playerIndex : index,
-                heart : p.heart,
-                maxHeart : p.heart,
-                operator : p.operator,
-                deck : p.deckName,
-                loadCardsInfo : []
-            }
-        })
+        this.playerData = gamestate.players
 
         this.turnCount = gamestate.turn
         this.waveCount = gamestate.wave
@@ -777,7 +767,7 @@ export class QueenSystem implements SystemDry {
                     return res.map(pos => Target.pos(pos))
                 }
 
-                case TargetTypeID.effect : return this.map(2, e => { return Target.effect(e) })
+                case TargetTypeID.effect : return this.map(2, (e, c) => { return Target.effect(e, c) })
             }
             throw new Error(`get all input failed, type = ${t}`)
     }
@@ -796,8 +786,8 @@ export class QueenSystem implements SystemDry {
             case TargetTypeID.player: return T + String(a.data)
             case TargetTypeID.position: return T + a.data.toString() 
             case TargetTypeID.action: return T + a.data.id
-            case TargetTypeID.effectType: return T + a.data.id
-            case TargetTypeID.effectSubtype: return T + a.data.id
+            // case TargetTypeID.effectType: return T + a.data.id
+            // case TargetTypeID.effectSubtype: return T + a.data.id
             case TargetTypeID.gameRule : return T 
             case TargetTypeID.none : return T
             case TargetTypeID.system : return T
@@ -1058,7 +1048,7 @@ export class QueenSystem implements SystemDry {
 
     toSerialized(){
         return new SerializedSystem(
-            this.playerData.map(p => new SerializedPlayer(p.playerType, p.heart, p.operator, p.deck)),
+            this.playerData,
             this.zoneArr.map(z => 
                 new SerializedZone(z.classID, z.dataID, z.cardArr.map(
                         c => c ? new SerializedCard(

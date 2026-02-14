@@ -4,7 +4,7 @@ import type { Card } from "../cards";
 import { Position } from "../positions";
 import { PositionLike, Positionable, PlayerTypeID, PlayerSpecific, CardDry, SystemDry, ZoneDry, ZoneData, Action, errorID, PositionDry, ZoneTypeID, IdAble, TargetZone } from "../../core";
 import { ZoneAttrRegistry, ZoneRegistry, Target, ActionGenerator } from "../../core";
-import type QueenSystem from "../../queen-system";
+import type {QueenSystem} from "../../queen-system";
 
 export abstract class Zone implements ZoneDry {
     //list of boolean attributes:
@@ -17,18 +17,16 @@ export abstract class Zone implements ZoneDry {
 
     types : ReadonlyArray<ZoneTypeID>
     readonly dataID: ZoneTypeID;    
-    readonly name : string
+    get name() {return ZoneRegistry.getKey(this.classID)} //classID dominates here
     
     constructor(
         id : number, //changes on insert
-        name : string, //fixxed identifier
         dataID: ZoneTypeID, 
         classID? : ZoneTypeID, 
         playerType : PlayerTypeID | -1 = -1, 
         playerIndex = -1, 
         data?: ZoneData
     ) {
-        this.name = name;
         this.dataID = dataID;
 
         let t : ZoneTypeID[] | undefined = undefined
@@ -419,12 +417,9 @@ export abstract class Zone implements ZoneDry {
     }
 
     turnReset(a: Action) {
-
-        let res: Action[] = [];
         this.cardArr.forEach((i) => {
-            if(i) res.push(...i.reset());
+            if(i) i.reset();
         });
-        return res;
     }
 
     //can override section

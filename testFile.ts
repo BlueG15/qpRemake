@@ -8,6 +8,8 @@ import {
   ActionGenerator,
   ZoneRegistry,
   Target,
+  DeckDataRegistry,
+  runAllTests,
 } from "./index";
 
 async function main() {
@@ -17,8 +19,8 @@ async function main() {
 
   let s = new QueenSystem(setting, layout, renderer);
 
-  const pid1 = s.addPlayers(PlayerTypeID.player, OperatorRegistry.esper);
-  const pid2 = s.addPlayers(PlayerTypeID.enemy, OperatorRegistry.null);
+  const pid1 = s.addPlayers(PlayerTypeID.player, DeckDataRegistry.oops_all_blank);
+  const pid2 = s.addPlayers(PlayerTypeID.enemy, DeckDataRegistry.null_deck);
   await s.load();
 
   const playerZones = s.getAllZonesOfPlayer(pid1);
@@ -33,6 +35,9 @@ async function main() {
         Target.player(pid1), { isTurnDraw: false }
     ),
   );
+
+  //run tests
+  runAllTests(s)
 }
 
 main();

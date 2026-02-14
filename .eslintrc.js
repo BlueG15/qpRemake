@@ -16,7 +16,14 @@ export default [
     rules: {
       "no-var": "error",
       // "prefer-const": "warn",
-      "local/no-final-override": "error"
+      "local/no-final-override": "error",
+      "@typescript-eslint/consistent-type-imports": [
+        "error",
+        {
+          "prefer": "type-imports",
+          "fixStyle": "separate-type-imports"
+        }
+      ]
     }
   }
 ];

@@ -1,9 +1,9 @@
 import { 
     DisplayComponent, 
     ParserModule, 
-    moduleInputObject, 
-    parseOptions, 
-    iconID, 
+    ModuleInputObject, 
+    ParseOptions, 
+    IconID, 
     IconComponent, 
     ImageComponent 
 } from '../../system-components/localization/xml-text-parser';
@@ -14,14 +14,14 @@ export default class imgModule extends ParserModule {
     override requiredAttr = [[], []];
     override doCheckRequiredAttr = false;
 
-    private getIconID(key : string) : [iconID, boolean] {
-        let k = key as keyof typeof iconID;
-        let x = iconID[k];
-        if(!x) return [iconID.crash, false];
+    private getIconID(key : string) : [IconID, boolean] {
+        let k = key as keyof typeof IconID;
+        let x = IconID[k];
+        if(!x) return [IconID.crash, false];
         return [x, true];
     }
 
-    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): DisplayComponent[] {
+    override evaluate(cmd: string, args: ModuleInputObject, option: ParseOptions, raw: string): DisplayComponent[] {
         let isInIconMode = false
         
         let str = args.getAttr('id');

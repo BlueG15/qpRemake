@@ -13,6 +13,7 @@ import {
     type TargetCard,
     Target,
     RarityRegistry,
+    CardDataRegistry,
  } from "../../core";
 import type { ArchtypeID, CardDataID, RarityID } from "../../core";
 
@@ -118,6 +119,7 @@ export class Card implements CardDry {
     get effectIDs() : string[] {return this.effects.map(i => i.id)}
     get imgUrl() : string | undefined {return this.originalData.imgURL}
     get dataID() : CardDataID {return this.originalData.dataID}
+    get name() {return CardDataRegistry.getKey(this.dataID)}
     
     get archtype(){return this.originalData .archtype}
 
@@ -160,10 +162,12 @@ export class Card implements CardDry {
     }
 
     disable(){
-        this.effects.forEach(e => e.disable())
+        this.canAct = false
+        this.totalEffects.forEach(e => e.disable())
     }
 
     enable(){
+        this.canAct = true
         this.effects.forEach(e => e.enable())
     }
 
@@ -177,9 +181,8 @@ export class Card implements CardDry {
 
     //misc APIs
     //this is specicfically for step2 - resolution of effects
-    reset() : Action[] {
-        this.canAct = true;
-        return this.totalEffects.flatMap(i => i.reset());
+    reset(){
+        this.enable()
     }
 
     //status effects stuff

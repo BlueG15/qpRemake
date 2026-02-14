@@ -1,6 +1,6 @@
-import type { BrandedNumber, BrandedSpecific, BrandedString } from "../misc";
-import type { DeckData } from "../data-type";
-import { IDRegistry, Registry } from "./base";
+import type { BrandedNumber, BrandedString } from "../misc";
+import type { DeckData } from "../cardData";
+import { Registry } from "./base";
 import { CardDataRegistry } from "./card";
 import { OperatorRegistry } from "./operator";
 
@@ -8,9 +8,13 @@ type Decks = ["oops_all_blank", "null_deck"]
 type DeckName = BrandedString<Decks>
 type DeckID = BrandedNumber<Decks>
 
-const DefaulDecks : Record<Decks[number], Omit<DeckData, "id">> = {
+const DefaulDecks : Record<Decks[number], DeckData> = {
     oops_all_blank : {
-        cards : new Array(5).fill(CardDataRegistry.c_blank),
+        cards : [{
+            dataID : CardDataRegistry.c_blank,
+            variants : ["base"],
+            count : 5,
+        }],
         operator : OperatorRegistry.esper,
     },
     null_deck : {
@@ -19,7 +23,7 @@ const DefaulDecks : Record<Decks[number], Omit<DeckData, "id">> = {
     }
 }
 
-const DeckDataRegistry = Registry.from<DeckID, DeckName, Omit<DeckData, "id">, typeof DefaulDecks>(DefaulDecks)
+const DeckDataRegistry = Registry.from<DeckID, DeckName, DeckData, typeof DefaulDecks>(DefaulDecks)
 
 export {
     DeckID,

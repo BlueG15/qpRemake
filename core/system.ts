@@ -23,8 +23,8 @@ export interface LogInfoResolve {
 export type LogInfo = LogInfoNormal | LogInfoResolve | LogInfoHasResponse
 
 export const enum DamageType {
-    "physical" = 0,
-    "magic",
+    physical = 0,
+    magic,
 }
 
 export const enum TurnPhase {

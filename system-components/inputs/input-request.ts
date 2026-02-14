@@ -65,7 +65,7 @@ export class InputRequest<
         return !!this.next()?.isValidInput(s, i)
     }
 
-    then<T_Arr2 extends Target[]>(r : InputRequest<T_Arr>) {
+    then<T_Arr2 extends Target[]>(r : InputRequest<T_Arr2>) {
         this.chain.push(...r.chain)
         return this as InputRequest<[...T_Arr, ...T_Arr2]>
     }

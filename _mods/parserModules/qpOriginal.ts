@@ -4,9 +4,9 @@ import sectionIDModule from "./sectionID";
 import tagsModule from "./tags";
 import uadduminusModule from "./uaddminus";
 import variantCheckModule from "./variantCheck";
-import { modPack } from "../../system-components/localization/xml-text-parser";
+import { ParserModulePack } from "../../system-components/localization/xml-text-parser";
 
-class qpOriginalPack extends modPack {
+class qpOriginalPack extends ParserModulePack {
     constructor(){
         super()
         this.moduleArr = [

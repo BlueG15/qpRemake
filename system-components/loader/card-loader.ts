@@ -1,7 +1,8 @@
-import { Card } from "../../game-components/cards";
-import { CardDataRegistry, EffectDataRegistry, type CardData, type CardDataID, type CardDataUnified, type EffectData, type EffectDataID, type Setting } from "../../core";
+import { Card, CardDataWithVariantKeys } from "../../game-components/cards";
+import { CardDataRegistry, CardPatchData, CardPatchDataFull, type CardDataID, type CardDataUnified, type EffectData, type EffectDataID, type Setting } from "../../core";
 import type EffectLoader from "./effect-loader";
 import { Effect } from "../../game-components/effects";
+import { DoubleKeyRegistry, Registry } from "../../core/registry/base";
 
 //Cards have 2 parts
 
@@ -18,13 +19,30 @@ export default class CardLoader {
     private effectHandler : EffectLoader
 
     constructor(effectHandler : EffectLoader){
+
         this.effectHandler = effectHandler
     }
 
-    load(key : string, data : CardData, c? : new (...p : ConstructorParameters<typeof Card>) => Card){
-        const id = CardDataRegistry.add(key, data)
+    loadClass(id : CardDataID, c : new (...p : ConstructorParameters<typeof Card>) => Card){
+        this.classCache.set(id, c)
+    }
+
+    loadNew(key : string, data : CardPatchDataFull, c? : new (...p : ConstructorParameters<typeof Card>) => Card){
+        const id = DoubleKeyRegistry.addNew(CardDataRegistry, key, data)
         if(c) {
-            this.classCache.set(id, c);
+            this.loadClass(id, c);
+        }
+        return id
+    }
+
+    loadNewVariantData(id : CardDataID, variantName : string, data : CardPatchData){
+        DoubleKeyRegistry.addExisting(CardDataRegistry, id, variantName, data)
+    }
+
+    loadBulk(key : string, data : CardDataWithVariantKeys, c? : new (...p : ConstructorParameters<typeof Card>) => Card){
+        const id = DoubleKeyRegistry.addBulk(CardDataRegistry, key, data)
+        if(c) {
+            this.loadClass(id, c);
         }
         return id
     }
@@ -32,10 +50,16 @@ export default class CardLoader {
     getCard(
         cid : CardDataID, 
         s : Setting, 
-        variantid? : string[],
+        variantid : string[] = ["base"],
     ) : Card | undefined {
-        let data = CardDataRegistry.getData(cid)
-        if(!data) return undefined
+        let data = CardDataRegistry.getAllData(cid)
+        if(!data) return;
+
+        let baseData = data[CardDataRegistry.getBaseKey()]
+        if(!baseData){
+            console.log("In Card loader, Invalid data somehow, no base", JSON.stringify(baseData))
+            return undefined
+        }
 
         let cclass = this.classCache.get(cid)
         if(!cclass) cclass = Card
@@ -44,34 +68,19 @@ export default class CardLoader {
         c = (c) ? (c + 1) % s.max_id_count : 0;
         this.countCache.set(cid, c); 
 
-        let runID = variantid ? Utils.dataIDToUniqueID(cid, c, s, ...variantid) : Utils.dataIDToUniqueID(cid, c, s);
-
-        if(!data.variantData) {
-            console.log("invalid data somehow", JSON.stringify(data))
-            return undefined
-        }
-
-        let baseData = data.variantData.base
+        let runID = variantid ? Utils.formatDataIDtoUniqueID(cid, c, s, ...variantid) : Utils.formatDataIDtoUniqueID(cid, c, s);
 
         let d : CardDataUnified = {
             id : runID, 
             dataID : cid,
-            variants : variantid ?? ["base"],
+            variants : variantid,
             ...baseData
         }
 
-        if(variantid){
-            variantid.forEach(i => {
-                const pdata = data.variantData[i]
-                if(pdata){
-                    Utils.patchCardData(d, pdata)
-                }
-            })
-        }
+        const patchDatas = variantid ? variantid.flatMap(id => CardDataRegistry.isBaseKey(id) ? [] : data[id]) : []
+        if(patchDatas.length) d = Utils.patch<CardDataUnified>(d, ...patchDatas);
         
-        let effArr : Effect [] = []
-        // let effDataArr : EffectData[] = []
-        d.effects.forEach(i => {
+        let effArr : Effect [] = d.effects.flatMap(i => {
             let dataID : EffectDataID
             let dataObj : Partial<EffectData> | undefined
             if(Array.isArray(i)){
@@ -81,19 +90,15 @@ export default class CardLoader {
                 dataID = i
             }
 
-            const eObj : EffectData | undefined = EffectDataRegistry.getData(dataID);
-            if(dataObj) Utils.patchGeneric(eObj, dataObj);
-
             // console.log("Trying to load eff: ", JSON.stringify(eObj))
-            let e = this.effectHandler.getEffect(dataID, s, eObj);
-            if(!e) return console.log(`Effect id not found: ${i}\n`);
+            let e = this.effectHandler.getEffect(dataID, variantid, s, dataObj);
+            if(!e){
+                if(s.ignore_undefined_effect) return [];
+                throw new Error(`In Card loader, Effect id not found: ${i}`);
+            } 
 
-            effArr.push(e);
+            return e;
         })
-        
-        if(effArr.length != Object.keys(d.effects).length && !s.ignore_undefined_effect){
-            return undefined
-        }
 
         return new cclass(s, d, effArr)
     }

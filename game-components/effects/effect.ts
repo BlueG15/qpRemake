@@ -1,5 +1,5 @@
 // import type { dry_card, dry_system, inputData } from "../../data/systemRegistry";
-import type { EffectData, EffectModifier, IdAble,  TargetEffect, EffectDry, SystemDry, CardDry, Action, EffectDataID } from "../../core";
+import type { EffectData, EffectModifier, IdAble,  TargetEffect, EffectDry, SystemDry, CardDry, Action, EffectDataID, EffectDataWithVariantKeys } from "../../core";
 import type { InputRequest } from "../../system-components/inputs";
 import { EffectControlCode, EffectDataRegistry, Target } from "../../core";
 
@@ -23,8 +23,10 @@ class EffectAttr {
 
 export abstract class Effect<T_InputTuple extends Target[] = Target[] | []> implements EffectDry {
     id: string;
-    private _dataID : EffectDataID;
-    get dataID(){return this._dataID}
+    static dataID : EffectDataID = 0 as any; //assign by the registry upon add
+    private __cachedCardOwner__ : CardDry | undefined
+    get dataID(){ return (this.constructor as typeof Effect).dataID }
+    get name() {return EffectDataRegistry.getKey(this.dataID)}
     type: EffectModifier;
     subTypes: EffectModifier[]
     originalData : EffectData
@@ -33,11 +35,10 @@ export abstract class Effect<T_InputTuple extends Target[] = Target[] | []> impl
     
     attr : EffectAttr;
 
-    constructor(id : string, dataID : EffectDataID, type : EffectModifier, subTypes: EffectModifier[] = [], data : EffectData){
+    constructor(id : string, type : EffectModifier, subTypes: EffectModifier[] = [], data : EffectData){
         this.id = id
         this.type = type
         this.subTypes = subTypes
-        this._dataID = dataID;
         this.originalData = data;
 
         const k = Object.entries(data).filter(([_, val]) => typeof val === "number") as [string, number][]
@@ -69,7 +70,7 @@ export abstract class Effect<T_InputTuple extends Target[] = Target[] | []> impl
         [K in keyof T_InputTuple] : T_InputTuple[K]["data"]
     }) : Action[];
 
-    static getEffData?() : {base : EffectData, upgrade? : Partial<EffectData>}
+    static getEffData? : () => ( (() => EffectDataWithVariantKeys) | EffectDataWithVariantKeys )
 
     private static getInputIfCanActivate(e : Effect<Target[]>, c : CardDry, s : SystemDry, a : Action){
         //preliminary canActivate check
@@ -148,6 +149,8 @@ export abstract class Effect<T_InputTuple extends Target[] = Target[] | []> impl
     {
         const input = Effect.getInputIfCanActivate(e, c, s, a)
         if(input === false) return;
+
+        e.__cachedCardOwner__ = c
 
         function onAfterActivate(res : Action[]){
             res = e.type.overrideActivateResults(e, c, s, res)
@@ -243,6 +246,7 @@ export abstract class Effect<T_InputTuple extends Target[] = Target[] | []> impl
 
     /**Returns this effect as a "cause" object to be input to actions*/
     get identity() : TargetEffect {
-        return Target.effect(this)
+        if(!this.__cachedCardOwner__) throw new Error("Inside effect, wtf?");
+        return Target.effect(this, this.__cachedCardOwner__)
     }
 }

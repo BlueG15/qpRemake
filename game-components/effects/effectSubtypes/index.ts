@@ -1,5 +1,6 @@
 import type { Action, SystemDry, EffectDry, CardDry } from "../../../core";
-import { EffectModifier, EffectControlCode, ActionGenerator, Target, ZoneRegistry } from "../../../core";
+import { EffectControlCode, ActionGenerator, Target, ZoneRegistry } from "../../../core";
+import { EffectModifier } from "../../../core/interface";
 
 export class Unique extends EffectModifier {
     override canRespondAndActivate(e: EffectDry, c : CardDry, system: SystemDry, a: Action){
@@ -37,8 +38,9 @@ export class Instant extends EffectModifier {
     }
     override overrideActivateResults(e: EffectDry, c: CardDry, system: SystemDry, a: Action[]){
         return [
-            ActionGenerator.modify_action("a_turn_end")(system, system.getRootAction())(
-                Target.effectSubType(this))({
+            ActionGenerator.a_modify_action("a_turn_end")(
+                system, system.getRootAction()
+            )(e.identity)({
                     doIncreaseTurnCount : false
             }),
             ...a

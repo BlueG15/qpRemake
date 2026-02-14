@@ -1,15 +1,15 @@
-import type QueenSystem from "../../queen-system";
+import type {QueenSystem} from "../../queen-system";
 import type { BrandedNumber, BrandedString } from "../misc";
-import { ActionGenerator, ActionRegistry, ZoneRegistry, type Action, type ActionBase, type ActionID, type ActionName, type oneTarget, type ZoneTypeID } from ".";
+import { ActionGenerator, ActionRegistry, ArchtypeID, ZoneRegistry, type Action, type ActionBase, type ActionID, type ActionName, type oneTarget, type ZoneTypeID } from ".";
 import { IDRegistry, Registry } from "./base";
 import { Target, TargetTypeID, type TargetCard, type TargetZone } from "../target-type";
 import { DamageType, TurnPhase } from "../system";
-import { Effect, StatusEffect_base } from "../../game-components/effects";
+import { e_automate_base, Effect, Once, StatusEffect_base } from "../../game-components/effects";
 import type { Card } from "../../game-components/cards";
 import type { Position } from "../../game-components/positions";
 import type { Zone } from "../../game-components/zones";
-import Request from "../../system-components/inputs/input-request-maker";
-import type { CardDry, ZoneDry } from "../interface";
+import {Request} from "../../system-components/inputs/input-request-maker";
+import type { CardDry, EffectDry, IdAble, PositionDry, ZoneDry } from "../interface";
 
 export type GameRuleID = BrandedNumber<GameRule>
 export type GameRuleName = BrandedString<GameRule>
@@ -50,7 +50,7 @@ export abstract class GameRule<T_expect_action extends ActionName | undefined | 
         }
         
         GameRule.instances.set(constructor, this);
-        constructor.id = GameRuleRegistry.add(constructor.name, this)
+        constructor.id = Registry.add(GameRuleRegistry, constructor.name, this)
     }
     
     readonly phase : TurnPhase = TurnPhase.resolve
@@ -64,7 +64,7 @@ export abstract class GameRule<T_expect_action extends ActionName | undefined | 
     abstract resolves(s : QueenSystem, a : T_expect_action extends "a_all" ? Action[] : Action<Exclude<T_expect_action, "a_all">>) : GameRuleControlData | Action[] | undefined | void;
     get displayID() : GameRuleName {return GameRuleRegistry.getKey((this.constructor as typeof GameRule).id)}
     get identity(){
-        return Target.gameRule()
+        return Target.gameRule(this)
     }
     
     getDisplayInput?(s : QueenSystem, a : Action) : (number | string)[]
@@ -79,7 +79,7 @@ export class GameRule_allow_remove_status_effect extends DefaultGameRule<"a_remo
     override classification = "a_remove_status_effect" as const;
     override resolves(s: QueenSystem, a: Action<"a_remove_status_effect">): Action[] | undefined | void {
         const e = a.targets[0].data
-        const c = a.targets[1].data as Card
+        const c = a.targets[0].owner.data as Card
         c.removeStatusEffect(e.id)
     }
 }
@@ -89,7 +89,7 @@ export class GameRule_allow_remove_all_status_effects extends DefaultGameRule<"a
     override classification = "a_clear_all_status_effect" as const;
     override resolves(s: QueenSystem, a: Action<"a_clear_all_status_effect">): Action[] | undefined | void {
         const c = a.targets[0].data as Card
-        return c.statusEffects.map(e => ActionGenerator.a_remove_status_effect(e)(c)(this.identity))
+        return c.statusEffects.map(e => ActionGenerator.a_remove_status_effect(e, c)(this.identity))
     }
 }
 
@@ -98,7 +98,7 @@ export class GameRule_allow_remove_all_effects extends DefaultGameRule<"a_remove
     override classification = "a_remove_all_effects" as const;
     override resolves(s: QueenSystem, a: Action<"a_remove_all_effects">): Action[] | undefined | void {
         const c = a.targets[0].data as Card
-        return c.statusEffects.map(e => ActionGenerator.a_remove_effect(c)(e)(this.identity))
+        return c.statusEffects.map(e => ActionGenerator.a_remove_effect(e, c)(this.identity))
     }
 }
 
@@ -107,12 +107,30 @@ export class GameRule_allow_add_status_effect extends DefaultGameRule<"a_add_sta
     override group = "effect"
     override classification = "a_add_status_effect" as const;
     override resolves(s: QueenSystem, a: Action<"a_add_status_effect">): Action[] | undefined | void {
-        let statusString = a.getAttr("typeID")
-        let eff = s.effectLoader.getEffect(statusString, s.setting);
+        let type = a.getAttr("typeID")
+        let patchData = a.getAttr("patchData")
+        const c = a.targets[0].data as Card
+        let eff = s.effectLoader.getEffect(type, c.variants, s.setting, patchData);
         if(!eff || !(eff instanceof StatusEffect_base)) return;
 
+        c.addStatusEffect(eff)
+        a.targets[1] = Target.effect(eff, c)
+        return [];
+    }
+}
+
+export class GameRule_allow_add_effect extends DefaultGameRule<"a_add_effect"> {
+    override group = "effect"
+    override classification = "a_add_effect" as const;
+    override resolves(s: QueenSystem, a: Action<"a_add_effect">): Action[] | undefined | void {
+        let type = a.getAttr("typeID")
+        let patchData = a.getAttr("patchData")
         const c = a.targets[0].data as Card
-        c.addStatusEffect(eff);
+        let eff = s.effectLoader.getEffect(type, c.variants, s.setting, patchData);
+        if(!eff || !(eff instanceof Effect)) return;
+
+        c.effects.push(eff)
+        a.targets[1] = Target.effect(eff, c)
         return [];
     }
 }
@@ -238,8 +256,7 @@ export class GameRule_allow_move_cards extends DefaultGameRule<"a_move"> {
 
         if(pos && zTo.validatePosition(pos) && pos.zoneID === c.pos.zoneID){
             console.log("move is triggered")
-            let idxTo = pos.zoneID
-            temp = s.getZoneWithID(idxTo)?.move(this.identity, c, pos)
+            temp = zTo.move(this.identity, c, pos)
             if(!temp) return;
             //move within zone is prioritized
             res.push(...temp);
@@ -319,7 +336,7 @@ export class GameRule_asks_effect_can_activate_twice extends DefaultGameRule<"a_
         return c.totalEffects.flatMap(e => {
             if(Effect.checkCanActivate(e, c, s, a)){
                 log.responses[c.id].push(e.id)
-                return [ActionGenerator.a_activate_effect(e)(c)(this.identity)]
+                return [ActionGenerator.a_activate_effect(e, c)(this.identity)]
             } 
             return []
         })
@@ -346,7 +363,7 @@ export class GameRule_allow_turn_reset extends DefaultGameRule<"a_turn_reset"> {
     override group = "flow-control"
     override classification = "a_turn_reset" as const;
     override resolves(s: QueenSystem, a: Action<"a_turn_reset">): Action[] | undefined | void {
-        return s.zoneArr.flatMap(i => i.turnReset(a))
+        s.zoneArr.forEach(i => i.turnReset(a))
     }
 }
 
@@ -354,8 +371,9 @@ export class GameRule_effects_can_be_activated extends DefaultGameRule<"a_activa
     override group = "effect"
     override classification = "a_activate_effect" as const;
     override resolves(s: QueenSystem, a: Action<"a_activate_effect">): Action[] | undefined | void {
-        const [eff, card] = a.targets
-        const input = Effect.tryActivate(eff.data as Effect, card.data, s, a)
+        const eff = a.targets[0].data
+        const card = a.targets[0].owner.data
+        const input = Effect.tryActivate(eff as Effect, card, s, a)
         
         if(!input) return [];
         if(!input[0]) return input[1]();
@@ -485,5 +503,97 @@ export class GameRule_increment_threat_on_turn_end extends DefaultGameRule<"a_tu
                 ActionGenerator.a_do_threat_burn(s.getCurrentPlayerID())(this.identity)
             ]
         }
+    }
+}
+
+export class GameRule_card_can_be_disabled extends DefaultGameRule<"a_disable_card"> {
+    override group = "card"
+    override classification = "a_disable_card" as const;
+    override resolves(s: QueenSystem, a: Action<"a_disable_card">): Action[] | undefined | void {
+        const card = a.targets[0].data as Card
+        card.disable()
+    }
+}
+
+export class GameRule_once_can_be_reset extends DefaultGameRule<"a_reset_once"> {
+    override group = "effect"
+    override classification = "a_reset_once" as const;
+    override resolves(s: QueenSystem, a: Action<"a_reset_once">): GameRuleControlData | Action[] | undefined | void {
+        const eff = a.targets[0].data as Effect
+        eff.subTypes.forEach(st => {
+            if(st instanceof Once) {
+                st.resetOnce()
+            }
+        })
+    }
+}
+
+export class GameRule_all_once_reset_reverts_to_single_reset extends DefaultGameRule<"a_reset_all_once"> {
+    override group = "card"
+    override classification = "a_reset_all_once" as const;
+    override resolves(s: QueenSystem, a: Action<"a_reset_all_once">): GameRuleControlData | Action[] | undefined | void {
+        const card = a.targets[0].data as Card
+        return card.totalEffects.map(e => 
+            ActionGenerator.a_reset_once(e, card)(this.identity)   
+        )
+    }
+}
+
+export class GameRule_effects_can_be_duplicated extends DefaultGameRule<"a_duplicate_effect"> {
+    override group = "effect"
+    override classification = "a_duplicate_effect" as const;
+    override resolves(s: QueenSystem, a: Action<"a_duplicate_effect">): GameRuleControlData | Action[] | undefined | void {
+        const eff = a.targets[0].data as Effect
+        const card = a.targets[1].data as Card
+        const newEff = s.effectLoader.getEffect(eff.dataID, card.variants, s.setting, eff.originalData)
+        if(newEff) card.effects.push(newEff);
+    }
+}
+
+export class GameRule_cards_can_be_duplicated extends DefaultGameRule<"a_duplicate_card"> {
+    override group = "card"
+    override classification = "a_duplicate_card" as const;
+    override resolves(s: QueenSystem, a: Action<"a_duplicate_card">): GameRuleControlData | Action[] | undefined | void {
+        const card = a.targets[0].data as Card
+        const pos = a.targets[1].data as Position
+        const zone = s.getZoneWithID(pos.zoneID)
+        if(!zone) return;
+        const newCard = s.cardLoader.getCard(card.dataID, s.setting, card.variants)
+        if(!newCard) return;
+        return zone.move(this.identity, newCard, pos)
+    }
+}
+
+export class GameRule_effects_can_be_remove extends DefaultGameRule<"a_remove_effect"> {
+    override group = "effect"
+    override classification = "a_remove_effect" as const;
+    override resolves(s: QueenSystem, a: Action<"a_remove_effect">): GameRuleControlData | Action[] | undefined | void {
+        const eff = a.targets[0].data as Effect
+        const card = a.targets[0].owner.data as Card
+        const idx = card.findEffectIndex(eff.id)
+        if(idx >= 0) card.effects.splice(idx, 1);
+    }
+}
+
+export class GameRule_cards_can_be_delay extends DefaultGameRule<"a_delay"> {
+    override group = "effect"
+    override classification = "a_delay" as const;
+    override resolves(s: QueenSystem, a: Action<"a_delay">): GameRuleControlData | Action[] | undefined | void {
+        const card = a.targets[0].data as Card
+        const delayAmmount = a.getAttr("delayAmmount")
+        card.statusEffects.forEach(eff => {
+            if(eff instanceof e_automate_base){
+                eff.delay(delayAmmount)
+            }
+        })
+    }
+}
+
+export class GameRule_clear_all_counters_reverts_to_remove_status_eff extends DefaultGameRule<"a_clear_all_counters"> {
+    override group = "card"
+    override classification = "a_clear_all_counters" as const;
+    override resolves(s: QueenSystem, a: Action<"a_clear_all_counters">): GameRuleControlData | Action[] | undefined | void {
+        const card = a.targets[0].data as Card
+        return card.counters.map(e => ActionGenerator.a_remove_status_effect(e, card)(this.identity))
     }
 }

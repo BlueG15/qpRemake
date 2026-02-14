@@ -1,5 +1,7 @@
 import type { Setting } from "../../core/settings";
 
+const PathFromThisFileToRoot = "../../"
+
 //mods have empty constructor
 export default class ModLoader<T = void> {
     private objectCache = new Map<string, T>()
@@ -10,7 +12,7 @@ export default class ModLoader<T = void> {
     }
 
     private async loadSingle(path : string, name : string) : Promise<void> {
-        const mod = await import(path + name) // just import is enough
+        const mod = await import(PathFromThisFileToRoot + path + name) // just import is enough
         this.objectCache.set(
             name, mod
         )

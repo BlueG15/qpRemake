@@ -1,5 +1,6 @@
-import { EffectModifier } from "./interface"
-import { PositionDry, EffectDry, CardDry, ZoneDry } from "./interface"
+import type { EffectModifier } from "./interface"
+import type { PositionDry, EffectDry, CardDry, ZoneDry } from "./interface"
+import type { GameRule } from "./registry"
 
 //TODO : refactor this file, this is probably bad code imo
 // not high priority tho
@@ -36,13 +37,16 @@ export const Target = {
         return {
             type : TargetTypeID.action,
             data : a,
+            get is() {
+                return this.data.is
+            }
         } as const
     },
 
-    gameRule(){
+    gameRule(g : GameRule){
         return {
             type : TargetTypeID.gameRule,
-            data : undefined
+            data : g
         } as const
     },
 
@@ -57,32 +61,56 @@ export const Target = {
         return {
             type : TargetTypeID.zone, 
             data : z, 
+            get is() {
+                return this.data.is
+            },
+            get has() {
+                return this.data.has
+            },
+            get of() {
+                return this.data.of
+            }
         } as const
     },
     card(c : CardDry){
         return {
             type : TargetTypeID.card, 
             data : c,
+            get is() {
+                return this.data.is
+            },
+            get has() {
+                return this.data.has
+            },
+            get pos() {
+                return this.data.pos
+            }
         } as const
     },
-    effect(e : EffectDry){
+    effect(e : EffectDry, c : CardDry){
         return {
             type : TargetTypeID.effect, 
             data : e,
+            owner : this.card(c),
+            get is(){
+                return this.data.is
+            }
         } as const
     },
-    effectType(t : EffectModifier){
-        return {
-            type : TargetTypeID.effectType,
-            data : t
-        } as const
-    },
-    effectSubType(st : EffectModifier){
-        return {
-            type : TargetTypeID.effectSubtype,
-            data : st
-        } as const
-    },
+    // effectType(t : EffectModifier, e : EffectDry, c : CardDry){
+    //     return {
+    //         type : TargetTypeID.effectType,
+    //         data : t,
+    //         owner : this.effect(e, c)
+    //     } as const
+    // },
+    // effectSubType(st : EffectModifier, e : EffectDry, c : CardDry){
+    //     return {
+    //         type : TargetTypeID.effectSubtype,
+    //         data : st,
+    //         owner : this.effect(e, c),
+    //     } as const
+    // },
     player(pid : number){
         return {
             type : TargetTypeID.player, 
@@ -93,6 +121,9 @@ export const Target = {
         return {
             type : TargetTypeID.position, 
             data : pos,
+            get pos(){
+                return this.data
+            }
         } as const
     },
 
@@ -112,8 +143,8 @@ export type TargetPos            =  ReturnType<typeof Target["pos"]>
 export type TargetZone           =  ReturnType<typeof Target["zone"]>
 export type TargetCard           =  ReturnType<typeof Target["card"]>
 export type TargetEffect         =  ReturnType<typeof Target["effect"]>
-export type TargetEffectType     =  ReturnType<typeof Target["effectType"]>
-export type TargetEffectSubType  =  ReturnType<typeof Target["effectSubType"]>
+// export type TargetEffectType     =  ReturnType<typeof Target["effectType"]>
+// export type TargetEffectSubType  =  ReturnType<typeof Target["effectSubType"]>
 export type TargetPlayer         =  ReturnType<typeof Target["player"]>
 
 export type Target = (
@@ -128,8 +159,8 @@ export type Target = (
     TargetZone           |
     TargetCard           |
     TargetEffect         |
-    TargetEffectType     |
-    TargetEffectSubType  |
+    // TargetEffectType     |
+    // TargetEffectSubType  |
     TargetPlayer         
 )
 
@@ -138,8 +169,8 @@ export type TargetSpecific<T extends TargetTypeID> =
     T extends TargetTypeID.action ? TargetAction :
     T extends TargetTypeID.system ? TargetSystem :
     T extends TargetTypeID.gameRule ? TargetGameRule :
-    T extends TargetTypeID.effectType ? TargetEffectType :
-    T extends TargetTypeID.effectSubtype ? TargetEffectSubType :
+    // T extends TargetTypeID.effectType ? TargetEffectType :
+    // T extends TargetTypeID.effectSubtype ? TargetEffectSubType :
     T extends TargetTypeID.number ? TargetNumber :
     T extends TargetTypeID.string ? TargetStr :
     T extends TargetTypeID.boolean ? TargetBool :

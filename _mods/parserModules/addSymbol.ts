@@ -1,8 +1,8 @@
 import { 
     DisplayComponent, 
     ParserModule, 
-    moduleInputObject, 
-    parseOptions, 
+    ModuleInputObject,
+    ParseOptions,
     SymbolComponent
 } from '../../system-components/localization/xml-text-parser';
 
@@ -12,7 +12,7 @@ export default class addSymbolModule extends ParserModule {
     override requiredAttr = [["id"]];
     override doCheckRequiredAttr = true;
 
-    override evaluate(cmd: string, args: moduleInputObject, option: parseOptions, raw: string): DisplayComponent[] {
+    override evaluate(cmd: string, args: ModuleInputObject, option: ParseOptions, raw: string): DisplayComponent[] {
         let x = args.getAttr("id");
         if(!x) return []
 

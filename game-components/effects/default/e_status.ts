@@ -1,11 +1,10 @@
 // import type Card from "./card";
 import { Effect } from "../effect";
 import { ActionGenerator, type Action } from "../../../core/registry/action";
-import { damageType } from "../../../data/systemRegistry";
-import type { CardDry } from "../../cards";
-import type { SystemDry } from "../../../core";
-import type { EffectData as effectData } from "../effectData";
-import { EffectDataGenerator } from "../effectData";
+import { DamageType } from "../../../core";
+import type { SystemDry, CardDry } from "../../../core";
+import type { EffectData as effectData } from "../../../core/effectData";
+import { EffectData } from "../../../core/effectData";
 
 export class StatusEffect_base extends Effect<[]> {
     override getDisplayInput(c: CardDry, system: SystemDry): (string | number)[] {
@@ -58,11 +57,11 @@ export class StatusEffect_base extends Effect<[]> {
             return true
         }
 
-        if(system.isInTriggerPhase && this.activateOnApply && a.is("a_add_status_effect") && a.flatAttr().typeID === this.id){
+        if(system.isInTriggerPhase && this.activateOnApply && a.is("a_add_status_effect") && a.targets[1].is(this)){
             return true
         }
 
-        if(system.isInChainPhase && this.activateOnRemove && a.is("a_remove_status_effect") && a.targets[0].is(c, this)){
+        if(system.isInChainPhase && this.activateOnRemove && a.is("a_remove_status_effect") && a.targets[0].is(this)){
             return true
         }
 
@@ -95,10 +94,8 @@ export class StatusEffect_base extends Effect<[]> {
         return res
     }
 
-    static override getEffData(): { base: effectData; upgrade?: Partial<effectData>; } {
-        return {
-            base : EffectDataGenerator.status()
-        }
+    static override getEffData(){
+        return EffectData.status
     }
 
     //status effects generally have 2 main types:
@@ -141,10 +138,8 @@ export class genericCounter extends StatusEffect_base {
         return [this.count]
     }
 
-    static override getEffData(): { base: effectData; upgrade?: Partial<effectData>; } {
-        return {
-            base : EffectDataGenerator.counter.count(1)()
-        }
+    static override getEffData(){
+        return EffectData.counter.count(1)
     }
 }
 
@@ -177,10 +172,8 @@ export class generic_stat_change_diff extends StatusEffect_base {
         return [this];
     }
 
-    static override getEffData(): { base: effectData; upgrade?: Partial<effectData>; } {
-        return {
-            base : EffectDataGenerator.status.num("maxAtk").num("maxHp").num("level")()
-        }
+    static override getEffData(){
+        return EffectData.status.num("maxAtk").num("maxHp").num("level")
     }
 }
 
@@ -204,16 +197,19 @@ export class generic_stat_change_override extends StatusEffect_base {
         return [mergeTargets.at(-1)! as generic_stat_change_override];
     }
 
-    static override getEffData(): { base: effectData; upgrade?: Partial<effectData>; } {
-        return {
-            base : EffectDataGenerator.status.num("maxAtk").num("maxHp").num("level")()
-        }
+    static override getEffData() {
+        return EffectData.status.num("maxAtk").num("maxHp").num("level")
     }
 }
 
 export class e_automate_base extends StatusEffect_base {
     get countdown() : number {return this.attr.get("countdown") ?? 0};
     set countdown(a : number){this.attr.set("countdown", a)};
+
+    delay(n : number){
+        if(n <= 0) return;
+        this.countdown = n
+    }
 
     protected act(c: CardDry, system: SystemDry, a: Action<"a_turn_end">): Action[] {return []}
 
@@ -230,9 +226,9 @@ export class e_automate_base extends StatusEffect_base {
 export class e_automate_attack extends e_automate_base {
     protected override act(c: CardDry, s: SystemDry, a: Action<"a_turn_end">): Action[] {
         return [
-            ActionGenerator.attack(s, c)(this.identity, {
+            ActionGenerator.a_attack(c)(this.identity, {
                 dmg : c.atk,
-                dmgType : damageType.physical
+                dmgType : DamageType.physical
             })
         ]
     }
