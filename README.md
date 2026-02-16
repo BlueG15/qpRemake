@@ -11,6 +11,7 @@ This README documents the current API and project structure for `v1.6.x`.
 - [Install](#install)
 - [Quick start](#quick-start)
 - [Core concepts](#core-concepts)
+- [Examples](#examples)
 - [Renderer contract](#renderer-contract)
 - [Saving and loading game state](#saving-and-loading-game-state)
 - [Modding](#modding)
