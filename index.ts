@@ -1,5 +1,6 @@
 //load globals #IMPORTANT, DO NOT REMOVE
 import globalLoader from "./global"
+import { QueenSystem } from "./queen-system"
 globalLoader.load()
 
 export * from "./core"
@@ -21,3 +22,5 @@ export * from "./system-components/localization/xml-text-parser"
 export * from "./system-components/localization/localizer"
 
 export * from "./system-components/test"
+
+export default QueenSystem

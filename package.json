@@ -27,6 +27,7 @@
   "dependencies": {
     "@rgrove/parse-xml": "^4.2.0",
     "node": "^25.6.1",
+    "qpremake": "^1.6.3",
     "typescript": "^5.9.2",
     "util": "^0.12.5"
   },

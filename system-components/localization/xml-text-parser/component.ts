@@ -107,7 +107,7 @@ export class DisplayComponent{
 
 export class TextComponent extends DisplayComponent{
     str : string
-    private num = -100 // ?? IDK what this is for and is kind scared to delete it, TODO : find out what this is doing
+    // private num = -100 // ?? IDK what this is for and is kind scared to delete it, TODO : find out what this is doing
     constructor(
         str : string,
         errMsg? : string,
@@ -119,7 +119,7 @@ export class TextComponent extends DisplayComponent{
         const num = Number(str)
         if(!isNaN(num) && str.trim().length){
             this.id = ComponentID.number
-            this.num = Number(str)
+            // this.num = Number(str)
         }
     }
 }

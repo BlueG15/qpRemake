@@ -1,3 +1,5 @@
+//TODO : fix the naming scheme of this file
+
 export default {
     //generic symbols
     yes : "YES",

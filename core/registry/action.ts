@@ -376,16 +376,16 @@ export type actionConstructionObj<T> = actionConstructionObj_fixxed  | (actionCo
 type ExtractInnerType<A> = A extends actionConstructionObj_variable<infer B> ? B : never
 
 function ActionAssembler_base<
-    infoArr extends Target[],
+    T_TargetArr extends Target[],
     T extends actionConstructionObj_variable<any>, 
->(name : ActionName, targets : infoArr, cause : Target, info : T){
+>(name : ActionName, targets : T_TargetArr, cause : Target, info : T){
     const o2 = {
         type : ActionRegistry.getID(name) ?? ActionRegistry.a_null,
         targets : targets,
         cause : cause,
         ...info
     }
-    return new ActionBase<infoArr, ExtractInnerType<T>, T>(o2);
+    return new ActionBase<T_TargetArr, ExtractInnerType<T>, T>(o2);
 }
 
 
@@ -751,5 +751,6 @@ export {
     ActionRegistry,
     ActionGenerator,
     ActionAssembler,
+    ActionAssembler_base,
     ActionBase
 }
