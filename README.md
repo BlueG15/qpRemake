@@ -60,21 +60,6 @@ main();
 - `load()` must be awaited before `start()`.
 - The engine is renderer-driven: gameplay pauses and waits for renderer callbacks.
 
-## Examples
-
-For practical usage patterns, see the **10 example files** in [`examples/`](./examples):
-
-- setup and bootstrapping
-- settings customization
-- custom renderer implementation
-- manual action processing
-- save/load snapshots
-- auto-input modes
-- state inspection
-- gamerule extension
-- modding API usage
-- running built-in test helpers
-
 ## Core concepts
 
 ### `QueenSystem`
